@@ -1,7 +1,10 @@
+import _root_.scoverage.ScoverageSbtPlugin
+import _root_.scoverage.ScoverageSbtPlugin.ScoverageKeys
 import sbt.Keys._
 import sbt.Tests.{SubProcess, Group}
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
+import scoverage.ScoverageSbtPlugin
 
 
 trait MicroService {
@@ -18,9 +21,21 @@ trait MicroService {
   lazy val plugins : Seq[Plugins] = Seq(play.PlayScala)
   lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
+  lazy val scoverageSettings = {
+    import ScoverageSbtPlugin._
+
+    Seq(
+      ScoverageKeys.coverageExcludedPackages := "<empty>;uk.gov.hmrc.birthregistrationmatching.config.*;testOnlyDoNotUseInAppConf.*;uk.gov.hmrc.birthregistrationmatching.views.*;prod.*;uk.gov.hmrc.BuildInfo.*;app.Routes.*;",
+      ScoverageKeys.coverageMinimum := 100,
+      ScoverageKeys.coverageFailOnMinimum := true,
+      ScoverageKeys.coverageHighlighting := true
+    )
+  }
+
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(Seq(play.PlayScala) ++ plugins : _*)
     .settings(playSettings : _*)
+    .settings(scoverageSettings: _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)

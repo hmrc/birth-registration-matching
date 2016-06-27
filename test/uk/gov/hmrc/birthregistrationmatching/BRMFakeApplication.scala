@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.birthregistrationmatching.controllers
+package uk.gov.hmrc.birthregistrationmatching
 
-import uk.gov.hmrc.play.microservice.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
-import scala.concurrent.Future
+import org.scalatest.Suite
+import play.api.test.FakeApplication
+import uk.gov.hmrc.play.test.WithFakeApplication
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
+/**
+ * Created by adamconder on 27/06/2016.
+ */
+trait BRMFakeApplication extends WithFakeApplication {
+  this: Suite =>
 
-trait MicroserviceHelloWorld extends BaseController {
+  val config : Map[String, _] = Map(
+    "csrf.sign.tokens" -> false,
+    "Test.microservice.services.auth.host" -> "localhost",
+    "Test.microservice.services.auth.port" -> "8500"
+  )
+  override lazy val fakeApplication = FakeApplication(additionalConfiguration = config)
 
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
 }
