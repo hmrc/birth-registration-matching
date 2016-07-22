@@ -1,0 +1,202 @@
+FORMAT: 1A
+
+# Birth Matching Registration Service
+
+NOTE: This is a draft of the API and is subject to change
+
+Birth Matching Registration Service is a service that allows you to check if the GRO for England and Wales contains a birth registration record for a given child.
+
+## Group Birth Registration Match
+
+## Check birth record exists [/api/v0/events/birth/{birthreferencenumber}/{?forenames}{&lastname}{&dateofbirth}{&gender}]
+
+Check for an existing birth record based on a set of child paramaters including birth certificate reference number
+
++ birthreferencenumber - unique 9 digit reference number found on birth certificate
++ forenames - childs forenames up to maximum of 4 values (space seperated)
++ lastname - childs lastname
++ dateofbirth - childs date of birth
++ gender - childs gender
+
++ Parameters
+    + birthreferencenumber: 123456789 (required, number)
+    + forenames: John (required, string)
+    + lastname:  Smith (required, string)
+    + dateofbirth: 2010-01-04 (required, string)
+    + gender: male (optional, string)
+
+### Check Birth [GET]
+
++ Response 200 (application/json)
+
+{
+  "data": {
+    "record-matched": true,
+  }
+}
+
+## Group Authenticate with service
+
+## Check birth record exists [/api/v0/oauth/login]
+
+The API requires a user/service to be authenticated
+
++ username - valid user of the service
++ password - valid password
+
++ Parameters
+    + username: validuser (required, string)
+    + password: validpassword (required, string)
+
+### Authenticate [POST]
+
++ Response 200 (application/json)
+
+{
+  "access_token": Op5HmMWzlxKE70W1y4MibiJUusZwZC25NOVBEx3ER4,
+}
+
+## Group Error and Messages
+
+## Check birth record exists [/api/v0/events/invalidendpoint]
+
+Failing to be authenticated could result in the following errors
+
++ username - valid user of the service
++ password - valid password
+
+### Error and Messages [GET]
+
++ Response 200 (application/json)
+
+{
+	"errors": [{
+		"code": "5",
+		"status": "400",
+		"title": "ID Invalid",
+		"details": "The id you supplied is invalid",
+		"links": {
+			"about": "http://example.org/docs/errors/#5"
+		}
+	}, {
+		"code": "6",
+		"status": "400",
+		"title": "ID field empty",
+		"details": "You must supply an id",
+		"links": {
+			"about": "http://example.org/docs/errors/#6"
+		}
+	}, {
+		"code": "7",
+		"status": "400",
+		"title": "DOB Invalid",
+		"details": "The DOB you supplied is invalid",
+		"links": {
+			"about": "http://example.org/docs/errors/#7"
+		}
+	}, {
+		"code": "8",
+		"status": "400",
+		"title": "DOB field empty",
+		"details": "You must supply a dob",
+		"links": {
+			"about": "http://example.org/docs/errors/#8"
+		}
+	}, {
+		"code": "9",
+		"status": "400",
+		"title": "Firstname Invalid",
+		"details": "The Firstname you supplied is invalid",
+		"links": {
+			"about": "http://example.org/docs/errors/#9"
+		}
+	}, {
+		"code": "10",
+		"status": "400",
+		"title": "Firstname field empty",
+		"details": "You must supply a Firstname",
+		"links": {
+			"about": "http://example.org/docs/errors/#10"
+		}
+	}, {
+		"code": "11",
+		"status": "400",
+		"title": "Lastname Invalid",
+		"details": "The Lastname you supplied is invalid",
+		"links": {
+			"about": "http://example.org/docs/errors/#11"
+		}
+	}, {
+		"code": "12",
+		"status": "400",
+		"title": "Lastname field empty",
+		"details": "You must supply a Lastname",
+		"links": {
+			"about": "http://example.org/docs/errors/#12"
+		}
+	}, {
+		"code": "15",
+		"status": "400",
+		"title": "Authentication Failed",
+		"details": "Your account could not be authenticated",
+		"links": {
+			"about": "http://example.org/docs/errors/#15"
+		}
+	}, {
+		"code": "30",
+		"status": "403",
+		"title": "Account Suspended",
+		"details": "Your account is suspended and is not permitted to access this feature",
+		"links": {
+			"about": "http://example.org/docs/errors/#30"
+		}
+	}, {
+		"code": "45",
+		"status": "400",
+		"title": "Invalid API Version",
+		"details": "The api version requested is retired and should no longer be used",
+		"links": {
+			"about": "http://example.org/docs/errors/#45"
+		}
+	}, {
+		"code": "60",
+		"status": "429",
+		"title": "Rate limit exceeded",
+		"details": "The request limit for this resource has been reached for the current rate limit window",
+		"links": {
+			"about": "http://example.org/docs/errors/#60"
+		}
+	}, {
+		"code": "75",
+		"status": "401",
+		"title": "Invalid or expired access token",
+		"details": "The access token used in the request is incorrect or has expired",
+		"links": {
+			"about": "http://example.org/docs/errors/#75"
+		}
+	}, {
+		"code": "90",
+		"status": "404",
+		"title": "SSL Required",
+		"details": "The access token used in the request is incorrect or has expired",
+		"links": {
+			"about": "http://example.org/docs/errors/#90"
+		}
+	}, {
+		"code": "105",
+		"status": "500",
+		"title": "Internal Error",
+		"details": "The service is down due to an unknown error",
+		"links": {
+			"about": "http://example.org/docs/errors/#105"
+		}
+	}, {
+		"code": "120",
+		"status": "404",
+		"title": "Endpoint no longer in use",
+		"details": "This endpoint has been retired and should not be used",
+		"links": {
+			"about": "http://example.org/docs/errors/#120"
+		}
+	}]
+}
