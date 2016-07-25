@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.birthregistrationmatching.controllers
+package uk.gov.hmrc.brm
 
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.birthregistrationmatching.BRMFakeApplication
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import org.scalatest.Suite
+import play.api.test.FakeApplication
+import uk.gov.hmrc.play.test.WithFakeApplication
 
+/**
+ * Created by adamconder on 27/06/2016.
+ */
+trait BRMFakeApplication extends WithFakeApplication {
+  this: Suite =>
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with BRMFakeApplication {
-
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
-
+  val config : Map[String, _] = Map(
+    "csrf.sign.tokens" -> false,
+    "Test.microservice.services.auth.host" -> "localhost",
+    "Test.microservice.services.auth.port" -> "8500"
+  )
+  override lazy val fakeApplication = FakeApplication(additionalConfiguration = config)
 
 }
