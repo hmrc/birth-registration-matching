@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.birthregistrationmatching.config
+package uk.gov.hmrc.brm.config
 
 import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
