@@ -1,5 +1,3 @@
 # microservice specific routes
 
 GET         /hello-world            uk.gov.hmrc.brm.controllers.MicroserviceHelloWorld.hello
-
-GET         /api/v0/events/birth    uk.gov.hmrc.brm.controllers.BirthEventsController.get(args)
