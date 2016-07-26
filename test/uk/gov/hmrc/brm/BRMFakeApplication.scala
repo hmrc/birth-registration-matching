@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.birthregistrationmatching
+package uk.gov.hmrc.brm
 
 import org.scalatest.Suite
 import play.api.test.FakeApplication
