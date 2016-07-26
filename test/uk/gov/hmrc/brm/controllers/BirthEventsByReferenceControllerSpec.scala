@@ -5,7 +5,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 /**
   * Created by chrisianson on 26/07/16.
   */
-class BirthEventsControllerSpec extends UnitSpec {
+class BirthEventsByReferenceControllerSpec extends UnitSpec {
 
   /**
     * - Should
