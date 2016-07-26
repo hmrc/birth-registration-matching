@@ -19,10 +19,9 @@ package uk.gov.hmrc.birthregistrationmatching.connectors
 import org.apache.http.client.methods.HttpPost
 import play.api.http.Status
 import play.api.libs.json.{Json, JsValue}
-import play.api.libs.ws.WSRequest
 import uk.gov.hmrc.birthregistrationmatching.config.WSHttp
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{Upstream5xxResponse, HttpResponse, HeaderCarrier}
+import uk.gov.hmrc.play.http.{HttpReads, Upstream5xxResponse, HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.http.ws.{WSGet, WSHttp}
 
 import scala.concurrent.Future
@@ -70,8 +69,18 @@ trait BirthConnector {
 object GROEnglandAndWalesConnector extends BirthConnector {
   override protected  val config : BirthConnectorConfig = GROEnglandAndWales()
 
+  def GROHeaderCarrier(accessToken : String)(implicit hc : HeaderCarrier) = {
+    HeaderCarrier()
+      .withExtraHeaders("Authorization" -> s"Bearer $accessToken")
+      .withExtraHeaders("Username" -> "")
+  }
+
+  implicit val httpReads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
+    override def read(method: String, url: String, response: HttpResponse) = response
+  }
+
   def getReference(ref: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
-    config.http.GET[HttpResponse](config.endpoint) map {
+    config.http.GET[HttpResponse](config.endpoint)(hc = GROHeaderCarrier("123456"), rds = httpReads) map {
       response =>
         response.status match {
           case Status.OK =>
