@@ -36,8 +36,6 @@ object JsonUtils {
       }
     }
 
-    Logger.debug(s"Loading JSON: $path")
-
     resourceAsString(path) match {
       case Some(x) =>
         Logger.debug(s"source: $x")
