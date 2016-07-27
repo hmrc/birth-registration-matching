@@ -40,9 +40,11 @@ trait BirthEventsController extends controller.BaseController {
 
   def post() = Action.async(parse.json) {
     implicit request =>
+
       Logger.debug(s"Request sent to birth events post")
       withJsonBody[JsValue] {
         json =>
+
           val ref = json.\("reference").as[String]
           val payloadFirstName = json.\("forename").as[String]
           val payloadSurname = json.\("surname").as[String]
@@ -57,8 +59,7 @@ trait BirthEventsController extends controller.BaseController {
                 s"""
                   |{
                   | "validated" : $isMatch
-
-                    |}
+                  |}
                 """.stripMargin)
 
               Ok(result)
