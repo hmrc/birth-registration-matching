@@ -17,9 +17,10 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.Logger
-import play.api.libs.json.{Json, JsValue}
-import play.api.mvc.Action
-import uk.gov.hmrc.brm.connectors.{GROEnglandAndWalesConnector, BirthConnector}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, Result}
+import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
+import uk.gov.hmrc.play.http.Upstream5xxResponse
 import uk.gov.hmrc.play.microservice.controller
 
 import scala.concurrent.Future
@@ -59,7 +60,12 @@ trait BirthEventsController extends controller.BaseController {
 
                     |}
                 """.stripMargin)
+
               Ok(result)
+          } recover {
+            case e : Upstream5xxResponse =>
+              Logger.error(s"[BirthEventsController][getReference][Error:500] ${e.getMessage}")
+              InternalServerError(e.getMessage)
           }
       }
   }
