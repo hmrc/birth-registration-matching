@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.controllers
+package uk.gov.hmrc.brm.models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 /**
-  * Created by chrisianson on 26/07/16.
+  * Created by chrisianson on 29/07/16.
   */
-class BirthEventsByDetailsControllerSpec extends UnitSpec {
+class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
+
+  "ErrorResponse" should {
+    "get an error by valid error code" in {
+      val errorResponse = ErrorResponse.getErrorResponseByErrorCode(2)
+    }
+  }
 
 }

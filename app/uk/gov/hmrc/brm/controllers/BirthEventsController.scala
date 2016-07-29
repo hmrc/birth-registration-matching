@@ -43,10 +43,13 @@ trait BirthEventsController extends controller.BaseController {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
+
+          println(error)
+
           Future.successful(BadRequest)
         },
         r => {
-          GROConnector.getReference(r.reference.get) map {
+          GROConnector.getReference(r.reference) map {
             response =>
               val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
               val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]

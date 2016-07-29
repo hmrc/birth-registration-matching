@@ -39,17 +39,18 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
 
   /**
     * - Should
-    * - POST /birth-registration-matching-proxy/match should return 200 with application/json type
+    * - Wire up dependencies correctly
+    * - Return 200 with application/json type
     * - Return JSON response of false on unsuccessful detail match
     * - Return JSON response of true on successful detail match
     * - Return JSON response of false on unsuccessful reference number match
     * - Return JSON response of true on successful reference number match
-    * - Return valid JSON response on unsuccessful match
-    * - Return response code 500 when API is down
-    * - Return response code 404 when endpoint has been retired and is no longer in use
-    * - Return response code 400 if request contains invalid/missing data
-    * - Return response code 400 if authentication fails
-    * - Return response code 403 if account (service account) is suspended
+    * - Return response code 400 if request contains missing reference key
+      *
+      * - Return response code 500 when API is down
+      * - Return response code 404 when endpoint has been retired and is no longer in use
+      * - Return response code 400 if authentication fails
+      * - Return response code 403 if account (service account) is suspended
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -57,6 +58,15 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   val noJson = Json.parse(
     s"""{
         }
+    """.stripMargin)
+
+  val userNoMatchExcludingReferenceKey = Json.parse(
+    s"""
+       |{
+       | "forename" : "Chris",
+       | "surname" : "Jones",
+       | "dateOfBirth" : "1990-02-16"
+       |}
     """.stripMargin)
 
   val userNoMatchExcludingReferenceNumber = Json.parse(
@@ -92,8 +102,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   val userMatchIncludingReferenceNumber = Json.parse(
     s"""
        |{
-       | "forename" : "Chris",
-       | "surname" : "Jones",
+       | "forename" : "Adam TEST",
+       | "surname" : "SMITH",
        | "dateOfBirth" : "1990-02-16",
        | "reference" : "500035710"
        |}
@@ -132,20 +142,33 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
     }
 
-    // Are tests needed for reference number?
-//    "return JSON response of false on unsuccessful reference number match" in {
-//      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
-//      val request = postRequest(userNoMatchIncludingReferenceNumber)
-//      val result = MockController.post().apply(request)
-//      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
-//    }
-//
-//    "return JSON response of true on successful reference number match" in {
-//      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
-//      val request = postRequest(userMatchIncludingReferenceNumber)
-//      val result = MockController.post().apply(request)
-//      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
-//    }
+    "return JSON response of true on successful detail match" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userMatchExcludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+    }
 
+    "return JSON response of false on unsuccessful reference number match" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+    }
+
+    "return JSON response of true on successful reference number match" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+    }
+
+//    "return response code 200 if request contains missing reference key" in {
+//      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+//      val request = postRequest(userNoMatchExcludingReferenceKey)
+//      val result = MockController.post().apply(request)
+//      status(result) shouldBe 200
+//      contentType(result).get shouldBe "application/json"
+//    }
   }
 }

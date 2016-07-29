@@ -71,7 +71,7 @@ case class NRS() extends BirthConnectorConfig {
 trait BirthConnector {
   protected val config : BirthConnectorConfig
 
-  def getReference(ref: String)(implicit hc : HeaderCarrier) : Future[JsValue]
+  def getReference(ref: Option[String])(implicit hc : HeaderCarrier) : Future[JsValue]
 }
 
 object GROEnglandAndWalesConnector extends BirthConnector {
@@ -87,7 +87,7 @@ object GROEnglandAndWalesConnector extends BirthConnector {
 //    override def read(method: String, url: String, response: HttpResponse) = response
 //  }
 
-  override def getReference(ref: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
+  override def getReference(ref: Option[String])(implicit hc : HeaderCarrier) : Future[JsValue] = {
     Logger.debug(s"connector: $config, hc: ${GROHeaderCarrier()}")
 //    val payload = Json.parse(
 //      s"""
@@ -97,7 +97,7 @@ object GROEnglandAndWalesConnector extends BirthConnector {
 //      """.stripMargin)
 
 //    config.httpGet.POST[JsValue, HttpResponse](config.endpoint, payload) map {
-    config.httpGet.GET[HttpResponse](config.endpoint + s"/$ref")(hc = GROHeaderCarrier(), rds = HttpReads.readRaw) map {
+    config.httpGet.GET[HttpResponse](config.endpoint + s"/${ref.get}")(hc = GROHeaderCarrier(), rds = HttpReads.readRaw) map {
       response =>
         response.status match {
           case Status.OK =>

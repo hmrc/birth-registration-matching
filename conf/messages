@@ -1,0 +1,5 @@
+error.code.5.code = 5
+error.code.5.status = 400
+error.code.5.title = ID Invalid
+error.code.5.details = "The id you supplied is invalid"
+error.code.5.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
