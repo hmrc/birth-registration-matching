@@ -17,9 +17,10 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.Logger
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
+import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.play.http.Upstream5xxResponse
 import uk.gov.hmrc.play.microservice.controller
 
@@ -40,35 +41,31 @@ trait BirthEventsController extends controller.BaseController {
 
   def post() = Action.async(parse.json) {
     implicit request =>
-
-      Logger.debug(s"Request sent to birth events post")
-      withJsonBody[JsValue] {
-        json =>
-
-          val ref = json.\("reference").as[String]
-          val payloadFirstName = json.\("forename").as[String]
-          val payloadSurname = json.\("surname").as[String]
-          GROConnector.getReference(ref) map {
+      request.body.validate[Payload].fold(
+        error => {
+          Future.successful(BadRequest)
+        },
+        r => {
+          GROConnector.getReference(r.reference.get) map {
             response =>
               val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
               val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
-
-              val isMatch = firstName.equals(payloadFirstName) && surname.equals(payloadSurname)
-              Logger.debug(s"firstName: $firstName, surname: $surname")
+              val isMatch = firstName.equals(r.forename) && surname.equals(r.surname)
               val result = Json.parse(
                 s"""
-                  |{
-                  | "validated" : $isMatch
-                  |}
+                   |{
+                   | "validated" : $isMatch
+                   |}
                 """.stripMargin)
 
               Ok(result)
-          } recover {
+          }
+        }
+          recover {
             case e : Upstream5xxResponse =>
               Logger.error(s"[BirthEventsController][getReference][Error:500] ${e.getMessage}")
               InternalServerError(e.getMessage)
           }
-      }
+      )
   }
-
 }
