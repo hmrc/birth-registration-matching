@@ -17,29 +17,36 @@
 package uk.gov.hmrc.brm.models
 
 import play.api.i18n.Messages
+import play.api.libs.json.{JsValue, Json}
 
 /**
   * Created by chrisianson on 29/07/16.
   */
 trait ErrorResponse {
-  def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None)
+  def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue
 }
 
 object ErrorResponse  extends ErrorResponse {
-  def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None) = {
+  def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue = {
 
-    val keys: List[String] = List(
-      s"error.code.${errorCode}.code",
-      s"error.code.${errorCode}.status",
-      s"error.code.${errorCode}.message",
-      s"error.code.${errorCode}.title",
-      s"error.code.${errorCode}.details",
-      s"error.code.${errorCode}.links.about"
+    val keys = Map(
+      "code" -> s"error.code.${errorCode}.code",
+      "status" -> s"error.code.${errorCode}.status",
+      "title" -> s"error.code.${errorCode}.title",
+      "details" -> s"error.code.${errorCode}.details",
+      "about" -> s"error.code.${errorCode}.links.about"
     )
 
-    def buildJsonResponse(l: List[String], r: List[String]): List[String] = l match {
-      case List(h, t) if(Messages.isDefinedAt(h)) => List(Messages(h))
-      case List(h, t) if(!Messages.isDefinedAt(h)) => List("error")
+    def buildJsonResponse(v: String): String = {
+      if (Messages.isDefinedAt(v)) {
+        Messages(v)
+      } else {
+        "oops, this error isn't defined"
+      }
     }
+
+    val response = Json.toJson(keys.mapValues(buildJsonResponse))
+
+    response
   }
 }

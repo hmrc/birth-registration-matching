@@ -1,5 +1,23 @@
 error.code.5.code = 5
 error.code.5.status = 400
-error.code.5.title = ID Invalid
-error.code.5.details = "The id you supplied is invalid"
+error.code.5.title = ID invalid
+error.code.5.details = The id you supplied is invalid
 error.code.5.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
+
+error.code.6.code = 6
+error.code.6.status = 400
+error.code.6.title = ID value empty
+error.code.6.details = You must supply an id
+error.code.6.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
+
+error.code.7.code = 7
+error.code.7.status = 400
+error.code.7.title = Date of birth invalid
+error.code.7.details = The date of birth you supplied is invalid
+error.code.7.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
+
+error.code.8.code = 8
+error.code.8.status = 400
+error.code.8.title = Date of birth empty
+error.code.8.details = You must supply a valid date of birth
+error.code.8.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
