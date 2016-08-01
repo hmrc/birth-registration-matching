@@ -43,7 +43,7 @@ object Payload extends BRMFormat {
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-    (JsPath \ "reference").read[Option[String]]/*.or(Reads.pure(None))*/ and
+    (JsPath \ "reference").readNullable[String] and
     (JsPath \ "forename").read[String] and
     (JsPath \ "surname").read[String] and
     (JsPath \ "dateOfBirth").read[LocalDate])(Payload.apply _)
