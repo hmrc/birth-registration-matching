@@ -45,7 +45,14 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     * - Return JSON response of true on successful detail match
     * - Return JSON response of false on unsuccessful reference number match
     * - Return JSON response of true on successful reference number match
-    * - Return response code 400 if request contains missing reference key
+    * - Return 200 if request contains missing reference key
+    * - Return 200 if request contains missing reference value
+    * - Return 400 if request contains missing dateOfBirth key
+    * - Return 400 if request contains missing dateOfBirth value
+    * - Return 400 if request contains missing firstname key
+    * - Return 400 if request contains missing firstname value
+    * - Return 400 if request contains missing surname key
+    * - Return 400 if request contains missing surname value
       *
       * - Return response code 500 when API is down
       * - Return response code 404 when endpoint has been retired and is no longer in use
@@ -68,6 +75,25 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "dateOfBirth" : "1990-02-16"
        |}
     """.stripMargin)
+
+  val userNoMatchExcludingReferenceValue = Json.parse(
+    s"""
+       |{
+       | "forename" : "Chris",
+       | "surname" : "Jones",
+       | "dateOfBirth" : "1990-02-16",
+       | "reference" : ""
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingFirstNameKey = Json.parse(
+    s"""
+       |{
+       |"surname" : "Jones",
+       |"dateOfBirth" : "1980-04-18",
+       |"reference" : "123456789"
+       |}
+     """.stripMargin)
 
   val userNoMatchExcludingReferenceNumber = Json.parse(
     s"""
@@ -108,6 +134,63 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "reference" : "500035710"
        |}
     """.stripMargin)
+
+  val userNoMatchExcludingDateOfBirthKey = Json.parse(
+    s"""
+       |{
+       | "forename" : "Adam TEST",
+       | "surname" : "SMITH",
+       | "reference" : "500035710"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingDateOfBirthValue = Json.parse(
+    s"""
+       |{
+       | "forename" : "Adam TEST",
+       | "surname" : "SMITH",
+       | "dateOfBirth" : "",
+       | "reference" : "500035710"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingForenameKey = Json.parse(
+    s"""
+       |{
+       |"surname" : "Smith",
+       |"dateOrBirth" : "1997-12-17",
+       |"reference" : "123456789"
+       |}
+     """.stripMargin)
+
+  val userNoMatchExcludingForenameValue = Json.parse(
+    s"""
+       |{
+       |"firstname" : "",
+       |"surname" : "Jones",
+       |"dateOfBirth" : "1997-11-16",
+       |"reference" : "123456789"
+       |}
+     """.stripMargin)
+
+  val userNoMatchExcludingSurnameKey = Json.parse(
+    s"""
+       |{
+       |"firstname" : "John",
+       |"dateOrBirth" : "1997-12-17",
+       |"reference" : "123456789"
+       |}
+     """.stripMargin)
+
+  val userNoMatchExcludingSurnameValue = Json.parse(
+    s"""
+       |{
+       |"firstname" : "John",
+       |"surname" : "",
+       |"dateOfBirth" : "1997-11-16",
+       |"reference" : "123456789"
+       |}
+     """.stripMargin)
 
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders(("Content-type", "application/json"))
@@ -163,12 +246,62 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
     }
 
-//    "return response code 200 if request contains missing reference key" in {
-//      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
-//      val request = postRequest(userNoMatchExcludingReferenceKey)
-//      val result = MockController.post().apply(request)
-//      status(result) shouldBe 200
-//      contentType(result).get shouldBe "application/json"
-//    }
+    "return response code 200 if request contains missing reference key" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingReferenceKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 200
+      contentType(result).get shouldBe "application/json"
+    }
+
+    "return response code 200 if request contains missing reference value" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingReferenceValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 200
+      contentType(result).get shouldBe "application/json"
+    }
+
+    "return response code 400 if request contains missing dateOfBirth key" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingDateOfBirthKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
+
+    "return response code 400 if request contains missing dateOfBirth value" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingDateOfBirthValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
+
+    "return response code 400 if request contains missing firstname key" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingFirstNameKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
+
+    "return response code 400 if request contains missing firstname value" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingForenameValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
+
+    "return response code 400 if request contains missing surname key" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingSurnameKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
+
+    "return response code 400 if request contains missing surname value" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingSurnameValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 400
+    }
   }
 }
