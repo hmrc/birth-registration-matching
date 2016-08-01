@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.utils.JsonUtils
 import play.api.http.Status
+import uk.gov.hmrc.play.http.Upstream5xxResponse
 
 import scala.concurrent.Future
 
@@ -302,6 +303,13 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val request = postRequest(userNoMatchExcludingSurnameValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe 400
+    }
+
+    "return response code 500 when API is down" in {
+      when(MockController.GROConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", 500, 500)))
+      val request = postRequest(userMatchExcludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe 500
     }
   }
 }
