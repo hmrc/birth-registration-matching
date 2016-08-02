@@ -28,33 +28,15 @@ import uk.gov.hmrc.play.http._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-//trait BirthConnectorConfig extends ServicesConfig {
-//  protected val serviceUrl : String
-//  def username : String
-//  def password : String
-//  protected val baseUri : String
-//  val httpPost : HttpPost
-//  val httpGet : HttpGet
-//  protected val version : String = "v0"
-//  lazy val endpoint = s"$serviceUrl/$baseUri"
-//  val authUri : String
-//  val eventUri : String
-//  val eventEndpoint : String
-//  val authEndpoint : String
-//  override def toString = {
-//    s"endpoint: $endpoint, http, version: $version"
-//  }
-//}
-
 trait BirthConnector extends ServicesConfig {
 
   val serviceUrl = baseUrl("birth-registration-matching")
   def username = getConfString("birth-registration-matching.username", throw new RuntimeException("no configuration found for username"))
   val password = ""
-  val baseUri = s"api/$version/events/birth"
   val httpPost : HttpPost = WSHttp
   val httpGet : HttpGet = WSHttp
   val version : String = "v0"
+  val baseUri = s"api/$version/events/birth"
   val eventUri = s"api/$version/events/birth"
   val authUri = s"oauth/login"
   val eventEndpoint = s"$serviceUrl/$eventUri"
@@ -67,7 +49,6 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-
     httpGet.GET[HttpResponse](s"$eventEndpoint/$reference")(hc = GROEventHeaderCarrier, rds = HttpReads.readRaw) map {
       response =>
         handleResponse(response)
@@ -75,7 +56,6 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
-
     val endpoint = WS.url(eventEndpoint).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
     httpGet.GET[HttpResponse](endpoint)(hc = GROEventHeaderCarrier, rds = HttpReads.readRaw) map {
