@@ -43,9 +43,6 @@ trait BirthEventsController extends controller.BaseController {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
-
-          println(error)
-
           Future.successful(BadRequest)
         },
         r => {
