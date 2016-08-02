@@ -30,14 +30,14 @@ import scala.concurrent.Future
   * Created by chrisianson on 25/07/16.
   */
 object BirthEventsController extends BirthEventsController {
-  override val GROConnector = GROEnglandAndWalesConnector
+  override val Connector = GROEnglandAndWalesConnector
 }
 
 trait BirthEventsController extends controller.BaseController {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val GROConnector : BirthConnector
+  val Connector : BirthConnector
 
   def post() = Action.async(parse.json) {
     implicit request =>
@@ -46,7 +46,7 @@ trait BirthEventsController extends controller.BaseController {
           Future.successful(BadRequest)
         },
         r => {
-          GROConnector.getReference(r.reference) map {
+          Connector.getReference(r.reference) map {
             response =>
               val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
               val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
