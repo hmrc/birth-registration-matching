@@ -17,9 +17,9 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.Logger
-import play.api.libs.json.{JsResult, JsValue, Json}
-import play.api.mvc.{Action, Result}
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWales, GROEnglandAndWalesConnector}
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
 import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.play.http.Upstream5xxResponse
 import uk.gov.hmrc.play.microservice.controller

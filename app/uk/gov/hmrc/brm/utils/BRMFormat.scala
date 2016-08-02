@@ -21,5 +21,5 @@ package uk.gov.hmrc.brm.utils
   */
 object BRMFormat extends BRMFormat
 trait BRMFormat {
-  val datePattern = "yyyy-mm-dd"
+  val datePattern = "yyyy-MM-dd"
 }

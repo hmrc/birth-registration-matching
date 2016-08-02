@@ -28,7 +28,8 @@ class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
     * - Should
     * Return a JSON error response when an id is invalid
     * Return a JSON error response when given an error code of 5
-    * Return a JSON error response when given an error code of 10
+    * Return a JSON error response when given an error code of 6
+    * Return a default JSON error response when an invalid error code is given
     */
 
   "ErrorResponse" should {
@@ -56,6 +57,15 @@ class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
       (response \ "title").as[JsString].value should be("ID value empty")
       (response \ "details").as[JsString].value should be("You must supply an id")
       (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
+    }
+
+    "get default JSON error response when an invalid error code is given" in {
+
+      val code = 123456789
+      val response = ErrorResponse.getErrorResponseByErrorCode(code)
+
+      response shouldBe a[JsObject]
+      (response \ "details").as[JsString].value should be("something is wrong")
     }
 
   }

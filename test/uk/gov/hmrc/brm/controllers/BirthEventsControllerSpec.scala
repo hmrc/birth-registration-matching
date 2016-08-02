@@ -16,20 +16,16 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import com.fasterxml.jackson.annotation.JsonValue
 import org.mockito.Matchers
-import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import play.api.Logger
-import play.api.libs.json.{JsBoolean, JsString, JsValue, Json}
-import play.api.mvc.Action
+import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.JsonUtils
-import play.api.http.Status
 import uk.gov.hmrc.play.http.Upstream5xxResponse
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 

@@ -26,27 +26,48 @@ trait ErrorResponse {
   def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue
 }
 
-object ErrorResponse  extends ErrorResponse {
+object ErrorResponse extends ErrorResponse {
+
+//  trait JSException
+//  case class JsonException(code: Int, message: String) extends JSException {
+//
+//    override def toString = {
+//      Json.parse(
+//        s"""
+//          |"code": $code,
+//          |"message": $message
+//        """.stripMargin).toString()
+//    }
+//
+//  }
+
+  def keys(errorCode : Int) = Map(
+    "code" -> s"error.code.$errorCode.code",
+    "status" -> s"error.code.$errorCode.status",
+    "title" -> s"error.code.$errorCode.title",
+    "details" -> s"error.code.$errorCode.details",
+    "about" -> s"error.code.$errorCode.links.about"
+  )
+
+  def invalid = Map(
+    "details" ->  s"something is wrong"
+  )
+
   def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue = {
 
-    val keys = Map(
-      "code" -> s"error.code.${errorCode}.code",
-      "status" -> s"error.code.${errorCode}.status",
-      "title" -> s"error.code.${errorCode}.title",
-      "details" -> s"error.code.${errorCode}.details",
-      "about" -> s"error.code.${errorCode}.links.about"
-    )
-
-    def buildJsonResponse(v: String): String = {
+    def buildJsonResponse(v: String): Option[String] = {
       if (Messages.isDefinedAt(v)) {
-        Messages(v)
+        Some(Messages(v))
       } else {
-        "oops, this error isn't defined"
+        None
       }
     }
 
-    val response = Json.toJson(keys.mapValues(buildJsonResponse))
+    val response = keys(errorCode).mapValues(c => buildJsonResponse(c)).collect {
+      case (key, Some(value)) => key -> value
+      case (key, _) => key -> invalid("details")
+    }
 
-    response
+    Json.toJson(response)
   }
 }
