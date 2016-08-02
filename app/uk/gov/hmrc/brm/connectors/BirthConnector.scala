@@ -49,7 +49,8 @@ import scala.concurrent.Future
 trait BirthConnector extends ServicesConfig {
 
   val serviceUrl = baseUrl("birth-registration-matching")
-  def username = getConfString("birth-registration-matching.username", throw new RuntimeException("no configuration found for username"))
+  val usernameKey = "birth-registration-matching.username"
+  def username = getConfString(usernameKey, throw new RuntimeException("no configuration found for username"))
   val password = ""
   val baseUri = s"api/$version/events/birth"
   val httpPost : HttpPost = WSHttp

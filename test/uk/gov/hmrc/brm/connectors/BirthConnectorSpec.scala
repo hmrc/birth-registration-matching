@@ -40,6 +40,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     * - getReference returns json response
     * - getChildDetails returns json response
     * - getReference returns http 500 when GRO is offline
+    * - getReference returns http 400 for BadRequest
     */
 
   implicit val hc = HeaderCarrier()
@@ -50,6 +51,12 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   object MockBirthConnector extends BirthConnector {
     override val httpGet = mockHttpGet
     override val httpPost = mockHttpPost
+  }
+
+  object MockBirthConnectorInvalidUsername extends BirthConnector {
+    override val httpGet = mockHttpGet
+    override val httpPost = mockHttpPost
+    override val usernameKey = "incorrect key"
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -78,6 +85,14 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   "BirthConnector" should {
 
+    "return RuntimeException if key doesn't exist" in {
+      try {
+        MockBirthConnectorInvalidUsername.username
+      } catch {
+        case err: Exception => err.getMessage shouldBe s"no configuration found for username"
+      }
+    }
+
     "getReference returns json response" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -104,7 +119,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
     }
 
-    "getReference returns http 400 when GRO is offline" in {
+    "getReference returns http 400 for BadRequest" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
