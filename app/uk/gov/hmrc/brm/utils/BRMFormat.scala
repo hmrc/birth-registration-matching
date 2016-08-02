@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.controllers
-
-import uk.gov.hmrc.play.test.UnitSpec
+package uk.gov.hmrc.brm.utils
 
 /**
-  * Created by chrisianson on 26/07/16.
+  * Created by chrisianson on 27/07/16.
   */
-class BirthEventsByDetailsControllerSpec extends UnitSpec {
-
+object BRMFormat extends BRMFormat
+trait BRMFormat {
+  val datePattern = "yyyy-MM-dd"
 }
