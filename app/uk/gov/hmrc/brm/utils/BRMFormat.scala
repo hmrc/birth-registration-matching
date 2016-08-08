@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.birthregistrationmatching
-
-import org.scalatest.Suite
-import play.api.test.FakeApplication
-import uk.gov.hmrc.play.test.WithFakeApplication
+package uk.gov.hmrc.brm.utils
 
 /**
- * Created by adamconder on 27/06/2016.
- */
-trait BRMFakeApplication extends WithFakeApplication {
-  this: Suite =>
-
-  val config : Map[String, _] = Map(
-    "csrf.sign.tokens" -> false,
-    "Test.microservice.services.auth.host" -> "localhost",
-    "Test.microservice.services.auth.port" -> "8500"
-  )
-  override lazy val fakeApplication = FakeApplication(additionalConfiguration = config)
-
+  * Created by chrisianson on 27/07/16.
+  */
+object BRMFormat extends BRMFormat
+trait BRMFormat {
+  val datePattern = "yyyy-MM-dd"
 }

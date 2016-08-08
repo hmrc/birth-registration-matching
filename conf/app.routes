@@ -1,3 +1,4 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.birthregistrationmatching.controllers.MicroserviceHelloWorld.hello
+GET         /hello-world            uk.gov.hmrc.brm.controllers.MicroserviceHelloWorld.hello
+POST        /match                  uk.gov.hmrc.brm.controllers.BirthEventsController.post
