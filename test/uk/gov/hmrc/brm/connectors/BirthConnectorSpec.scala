@@ -46,17 +46,13 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   implicit val hc = HeaderCarrier()
 
   val mockHttpGet = mock[HttpGet]
-  val mockHttpPost = mock[HttpPost]
 
   object MockBirthConnector extends BirthConnector {
     override val httpGet = mockHttpGet
-    override val httpPost = mockHttpPost
   }
 
   object MockBirthConnectorInvalidUsername extends BirthConnector {
     override val httpGet = mockHttpGet
-    override val httpPost = mockHttpPost
-    override val usernameKey = "incorrect key"
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -67,37 +63,17 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "dateOfBirth" -> "2006-11-12"
   )
 
-  val config : Map[String, _] = Map (
-
-  )
-
-  object BRMFakeApplication {
-
-    def fakeApplication(config: Map[String, _]) = {
-      FakeApplication(additionalConfiguration = config)
-    }
-  }
-
   before {
     reset(mockHttpGet)
-    reset(mockHttpPost)
   }
 
   "BirthConnector" should {
-
-    "return RuntimeException if key doesn't exist" in {
-      try {
-        MockBirthConnectorInvalidUsername.username
-      } catch {
-        case err: Exception => err.getMessage shouldBe s"no configuration found for username"
-      }
-    }
 
     "getReference returns json response" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
-      val result = await(MockBirthConnector.getReference(Some("500035710")))
+      val result = await(MockBirthConnector.getReference("500035710"))
       result shouldBe a[JsValue]
     }
 
@@ -114,7 +90,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
       intercept[Upstream5xxResponse] {
-        val result = await(MockBirthConnector.getReference(Some("50003570")))
+        val result = await(MockBirthConnector.getReference("50003570"))
         result shouldBe a[JsValue]
       }
     }
@@ -124,7 +100,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
       intercept[Upstream4xxResponse] {
-        val result = await(MockBirthConnector.getReference(Some("50003570")))
+        val result = await(MockBirthConnector.getReference("50003570"))
         result shouldBe a[JsValue]
       }
     }
