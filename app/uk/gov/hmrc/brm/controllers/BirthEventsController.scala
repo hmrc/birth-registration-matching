@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import scala.concurrent.Future
+
 import play.api.Logger
 import play.api.libs.json.Json
-import play.api.mvc.Action
+import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
 import uk.gov.hmrc.brm.models.Payload
-import uk.gov.hmrc.play.http.Upstream5xxResponse
+import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
 
-import scala.concurrent.Future
 
 /**
   * Created by chrisianson on 25/07/16.
@@ -39,33 +40,49 @@ trait BirthEventsController extends controller.BaseController {
 
   val Connector : BirthConnector
 
+  private def respond(response : Result) = {
+    response.as("application/json")
+  }
+
+  private def handleException(method: String) : PartialFunction[Throwable, Result] = {
+    case e : Upstream4xxResponse =>
+      Logger.warn(s"[MatchingController][GROConnector][$method] BadRequest: ${e.message}")
+      respond(BadRequest(e.message))
+    case e : Upstream5xxResponse =>
+      Logger.error(s"[MatchingController][GROConnector][$method] InternalServerError: ${e.message}")
+      respond(InternalServerError(e.message))
+  }
+
   def post() = Action.async(parse.json) {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
-          Future.successful(BadRequest)
+          Future.successful(respond(BadRequest("")))
         },
-        r => {
-          Connector.getReference(r.reference) map {
-            response =>
-              val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
-              val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
-              val isMatch = firstName.equals(r.forename) && surname.equals(r.surname)
-              val result = Json.parse(
-                s"""
-                   |{
-                   | "validated" : $isMatch
-                   |}
-                """.stripMargin)
+        payload => {
+          payload.reference.fold(
+            // make request to details stubbed out at the moment
+            Future.successful(respond(Ok("no match")))
+          )(
+            reference =>
+              // make request with reference number
+              Connector.getReference(reference) map {
+                response =>
+                  Logger.debug(s"[BirthEventsController][GROConnector][getReference] Success: $response")
+                  val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
+                  val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
+                  val isMatch = firstName.equals(payload.forename) && surname.equals(payload.surname)
+                  val result = Json.parse(
+                    s"""
+                       |{
+                       | "validated" : $isMatch
+                       |}
+                    """.stripMargin)
 
-              Ok(result)
-          }
-        }
-          recover {
-            case e : Upstream5xxResponse =>
-              Logger.error(s"[BirthEventsController][getReference][Error:500] ${e.getMessage}")
-              InternalServerError(e.getMessage)
-          }
+                  respond(Ok(result))
+              }
+          )
+        } recover handleException("getReference")
       )
   }
 }

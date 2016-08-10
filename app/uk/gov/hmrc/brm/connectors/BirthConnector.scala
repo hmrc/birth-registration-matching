@@ -31,35 +31,22 @@ import scala.concurrent.Future
 trait BirthConnector extends ServicesConfig {
 
   val serviceUrl = baseUrl("birth-registration-matching")
-  val usernameKey = "birth-registration-matching.username"
-  def username = getConfString(usernameKey, throw new RuntimeException("no configuration found for username"))
-  val password = ""
-  val httpPost : HttpPost = WSHttp
   val httpGet : HttpGet = WSHttp
-  val version : String = "v0"
-  val baseUri = s"api/$version/events/birth"
-  val eventUri = s"api/$version/events/birth"
-  val authUri = s"oauth/login"
-  val eventEndpoint = s"$serviceUrl/$eventUri"
-  val authEndpoint = s"$serviceUrl/$authUri"
 
-  private def GROEventHeaderCarrier = {
-    HeaderCarrier()
-      .withExtraHeaders("Authorization" -> s"Bearer ")
-      .withExtraHeaders("X-Auth-Downstream-Username" -> username)
-  }
+  val baseUri = "birth-registration-matching-proxy"
+  val detailsUri = s"$serviceUrl/$baseUri/match"
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-    httpGet.GET[HttpResponse](s"$eventEndpoint/$reference")(hc = GROEventHeaderCarrier, rds = HttpReads.readRaw) map {
+    httpGet.GET[HttpResponse](s"$detailsUri/$reference") map {
       response =>
         handleResponse(response)
     }
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
-    val endpoint = WS.url(eventEndpoint).withQueryString(params.toList: _*).url
+    val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
-    httpGet.GET[HttpResponse](endpoint)(hc = GROEventHeaderCarrier, rds = HttpReads.readRaw) map {
+    httpGet.GET[HttpResponse](endpoint) map {
       response =>
         handleResponse(response)
     }
@@ -76,9 +63,9 @@ trait BirthConnector extends ServicesConfig {
     }
   }
 
-  def getReference(reference: Option[String])(implicit hc : HeaderCarrier) : Future[JsValue] = {
+  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getReference]: $reference")
-    requestReference(reference.get)
+    requestReference(reference)
   }
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) : Future[JsValue] = {
