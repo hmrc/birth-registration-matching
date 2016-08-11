@@ -2,7 +2,7 @@ FORMAT: 1A
 
 # Birth Matching Registration Service
 
-NOTE: This is a draft of the API and is subject to change
+NOTE: This is a draft of the API and is subject to change. Users need to be authenticated through PTA before accessing this API.
 
 Birth Matching Registration Service is a service that allows you to check if the GRO for England and Wales contains a birth registration record for a given child.
 
@@ -12,18 +12,18 @@ Birth Matching Registration Service is a service that allows you to check if the
 
 Check for an existing birth record based on a birth reference number
 
-+ birthReferenceNumber - unique 9 digit reference number found on birth certificate
-+ firstName - childs forenames up to maximum of 4 values (space separated)
++ birthReferenceNumber - unique 9 to 10 digit reference number found on birth certificate
++ firstName - childs firstname only
 + lastName - childs lastname
 + dateOfBirth - childs date of birth
-+ whereBirthRegistered - where is the birth registered
++ whereBirthRegistered - where is the birth registered (england, wales)
 
 + Parameters
     + birthReferenceNumber: 123456789 (required, number)
     + firstName: John (required, string)
     + lastName:  Smith (required, string)
     + dateOfBirth: 2010-01-04 (required, string)
-    + whereBirthRegistered: englandandwales (required, string)
+    + whereBirthRegistered: england (required, string)
 
 ### Check Birth [POST]
 
@@ -34,7 +34,7 @@ Check for an existing birth record based on a birth reference number
   "firstName": "John",
   "lastName": "Smith",
   "dateOfBirth": "2014-05-18",
-  "whereBirthRegistered": "englandandwales"
+  "whereBirthRegistered": "england"
 }
 
 + Headers
