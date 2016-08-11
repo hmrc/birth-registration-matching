@@ -8,52 +8,38 @@ Birth Matching Registration Service is a service that allows you to check if the
 
 ## Group Birth Registration Match
 
-## Check birth record exists [/api/v0/events/birth/{birthreferencenumber}/{?forenames}{&lastname}{&dateofbirth}{&gender}]
+## Check birth record exists for specific birth reference number [/api/v0/events/birth/{birthReferenceNumber}]
 
-Check for an existing birth record based on a set of child parameters including birth certificate reference number
+Check for an existing birth record based on a birth reference number
 
-+ birthreferencenumber - unique 9 digit reference number found on birth certificate
-+ forenames - childs forenames up to maximum of 4 values (space separated)
-+ lastname - childs lastname
-+ dateofbirth - childs date of birth
-+ gender - childs gender
++ birthReferenceNumber - unique 9 digit reference number found on birth certificate
++ firstName - childs forenames up to maximum of 4 values (space separated)
++ lastName - childs lastname
++ dateOfBirth - childs date of birth
 
 + Parameters
-    + birthreferencenumber: 123456789 (required, number)
-    + forenames: John (required, string)
-    + lastname:  Smith (required, string)
-    + dateofbirth: 2010-01-04 (required, string)
-    + gender: male (optional, string)
+    + birthReferenceNumber: 123456789 (required, number)
+    + firstName: John (required, string)
+    + lastName:  Smith (required, string)
+    + dateOfBirth: 2010-01-04 (required, string)
 
-### Check Birth [GET]
+### Check Birth [POST]
 
-+ Response 200 (application/json)
++ Request (application/json)
 
 {
-  "data": {
-    "record-matched": true,
-  }
+  "firstName": "John",
+  "lastName": "Smith",
+  "dateOfBirth": "2014-05-18",
 }
 
-## Group Authenticate with service
-
-## Check birth record exists [/api/v0/oauth/login]
-
-The API requires a user/service to be authenticated
-
-+ username - valid user of the service
-+ password - valid password
-
-+ Parameters
-    + username: validuser (required, string)
-    + password: validpassword (required, string)
-
-### Authenticate [POST]
++ Headers
+    Version: 1.0
 
 + Response 200 (application/json)
 
 {
-  "access_token": Op5HmMWzlxKE70W1y4MibiJUusZwZC25NOVBEx3ER4,
+  "validated": true
 }
 
 ## Group Error and Messages
