@@ -8,7 +8,7 @@ Birth Matching Registration Service is a service that allows you to check if the
 
 ## Group Birth Registration Match
 
-## Check birth record exists for specific birth reference number [/api/v0/events/birth/{birthReferenceNumber}]
+## Check birth record exists for specific birth reference number [/birth-registration-matching/match]
 
 Check for an existing birth record based on a birth reference number
 
@@ -16,35 +16,40 @@ Check for an existing birth record based on a birth reference number
 + firstName - childs forenames up to maximum of 4 values (space separated)
 + lastName - childs lastname
 + dateOfBirth - childs date of birth
++ whereBirthRegistered - where is the birth registered
 
 + Parameters
     + birthReferenceNumber: 123456789 (required, number)
     + firstName: John (required, string)
     + lastName:  Smith (required, string)
     + dateOfBirth: 2010-01-04 (required, string)
+    + whereBirthRegistered: englandandwales (required, string)
 
 ### Check Birth [POST]
 
 + Request (application/json)
 
 {
+  "birthReferenceNumber": "123456789",
   "firstName": "John",
   "lastName": "Smith",
   "dateOfBirth": "2014-05-18",
+  "whereBirthRegistered": "englandandwales"
 }
 
 + Headers
-    Version: 1.0
+    API-Version: 1.0
+    Origin: DFS
 
 + Response 200 (application/json)
 
 {
-  "validated": true
+  "matched": true
 }
 
 ## Group Error and Messages
 
-## Check birth record exists [/api/v0/events/invalidendpoint]
+## Check birth record exists [/birth-registration-matching/invalidendpoint]
 
 Failing to be authenticated could result in the following errors
 
