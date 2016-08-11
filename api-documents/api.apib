@@ -21,13 +21,30 @@ Check for an existing birth record based on a birth reference number
 + whereBirthRegistered - where is the birth registered (england, wales)
 
 + Parameters
+
     + birthReferenceNumber: 123456789 (optional, number)
     + firstName: John (required, string)
     + lastName:  Smith (required, string)
-    + dateOfBirth: 2010-01-04 (required, string)
+    + dateOfBirth: `2010-01-04` (required, string)
     + whereBirthRegistered: england (required, string)
+    + `API-Version`: 1.0 (required, decimal)
+    + `Request-Origin`: def (required, string)
+
+
++ Schema
+
+{
+  "properties": {
+    "birthReferenceNumber": {
+      "type": "string",
+      "pattern": '#$[9-10]^'
+    }
+  }
+}
 
 ### Check Birth [POST]
+
+
 
 + Request (application/json)
 
@@ -40,8 +57,8 @@ Check for an existing birth record based on a birth reference number
 }
 
 + Headers
-    API-Version: 1.0
-    Origin: dfs
+    Version: 1.0
+    Request-Origin: dfs
 
 + Response 200 (application/json)
 
