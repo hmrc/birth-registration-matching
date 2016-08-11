@@ -12,14 +12,14 @@ Birth Matching Registration Service is a service that allows you to check if the
 
 Check for an existing birth record based on a birth reference number
 
-+ birthReferenceNumber - unique 9 to 10 digit reference number found on birth certificate
++ birthReferenceNumber - unique reference number found on birth certificate (min 9 characters)
 + firstName - childs firstname only
 + lastName - childs lastname
 + dateOfBirth - childs date of birth
 + whereBirthRegistered - where is the birth registered (england, wales)
 
 + Parameters
-    + birthReferenceNumber: 123456789 (required, number)
+    + birthReferenceNumber: 123456789 (optional, number)
     + firstName: John (required, string)
     + lastName:  Smith (required, string)
     + dateOfBirth: 2010-01-04 (required, string)
@@ -39,7 +39,7 @@ Check for an existing birth record based on a birth reference number
 
 + Headers
     API-Version: 1.0
-    Origin: DFS
+    Origin: dfs
 
 + Response 200 (application/json)
 
