@@ -30,23 +30,35 @@ Check for an existing birth record based on a birth reference number
     + `API-Version`: 1.0 (required, decimal)
     + `Request-Origin`: def (required, string)
 
-
-+ Schema
-
-{
-  "properties": {
-    "birthReferenceNumber": {
-      "type": "string",
-      "pattern": '#$[9-10]^'
-    }
-  }
-}
-
 ### Check Birth [POST]
 
-
-
 + Request (application/json)
+
+  + Schema
+    {
+          "properties": {
+            "birthReferenceNumber": {
+              "type": "string",
+              "pattern": "/^-?\d+$"
+            },
+            "firstName": {
+              "type": "string",
+              "pattern": "/^[\w\s]+$/"
+            },
+            "lastName": {
+              "type": "string",
+              "pattern": "/^[\w\s]+$/"
+            },
+            "dateOfBirth": {
+              "type": "string",
+              "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/"
+            },
+            "whereBirthRegistered": {
+              "type": "string",
+              "pattern": "/^-?\d+$"
+            },
+          }
+    }
 
 {
   "birthReferenceNumber": "123456789",
@@ -61,6 +73,15 @@ Check for an existing birth record based on a birth reference number
     Request-Origin: dfs
 
 + Response 200 (application/json)
+
+  + Schema
+    {
+          "properties": {
+            "matched": {
+              "type": "boolean"
+            }
+          }
+    }
 
 {
   "matched": true
