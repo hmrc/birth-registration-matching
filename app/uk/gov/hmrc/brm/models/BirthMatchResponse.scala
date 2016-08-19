@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.controllers
+package uk.gov.hmrc.brm.models
 
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.brm.BRMFakeApplication
-import uk.gov.hmrc.play.test.UnitSpec
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with BRMFakeApplication {
-
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
 
 
+case class BirthMatchResponse(validated : Boolean = false)
+
+object BirthMatchResponse {
+  implicit val formats = Json.format[BirthMatchResponse]
 }
