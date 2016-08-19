@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -23,7 +24,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.brm.models.Payload
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -69,7 +71,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "forename" : "Chris",
        | "surname" : "Jones",
-       | "dateOfBirth" : "1990-02-16"
+       | "dateOfBirth" : "1990-02-16",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -79,7 +82,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Chris",
        | "surname" : "Jones",
        | "dateOfBirth" : "1990-02-16",
-       | "reference" : ""
+       | "reference" : "",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -98,7 +102,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Chris",
        | "surname" : "Jones",
        | "dateOfBirth" : "1990-02-16",
-       | "reference" : ""
+       | "reference" : "",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -108,7 +113,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Chris",
        | "surname" : "Jones",
        | "dateOfBirth" : "1990-02-16",
-       | "reference" : "123456789"
+       | "reference" : "123456789",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -118,7 +124,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Adam TEST",
        | "surname" : "SMITH",
        | "dateOfBirth" : "1990-02-16",
-       | "reference" : ""
+       | "reference" : "",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -128,7 +135,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Adam TEST",
        | "surname" : "SMITH",
        | "dateOfBirth" : "1990-02-16",
-       | "reference" : "500035710"
+       | "reference" : "500035710",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -137,7 +145,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "forename" : "Adam TEST",
        | "surname" : "SMITH",
-       | "reference" : "500035710"
+       | "reference" : "500035710",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -147,7 +156,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        | "forename" : "Adam TEST",
        | "surname" : "SMITH",
        | "dateOfBirth" : "",
-       | "reference" : "500035710"
+       | "reference" : "500035710",
+       | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
 
@@ -189,6 +199,29 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |}
      """.stripMargin)
 
+
+  val userNoMatchExcludingWhereBirthRegisteredKey = Json.parse(
+    s"""
+       |{
+       |"firstname" : "Manish",
+       |"surname" : "Varma",
+       |"dateOfBirth" : "1997-11-16",
+       |"reference" : "123456789"
+       |
+       |}
+     """.stripMargin)
+
+  val userNoMatchExcludingWhereBirthRegisteredValue = Json.parse(
+    s"""
+       |{
+       |"firstname" : "John",
+       |"surname" : "Jones",
+       |"dateOfBirth" : "1997-11-16",
+       |"reference" : "123456789",
+       |"whereBirthRegistered" : ""
+       |}
+     """.stripMargin)
+
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders(("Content-type", "application/json"))
     .withBody(v)
@@ -205,12 +238,19 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
   }
 
+
+
+
+
   "POST /birth-registration-matching-proxy/match" should {
+
 
     "return 200 with application/json type" in {
       when(MockController.Connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val request = postRequest(userNoMatchExcludingReferenceNumber)
+
       val result = MockController.post().apply(request)
+
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
     }
@@ -306,6 +346,22 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     "return response code 400 if request contains missing surname value" in {
       when(MockController.Connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val request = postRequest(userNoMatchExcludingSurnameValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+    }
+
+    "return response code 400 if request contains missing whereBirthRegistered key" in {
+      when(MockController.Connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingWhereBirthRegisteredKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+    }
+
+    "return response code 400 if request contains missing whereBirthRegistered value" in {
+      when(MockController.Connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"

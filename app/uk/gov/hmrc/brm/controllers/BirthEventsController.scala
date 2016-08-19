@@ -54,9 +54,12 @@ trait BirthEventsController extends controller.BaseController {
   }
 
   def post() = Action.async(parse.json) {
+
     implicit request =>
+
       request.body.validate[Payload].fold(
         error => {
+
           Future.successful(respond(BadRequest("")))
         },
         payload => {

@@ -20,7 +20,9 @@ import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
-import uk.gov.hmrc.brm.utils.BRMFormat
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.{BRMFormat}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply => _, _}
 
 /**
   * Created by chrisianson on 27/07/16.
@@ -30,7 +32,8 @@ case class Payload(
                   reference: Option[String] = None,
                   forename: String,
                   surname: String,
-                  dateOfBirth: LocalDate
+                  dateOfBirth: LocalDate,
+                  whereBirthRegistered : BirthRegisterCountry
                   )
 
 object Payload extends BRMFormat {
@@ -39,12 +42,21 @@ object Payload extends BRMFormat {
       (JsPath \ "reference").write[Option[String]] and
       (JsPath \ "forename").write[String] and
       (JsPath \ "surname").write[String] and
-      (JsPath \ "dateOfBirth").write[LocalDate](jodaLocalDateWrites(datePattern))
+      (JsPath \ "dateOfBirth").write[LocalDate](jodaLocalDateWrites(datePattern)) and
+      (JsPath \ "whereBirthRegistered").write[BirthRegisterCountry](birthRegisterWrites)
+
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
     (JsPath \ "reference").readNullable[String] and
     (JsPath \ "forename").read[String] and
     (JsPath \ "surname").read[String] and
-    (JsPath \ "dateOfBirth").read[LocalDate])(Payload.apply _)
+    (JsPath \ "dateOfBirth").read[LocalDate]  and
+      (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
+     )(Payload.apply _)
+
+
+
+
+
 }

@@ -18,6 +18,8 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.json.Json
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 import uk.gov.hmrc.play.test.UnitSpec
 
 /**
@@ -38,13 +40,15 @@ class PayloadSpec extends UnitSpec {
         reference = Some("123456789"),
         forename = "John",
         surname = "Smith",
-        dateOfBirth = new LocalDate("1997-01-13")
+        dateOfBirth = new LocalDate("1997-01-13"),
+        whereBirthRegistered = BirthRegisterCountry.ENGLAND
       )
 
       payload shouldBe a[Payload]
       payload.reference shouldBe Some("123456789")
       payload.forename shouldBe "John"
       payload.surname shouldBe "Smith"
+      payload.whereBirthRegistered shouldBe BirthRegisterCountry.withName("england")
     }
 
     "convert to json" in {
@@ -52,7 +56,8 @@ class PayloadSpec extends UnitSpec {
         reference = Some("123456789"),
         forename = "John",
         surname = "Smith",
-        dateOfBirth = new LocalDate("1997-01-13")
+        dateOfBirth = new LocalDate("1997-01-13"),
+        whereBirthRegistered = BirthRegisterCountry.ENGLAND
       )
 
       Json.toJson(payload) shouldBe Json.parse(
@@ -61,9 +66,12 @@ class PayloadSpec extends UnitSpec {
           | "reference": "123456789",
           | "forename" : "John",
           | "surname" : "Smith",
-          | "dateOfBirth" : "1997-01-13"
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
           |}
         """.stripMargin)
+
+
     }
   }
 
