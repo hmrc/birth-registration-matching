@@ -25,6 +25,16 @@ import uk.gov.hmrc.play.test.UnitSpec
   */
 class GroResponseSpec extends UnitSpec {
 
+  /**
+    * Should
+    * - be an instance of GroResponse
+    * - should return a JsSuccess object on successful mappings
+    * - should return a JsError object when givenName key is missing
+    * - should return a JsError object when surname key is missing
+    * - should return a JsError object when systemNumber key is missing
+    * - should return a JsError object when dateOfBirth key is missing
+    */
+
   lazy val jsonValid = Json.parse(
     """
       |{
@@ -103,7 +113,7 @@ class GroResponseSpec extends UnitSpec {
 
   "GroResponse" should {
     "be an instance of GroResponse" in {
-      val response = new GroResponse(birthReferenceNumber = "500035710", firstName = "John", surname = "Jones", dateOfBirth = new LocalDate("2007-02-18"))
+      val response = new GroResponse(birthReferenceNumber = "500035710", firstName = "John", lastName = "Jones", dateOfBirth = new LocalDate("2007-02-18"))
       response shouldBe a[GroResponse]
     }
 
@@ -115,7 +125,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[GroResponse]
           x.birthReferenceNumber shouldBe "500035710"
           x.firstName shouldBe "John"
-          x.surname shouldBe "Jones"
+          x.lastName shouldBe "Jones"
           x.dateOfBirth.toString shouldBe "2007-02-18"
           x.dateOfBirth shouldBe a[LocalDate]
         }
