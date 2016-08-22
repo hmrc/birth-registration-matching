@@ -26,7 +26,7 @@ import play.api.libs.json._
 case class GroResponse(
                         birthReferenceNumber: String,
                         firstName: String,
-                        surname : String,
+                        lastName : String,
                         dateOfBirth : LocalDate
                       ) {
 }
