@@ -34,6 +34,7 @@ object BirthRegisterCountry extends Enumeration  {
       try {
 
       JsSuccess(BirthRegisterCountry.withName(countryValue))
+
       } catch {
         case _: NoSuchElementException => JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value: '$countryValue'")
       }

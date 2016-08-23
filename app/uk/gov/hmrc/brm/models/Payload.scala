@@ -29,28 +29,29 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply => _, _}
   */
 
 case class Payload(
-                  reference: Option[String] = None,
-                  forename: String,
-                  surname: String,
+                  birthReferenceNumber: Option[String] = None,
+                  firstName: String,
+                  lastName: String,
                   dateOfBirth: LocalDate,
                   whereBirthRegistered : BirthRegisterCountry
-                  )
+                  ){
+}
 
 object Payload extends BRMFormat {
 
   implicit val PayloadWrites: Writes[Payload] = (
-      (JsPath \ "reference").write[Option[String]] and
-      (JsPath \ "forename").write[String] and
-      (JsPath \ "surname").write[String] and
+      (JsPath \ "birthReferenceNumber").write[Option[String]] and
+      (JsPath \ "firstName").write[String] and
+      (JsPath \ "lastName").write[String] and
       (JsPath \ "dateOfBirth").write[LocalDate](jodaLocalDateWrites(datePattern)) and
       (JsPath \ "whereBirthRegistered").write[BirthRegisterCountry](birthRegisterWrites)
 
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-    (JsPath \ "reference").readNullable[String] and
-    (JsPath \ "forename").read[String] and
-    (JsPath \ "surname").read[String] and
+    (JsPath \ "birthReferenceNumber").readNullable[String] and
+    (JsPath \ "firstName").read[String] and
+    (JsPath \ "lastName").read[String] and
     (JsPath \ "dateOfBirth").read[LocalDate]  and
       (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
      )(Payload.apply _)

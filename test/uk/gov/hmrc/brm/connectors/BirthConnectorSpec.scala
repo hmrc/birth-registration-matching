@@ -23,7 +23,6 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.JsValue
-import play.api.test.FakeApplication
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -49,10 +48,16 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   object MockBirthConnector extends BirthConnector {
     override val httpGet = mockHttpGet
+    override val serviceUrl = ""
+    override val baseUri = ""
+    override val detailsUri = ""
   }
 
   object MockBirthConnectorInvalidUsername extends BirthConnector {
     override val httpGet = mockHttpGet
+    override val serviceUrl = ""
+    override val baseUri = ""
+    override val detailsUri = ""
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
