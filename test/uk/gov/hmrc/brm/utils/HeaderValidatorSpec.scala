@@ -16,13 +16,39 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatest.Matchers
+import org.mockito.Matchers
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import play.api.libs.json.Json
+import play.api.test.FakeRequest
+import uk.gov.hmrc.brm.connectors.BirthConnector
+import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.play.test.UnitSpec
+import play.api.test.Helpers._
+
+import scala.concurrent.Future
 
 /**
   * Created by chrisianson on 23/08/16.
   */
-class HeaderValidatorSpec extends UnitSpec with Matchers with HeaderValidator {
+class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidator {
+
+  val mockConnector = mock[BirthConnector]
+
+  object MockController extends BirthEventsController {
+    override val Connector = mockConnector
+  }
+
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+
+  val userNoMatchExcludingReferenceKey = Json.parse(
+    s"""
+       |{
+       | "forename" : "Chris",
+       | "surname" : "Jones",
+       | "dateOfBirth" : "1990-02-16"
+       |}
+    """.stripMargin)
 
   "acceptHeaderValidationRules" should {
 
@@ -31,20 +57,39 @@ class HeaderValidatorSpec extends UnitSpec with Matchers with HeaderValidator {
     }
 
     "return false when contentType is invalid" in {
-      acceptHeaderValidationRules(contentType = Some("text/html"), version = Some("1.0"), auditSource = Some("DFS")) shouldBe false
+      acceptHeaderValidationRules(contentType = Some("text/html"), auditSource = Some("DFS")) shouldBe false
     }
 
     "return false when version is invalid" in {
-      acceptHeaderValidationRules(contentType = Some("application/json"), version = Some("9"), auditSource = Some("DFS")) shouldBe false
+      acceptHeaderValidationRules(contentType = Some("application/json"), auditSource = Some("DFS")) shouldBe false
     }
 
     "return false when auditSource is invalid" in {
-      acceptHeaderValidationRules(contentType = Some("application/json"), version = Some("1.0"), auditSource = Some("")) shouldBe false
+      acceptHeaderValidationRules(contentType = Some("application/vnd.hmrc.1.0+json"), auditSource = Some("")) shouldBe false
     }
 
-    "return true when contentType, version and auditSource is valid and included" in {
-      acceptHeaderValidationRules(contentType = Some("application/json"), version = Some("1.2"), auditSource = Some("DFS")) shouldBe true
+    "return true when contentType and auditSource is valid and included" in {
+      acceptHeaderValidationRules(contentType = Some("application/vnd.hmrc.1.0+json"), auditSource = Some("DFS")) shouldBe true
     }
+  }
+
+  "validateAccept" should {
+    "return response code 200 for valid headers" in {
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders(("Content-Type", "application/vnd.hmrc.1.0+json"),("Audit-Source", "DFS"))
+        .withBody(userNoMatchExcludingReferenceKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe OK
+    }
+
+    "return response code 400 for invalid Content-Type headers" in {
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders(("Content-Type", "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
+        .withBody(userNoMatchExcludingReferenceKey)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
+    }
+
   }
 
 }

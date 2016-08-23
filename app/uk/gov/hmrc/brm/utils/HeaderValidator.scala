@@ -17,7 +17,9 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
+import play.api.libs.openid.Errors.BAD_RESPONSE
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import uk.gov.hmrc.brm.models.ErrorResponse
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
@@ -36,31 +38,20 @@ trait HeaderValidator extends Results {
 
   val validateAuditSource : String => Boolean = !_.isEmpty
 
-  val matchContentType : String => Option[Match] = new Regex( """^application/(.*?)$""", "contenttype") findFirstMatchIn _
-
-  val matchVersion : String  => Option[Match] = new Regex("""^([1-9]\.[0-9])$""", "version") findFirstMatchIn _
-
   val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-//  val matchHeader : String => Option[Match] = new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", "version", "contenttype") findFirstMatchIn _
+  val matchHeader : String => Option[Match] = new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", "version", "contenttype") findFirstMatchIn _
 
-  def acceptHeaderValidationRules(contentType: Option[String] = None, version: Option[String] = None, auditSource: Option[String] = None): Boolean = {
+  def acceptHeaderValidationRules(contentType: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 
     val contentTypeStatus = contentType.flatMap(
       a =>
-        matchContentType(a) map(
+        matchHeader(a) map(
           res =>
-            validateContentType(res.group("contenttype"))
+            validateContentType(res.group("contenttype")) &&
+              validateVersion(res.group("version"))
           )
-    ) getOrElse(false)
-
-    val versionStatus = version.flatMap(
-      a =>
-        matchVersion(a) map(
-          res =>
-            validateVersion(res.group("version"))
-          )
-    ) getOrElse(false)
+    ) getOrElse false
 
     val auditSourceStatus = auditSource.flatMap(
       a =>
@@ -68,21 +59,23 @@ trait HeaderValidator extends Results {
           res =>
             validateAuditSource(res.group("auditsource"))
           )
-    ) getOrElse(false)
+    ) getOrElse false
 
-    if(contentTypeStatus && versionStatus && auditSourceStatus) {
-      true
-    }
-    else {
-      false
-    }
-
+    contentTypeStatus && auditSourceStatus
   }
 
-  def validateAccept(rules: Option[String] => Boolean) = new ActionBuilder[Request] {
+  def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-      if (rules(request.headers.get("Accept"))) block(request)
-      else Future.successful(Status(ErrorAcceptHeaderInvalid.httpStatusCode)(Json.toJson(ErrorAcceptHeaderInvalid)))
+      if (rules(request.headers.get("Content-Type"), request.headers.get("Audit-Source"))) {
+        block(request)
+      }
+      else
+      {
+        println(ErrorResponse.getErrorResponseByErrorCode(145))
+
+        val errorCode = 145
+        Future.successful((BadRequest) (ErrorResponse.getErrorResponseByErrorCode(errorCode)))
+      }
     }
   }
 
