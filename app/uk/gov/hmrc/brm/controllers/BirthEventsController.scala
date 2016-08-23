@@ -19,12 +19,12 @@ package uk.gov.hmrc.brm.controllers
 import app.Routes
 
 import scala.concurrent.Future
-
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
 import uk.gov.hmrc.brm.models._
+import uk.gov.hmrc.brm.utils.HeaderValidator
 import uk.gov.hmrc.play.http.{HeaderCarrier, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
 
@@ -36,7 +36,7 @@ object BirthEventsController extends BirthEventsController {
   override val Connector = GROEnglandAndWalesConnector
 }
 
-trait BirthEventsController extends controller.BaseController {
+trait BirthEventsController extends controller.BaseController with HeaderValidator {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -46,36 +46,36 @@ trait BirthEventsController extends controller.BaseController {
     response.as("application/json")
   }
 
-  object BRMAction extends ActionBuilder[BRMRequest] {
-    def invokeBlock[A](request: Request[A], block: (BRMRequest[A] => Future[Result])) : Future[Result] = {
-
-//      val headers = BRMRequest(
-//        request = request,
-//        brmHeaders = BRMHeaders(
-//          apiVersion = request.headers.get(BRMHeaderNames.ApiVersion).map(x => APIVersion(x.toDouble)),
-//          auditSource = request.headers.get(BRMHeaderNames.AuditSource).map(AuditSource)
-//        )
-//      )
-
-      (request.headers.get("Api-Version"), request.headers.get("AuditSource")) match {
-        case (Some(version), Some(audit)) =>
-          try {
-            val brmRequest = BRMRequest(request, BRMHeaders(
-              apiVersion = version.toDouble,
-              auditSource = audit
-            ))
-            Logger.info(s"[BRMAction][Received request from]: ${brmRequest.brmHeaders.auditSource}")
-
-//            block(brmRequest)
-          } catch {
-            case e : Exception => Future.successful(BadRequest("Api-Version is not a number"))
-          }
-        case (Some(x), _) => Future.successful(BadRequest("Please provide AuditSource"))
-        case (_, Some(x)) => Future.successful(BadRequest("Please provide Api-Version"))
-        case (_, _) => Future.successful(BadRequest("Please provide Api-Version and AuditSource"))
-      }
-    }
-  }
+//  object BRMAction extends ActionBuilder[BRMRequest] {
+//    def invokeBlock[A](request: Request[A], block: (BRMRequest[A] => Future[Result])) : Future[Result] = {
+//
+////      val headers = BRMRequest(
+////        request = request,
+////        brmHeaders = BRMHeaders(
+////          apiVersion = request.headers.get(BRMHeaderNames.ApiVersion).map(x => APIVersion(x.toDouble)),
+////          auditSource = request.headers.get(BRMHeaderNames.AuditSource).map(AuditSource)
+////        )
+////      )
+//
+//      (request.headers.get("Api-Version"), request.headers.get("AuditSource")) match {
+//        case (Some(version), Some(audit)) =>
+//          try {
+//            val brmRequest = BRMRequest(request, BRMHeaders(
+//              apiVersion = version.toDouble,
+//              auditSource = audit
+//            ))
+//            //Logger.info(s"[BRMAction][Received request from]: ${brmRequest.brmHeaders.auditSource}")
+//
+////            block(brmRequest)
+//          } catch {
+//            case e : Exception => Future.successful(BadRequest("Api-Version is not a number"))
+//          }
+//        case (Some(x), _) => Future.successful(BadRequest("Please provide AuditSource"))
+//        case (_, Some(x)) => Future.successful(BadRequest("Please provide Api-Version"))
+//        case (_, _) => Future.successful(BadRequest("Please provide Api-Version and AuditSource"))
+//      }
+//    }
+//  }
 
 //  trait BRMFilter extends Filter {
 //
@@ -117,7 +117,7 @@ trait BirthEventsController extends controller.BaseController {
       respond(InternalServerError(e.message))
   }
 
-  def post() = Action.async(parse.json) {
+  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
