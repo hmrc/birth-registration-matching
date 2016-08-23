@@ -68,6 +68,7 @@ trait BirthEventsController extends controller.BaseController {
               // make request with reference number
               Connector.getReference(reference) map {
                 response =>
+                  // TODO CURRENTLY THROWS AN EXCEPTION WHEN INVALID PAYLOAD RETURNED
                   Logger.debug(s"[BirthEventsController][GROConnector][getReference] Success: $response")
                   val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
                   val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
