@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.controllers
 import scala.concurrent.Future
 
 import play.api.Logger
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResultException, JsResult, Json}
 import play.api.mvc.{Result, Action}
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
 import uk.gov.hmrc.brm.models.Payload
@@ -48,6 +48,9 @@ trait BirthEventsController extends controller.BaseController {
     case e : Upstream4xxResponse =>
       Logger.warn(s"[MatchingController][GROConnector][$method] BadRequest: ${e.message}")
       respond(BadRequest(e.message))
+    case e : JsResultException =>
+      Logger.error(s"[MatchingController][GROConnector][$method] JsResultException: ${e.errors}")
+      respond(InternalServerError)
     case e : Upstream5xxResponse =>
       Logger.error(s"[MatchingController][GROConnector][$method] InternalServerError: ${e.message}")
       respond(InternalServerError(e.message))

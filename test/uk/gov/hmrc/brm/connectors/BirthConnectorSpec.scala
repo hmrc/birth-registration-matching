@@ -22,7 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Json, JsValue}
 import play.api.test.FakeApplication
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http._
