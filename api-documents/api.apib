@@ -2,63 +2,94 @@ FORMAT: 1A
 
 # Birth Matching Registration Service
 
-NOTE: This is a draft of the API and is subject to change
+NOTE: This is a draft of the API and is subject to change.
+
+## IMPORTANT: Users need to be authenticated through PTA before accessing this API
 
 Birth Matching Registration Service is a service that allows you to check if the GRO for England and Wales contains a birth registration record for a given child.
 
 ## Group Birth Registration Match
 
-## Check birth record exists [/api/v0/events/birth/{birthreferencenumber}/{?forenames}{&lastname}{&dateofbirth}{&gender}]
+## Check birth record exists for specific birth reference number [/birth-registration-matching/match]
 
-Check for an existing birth record based on a set of child parameters including birth certificate reference number
+Check for an existing birth record based on a birth reference number
 
-+ birthreferencenumber - unique 9 digit reference number found on birth certificate
-+ forenames - childs forenames up to maximum of 4 values (space separated)
-+ lastname - childs lastname
-+ dateofbirth - childs date of birth
-+ gender - childs gender
++ birthReferenceNumber - unique reference number found on birth certificate (min 9 characters)
++ firstName - childs firstname (max 128 characters)
++ lastName - childs lastname (max 200 characters)
++ dateOfBirth - childs date of birth
++ whereBirthRegistered - where is the birth registered (england, wales)
 
 + Parameters
-    + birthreferencenumber: 123456789 (required, number)
-    + forenames: John (required, string)
-    + lastname:  Smith (required, string)
-    + dateofbirth: 2010-01-04 (required, string)
-    + gender: male (optional, string)
 
-### Check Birth [GET]
+    + birthReferenceNumber: 123456789 (optional, number)
+    + firstName: John (required, string)
+    + lastName:  Smith (required, string)
+    + dateOfBirth: `2010-01-04` (required, string)
+    + whereBirthRegistered: england (required, string)
+    + `API-Version`: 1.0 (required, decimal)
+    + `Request-Origin`: def (required, string)
 
-+ Response 200 (application/json)
+### Check Birth [POST]
+
++ Request (application/json)
+
+  + Schema
+    {
+          "properties": {
+            "birthReferenceNumber": {
+              "type": "string",
+              "pattern": "/^-?\d+$"
+            },
+            "firstName": {
+              "type": "string",
+              "pattern": "/^[\w\s]+$/"
+            },
+            "lastName": {
+              "type": "string",
+              "pattern": "/^[\w\s]+$/"
+            },
+            "dateOfBirth": {
+              "type": "string",
+              "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/"
+            },
+            "whereBirthRegistered": {
+              "type": "string",
+              "pattern": "/^[\w\s]+$/"
+            },
+          }
+    }
 
 {
-  "data": {
-    "record-matched": true,
-  }
+  "birthReferenceNumber": "123456789",
+  "firstName": "John",
+  "lastName": "Smith",
+  "dateOfBirth": "2014-05-18",
+  "whereBirthRegistered": "england"
 }
 
-## Group Authenticate with service
-
-## Check birth record exists [/api/v0/oauth/login]
-
-The API requires a user/service to be authenticated
-
-+ username - valid user of the service
-+ password - valid password
-
-+ Parameters
-    + username: validuser (required, string)
-    + password: validpassword (required, string)
-
-### Authenticate [POST]
++ Headers
+    Version: 1.0
+    Request-Origin: dfs
 
 + Response 200 (application/json)
 
+  + Schema
+    {
+          "properties": {
+            "matched": {
+              "type": "boolean"
+            }
+          }
+    }
+
 {
-  "access_token": Op5HmMWzlxKE70W1y4MibiJUusZwZC25NOVBEx3ER4,
+  "matched": true
 }
 
 ## Group Error and Messages
 
-## Check birth record exists [/api/v0/events/invalidendpoint]
+## Check birth record exists [/birth-registration-matching/invalidendpoint]
 
 Failing to be authenticated could result in the following errors
 
