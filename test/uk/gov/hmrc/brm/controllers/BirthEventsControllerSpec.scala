@@ -190,7 +190,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
      """.stripMargin)
 
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
-    .withHeaders(("Content-type", "application/json"))
+    .withHeaders(("Content-Type", "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
