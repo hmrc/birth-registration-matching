@@ -19,15 +19,17 @@ package uk.gov.hmrc.brm.controllers
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.JsonUtils
-import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.play.http.{JsValidationException, HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import scala.util.Success
 
 /**
   * Created by chrisianson on 26/07/16.
@@ -58,6 +60,11 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+
+  val invalidResponse = Json.parse(
+    """
+      |[]
+    """.stripMargin)
 
   val noJson = Json.parse(
     s"""{
@@ -326,5 +333,14 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentType(result).get shouldBe "application/json"
     }
+
+    "return InternalServerError when GRO returns invalid json" in {
+      when(MockController.Connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(invalidResponse))
+      val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentType(result).get shouldBe "application/json"
+    }
+
   }
 }
