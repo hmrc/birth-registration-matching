@@ -21,3 +21,9 @@ error.code.8.status = 400
 error.code.8.title = Date of birth empty
 error.code.8.details = You must supply a valid date of birth
 error.code.8.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
+
+error.code.145.code = 145
+error.code.145.status = 400
+error.code.145.title = Headers invalid
+error.code.145.details = The headers you supplied are invalid
+error.code.145.links.about = http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html
