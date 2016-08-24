@@ -22,8 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
-import play.api.libs.json.{Json, JsValue}
-import play.api.test.FakeApplication
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -49,10 +48,9 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   object MockBirthConnector extends BirthConnector {
     override val httpGet = mockHttpGet
-  }
-
-  object MockBirthConnectorInvalidUsername extends BirthConnector {
-    override val httpGet = mockHttpGet
+    override val serviceUrl = ""
+    override val baseUri = ""
+    override val detailsUri = ""
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -101,6 +99,16 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
       intercept[Upstream4xxResponse] {
         val result = await(MockBirthConnector.getReference("50003570"))
+        result shouldBe a[JsValue]
+      }
+    }
+
+    "getReference returns http 400 when GRO is not found data" in {
+
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
+      intercept[Upstream4xxResponse] {
+        val result = await(MockBirthConnector.getReference("123333"))
         result shouldBe a[JsValue]
       }
     }

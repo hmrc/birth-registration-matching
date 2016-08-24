@@ -30,11 +30,11 @@ import scala.concurrent.Future
 
 trait BirthConnector extends ServicesConfig {
 
-  val serviceUrl = baseUrl("birth-registration-matching")
-  val httpGet : HttpGet = WSHttp
+  val serviceUrl : String
+  val httpGet : HttpGet
 
-  val baseUri = "birth-registration-matching-proxy"
-  val detailsUri = s"$serviceUrl/$baseUri/match"
+  val baseUri : String
+  val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
     httpGet.GET[HttpResponse](s"$detailsUri/$reference") map {
@@ -56,6 +56,8 @@ trait BirthConnector extends ServicesConfig {
     response.status match {
       case Status.OK =>
         response.json
+      case e @ Status.NOT_FOUND =>
+        throw new Upstream4xxResponse(s"[${super.getClass.getName}][NotFound]", e, Status.NOT_FOUND)
       case e @ Status.BAD_REQUEST =>
         throw new Upstream4xxResponse(s"[${super.getClass.getName}][BadRequest]", e, Status.BAD_REQUEST)
       case e @ _ =>
@@ -74,4 +76,14 @@ trait BirthConnector extends ServicesConfig {
   }
 }
 
-object GROEnglandAndWalesConnector extends BirthConnector
+object GROEnglandConnector extends BirthConnector {
+  override val serviceUrl = baseUrl("birth-registration-matching")
+  override val httpGet : HttpGet = WSHttp
+
+  override val baseUri = "birth-registration-matching-proxy"
+  override val detailsUri = s"$serviceUrl/$baseUri/match"
+}
+
+
+
+

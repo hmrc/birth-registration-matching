@@ -17,7 +17,9 @@
 package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 import uk.gov.hmrc.play.test.UnitSpec
 
 /**
@@ -35,35 +37,73 @@ class PayloadSpec extends UnitSpec {
 
     "instantiate an instance of payload" in {
       val payload = Payload(
-        reference = Some("123456789"),
-        forename = "John",
-        surname = "Smith",
-        dateOfBirth = new LocalDate("1997-01-13")
+        birthReferenceNumber = Some("123456789"),
+        firstName = "John",
+        lastName = "Smith",
+        dateOfBirth = new LocalDate("1997-01-13"),
+        whereBirthRegistered = BirthRegisterCountry.ENGLAND
       )
 
       payload shouldBe a[Payload]
-      payload.reference shouldBe Some("123456789")
-      payload.forename shouldBe "John"
-      payload.surname shouldBe "Smith"
+      payload.birthReferenceNumber shouldBe Some("123456789")
+      payload.firstName shouldBe "John"
+      payload.lastName shouldBe "Smith"
+      payload.whereBirthRegistered shouldBe BirthRegisterCountry.withName("england")
     }
 
     "convert to json" in {
       val payload = Payload(
-        reference = Some("123456789"),
-        forename = "John",
-        surname = "Smith",
-        dateOfBirth = new LocalDate("1997-01-13")
+        birthReferenceNumber = Some("123456789"),
+        firstName = "John",
+        lastName = "Smith",
+        dateOfBirth = new LocalDate("1997-01-13"),
+        whereBirthRegistered = BirthRegisterCountry.ENGLAND
       )
 
       Json.toJson(payload) shouldBe Json.parse(
         """
           |{
-          | "reference": "123456789",
-          | "forename" : "John",
-          | "surname" : "Smith",
-          | "dateOfBirth" : "1997-01-13"
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
           |}
         """.stripMargin)
+
+
+    }
+
+    "return error when whereBirthRegistered is number" in {
+      var jsonObject: JsValue = null
+      jsonObject = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : 123
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when whereBirthRegistered value is not from valid enum values" in {
+      var jsonObject: JsValue = null
+      jsonObject = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "notvalid"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
     }
   }
 

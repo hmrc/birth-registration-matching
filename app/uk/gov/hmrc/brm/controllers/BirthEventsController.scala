@@ -16,77 +16,73 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import scala.concurrent.Future
-
 import play.api.Logger
-import play.api.libs.json.{JsResultException, JsResult, Json}
-import play.api.mvc.{Result, Action}
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandAndWalesConnector}
+import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.play.http.BadRequestException
+import play.api.libs.json.Json
+import play.api.mvc.{Action, Result}
 import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
+import play.api.http.Status
+import uk.gov.hmrc.brm.utils.BirthResponseBuilder
+
+import scala.concurrent.Future
 
 
 /**
   * Created by chrisianson on 25/07/16.
   */
 object BirthEventsController extends BirthEventsController {
-  override val Connector = GROEnglandAndWalesConnector
+
+  override val service = LookupService
 }
 
 trait BirthEventsController extends controller.BaseController {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val Connector : BirthConnector
+  protected val service : LookupService
 
   private def respond(response : Result) = {
     response.as("application/json")
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
-    case e : Upstream4xxResponse =>
-      Logger.warn(s"[MatchingController][GROConnector][$method] BadRequest: ${e.message}")
-      respond(BadRequest(e.message))
-    case e : JsResultException =>
-      Logger.error(s"[MatchingController][GROConnector][$method] JsResultException: ${e.errors}")
-      respond(InternalServerError)
+    case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+    case e :  Upstream4xxResponse if e.reportAs == BAD_REQUEST  =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      respond(BadRequest(e.getMessage))
+    case e :  BadRequestException =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      respond(BadRequest(e.getMessage))
     case e : Upstream5xxResponse =>
-      Logger.error(s"[MatchingController][GROConnector][$method] InternalServerError: ${e.message}")
+      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
       respond(InternalServerError(e.message))
+
   }
 
   def post() = Action.async(parse.json) {
-    implicit request =>
-      request.body.validate[Payload].fold(
-        error => {
-          Future.successful(respond(BadRequest("")))
-        },
-        payload => {
-          payload.reference.fold(
-            // make request to details stubbed out at the moment
-            Future.successful(respond(Ok("no match")))
-          )(
-            reference =>
-              // make request with reference number
-              Connector.getReference(reference) map {
-                response =>
-                  // TODO CURRENTLY THROWS AN EXCEPTION WHEN INVALID PAYLOAD RETURNED
-                  Logger.debug(s"[BirthEventsController][GROConnector][getReference] Success: $response")
-                  val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
-                  val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
-                  val isMatch = firstName.equals(payload.forename) && surname.equals(payload.surname)
-                  val result = Json.parse(
-                    s"""
-                       |{
-                       | "validated" : $isMatch
-                       |}
-                    """.stripMargin)
+     implicit request =>
+       request.body.validate[Payload].fold(
+         error => {
+           Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
+           Future.successful(respond(BadRequest("")))
+         },
+         payload => {
+           Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
+           service.lookup(payload) map {
+             bm => {
+               Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+               respond(Ok(Json.toJson(bm)))
+             }
+           }
 
-                  respond(Ok(result))
-              }
-          )
-        } recover handleException("getReference")
-      )
-  }
+         }
+       ) recover handleException("getReference")
+   }
 }
+
+
