@@ -23,7 +23,6 @@ import play.api.mvc.{Request, WrappedRequest}
  */
 
 object BRMHeaderNames {
-  val ApiVersion = "Api-Version"
   val AuditSource = "Audit-Source"
 }
 
@@ -34,8 +33,8 @@ case class BRMHeaders(
                        apiVersion : Double,
                        auditSource : String
                        ) {
-//  require(apiVersion.fold(false)(x => x.value > 0), "Specify a Api-Version greater than 0")
-//  require(auditSource.fold(false)(x => x.value.nonEmpty), "AuditSource must not be empty")
+  require(apiVersion > 0.0, "Accept header application/vnd.hmrc.1.0+json must be 1.0 or greater")
+  require(!auditSource.isEmpty, "Audit-Source must not be empty")
 }
 
 case class BRMRequest[A](

@@ -43,7 +43,7 @@ class HeadersSpec extends UnitSpec {
           auditSource = "dfs"
         )
       }
-      error.getMessage shouldBe "requirement failed: Specify a Api-Version greater than 0"
+      error.getMessage shouldBe "requirement failed: Accept header application/vnd.hmrc.1.0+json must be 1.0 or greater"
     }
 
     "throw IllegalArgumentException whe invalid AuditSource" in {
@@ -53,7 +53,7 @@ class HeadersSpec extends UnitSpec {
           auditSource = ""
         )
       }
-      error.getMessage shouldBe "requirement failed: AuditSource must not be empty"
+      error.getMessage shouldBe "requirement failed: Audit-Source must not be empty"
     }
 
   }

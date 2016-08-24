@@ -43,7 +43,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   val Connector : BirthConnector
 
   private def respond(response : Result) = {
-    response.as("application/json")
+    response
+      .as("application/json")
+      .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
   }
 
 //  object BRMAction extends ActionBuilder[BRMRequest] {

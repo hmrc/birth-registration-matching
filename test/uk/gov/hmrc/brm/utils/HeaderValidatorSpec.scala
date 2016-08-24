@@ -76,15 +76,15 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
   "validateAccept" should {
     "return response code 200 for valid headers" in {
       val request = FakeRequest("POST", "/api/v0/events/birth")
-        .withHeaders(("Content-Type", "application/vnd.hmrc.1.0+json"),("Audit-Source", "DFS"))
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"),("Audit-Source", "DFS"))
         .withBody(userNoMatchExcludingReferenceKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
     }
 
-    "return response code 400 for invalid Content-Type headers" in {
+    "return response code 400 for invalid Accept headers" in {
       val request = FakeRequest("POST", "/api/v0/events/birth")
-        .withHeaders(("Content-Type", "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
         .withBody(userNoMatchExcludingReferenceKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
