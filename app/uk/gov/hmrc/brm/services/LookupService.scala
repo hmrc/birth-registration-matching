@@ -71,7 +71,7 @@ trait LookupService {
           case _ => {
             getConnector(payload).getReference(reference) map {
               response => {
-                if (response.validate[JsObject].get.keys.isEmpty) {
+                if (response.validate[JsObject].isError  || response.validate[JsObject].get.keys.isEmpty) {
                   BirthResponseBuilder.withNoMatch()
                 } else {
 

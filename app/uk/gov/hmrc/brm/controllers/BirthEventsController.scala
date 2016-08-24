@@ -17,15 +17,15 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.Logger
+import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.play.http.BadRequestException
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Result}
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
-
-import uk.gov.hmrc.brm.models.{BirthMatchResponse, Payload}
-import uk.gov.hmrc.brm.services.LookupService
-
-import uk.gov.hmrc.play.http.{BadRequestException, Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.brm.models.Payload
+import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
+import play.api.http.Status
+import uk.gov.hmrc.brm.utils.BirthResponseBuilder
 
 import scala.concurrent.Future
 
@@ -49,8 +49,13 @@ trait BirthEventsController extends controller.BaseController {
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
-
-    case e @ (_: Upstream4xxResponse | _: BadRequestException) =>
+    case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+    case e :  Upstream4xxResponse if e.reportAs == BAD_REQUEST  =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      respond(BadRequest(e.getMessage))
+    case e :  BadRequestException =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e : Upstream5xxResponse =>
@@ -61,25 +66,23 @@ trait BirthEventsController extends controller.BaseController {
 
   def post() = Action.async(parse.json) {
      implicit request =>
-           request.body.validate[Payload].fold(
-             error => {
-               Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
-               Future.successful(respond(BadRequest("")))
-             },
-             payload => {
-
-               Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
-               service.lookup(payload) map {
-                 bm => {
-                   Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
-                   respond(Ok(Json.toJson(bm)))
-                 }
-               }
-
+       request.body.validate[Payload].fold(
+         error => {
+           Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
+           Future.successful(respond(BadRequest("")))
+         },
+         payload => {
+           Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
+           service.lookup(payload) map {
+             bm => {
+               Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+               respond(Ok(Json.toJson(bm)))
              }
-           ) recover handleException("getReference")
-       }
+           }
 
+         }
+       ) recover handleException("getReference")
+   }
 }
 
 

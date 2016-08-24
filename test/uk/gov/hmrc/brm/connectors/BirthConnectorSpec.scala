@@ -102,5 +102,15 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         result shouldBe a[JsValue]
       }
     }
+
+    "getReference returns http 400 when GRO is not found data" in {
+
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
+      intercept[Upstream4xxResponse] {
+        val result = await(MockBirthConnector.getReference("123333"))
+        result shouldBe a[JsValue]
+      }
+    }
   }
 }

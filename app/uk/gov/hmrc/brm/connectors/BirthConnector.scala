@@ -56,6 +56,8 @@ trait BirthConnector extends ServicesConfig {
     response.status match {
       case Status.OK =>
         response.json
+      case e @ Status.NOT_FOUND =>
+        throw new Upstream4xxResponse(s"[${super.getClass.getName}][NotFound]", e, Status.NOT_FOUND)
       case e @ Status.BAD_REQUEST =>
         throw new Upstream4xxResponse(s"[${super.getClass.getName}][BadRequest]", e, Status.BAD_REQUEST)
       case e @ _ =>

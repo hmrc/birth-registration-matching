@@ -15,18 +15,17 @@
  */
 
 package uk.gov.hmrc.brm.controllers
-import play.api.Logger
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.config.WSHttp
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
+import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.JsonUtils
-import uk.gov.hmrc.play.http.{HttpGet, Upstream4xxResponse, Upstream5xxResponse}
+
+import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -58,6 +57,11 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+
+  val invalidResponse = Json.parse(
+    """
+      |[]
+    """.stripMargin)
 
   val noJson = Json.parse(
     s"""{
@@ -375,5 +379,24 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentType(result).get shouldBe "application/json"
     }
+
+    "return InternalServerError when GRO returns invalid json" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(invalidResponse))
+      val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe OK
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+    }
+
+    "return not match when GRO returns NOT FOUND" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+      val request = postRequest(userNoMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe OK
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+    }
+
   }
 }
