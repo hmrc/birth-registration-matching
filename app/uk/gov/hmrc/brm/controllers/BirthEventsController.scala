@@ -48,68 +48,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
   }
 
-//  object BRMAction extends ActionBuilder[BRMRequest] {
-//    def invokeBlock[A](request: Request[A], block: (BRMRequest[A] => Future[Result])) : Future[Result] = {
-//
-////      val headers = BRMRequest(
-////        request = request,
-////        brmHeaders = BRMHeaders(
-////          apiVersion = request.headers.get(BRMHeaderNames.ApiVersion).map(x => APIVersion(x.toDouble)),
-////          auditSource = request.headers.get(BRMHeaderNames.AuditSource).map(AuditSource)
-////        )
-////      )
-//
-//      (request.headers.get("Api-Version"), request.headers.get("AuditSource")) match {
-//        case (Some(version), Some(audit)) =>
-//          try {
-//            val brmRequest = BRMRequest(request, BRMHeaders(
-//              apiVersion = version.toDouble,
-//              auditSource = audit
-//            ))
-//            //Logger.info(s"[BRMAction][Received request from]: ${brmRequest.brmHeaders.auditSource}")
-//
-////            block(brmRequest)
-//          } catch {
-//            case e : Exception => Future.successful(BadRequest("Api-Version is not a number"))
-//          }
-//        case (Some(x), _) => Future.successful(BadRequest("Please provide AuditSource"))
-//        case (_, Some(x)) => Future.successful(BadRequest("Please provide Api-Version"))
-//        case (_, _) => Future.successful(BadRequest("Please provide Api-Version and AuditSource"))
-//      }
-//    }
-//  }
-
-//  trait BRMFilter extends Filter {
-//
-//    def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader) : Future[Result] = {
-////      val verb = rh.tags.get(Routes.ROUTE_VERB)
-//
-//      val headers = BRMHeaders(
-//          apiVersion = rh.headers.get(BRMHeaderNames.ApiVersion).map(x => APIVersion(x.toDouble)),
-//          auditSource = rh.headers.get(BRMHeaderNames.AuditSource).map(AuditSource)
-//      )
-//      headers match {
-//        case BRMHeaders(Some(version), Some(audit)) =>
-//          version.value match {
-//            case 1.0 =>
-//              // redirect to version 1
-//
-//              next(rh)
-//            case _ =>
-//              Future.successful(BadRequest("Please provide Api-Version"))
-//          }
-//        case BRMHeaders(_, _) =>
-//          Future.successful(BadRequest("Please provide Api-Version and AuditSource"))
-//      }
-//    }
-//
-//  }
-
-//  def something = BRMAction.async(parse.json) {
-//    request =>
-//      Future.successful(Ok(""))
-//  }
-
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
     case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
@@ -123,7 +61,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     case e : Upstream5xxResponse =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
       respond(InternalServerError(e.message))
-
   }
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {

@@ -25,9 +25,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
-import uk.gov.hmrc.play.test.UnitSpec
-import play.api.test.Helpers._
 import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 

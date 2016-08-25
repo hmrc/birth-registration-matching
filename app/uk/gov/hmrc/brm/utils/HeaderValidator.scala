@@ -17,10 +17,8 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.libs.openid.Errors.BAD_RESPONSE
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
-import uk.gov.hmrc.brm.models.{BRMHeaderNames, ErrorResponse}
+import uk.gov.hmrc.brm.models.ErrorResponse
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
@@ -67,7 +65,7 @@ trait HeaderValidator extends Results {
 
   def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-      if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get(BRMHeaderNames.AuditSource))) {
+      if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
         block(request)
       }
       else
