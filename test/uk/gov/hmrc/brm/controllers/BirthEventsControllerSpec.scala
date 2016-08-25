@@ -53,7 +53,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     * - Return 400 if request contains missing lastName value
     * - Return 400 if request contains missing whereBirthRegistered key
     * - Return 400 if request contains missing whereBirthRegistered value
-
+    * - Return BadRequest when GRO returns 4xx
+    * - Return InternalServerError when GRO returns 5xx
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -225,7 +226,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
      """.stripMargin)
 
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
-    .withHeaders(("Content-type", "application/json"))
+    .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
 
@@ -249,13 +250,13 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   "POST /birth-registration-matching-proxy/match" should {
 
     "return 200 with application/json type" in {
-
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
 
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return JSON response of false on unsuccessful detail match" in {
@@ -264,6 +265,16 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+    "return JSON response of true on successful detail match" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return JSON response of false on unsuccessful birthReferenceNumber match" in {
@@ -272,6 +283,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return JSON response of true on successful birthReferenceNumber match" in {
@@ -280,6 +292,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 200 if request contains missing birthReferenceNumber key" in {
@@ -288,6 +301,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing birthReferenceNumber value" in {
@@ -297,6 +311,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing dateOfBirth key" in {
@@ -306,6 +321,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
 
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing dateOfBirth value" in {
@@ -314,6 +330,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing firstname key" in {
@@ -322,6 +339,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing firstname value" in {
@@ -330,6 +348,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing lastName key" in {
@@ -338,6 +357,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return response code 400 if request contains missing lastName value" in {
@@ -362,6 +382,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return BadRequest when GRO returns 4xx" in {
@@ -370,6 +391,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return InternalServerError when GRO returns 5xx" in {
@@ -378,6 +400,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       val result = MockController.post().apply(request)
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return InternalServerError when GRO returns invalid json" in {

@@ -32,13 +32,11 @@ import scala.concurrent.Future
 
 object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
-
 }
 
 trait LookupService {
 
   protected val groConnector: BirthConnector
-
 
   private def getConnector(payload: Payload): BirthConnector = {
     payload.whereBirthRegistered match {
@@ -58,9 +56,7 @@ trait LookupService {
 
     //check if birthReferenceNumber has value
     payload.birthReferenceNumber.fold(
-
       Future.successful(BirthResponseBuilder.withNoMatch())
-
     )(
       reference => {
         reference.trim match {
@@ -74,7 +70,6 @@ trait LookupService {
                 if (response.validate[JsObject].isError  || response.validate[JsObject].get.keys.isEmpty) {
                   BirthResponseBuilder.withNoMatch()
                 } else {
-
                   val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
                   val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
                   val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)

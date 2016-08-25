@@ -59,6 +59,19 @@ class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
       (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
     }
 
+    "get the correct error when sent error code 145" in {
+
+      val code = 145
+      val response = ErrorResponse.getErrorResponseByErrorCode(code)
+
+      response shouldBe a[JsObject]
+      (response \ "code").as[JsString].value should be("145")
+      (response \ "status").as[JsString].value should be("400")
+      (response \ "title").as[JsString].value should be("Headers invalid")
+      (response \ "details").as[JsString].value should be("The headers you supplied are invalid")
+      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
+    }
+
     "get default JSON error response when an invalid error code is given" in {
 
       val code = 123456789

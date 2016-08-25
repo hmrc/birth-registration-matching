@@ -17,15 +17,13 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.Logger
-import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.play.http.BadRequestException
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Result}
+import play.api.mvc.Result
 import uk.gov.hmrc.brm.models.Payload
-import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
+import uk.gov.hmrc.play.http.{BadRequestException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
-import play.api.http.Status
-import uk.gov.hmrc.brm.utils.BirthResponseBuilder
 
 import scala.concurrent.Future
 
@@ -38,14 +36,16 @@ object BirthEventsController extends BirthEventsController {
   override val service = LookupService
 }
 
-trait BirthEventsController extends controller.BaseController {
+trait BirthEventsController extends controller.BaseController with HeaderValidator {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service : LookupService
 
   private def respond(response : Result) = {
-    response.as("application/json")
+    response
+      .as("application/json")
+      .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
@@ -61,10 +61,9 @@ trait BirthEventsController extends controller.BaseController {
     case e : Upstream5xxResponse =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
       respond(InternalServerError(e.message))
-
   }
 
-  def post() = Action.async(parse.json) {
+  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
      implicit request =>
        request.body.validate[Payload].fold(
          error => {
@@ -84,5 +83,3 @@ trait BirthEventsController extends controller.BaseController {
        ) recover handleException("getReference")
    }
 }
-
-
