@@ -53,7 +53,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     * - Return 400 if request contains missing lastName value
     * - Return 400 if request contains missing whereBirthRegistered key
     * - Return 400 if request contains missing whereBirthRegistered value
-
+    * - Return BadRequest when GRO returns 4xx
+    * - Return InternalServerError when GRO returns 5xx
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")

@@ -31,7 +31,7 @@ import scala.util.matching.Regex.Match
   */
 trait HeaderValidator extends Results {
 
-  private val validVersions : List[String] = List("1.0", "1.1", "1.2")
+  private val validVersions : List[String] = List("1.0")
 
   val validateVersion : String => Boolean = validVersions.contains(_)
 
@@ -43,9 +43,9 @@ trait HeaderValidator extends Results {
 
   val matchHeader : String => Option[Match] = new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", "version", "contenttype") findFirstMatchIn _
 
-  def acceptHeaderValidationRules(contentType: Option[String] = None, auditSource: Option[String] = None): Boolean = {
+  def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 
-    val contentTypeStatus = contentType.flatMap(
+    val acceptStatus = accept.flatMap(
       a =>
         matchHeader(a) map(
           res =>
@@ -62,7 +62,7 @@ trait HeaderValidator extends Results {
           )
     ) getOrElse false
 
-    contentTypeStatus && auditSourceStatus
+    acceptStatus && auditSourceStatus
   }
 
   def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
@@ -72,8 +72,6 @@ trait HeaderValidator extends Results {
       }
       else
       {
-        println(ErrorResponse.getErrorResponseByErrorCode(145))
-
         val errorCode = 145
         Future.successful(BadRequest(ErrorResponse.getErrorResponseByErrorCode(errorCode)))
       }
