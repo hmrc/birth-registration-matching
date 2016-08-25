@@ -50,11 +50,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     * - Return 400 if request contains missing firstname value
     * - Return 400 if request contains missing surname key
     * - Return 400 if request contains missing surname value
-      *
-      * - Return response code 500 when API is down
-      * - Return response code 404 when endpoint has been retired and is no longer in use
-      * - Return response code 400 if authentication fails
-      * - Return response code 403 if account (service account) is suspended
+    * - Return BadRequest when GRO returns 4xx
+    * - Return InternalServerError when GRO returns 5xx
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
