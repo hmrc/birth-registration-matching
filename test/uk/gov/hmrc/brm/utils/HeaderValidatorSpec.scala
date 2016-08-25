@@ -25,6 +25,7 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.services.LookupService
 
 import scala.concurrent.Future
 
@@ -35,18 +36,24 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
 
   val mockConnector = mock[BirthConnector]
 
+  object MockLookupService extends LookupService {
+    override val groConnector = mockConnector
+  }
+
   object MockController extends BirthEventsController {
-    override val Connector = mockConnector
+    override val service = MockLookupService
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
 
-  val userNoMatchExcludingReferenceKey = Json.parse(
+  val payload = Json.parse(
     s"""
        |{
-       | "forename" : "Chris",
-       | "surname" : "Jones",
-       | "dateOfBirth" : "1990-02-16"
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "1990-02-16",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered": "england"
        |}
     """.stripMargin)
 
@@ -77,7 +84,8 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
     "return response code 200 for valid headers" in {
       val request = FakeRequest("POST", "/api/v0/events/birth")
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"),("Audit-Source", "DFS"))
-        .withBody(userNoMatchExcludingReferenceKey)
+        .withBody(payload)
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
     }
@@ -85,7 +93,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
     "return response code 400 for invalid Accept headers" in {
       val request = FakeRequest("POST", "/api/v0/events/birth")
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
-        .withBody(userNoMatchExcludingReferenceKey)
+        .withBody(payload)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
     }
