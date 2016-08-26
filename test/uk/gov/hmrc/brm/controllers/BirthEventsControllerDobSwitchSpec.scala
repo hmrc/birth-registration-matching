@@ -36,6 +36,7 @@ import scala.concurrent.Future
   */
 class BirthEventsControllerDobSwitchSpec extends UnitSpec  with MockitoSugar with BRMFakeApplication {
 
+
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
@@ -115,6 +116,7 @@ class BirthEventsControllerDobSwitchSpec extends UnitSpec  with MockitoSugar wit
     }
 
     "return validated value of false when the dateOfBirth is invalid and the gro record matches" in {
+
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val request = await(postRequest(userInvalidDOB))
       val result = MockController.post().apply(request)

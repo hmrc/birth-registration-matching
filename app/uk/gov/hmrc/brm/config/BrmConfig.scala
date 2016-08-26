@@ -21,9 +21,12 @@ import uk.gov.hmrc.play.config.ServicesConfig
 /**
   * Created by chrisianson on 26/08/16.
   */
-trait BrmConfig extends ServicesConfig{
+trait BrmConfig extends ServicesConfig
+{
 
- lazy val validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
+   def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
+
+
 }
 
 object BrmConfig extends BrmConfig

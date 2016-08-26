@@ -66,13 +66,12 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   }
 
   private def validateDob(d: LocalDate): Boolean = {
+
     BrmConfig.validateDobForGro match {
       case true =>
-        println(s"validateDobForGro is TRUE")
         val validDate = new LocalDate("2009-07-01")
         d.isAfter(validDate) || d.isEqual((validDate))
       case false =>
-        println(s"validateDobForGro is FALSE")
         true
     }
   }
