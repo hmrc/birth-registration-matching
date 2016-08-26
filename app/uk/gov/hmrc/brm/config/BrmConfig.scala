@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.controllers
+package uk.gov.hmrc.brm.config
 
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.brm.BRMFakeApplication
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.config.ServicesConfig
 
+/**
+  * Created by chrisianson on 26/08/16.
+  */
+trait BrmConfig extends ServicesConfig{
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with BRMFakeApplication {
-
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
-
+ lazy val validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
 }
+
+object BrmConfig extends BrmConfig
