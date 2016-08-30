@@ -33,4 +33,4 @@ test-result
 tmp
 .idea_modules
 bin
-*test/uk/gov/hmrc/brm/MyReferenceSpec.scala
+*MyReferenceSpec.scala

@@ -20,9 +20,8 @@ import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.BirthRegisterCountry
-import uk.gov.hmrc.brm.utils.{BRMFormat}
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply => _, _}
+import uk.gov.hmrc.brm.utils.BRMFormat
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
 
 /**
   * Created by chrisianson on 27/07/16.
@@ -55,9 +54,4 @@ object Payload extends BRMFormat {
     (JsPath \ "dateOfBirth").read[LocalDate]  and
       (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
      )(Payload.apply _)
-
-
-
-
-
 }

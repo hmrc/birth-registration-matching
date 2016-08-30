@@ -28,6 +28,8 @@ import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
+import uk.gov.hmrc.brm.BRMFakeApplication
+
 import scala.concurrent.Future
 
 /**
@@ -74,7 +76,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-02-16",
        | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
@@ -84,7 +86,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "",
        | "whereBirthRegistered" : "england"
        |}
@@ -94,7 +96,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     s"""
        |{
        |"lastName" : "Jones",
-       |"dateOfBirth" : "1980-04-18",
+       |"dateOfBirth" : "2012-04-18",
        |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
@@ -104,7 +106,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "",
        | "whereBirthRegistered" : "england"
        |}
@@ -115,7 +117,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-08-03",
        | "birthReferenceNumber" : "123456789",
        | "whereBirthRegistered" : "wales"
        |}
@@ -126,7 +128,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "",
        | "whereBirthRegistered" : "england"
        |}
@@ -137,7 +139,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
-       | "dateOfBirth" : "1990-02-16",
+       | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "500035710",
        | "whereBirthRegistered" : "england"
        |}
@@ -168,7 +170,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     s"""
        |{
        |"lastName" : "Smith",
-       |"dateOrBirth" : "1997-12-17",
+       |"dateOrBirth" : "2012-12-17",
        |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
@@ -178,7 +180,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        |"firstname" : "",
        |"lastName" : "Jones",
-       |"dateOfBirth" : "1997-11-16",
+       |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
@@ -187,7 +189,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     s"""
        |{
        |"firstname" : "John",
-       |"dateOrBirth" : "1997-12-17",
+       |"dateOrBirth" : "2012-12-17",
        |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
@@ -197,7 +199,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        |"firstname" : "John",
        |"lastName" : "",
-       |"dateOfBirth" : "1997-11-16",
+       |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
@@ -208,7 +210,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        |"firstname" : "Manish",
        |"lastName" : "Varma",
-       |"dateOfBirth" : "1997-11-16",
+       |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789"
        |
        |}
@@ -219,7 +221,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |{
        |"firstname" : "John",
        |"lastName" : "Jones",
-       |"dateOfBirth" : "1997-11-16",
+       |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789",
        |"whereBirthRegistered" : ""
        |}
@@ -228,7 +230,6 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
-
 
   val mockConnector = mock[BirthConnector]
   object MockLookupService extends LookupService {
