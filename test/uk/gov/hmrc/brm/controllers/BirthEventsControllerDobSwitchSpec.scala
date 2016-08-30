@@ -118,17 +118,17 @@ class BirthEventsControllerDobSwitchSpec extends UnitSpec  with MockitoSugar wit
     "return validated value of false when the dateOfBirth is invalid and the gro record matches" in {
 
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
-      val request = await(postRequest(userInvalidDOB))
+      val request = postRequest(userInvalidDOB)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
     }
-  }
 
-  "return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
-    when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject20090630))
-    val request = postRequest(userValidDOB20090630)
-    val result = await(MockController.post().apply(request))
-    (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+    "return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject20090630))
+      val request = postRequest(userValidDOB20090630)
+      val result = await(MockController.post().apply(request))
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+    }
 
   }
 
