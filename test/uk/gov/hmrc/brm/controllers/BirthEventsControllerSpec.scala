@@ -19,16 +19,13 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.test.{FakeApplication, FakeRequest}
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.JsonUtils
-
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
-import uk.gov.hmrc.brm.BRMFakeApplication
 
 import scala.concurrent.Future
 
@@ -60,6 +57,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     **/
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
+  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
 
   val invalidResponse = Json.parse(
     """
@@ -227,6 +226,50 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |}
      """.stripMargin)
 
+  val userInvalidDOB = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2006-02-16",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userValidDOB = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2012-02-16",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userValidDOB20090701 = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-07-01",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userValidDOB20090630 = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-06-30",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
@@ -239,6 +282,10 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   object MockController extends BirthEventsController {
     val service = MockLookupService
   }
+
+  var config: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.validateDobForGro" -> true
+  )
 
  "initialising" should {
    "wire up dependencies correctly" in {
@@ -422,5 +469,40 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       contentType(result).get shouldBe "application/json"
     }
 
+    "return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+        val request = postRequest(userValidDOB)
+        val result = MockController.post().apply(request)
+        (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+      }
+    }
+
+    "return validated value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject20090701))
+        val request = postRequest(userValidDOB20090701)
+        val result = MockController.post().apply(request)
+        (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+      }
+    }
+
+    "return validated value of false when the dateOfBirth is invalid and the gro record matches" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+        val request = postRequest(userInvalidDOB)
+        val result = MockController.post().apply(request)
+        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      }
+    }
+
+    "return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
+      running(FakeApplication(additionalConfiguration = config)) {
+        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject20090630))
+        val request = postRequest(userValidDOB20090630)
+        val result = await(MockController.post().apply(request))
+        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      }
+    }
   }
 }
