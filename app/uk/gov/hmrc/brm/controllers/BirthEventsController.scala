@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -24,6 +25,7 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 import uk.gov.hmrc.play.http.{BadRequestException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.microservice.controller
+import uk.gov.hmrc.brm.config.BrmConfig
 
 import scala.concurrent.Future
 
@@ -63,6 +65,17 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(InternalServerError(e.message))
   }
 
+  private def validateDob(d: LocalDate): Boolean = {
+
+    BrmConfig.validateDobForGro match {
+      case true =>
+        val validDate = new LocalDate("2009-07-01")
+        d.isAfter(validDate) || d.isEqual((validDate))
+      case false =>
+        true
+    }
+  }
+
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
      implicit request =>
        request.body.validate[Payload].fold(
@@ -71,12 +84,18 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
            Future.successful(respond(BadRequest("")))
          },
          payload => {
-           Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
-           service.lookup(payload) map {
-             bm => {
-               Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
-               respond(Ok(Json.toJson(bm)))
-             }
+          payload match {
+             case x: Payload if !validateDob(x.dateOfBirth) =>
+               Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
+               Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
+             case _ =>
+               Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
+               service.lookup(payload) map {
+                 bm => {
+                   Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+                   respond(Ok(Json.toJson(bm)))
+                 }
+               }
            }
 
          }
