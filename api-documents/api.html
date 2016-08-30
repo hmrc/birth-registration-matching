@@ -29,23 +29,33 @@
   "<span class="hljs-attribute">properties</span>": <span class="hljs-value">{
     "<span class="hljs-attribute">birthReferenceNumber</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^-?\d+$"</span>
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^-?\d+$"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Unique reference number found on birth certificate"</span>
     </span>}</span>,
     "<span class="hljs-attribute">firstName</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span>
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Childs firstname"</span>
     </span>}</span>,
     "<span class="hljs-attribute">lastName</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span>
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Childs lastname"</span>
     </span>}</span>,
     "<span class="hljs-attribute">dateOfBirth</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/"</span>
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Childs date of birth"</span>
     </span>}</span>,
     "<span class="hljs-attribute">whereBirthRegistered</span>": <span class="hljs-value">{
       "<span class="hljs-attribute">type</span>": <span class="hljs-value"><span class="hljs-string">"string"</span></span>,
-      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span>
+      "<span class="hljs-attribute">required</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+      "<span class="hljs-attribute">pattern</span>": <span class="hljs-value"><span class="hljs-string">"/^[\w\s]+$/"</span></span>,
+      "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Where is the birth registered"</span>
     </span>}</span>,
   }
 </span>}</code></pre><div style="height: 1px;"></div></div></div><div class="tabs"><div class="example-names"><span>Responses</span><span class="tab-button">200</span></div><div class="tab"><div><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Accept</span>: <span class="hljs-string">application/vnd.hmrc.1.0+json</span><br><span class="hljs-attribute">Audit-Source</span>: <span class="hljs-string">dfs</span><br><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
