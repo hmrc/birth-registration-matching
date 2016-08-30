@@ -55,7 +55,7 @@ Check for an existing birth record based on a birth reference number
               "type": "string",
               "required": true,
               "pattern": "/^[\w\s]+$/",
-              "description": "Where is the birth registered"
+              "description": "Where the birth is registered"
             },
           }
     }
@@ -226,6 +226,14 @@ Failing to be authenticated could result in the following errors
 		"status": "404",
 		"title": "Endpoint no longer in use",
 		"details": "This endpoint has been retired and should not be used",
+		"links": {
+			"about": "http://example.org/docs/errors/#120"
+		}
+	}, {
+		"code": "145",
+		"status": "400",
+		"title": "Headers invalid",
+		"details": "The headers you supplied are invalid",
 		"links": {
 			"about": "http://example.org/docs/errors/#120"
 		}
