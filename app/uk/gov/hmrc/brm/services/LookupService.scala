@@ -22,7 +22,7 @@ import play.api.libs.json.JsObject
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
 import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
-import uk.gov.hmrc.play.http.{Upstream5xxResponse, Upstream4xxResponse, BadRequestException, HeaderCarrier}
+import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -89,8 +89,13 @@ trait LookupService {
                     val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
                     BirthResponseBuilder.getResponse(isMatch)
                   }
-                case _ =>
+                case e @ Status.NOT_FOUND =>
                   BirthResponseBuilder.withNoMatch()
+                case e @ Status.UNAUTHORIZED =>
+                  BirthResponseBuilder.withNoMatch()
+                case _ =>
+                  Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse")
+                  throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
               }
           }
         }
