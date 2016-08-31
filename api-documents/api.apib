@@ -17,18 +17,8 @@ Check for an existing birth record based on a birth reference number
 + birthReferenceNumber - unique reference number found on birth certificate (min 9 characters)
 + firstName - childs firstname (max 128 characters)
 + lastName - childs lastname (max 200 characters)
-+ dateOfBirth - childs date of birth
++ dateOfBirth - childs date of birth (yyyy-mm-dd)
 + whereBirthRegistered - where is the birth registered (england, wales)
-
-+ Parameters
-
-    + birthReferenceNumber: 123456789 (optional, number)
-    + firstName: John (required, string)
-    + lastName:  Smith (required, string)
-    + dateOfBirth: `2010-01-04` (required, string)
-    + whereBirthRegistered: england (required, string)
-    + `API-Version`: 1.0 (required, decimal)
-    + `Request-Origin`: def (required, string)
 
 ### Check Birth [POST]
 
@@ -39,23 +29,33 @@ Check for an existing birth record based on a birth reference number
           "properties": {
             "birthReferenceNumber": {
               "type": "string",
-              "pattern": "/^-?\d+$"
+              "required": false,
+              "pattern": "/^-?\d+$",
+              "description": "Unique reference number found on birth certificate"
             },
             "firstName": {
               "type": "string",
-              "pattern": "/^[\w\s]+$/"
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Childs firstname"
             },
             "lastName": {
               "type": "string",
-              "pattern": "/^[\w\s]+$/"
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Childs lastname"
             },
             "dateOfBirth": {
               "type": "string",
-              "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/"
+              "required": true,
+              "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/",
+              "description": "Childs date of birth"
             },
             "whereBirthRegistered": {
               "type": "string",
-              "pattern": "/^[\w\s]+$/"
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Where the birth is registered"
             },
           }
     }
@@ -69,8 +69,8 @@ Check for an existing birth record based on a birth reference number
 }
 
 + Headers
-    Version: 1.0
-    Request-Origin: dfs
+    Accept: application/vnd.hmrc.1.0+json
+    Audit-Source: dfs
 
 + Response 200 (application/json)
 
@@ -226,6 +226,14 @@ Failing to be authenticated could result in the following errors
 		"status": "404",
 		"title": "Endpoint no longer in use",
 		"details": "This endpoint has been retired and should not be used",
+		"links": {
+			"about": "http://example.org/docs/errors/#120"
+		}
+	}, {
+		"code": "145",
+		"status": "400",
+		"title": "Headers invalid",
+		"details": "The headers you supplied are invalid",
 		"links": {
 			"about": "http://example.org/docs/errors/#120"
 		}
