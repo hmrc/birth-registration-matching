@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
 import play.api.Logger
+import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import uk.gov.hmrc.brm.models.Payload
@@ -66,11 +67,10 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   }
 
   private def validateDob(d: LocalDate): Boolean = {
-
     BrmConfig.validateDobForGro match {
       case true =>
         val validDate = new LocalDate("2009-07-01")
-        d.isAfter(validDate) || d.isEqual((validDate))
+        d.isAfter(validDate) || d.isEqual(validDate)
       case false =>
         true
     }
@@ -95,10 +95,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
-               }
+               } recover handleException("getReference")
            }
-
          }
-       ) recover handleException("getReference")
+       )
    }
 }

@@ -68,49 +68,45 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   "BirthConnector" should {
 
     "getReference returns json response" in {
-
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
       val result = await(MockBirthConnector.getReference("500035710"))
-      result shouldBe a[JsValue]
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 200
     }
 
     "getChildDetails returns json response" in {
-
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
       val result = await(MockBirthConnector.getChildDetails(childDetailPayload))
-      result shouldBe a[JsValue]
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 200
     }
 
     "getReference returns http 500 when GRO is offline" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
-      intercept[Upstream5xxResponse] {
-        val result = await(MockBirthConnector.getReference("50003570"))
-        result shouldBe a[JsValue]
-      }
+      val result = await(MockBirthConnector.getReference("50003570"))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 500
     }
 
     "getReference returns http 400 for BadRequest" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
-      intercept[Upstream4xxResponse] {
         val result = await(MockBirthConnector.getReference("50003570"))
-        result shouldBe a[JsValue]
-      }
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 400
     }
 
     "getReference returns http 400 when GRO is not found data" in {
-
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
-      intercept[Upstream4xxResponse] {
         val result = await(MockBirthConnector.getReference("123333"))
-        result shouldBe a[JsValue]
-      }
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 404
     }
   }
 }

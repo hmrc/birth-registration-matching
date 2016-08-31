@@ -25,7 +25,7 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.JsonUtils
 
-import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.play.http.{HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import uk.gov.hmrc.brm.BRMFakeApplication
@@ -240,6 +240,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     val service = MockLookupService
   }
 
+  def httpResponse(js : JsValue) = HttpResponse.apply(200, Some(js))
+
  "initialising" should {
    "wire up dependencies correctly" in {
      BirthEventsController.service shouldBe a[LookupService]
@@ -251,7 +253,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   "POST /birth-registration-matching-proxy/match" should {
 
     "return 200 with application/json type" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
 
       val result = MockController.post().apply(request)
@@ -261,7 +263,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return JSON response of false on unsuccessful detail match" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
@@ -270,7 +272,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return JSON response of true on successful detail match" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
@@ -279,7 +281,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return JSON response of false on unsuccessful birthReferenceNumber match" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(noJson))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
@@ -288,7 +290,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return JSON response of true on successful birthReferenceNumber match" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
@@ -297,7 +299,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 200 if request contains missing birthReferenceNumber key" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingReferenceKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
@@ -306,7 +308,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing birthReferenceNumber value" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchExcludingReferenceNumber)
       val result = MockController.post().apply(request)
 
@@ -316,7 +318,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing dateOfBirth key" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingDateOfBirthKey)
       val result = MockController.post().apply(request)
 
@@ -326,7 +328,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing dateOfBirth value" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingDateOfBirthValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -335,7 +337,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing firstname key" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingFirstNameKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -344,7 +346,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing firstname value" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingfirstNameValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -353,7 +355,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing lastName key" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludinglastNameKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -362,7 +364,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing lastName value" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludinglastNameValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -370,7 +372,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing whereBirthRegistered key" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingWhereBirthRegisteredKey)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -378,7 +380,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return response code 400 if request contains missing whereBirthRegistered value" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
@@ -405,7 +407,7 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     }
 
     "return InternalServerError when GRO returns invalid json" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(invalidResponse))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(invalidResponse)))
       val request = postRequest(userMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
