@@ -49,6 +49,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     response
       .as("application/json")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
+      .withHeaders((CONTENT_TYPE, "application/json"))
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {

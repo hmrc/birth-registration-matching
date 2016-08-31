@@ -46,18 +46,6 @@ trait LookupService {
     }
   }
 
-//  private def handleExceptions : PartialFunction[Throwable, _] = {
-//    case e @ Status.NOT_FOUND =>
-//      Logger.warn(s"[${this.getClass.getName}][NotFound] handleResponse")
-//      throw new Upstream4xxResponse(s"[${super.getClass.getName}][NotFound]", e, Status.NOT_FOUND)
-//    case e @ Status.BAD_REQUEST =>
-//      Logger.warn(s"[${this.getClass.getName}][BadRequest] handleResponse")
-//      throw new Upstream4xxResponse(s"[${super.getClass.getName}][BadRequest]", e, Status.BAD_REQUEST)
-//    case e @ _ =>
-//      Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse")
-//      throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", e, Status.INTERNAL_SERVER_ERROR)
-//  }
-
   /**
     * connects to groconnector and return match if match input details.
     *

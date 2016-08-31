@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.specs2.mutable.BeforeAfter
 import play.api.libs.json._
@@ -35,8 +36,11 @@ import scala.concurrent.Future
 /**
   * Created by chrisianson on 26/08/16.
   */
-class BirthEventsControllerDobSwitchSpec extends UnitSpec  with MockitoSugar with BRMFakeApplication {
-
+class BirthEventsControllerDobSwitchSpec
+  extends UnitSpec
+  with MockitoSugar
+  with BRMFakeApplication
+  with BeforeAndAfter {
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
