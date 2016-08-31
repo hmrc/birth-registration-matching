@@ -89,12 +89,12 @@ trait LookupService {
                     val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
                     BirthResponseBuilder.getResponse(isMatch)
                   }
-                case e @ Status.NOT_FOUND =>
+                case Status.NOT_FOUND =>
                   BirthResponseBuilder.withNoMatch()
-                case e @ Status.UNAUTHORIZED =>
+                case Status.UNAUTHORIZED =>
                   BirthResponseBuilder.withNoMatch()
                 case _ =>
-                  Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse")
+                  Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse - ${response.status}")
                   throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
               }
           }
