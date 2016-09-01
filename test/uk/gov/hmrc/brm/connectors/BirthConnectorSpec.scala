@@ -46,11 +46,14 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   val mockHttpGet = mock[HttpGet]
 
+  //val MockBirthConnector = mock[BirthConnector]
+
   object MockBirthConnector extends BirthConnector {
     override val httpGet = mockHttpGet
     override val serviceUrl = ""
     override val baseUri = ""
     override val detailsUri = ""
+
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -75,7 +78,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       result shouldBe a[JsValue]
     }
 
-    "getChildDetails returns json response" in {
+     "getChildDetails returns json response" in {
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
@@ -113,4 +116,5 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
     }
   }
+
 }

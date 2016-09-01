@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.services
 
 import play.api.Logger
 import play.api.libs.json.JsObject
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
+import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
 import uk.gov.hmrc.play.http.{BadRequestException, HeaderCarrier}
@@ -32,17 +32,27 @@ import scala.concurrent.Future
 
 object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
+  override val nirsConnector = NirsConnector
+  override val nrsConnector = NrsConnector
 }
 
 trait LookupService {
 
   protected val groConnector: BirthConnector
+  protected val nirsConnector: BirthConnector
+  protected val nrsConnector: BirthConnector
 
   private def getConnector(payload: Payload): BirthConnector = {
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groConnector
+      case BirthRegisterCountry.NORTHERN_IRELAND  =>
+        nirsConnector
+      case BirthRegisterCountry.SCOTLAND  =>
+        nrsConnector
     }
+
+
   }
 
   /**

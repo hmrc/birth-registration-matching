@@ -39,8 +39,11 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
 
   val mockConnector = mock[BirthConnector]
 
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
+    override val nirsConnector = mockConnector
+    override val nrsConnector = mockConnector
   }
 
   object MockController extends BirthEventsController {

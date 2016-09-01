@@ -21,7 +21,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest}
-import uk.gov.hmrc.brm.connectors.BirthConnector
+import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
@@ -277,6 +277,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
   val mockConnector = mock[BirthConnector]
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
+    override val nirsConnector = mockConnector
+    override val nrsConnector = mockConnector
   }
 
   object MockController extends BirthEventsController {

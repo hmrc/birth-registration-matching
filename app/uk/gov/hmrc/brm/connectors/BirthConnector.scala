@@ -36,7 +36,13 @@ trait BirthConnector extends ServicesConfig {
   val baseUri : String
   val detailsUri : String
 
-  private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
+
+  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
+    Logger.debug(s"[GROEnglandAndWalesConnector][getReference]: $reference")
+    requestReference(reference)
+  }
+
+  protected def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
     httpGet.GET[HttpResponse](s"$detailsUri/$reference") map {
       response =>
         handleResponse(response)
@@ -65,10 +71,7 @@ trait BirthConnector extends ServicesConfig {
     }
   }
 
-  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
-    Logger.debug(s"[GROEnglandAndWalesConnector][getReference]: $reference")
-    requestReference(reference)
-  }
+
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) : Future[JsValue] = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
@@ -82,6 +85,36 @@ object GROEnglandConnector extends BirthConnector {
 
   override val baseUri = "birth-registration-matching-proxy"
   override val detailsUri = s"$serviceUrl/$baseUri/match"
+
+
+
+}
+
+object NirsConnector extends BirthConnector {
+  override val serviceUrl = null
+  override val httpGet : HttpGet = null
+
+  override val baseUri = ""
+  override val detailsUri = ""
+
+
+  override  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
+    Logger.debug(s"[NirsConnector][getReference]: $reference")
+    throw new NotImplementedException("No service available for Nirs connector.")
+  }
+}
+
+object NrsConnector extends BirthConnector {
+  override val serviceUrl = null
+  override val httpGet : HttpGet = null
+
+  override val baseUri = ""
+  override val detailsUri = ""
+
+  override  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
+    Logger.debug(s"[NrsConnector][getReference]: $reference")
+   throw new NotImplementedException("No service available for NRS connector.")
+  }
 }
 
 

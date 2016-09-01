@@ -26,6 +26,9 @@ object BirthRegisterCountry extends Enumeration {
   type BirthRegisterCountry = Value
   val ENGLAND = Value("england")
   val WALES = Value("wales")
+  val NORTHERN_IRELAND = Value("Northern Ireland")
+  val SCOTLAND  = Value("Scotland")
+
 
 
   def birthRegisterReads: Reads[BirthRegisterCountry] = new Reads[BirthRegisterCountry] {
