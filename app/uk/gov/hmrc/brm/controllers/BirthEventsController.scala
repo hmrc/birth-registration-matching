@@ -53,18 +53,25 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
-    case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+    case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
-    case e :  Upstream4xxResponse if e.reportAs == BAD_REQUEST  =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
-      respond(BadRequest(e.getMessage))
+    case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+//      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+      respond(BadRequest(message))
+    case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
+      respond(BadGateway(message))
+    case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
+      respond(GatewayTimeout(message))
     case e :  BadRequestException =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
-    case e : Upstream5xxResponse =>
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
-      respond(InternalServerError(e.message))
+    case Upstream5xxResponse(message, upstreamCode, _) =>
+      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
+      respond(InternalServerError(message))
   }
 
   private def validateDob(d: LocalDate): Boolean = {

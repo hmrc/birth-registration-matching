@@ -448,11 +448,30 @@ class BirthEventsControllerSpec
       verify(mockConnector, times(0)).getReference(Matchers.any())(Matchers.any())
     }
 
-    "return BadRequest when GRO returns 4xx" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+    "return BadGateway when GRO returns 4xx" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_GATEWAY
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+    "return BadRequest when GRO returns 4xx BadRequest" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+      val request = postRequest(userNoMatchIncludingReferenceNumber)
+      val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      bodyOf(result) shouldBe empty
+    }
+
+    "return GatewayTimeout when GRO returns 5xx when timeout" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+      val request = postRequest(userNoMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe GATEWAY_TIMEOUT
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
@@ -483,7 +502,6 @@ class BirthEventsControllerSpec
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
       contentType(result).get shouldBe "application/json"
     }
-
 
     "return not match when GRO returns NOT FOUND response " in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(httpResponse(NOT_FOUND))
