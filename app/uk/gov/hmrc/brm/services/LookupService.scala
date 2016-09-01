@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.services
 import play.api.Logger
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
-import uk.gov.hmrc.brm.models.Payload
+import uk.gov.hmrc.brm.models.{GroResponse, Payload}
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
 import uk.gov.hmrc.play.http.{BadRequestException, HeaderCarrier}
 
@@ -70,8 +70,14 @@ trait LookupService {
                 if (response.validate[JsObject].isError  || response.validate[JsObject].get.keys.isEmpty) {
                   BirthResponseBuilder.withNoMatch()
                 } else {
-                  val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
-                  val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]
+                  val groResponse = response.validate[GroResponse]
+                  println("isSuccess " + groResponse.isSuccess )
+
+                  val firstName = groResponse.get.child.firstName
+                  val surname = groResponse.get.child.lastName
+
+                  /*val firstName = (response \ "subjects" \ "child" \ "name" \ "givenName").as[String]
+                  val surname = (response \ "subjects" \ "child" \ "name" \ "surname").as[String]*/
                   val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
                   BirthResponseBuilder.getResponse(isMatch)
                 }

@@ -27,12 +27,21 @@ class GroResponseSpec extends UnitSpec {
 
   /**
     * Should
-    * - be an instance of GroResponse
-    * - should return a JsSuccess object on successful mappings
-    * - should return a JsError object when givenName key is missing
-    * - should return a JsError object when surname key is missing
-    * - should return a JsError object when systemNumber key is missing
-    * - should return a JsError object when dateOfBirth key is missing
+    * - should return a JsSuccess object on successful child mappings
+    * - should return a JsSuccess object when birthReferenceNumber key is missing
+    * - should return a JsSuccess object when givenName key is missing
+    * - should return a JsSuccess object when surname key is missing
+    * - should return a JsSuccess object when dateOfBirth key is missing
+    * - should return a JsSuccess object when name key is missing
+    * - should return a JsSuccess object when subjects key is missing
+    * - should return a JsSuccess object when json is empty object
+    * - should return a JsonMappingException when json contains nothing
+    *
+    * TODO: Max length (double check what this is)
+    * TODO: UTF-8
+    * TODO: Invalid types
+    * TODO: hyphenated/apostraphe
+    * TODO: multiple firstname??
     */
 
   lazy val jsonValid = Json.parse(
@@ -46,7 +55,8 @@ class GroResponseSpec extends UnitSpec {
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
-      |  "systemNumber" : "500035710"
+      |  "systemNumber" : "500035710",
+      |  "id": 2135
       | }
       |}
     """.stripMargin)
@@ -111,23 +121,73 @@ class GroResponseSpec extends UnitSpec {
       |}
     """.stripMargin)
 
+  lazy val jsonMissingNameKey = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "dateOfBirth" : "2007-02-18"
+      |  },
+      |  "systemNumber" : "500035710"
+      | }
+      |}
+    """.stripMargin)
+
+  lazy val jsonMissingSubjectsKey = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "systemNumber" : "500035710"
+      | }
+      |}
+    """.stripMargin)
+
+  lazy val jsonMissingEmptyObject = Json.parse(
+    """
+      |{
+      |}
+    """.stripMargin)
+
+  lazy val jsonNoObject = Json.parse("")
+
   "GroResponse" should {
     "be an instance of GroResponse" in {
-      val response = new GroResponse(birthReferenceNumber = "500035710", firstName = "John", lastName = "Jones", dateOfBirth = new LocalDate("2007-02-18"))
+      val response = new GroResponse(child = Child(
+        birthReferenceNumber = "500035710",
+        firstName = "John",
+        lastName = "Jones",
+        dateOfBirth = Option(new LocalDate("2007-02-18"))))
       response shouldBe a[GroResponse]
     }
 
-    "return a JsSuccess object on successful mappings" in {
+    "return GroResponse object with all Child attributes when json is valid and complete" in {
       val result = jsonValid.validate[GroResponse]
 
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
-          x.birthReferenceNumber shouldBe "500035710"
-          x.firstName shouldBe "John"
-          x.lastName shouldBe "Jones"
-          x.dateOfBirth.toString shouldBe "2007-02-18"
-          x.dateOfBirth shouldBe a[LocalDate]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) =>
+          throw new Exception
+      }
+    }
+
+    "return GroResponse object with null Child attributes when json is empty" in {
+      val result = jsonMissingEmptyObject.validate[GroResponse]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe ""
+          x.child.firstName shouldBe ""
+          x.child.lastName shouldBe ""
+          x.child.dateOfBirth shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -135,25 +195,106 @@ class GroResponseSpec extends UnitSpec {
       }
     }
 
-    "return a JsError object when givenName key is missing" in {
-      val result = jsonMissingGivenNameKey.validate[GroResponse]
-      result should not be a[JsSuccess[_]]
-    }
-
-    "return a JsError object when surname key is missing" in {
-      val result = jsonMissingSurnameKey.validate[GroResponse]
-      result should not be a[JsSuccess[_]]
-    }
-
-    "return a JsError object when systemNumber key is missing" in {
+    "return GroResponse object with Child object when systemNumber key is missing" in {
       val result = jsonMissingSystemNumberKey.validate[GroResponse]
-      result should not be a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe ""
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
     }
 
-    "return a JsError object when dateOfBirth key is missing" in {
-      val result = jsonMissingDateOfBirthKey.validate[GroResponse]
-      result should not be a[JsSuccess[_]]
+    "return GroResponse object with Child object when givenName key is missing" in {
+      val result = jsonMissingGivenNameKey.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe ""
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
     }
+
+    "return GroResponse object with Child object when surname key is missing" in {
+      val result = jsonMissingSurnameKey.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe ""
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Child object when dateofBirth key is missing" in {
+      val result = jsonMissingDateOfBirthKey.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Child object when name key is missing" in {
+      val result = jsonMissingSubjectsKey.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe ""
+          x.child.lastName shouldBe ""
+          x.child.dateOfBirth shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return an JsonMappingException from an invalid json object" in {
+      intercept[com.fasterxml.jackson.databind.JsonMappingException] {
+        jsonNoObject.validate[GroResponse]
+      }
+
+    }
+
   }
 
 }

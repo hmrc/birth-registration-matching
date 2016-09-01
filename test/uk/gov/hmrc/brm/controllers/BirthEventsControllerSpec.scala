@@ -253,7 +253,6 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
     "return 200 with application/json type" in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
-
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"

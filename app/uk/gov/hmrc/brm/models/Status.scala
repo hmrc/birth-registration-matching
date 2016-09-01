@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.brm.models
 
+import play.api.libs.json.{JsPath, Reads}
+import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
 
 /**
-  * Created by chrisianson on 09/08/16.
+  * Created by chrisianson on 01/09/16.
   */
-case class GroResponse(
-                        child: Child,
-                        status: Option[Status] = None
-                      )
+case class Status (
+                    potentiallyFictitiousBirth : Boolean = false,
+                    correction : String
+                  )
 
-object GroResponse {
+object Status  {
 
-  implicit val implicitReads: Reads[GroResponse] = (
-    (JsPath).read[Child] and
-      (JsPath \ "status").readNullable[Status]
-    )(GroResponse.apply _)
+  implicit val childReads : Reads[Status] = (
+    (JsPath \ "potentiallyFictitiousBirth").read[Boolean] and
+      (JsPath \ "correction").read[String]
+    )(Status.apply _)
 }
