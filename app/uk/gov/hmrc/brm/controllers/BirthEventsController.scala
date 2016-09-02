@@ -71,7 +71,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(BadRequest(e.getMessage))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
-      respond(InternalServerError(message))
+      respond(InternalServerError)
   }
 
   private def validateDob(d: LocalDate): Boolean = {

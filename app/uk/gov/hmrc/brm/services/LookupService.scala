@@ -71,6 +71,9 @@ trait LookupService {
                   if (json.validate[JsObject].isError  || json.validate[JsObject].get.keys.isEmpty) {
                     BirthResponseBuilder.withNoMatch()
                   } else {
+                    Logger.debug(s"[LookupService][response] $response")
+                    Logger.debug(s"[LookupService][payload] $payload")
+
                     val firstName = (json \ "subjects" \ "child" \ "name" \ "givenName").as[String]
                     val surname = (json \ "subjects" \ "child" \ "name" \ "surname").as[String]
 
