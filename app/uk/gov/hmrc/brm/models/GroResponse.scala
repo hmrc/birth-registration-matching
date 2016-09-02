@@ -30,7 +30,7 @@ case class GroResponse(
 object GroResponse {
 
   implicit val implicitReads: Reads[GroResponse] = (
-    (JsPath).read[Child] and
+    JsPath.read[Child] and
       (JsPath \ "status").readNullable[Status]
     )(GroResponse.apply _)
 }

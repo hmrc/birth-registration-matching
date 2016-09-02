@@ -28,6 +28,7 @@ class GroResponseSpec extends UnitSpec {
   /**
     * Should
     * - should return a JsSuccess object on successful child mappings
+    * - should return a JsSuccess object on successful child mappings for max characters
     * - should return a JsSuccess object when birthReferenceNumber key is missing
     * - should return a JsSuccess object when givenName key is missing
     * - should return a JsSuccess object when surname key is missing
@@ -37,12 +38,29 @@ class GroResponseSpec extends UnitSpec {
     * - should return a JsSuccess object when json is empty object
     * - should return a JsonMappingException when json contains nothing
     *
-    * TODO: Max length (double check what this is)
     * TODO: UTF-8
     * TODO: Invalid types
     * TODO: hyphenated/apostraphe
     * TODO: multiple firstname??
     */
+
+  val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+  lazy val jsonValidWithUTF8 = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "JohͿͿŀŀŀnƷȸȸȸ ƷġÊÊÊÊÊƂƂƂ  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ",
+      |    "surname" : "JonesƷġÊÊÊÊÊƂƂƂ"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  },
+      |  "systemNumber" : "500035710",
+      |  "id": 2135
+      | }
+      |}
+    """.stripMargin)
 
   lazy val jsonValid = Json.parse(
     """
@@ -52,6 +70,45 @@ class GroResponseSpec extends UnitSpec {
       |   "name" : {
       |    "givenName" : "John",
       |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  },
+      |  "systemNumber" : "500035710",
+      |  "id": 2135
+      | }
+      |}
+    """.stripMargin)
+
+  lazy val jsonValidWithASCIIExtended = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "Johnéë",
+      |    "surname" : "Jonésë"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  },
+      |  "systemNumber" : "500035710",
+      |  "id": 2135
+      | }
+      |}
+    """.stripMargin)
+
+  /**
+   * Max Length response from GRO with x1 FirstName at max length
+   * x3 Max Length strings for middle names
+   * x1 Max Length string for lastName
+   */
+  lazy val jsonValidMaxLength = Json.parse(
+    s"""
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "$maxLengthString $maxLengthString $maxLengthString $maxLengthString",
+      |    "surname" : "$maxLengthString"
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
@@ -160,7 +217,7 @@ class GroResponseSpec extends UnitSpec {
       response shouldBe a[GroResponse]
     }
 
-    "return GroResponse object with all Child attributes when json is valid and complete" in {
+    "return GroResponse object with all Child attributes when json is valid and complete (ASCII)" in {
       val result = jsonValid.validate[GroResponse]
 
       result match {
@@ -170,6 +227,60 @@ class GroResponseSpec extends UnitSpec {
           x.child.birthReferenceNumber shouldBe "500035710"
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) =>
+          throw new Exception
+      }
+    }
+
+    "return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters" in {
+      val result = jsonValidWithASCIIExtended.validate[GroResponse]
+
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "Johnéë"
+          x.child.lastName shouldBe "Jonésë"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) =>
+          throw new Exception
+      }
+    }
+
+    "return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters" in {
+      val result = jsonValidWithUTF8.validate[GroResponse]
+
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ ƷġÊÊÊÊÊƂƂƂ  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
+          x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) =>
+          throw new Exception
+      }
+    }
+
+    "return GroResponse object with all Child attributes when json is valid and complete max length" in {
+      val result = jsonValidMaxLength.validate[GroResponse]
+
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+          x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
         }
