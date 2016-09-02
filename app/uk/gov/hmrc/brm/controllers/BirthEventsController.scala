@@ -99,10 +99,10 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
-               } recover handleException("getReference")
+               }
            }
 
          }
-       )
+       )recover handleException("getReference")
    }
 }

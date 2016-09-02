@@ -296,7 +296,7 @@ val userWithNorthernIrelandBirthRegsitered  =  new JsonBuilder().withKeyValue("f
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val nirsConnector = NirsConnector
-    override val nrsConnector = NirsConnector
+    override val nrsConnector = NrsConnector
   }
 
   object MockController extends BirthEventsController {

@@ -19,22 +19,22 @@ package uk.gov.hmrc.brm.utils
 import uk.gov.hmrc.play.test.UnitSpec
 
 /**
-  * Created by user on 23/08/16.
+  * Created by user on 02/09/16.
   */
-class BirthResponseBuilderSpec extends UnitSpec {
+class BirthRegisterCountrySpec extends UnitSpec {
 
-
-  "BirthResponseBuilder" should {
-    "return validated true with Match" in {
-      BirthResponseBuilder.withMatch().validated shouldBe true
+  "BirthRegisterCountry" should {
+    "return england for name england" in {
+      BirthRegisterCountry.ENGLAND shouldBe BirthRegisterCountry.withName("england")
     }
 
-    "return validated false with Match" in {
-      BirthResponseBuilder.withNoMatch().validated  shouldBe false
-    }
+    "return valid response for four countries" in {
+      val countryList = List("england", "wales", "Scotland", "Northern Ireland");
 
-    "return validated true with input value as true" in {
-      BirthResponseBuilder.getResponse(true).validated  shouldBe true
+      for (country <- countryList) {
+        BirthRegisterCountry.withName(country)
+      }
+
     }
   }
 
