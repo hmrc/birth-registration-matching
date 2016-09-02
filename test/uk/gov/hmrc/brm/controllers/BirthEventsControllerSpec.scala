@@ -23,7 +23,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest}
 import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, JsonBuilder, JsonUtils}
 import uk.gov.hmrc.play.http.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -270,15 +270,33 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
        |}
     """.stripMargin)
 
+
+
+
+  val userWithScotlandBirthRegsitered  =  new JsonBuilder().withKeyValue("firstName","Adam TEST").appendMore().
+                                          withKeyValue("lastName","SMITH").appendMore().
+                                          withKeyValue("dateOfBirth","2012-02-16").appendMore().
+                                          withKeyValue("birthReferenceNumber","500035710").appendMore().
+                                          withKeyValue("whereBirthRegistered",BirthRegisterCountry.SCOTLAND.toString)
+                                         .buildToJson()
+
+val userWithNorthernIrelandBirthRegsitered  =  new JsonBuilder().withKeyValue("firstName","Adam TEST").appendMore().
+    withKeyValue("lastName","SMITH").appendMore().
+    withKeyValue("dateOfBirth","2012-02-16").appendMore().
+    withKeyValue("birthReferenceNumber","500035710").appendMore().
+    withKeyValue("whereBirthRegistered",BirthRegisterCountry.NORTHERN_IRELAND.toString)
+    .buildToJson()
+
   def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val nirsConnector = mockConnector
-    override val nrsConnector = mockConnector
+    override val nirsConnector = NirsConnector
+    override val nrsConnector = NirsConnector
   }
 
   object MockController extends BirthEventsController {
@@ -471,6 +489,25 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
       contentType(result).get shouldBe "application/json"
     }
 
+    "return JSON response of false when birth registered is scotland" in {
+
+      val request = postRequest(userWithScotlandBirthRegsitered)
+      val result = MockController.post().apply(request)
+      println("qqqqqqqqqqq"+(contentAsJson(result)))
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+   "return JSON response of false when birth registered is Northern Ireland" in {
+
+      val request = postRequest(userWithNorthernIrelandBirthRegsitered)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
     "return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
       running(FakeApplication(additionalConfiguration = config)) {
         when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
@@ -506,5 +543,8 @@ class BirthEventsControllerSpec extends UnitSpec with WithFakeApplication with M
         (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
       }
     }
+
+
+
   }
 }

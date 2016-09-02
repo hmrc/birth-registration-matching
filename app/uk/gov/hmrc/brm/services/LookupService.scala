@@ -49,6 +49,7 @@ trait LookupService {
       case BirthRegisterCountry.NORTHERN_IRELAND  =>
         nirsConnector
       case BirthRegisterCountry.SCOTLAND  =>
+        println("returning nrs connetor")
         nrsConnector
     }
 
