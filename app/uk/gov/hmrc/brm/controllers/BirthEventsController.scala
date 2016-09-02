@@ -53,19 +53,19 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
 
     case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest1: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e :  Upstream4xxResponse if e.reportAs == BAD_REQUEST  =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest2: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e :  BadRequestException =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest3: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e : Upstream5xxResponse =>
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError4: ${e.message}")
+      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
       respond(InternalServerError(e.message))
     case e : NotImplementedException  =>
-      Logger.debug(s"[BirthEventsController][handleException][$method] NotImplementedException5: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
   }
 
@@ -93,7 +93,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
                Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
              case _ =>
-               Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated."+payload)
+               Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
                service.lookup(payload) map {
                  bm => {
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")

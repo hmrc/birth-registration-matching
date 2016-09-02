@@ -38,8 +38,7 @@ trait BirthConnector extends ServicesConfig {
 
 
   def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
-    println("calling getReference233 ")
-    Logger.debug(s"[GROEnglandAndWalesConnector][getReference]: $reference")
+    Logger.debug(s"[BirthConnector][getReference]: $reference")
     requestReference(reference)
   }
 
@@ -100,7 +99,6 @@ object NirsConnector extends BirthConnector {
 
 
   override  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
-    println("calling getReference ")
     Logger.debug(s"[NirsConnector][getReference]: $reference")
     Future.failed(new NotImplementedException("No service available for NRS connector."))
   }
@@ -114,7 +112,6 @@ object NrsConnector extends BirthConnector {
   override val detailsUri = ""
 
   override  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
-    println("calling getReference1 ")
     Logger.debug(s"[NrsConnector][getReference]: $reference")
     Future.failed(new NotImplementedException("No service available for NRS connector."))
   }
