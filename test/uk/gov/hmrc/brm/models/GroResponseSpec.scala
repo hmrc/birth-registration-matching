@@ -27,21 +27,19 @@ class GroResponseSpec extends UnitSpec {
 
   /**
     * Should
-    * - should return a JsSuccess object on successful child mappings
-    * - should return a JsSuccess object on successful child mappings for max characters
-    * - should return a JsSuccess object when birthReferenceNumber key is missing
-    * - should return a JsSuccess object when givenName key is missing
-    * - should return a JsSuccess object when surname key is missing
-    * - should return a JsSuccess object when dateOfBirth key is missing
-    * - should return a JsSuccess object when name key is missing
-    * - should return a JsSuccess object when subjects key is missing
-    * - should return a JsSuccess object when json is empty object
-    * - should return a JsonMappingException when json contains nothing
-    *
-    * TODO: UTF-8
+    * - should be an instance of GroResponse
+    * - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
+    * - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters
+    * - should return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters
+    * - should return GroResponse object with all Child attributes when json is valid and complete max length
+    * - should return GroResponse object with null Child attributes when json is empty
+    * - should return GroResponse object with Child object when systemNumber key is missing
+    * - should return GroResponse object with Child object when givenName key is missing
+    * - should return GroResponse object with Child object when surname key is missing
+    * - should return GroResponse object with Child object when dateOfBirth key is missing
+    * - should return GroResponse object with Child object when name key is missing
+    * - should return an JsonMappingException from an invalid json object
     * TODO: Invalid types
-    * TODO: hyphenated/apostraphe
-    * TODO: multiple firstname??
     */
 
   val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
@@ -51,13 +49,12 @@ class GroResponseSpec extends UnitSpec {
       | "subjects" : {
       |  "child" : {
       |   "name" : {
-      |    "givenName" : "JohͿͿŀŀŀnƷȸȸȸ ƷġÊÊÊÊÊƂƂƂ  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ",
-      |    "surname" : "JonesƷġÊÊÊÊÊƂƂƂ"
+      |    "givenName" : "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ",
+      |    "surname" : "JonesƷġÊÊÊÊÊƂƂƂ-'"
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
-      |  "systemNumber" : "500035710",
-      |  "id": 2135
+      |  "systemNumber" : "500035710"
       | }
       |}
     """.stripMargin)
@@ -73,8 +70,7 @@ class GroResponseSpec extends UnitSpec {
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
-      |  "systemNumber" : "500035710",
-      |  "id": 2135
+      |  "systemNumber" : "500035710"
       | }
       |}
     """.stripMargin)
@@ -90,8 +86,7 @@ class GroResponseSpec extends UnitSpec {
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
-      |  "systemNumber" : "500035710",
-      |  "id": 2135
+      |  "systemNumber" : "500035710"
       | }
       |}
     """.stripMargin)
@@ -112,8 +107,7 @@ class GroResponseSpec extends UnitSpec {
       |   },
       |   "dateOfBirth" : "2007-02-18"
       |  },
-      |  "systemNumber" : "500035710",
-      |  "id": 2135
+      |  "systemNumber" : "500035710"
       | }
       |}
     """.stripMargin)
@@ -219,7 +213,6 @@ class GroResponseSpec extends UnitSpec {
 
     "return GroResponse object with all Child attributes when json is valid and complete (ASCII)" in {
       val result = jsonValid.validate[GroResponse]
-
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
@@ -237,7 +230,6 @@ class GroResponseSpec extends UnitSpec {
 
     "return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters" in {
       val result = jsonValidWithASCIIExtended.validate[GroResponse]
-
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
@@ -255,14 +247,13 @@ class GroResponseSpec extends UnitSpec {
 
     "return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters" in {
       val result = jsonValidWithUTF8.validate[GroResponse]
-
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe "500035710"
-          x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ ƷġÊÊÊÊÊƂƂƂ  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
-          x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ"
+          x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
+          x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ-'"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
         }
@@ -273,7 +264,6 @@ class GroResponseSpec extends UnitSpec {
 
     "return GroResponse object with all Child attributes when json is valid and complete max length" in {
       val result = jsonValidMaxLength.validate[GroResponse]
-
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
