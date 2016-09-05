@@ -19,13 +19,14 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -63,6 +64,8 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
        |}
     """.stripMargin)
 
+  def httpResponse(js : JsValue) = HttpResponse.apply(200, Some(js))
+
   "acceptHeaderValidationRules" should {
 
     "return false when argument values are missing" in {
@@ -91,7 +94,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
       val request = FakeRequest("POST", "/api/v0/events/birth")
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"),("Audit-Source", "DFS"))
         .withBody(payload)
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(groJsonResponseObject))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
     }
@@ -118,7 +121,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
       }
     }
 
-    "return response code 400 for exluded Accept header" in {
+    "return response code 400 for excluded Accept header" in {
       running(fakeApplication) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders(("Audit-Source", "DFS"))

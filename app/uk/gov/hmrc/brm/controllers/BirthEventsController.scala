@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
 import play.api.Logger
+import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import uk.gov.hmrc.brm.models.Payload
@@ -48,33 +49,46 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     response
       .as("application/json")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
+      .withHeaders((CONTENT_TYPE, "application/json"))
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
 
-    case e : Upstream4xxResponse if e.reportAs == NOT_FOUND =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+
+
+    case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
-    case e :  Upstream4xxResponse if e.reportAs == BAD_REQUEST  =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
-      respond(BadRequest(e.getMessage))
+    case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+//      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+      respond(BadRequest(message))
+    case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
+      respond(BadGateway(message))
+    case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
+      respond(GatewayTimeout(message))
     case e :  BadRequestException =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: ${e.getMessage}")
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
-    case e : Upstream5xxResponse =>
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: ${e.message}")
-      respond(InternalServerError(e.message))
+
     case e : NotImplementedException  =>
       Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+
+    case Upstream5xxResponse(message, upstreamCode, _) =>
+      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
+      respond(InternalServerError)
+
   }
 
   private def validateDob(d: LocalDate): Boolean = {
-
     BrmConfig.validateDobForGro match {
       case true =>
         val validDate = new LocalDate("2009-07-01")
-        d.isAfter(validDate) || d.isEqual((validDate))
+        d.isAfter(validDate) || d.isEqual(validDate)
       case false =>
         true
     }
@@ -99,10 +113,10 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
-               }
+               } recover handleException("getReference")
            }
-
          }
-       )recover handleException("getReference")
+      )
+
    }
 }
