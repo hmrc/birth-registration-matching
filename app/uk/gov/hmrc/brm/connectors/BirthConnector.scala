@@ -38,8 +38,6 @@ trait BirthConnector extends ServicesConfig {
   val baseUri : String
   val detailsUri : String
 
-
-
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
     httpGet.GET[HttpResponse](s"$detailsUri/$reference")
 
@@ -56,7 +54,6 @@ trait BirthConnector extends ServicesConfig {
     requestReference(reference)
   }
 
-
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
     requestDetails(params)
@@ -66,21 +63,16 @@ trait BirthConnector extends ServicesConfig {
 object GROEnglandConnector extends BirthConnector {
   override val serviceUrl = baseUrl("birth-registration-matching")
   override val httpGet : HttpGet = WSHttp
-
   override val baseUri = "birth-registration-matching-proxy"
   override val detailsUri = s"$serviceUrl/$baseUri/match"
-
-
 
 }
 
 object NirsConnector extends BirthConnector {
   override val serviceUrl = null
   override val httpGet : HttpGet = null
-
   override val baseUri = ""
   override val detailsUri = ""
-
 
   override  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     Logger.debug(s"[NirsConnector][getReference]: $reference")
@@ -91,7 +83,6 @@ object NirsConnector extends BirthConnector {
 object NrsConnector extends BirthConnector {
   override val serviceUrl = null
   override val httpGet : HttpGet = null
-
   override val baseUri = ""
   override val detailsUri = ""
 

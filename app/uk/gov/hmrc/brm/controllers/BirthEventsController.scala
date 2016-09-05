@@ -54,11 +54,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
 
-
-
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
-
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
@@ -73,7 +70,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     case e :  BadRequestException =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
-
     case e : NotImplementedException  =>
       Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
@@ -83,8 +79,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(InternalServerError)
 
   }
-
-  private def validateDob(d: LocalDate): Boolean = {
+ private def validateDob(d: LocalDate): Boolean = {
     BrmConfig.validateDobForGro match {
       case true =>
         val validDate = new LocalDate("2009-07-01")
@@ -94,7 +89,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     }
   }
 
-  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
+ def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
      implicit request =>
        request.body.validate[Payload].fold(
          error => {

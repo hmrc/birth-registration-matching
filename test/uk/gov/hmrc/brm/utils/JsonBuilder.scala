@@ -38,7 +38,6 @@ class JsonBuilder  {
 
   def buildToJson():JsValue = {
     jsonString.append("}")
-
     Json.parse(jsonString.toString())
   }
 
