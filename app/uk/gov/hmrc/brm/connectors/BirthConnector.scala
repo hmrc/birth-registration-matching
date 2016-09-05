@@ -21,12 +21,14 @@ import play.api.Play.current
 import play.api.http.Status
 import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
+import play.api.mvc.Result
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
 trait BirthConnector extends ServicesConfig {
 
@@ -37,40 +39,21 @@ trait BirthConnector extends ServicesConfig {
   val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-    httpGet.GET[HttpResponse](s"$detailsUri/$reference") map {
-      response =>
-        handleResponse(response)
-    }
+    httpGet.GET[HttpResponse](s"$detailsUri/$reference")
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
-    httpGet.GET[HttpResponse](endpoint) map {
-      response =>
-        handleResponse(response)
-    }
+    httpGet.GET[HttpResponse](endpoint)
   }
 
-  private def handleResponse(response : HttpResponse) = {
-    response.status match {
-      case Status.OK =>
-        response.json
-      case e @ Status.NOT_FOUND =>
-        throw new Upstream4xxResponse(s"[${super.getClass.getName}][NotFound]", e, Status.NOT_FOUND)
-      case e @ Status.BAD_REQUEST =>
-        throw new Upstream4xxResponse(s"[${super.getClass.getName}][BadRequest]", e, Status.BAD_REQUEST)
-      case e @ _ =>
-        throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", e, Status.INTERNAL_SERVER_ERROR)
-    }
-  }
-
-  def getReference(reference: String)(implicit hc : HeaderCarrier) : Future[JsValue] = {
+  def getReference(reference: String)(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getReference]: $reference")
     requestReference(reference)
   }
 
-  def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) : Future[JsValue] = {
+  def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
     requestDetails(params)
   }
