@@ -38,8 +38,8 @@ class GroResponseSpec extends UnitSpec {
     * - should return GroResponse object with Child object when surname key is missing
     * - should return GroResponse object with Child object when dateOfBirth key is missing
     * - should return GroResponse object with Child object when name key is missing
+    * - should return GroResponse object with Child object when dateOfBirth value is invalid format
     * - should return an JsonMappingException from an invalid json object
-    * TODO: Invalid types
     */
 
   val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
@@ -92,24 +92,24 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin)
 
   /**
-   * Max Length response from GRO with x1 FirstName at max length
-   * x3 Max Length strings for middle names
-   * x1 Max Length string for lastName
-   */
+    * Max Length response from GRO with x1 FirstName at max length
+    * x3 Max Length strings for middle names
+    * x1 Max Length string for lastName
+    */
   lazy val jsonValidMaxLength = Json.parse(
     s"""
-      |{
-      | "subjects" : {
-      |  "child" : {
-      |   "name" : {
-      |    "givenName" : "$maxLengthString $maxLengthString $maxLengthString $maxLengthString",
-      |    "surname" : "$maxLengthString"
-      |   },
-      |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
-      |}
+       |{
+       | "subjects" : {
+       |  "child" : {
+       |   "name" : {
+       |    "givenName" : "$maxLengthString $maxLengthString $maxLengthString $maxLengthString",
+       |    "surname" : "$maxLengthString"
+       |   },
+       |   "dateOfBirth" : "2007-02-18"
+       |  },
+       |  "systemNumber" : "500035710"
+       | }
+       |}
     """.stripMargin)
 
   lazy val jsonMissingGivenNameKey = Json.parse(
@@ -196,6 +196,22 @@ class GroResponseSpec extends UnitSpec {
   lazy val jsonMissingEmptyObject = Json.parse(
     """
       |{
+      |}
+    """.stripMargin)
+
+  lazy val jsonInavlidDateOfBirthFormat = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      | "systemNumber" : "500035710",
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "20-02-207"
+      |  }
+      | }
       |}
     """.stripMargin)
 
@@ -381,6 +397,24 @@ class GroResponseSpec extends UnitSpec {
           x.child.birthReferenceNumber shouldBe "500035710"
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
+          x.child.dateOfBirth shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Child object when dateOfBirth value is invalid format" in {
+      val result = jsonInavlidDateOfBirthFormat.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
         }
         case JsError(x) => {
