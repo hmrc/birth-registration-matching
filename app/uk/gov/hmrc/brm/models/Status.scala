@@ -25,7 +25,7 @@ import play.api.libs.json.{JsPath, Reads}
   */
 case class Status (
                     potentiallyFictitiousBirth : Boolean = false,
-                    correction : Option[String],
+                    correction : Option[String] = None,
                     cancelled : Boolean = false,
                     blockedRegistration : Boolean = false,
                     marginalNote : Option[String] = None,
@@ -35,10 +35,10 @@ case class Status (
 object Status  {
 
   implicit val childReads : Reads[Status] = (
-    (JsPath \ "potentiallyFictitiousBirth").read[Boolean] and
+    (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
       (JsPath \ "correction").readNullable[String] and
-      (JsPath \ "cancelled").read[Boolean] and
-      (JsPath \ "blockedRegistration").read[Boolean] and
+      (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
+      (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
       (JsPath \ "marginalNote").readNullable[String] and
       (JsPath \ "reRegistered").readNullable[String]
     )(Status.apply _)
