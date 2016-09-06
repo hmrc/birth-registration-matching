@@ -39,7 +39,9 @@ class GroResponseSpec extends UnitSpec {
     * - should return GroResponse object with Child object when dateOfBirth key is missing
     * - should return GroResponse object with Child object when name key is missing
     * - should return GroResponse object with Child object when dateOfBirth value is invalid format
+    * - should return a JsonParseException from a broken json object
     * - should return an JsonMappingException from an invalid json object
+    * TODO: Check against full record
     */
 
   val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
@@ -216,6 +218,8 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin)
 
   lazy val jsonNoObject = Json.parse("")
+
+  lazy val jsonBrokenObject = Json.parse("{")
 
   "GroResponse" should {
     "be an instance of GroResponse" in {
@@ -423,7 +427,13 @@ class GroResponseSpec extends UnitSpec {
       }
     }
 
-    "return an JsonMappingException from an invalid json object" in {
+    "return a JsonParseException from a broken json object" in {
+      intercept[com.fasterxml.jackson.core.JsonParseException] {
+        jsonBrokenObject.validate[GroResponse]
+      }
+    }
+
+    "return a JsonMappingException from an invalid json object" in {
       intercept[com.fasterxml.jackson.databind.JsonMappingException] {
         jsonNoObject.validate[GroResponse]
       }
