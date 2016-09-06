@@ -410,6 +410,8 @@ class GroResponseSpec extends UnitSpec {
         lastName = "Jones",
         dateOfBirth = Option(new LocalDate("2007-02-18"))))
       response shouldBe a[GroResponse]
+      response.child shouldBe a[Child]
+      response.status shouldBe None
     }
 
     "return GroResponse object with all Child attributes when json is a full record" in {
@@ -423,6 +425,13 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "SMITH"
           x.child.dateOfBirth.get.toString shouldBe "2006-11-12"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -441,6 +450,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) =>
           throw new Exception
@@ -458,6 +468,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jonésë"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) =>
           throw new Exception
@@ -475,6 +486,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ-'"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) =>
           throw new Exception
@@ -492,6 +504,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) =>
           throw new Exception
@@ -508,6 +521,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -525,6 +539,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -544,6 +559,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -563,6 +579,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -582,6 +599,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe ""
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -600,6 +618,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -618,6 +637,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -636,6 +656,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
+          x.status shouldBe None
         }
         case JsError(x) => {
           throw new Exception
