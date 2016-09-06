@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import play.api.Logger
-import play.api.http.Status
+import play.api.http.Status._
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
 import uk.gov.hmrc.brm.models.Payload
@@ -65,13 +65,13 @@ trait LookupService {
         } else {
           getConnector(payload).getReference(reference) map {
             response =>
-              response.status match {
-                case Status.OK =>
+              Logger.debug(s"[LookupService][response] $response")
+//              response.status match {
+//                case Status.OK =>
                   val json = response.json
                   if (json.validate[JsObject].isError  || json.validate[JsObject].get.keys.isEmpty) {
                     BirthResponseBuilder.withNoMatch()
                   } else {
-                    Logger.debug(s"[LookupService][response] $response")
                     Logger.debug(s"[LookupService][payload] $payload")
 
                     val firstName = (json \ "subjects" \ "child" \ "name" \ "givenName").as[String]
@@ -80,15 +80,13 @@ trait LookupService {
                     val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
                     BirthResponseBuilder.getResponse(isMatch)
                   }
-                case Status.NOT_FOUND =>
-                  BirthResponseBuilder.withNoMatch()
-                case Status.UNAUTHORIZED =>
-                  BirthResponseBuilder.withNoMatch()
-                case _ =>
-                  Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse - ${response.status}")
-                  throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
-              }
-          }
+//              }
+          } /*recover {
+            case  e : Exception => throw e
+             // Logger.debug(s"[LookupService][recover] IVE HAD TO RECOVER not found")
+            //Future.failed(Upstream4xxResponse(message, NOT_FOUND, _, _)
+
+          }*/
         }
     )
   }
