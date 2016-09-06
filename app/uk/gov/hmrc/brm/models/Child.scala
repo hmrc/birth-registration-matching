@@ -27,7 +27,7 @@ import uk.gov.hmrc.brm.utils.BRMFormat
   * Created by chrisianson on 31/08/16.
   */
 case class Child(
-                  birthReferenceNumber: String,
+                  birthReferenceNumber: Option[Int],
                   firstName: String,
                   lastName: String,
                   dateOfBirth: Option[LocalDate]
@@ -36,7 +36,7 @@ case class Child(
 object Child extends BRMFormat {
 
   implicit val childReads : Reads[Child] = (
-    (JsPath \ "subjects" \ "systemNumber").read[String].orElse(Reads.pure("")) and
+    (JsPath  \ "systemNumber").readNullable[Int].orElse(Reads.pure(None)) and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(datePattern)).orElse(Reads.pure(None))

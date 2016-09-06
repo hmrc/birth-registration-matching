@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsSuccess, Json}
+import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.test.UnitSpec
 
 /**
@@ -41,10 +42,12 @@ class GroResponseSpec extends UnitSpec {
     * - should return GroResponse object with Child object when dateOfBirth value is invalid format
     * - should return a JsonParseException from a broken json object
     * - should return an JsonMappingException from an invalid json object
-    * TODO: Check against full record
     */
 
-  val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("500035710")
+
+  lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+
   lazy val jsonValidWithUTF8 = Json.parse(
     """
       |{
@@ -55,9 +58,9 @@ class GroResponseSpec extends UnitSpec {
       |    "surname" : "JonesƷġÊÊÊÊÊƂƂƂ-'"
       |   },
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -71,9 +74,9 @@ class GroResponseSpec extends UnitSpec {
       |    "surname" : "Jones"
       |   },
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -87,9 +90,9 @@ class GroResponseSpec extends UnitSpec {
       |    "surname" : "Jonésë"
       |   },
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -108,9 +111,9 @@ class GroResponseSpec extends UnitSpec {
        |    "surname" : "$maxLengthString"
        |   },
        |   "dateOfBirth" : "2007-02-18"
-       |  },
-       |  "systemNumber" : "500035710"
-       | }
+       |  }
+       | },
+       | "systemNumber" : 500035710
        |}
     """.stripMargin)
 
@@ -123,9 +126,9 @@ class GroResponseSpec extends UnitSpec {
       |    "surname" : "Jones"
       |   },
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -138,9 +141,9 @@ class GroResponseSpec extends UnitSpec {
       |    "givenName" : "John"
       |   },
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -168,9 +171,9 @@ class GroResponseSpec extends UnitSpec {
       |    "givenName" : "John",
       |    "surname" : "Jones"
       |   }
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -180,18 +183,16 @@ class GroResponseSpec extends UnitSpec {
       | "subjects" : {
       |  "child" : {
       |   "dateOfBirth" : "2007-02-18"
-      |  },
-      |  "systemNumber" : "500035710"
-      | }
+      |  }
+      | },
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
   lazy val jsonMissingSubjectsKey = Json.parse(
     """
       |{
-      | "subjects" : {
-      |  "systemNumber" : "500035710"
-      | }
+      | "systemNumber" : 500035710
       |}
     """.stripMargin)
 
@@ -205,7 +206,6 @@ class GroResponseSpec extends UnitSpec {
     """
       |{
       | "subjects" : {
-      | "systemNumber" : "500035710",
       |  "child" : {
       |   "name" : {
       |    "givenName" : "John",
@@ -213,7 +213,24 @@ class GroResponseSpec extends UnitSpec {
       |   },
       |   "dateOfBirth" : "20-02-207"
       |  }
-      | }
+      | },
+      | "systemNumber" : 500035710
+      |}
+    """.stripMargin)
+
+  lazy val jsonInvalidSystemNumberType = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "20-02-207"
+      |  }
+      | },
+      | "systemNumber" : "500035710"
       |}
     """.stripMargin)
 
@@ -224,11 +241,29 @@ class GroResponseSpec extends UnitSpec {
   "GroResponse" should {
     "be an instance of GroResponse" in {
       val response = new GroResponse(child = Child(
-        birthReferenceNumber = "500035710",
+        birthReferenceNumber = Some(500035710),
         firstName = "John",
         lastName = "Jones",
         dateOfBirth = Option(new LocalDate("2007-02-18"))))
       response shouldBe a[GroResponse]
+    }
+
+    "return GroResponse object with all Child attributes when json is a full record" in {
+      val result = jsonFullRecord.validate[GroResponse]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "Adam TEST"
+          x.child.lastName shouldBe "SMITH"
+          x.child.dateOfBirth.get.toString shouldBe "2006-11-12"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
     }
 
     "return GroResponse object with all Child attributes when json is valid and complete (ASCII)" in {
@@ -237,7 +272,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -254,7 +289,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "Johnéë"
           x.child.lastName shouldBe "Jonésë"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -271,7 +306,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
           x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ-'"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -288,7 +323,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -305,9 +340,26 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe ""
+          x.child.birthReferenceNumber shouldBe None
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
+          x.child.dateOfBirth shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with null Child attributes when systemNumber is a string" in {
+      val result = jsonInvalidSystemNumberType.validate[GroResponse]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe None
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
         }
         case JsError(x) => {
@@ -323,7 +375,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe ""
+          x.child.birthReferenceNumber shouldBe None
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -342,7 +394,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -361,7 +413,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe ""
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -373,14 +425,14 @@ class GroResponseSpec extends UnitSpec {
       }
     }
 
-    "return GroResponse object with Child object when dateofBirth key is missing" in {
+    "return GroResponse object with Child object when dateOfBirth key is missing" in {
       val result = jsonMissingDateOfBirthKey.validate[GroResponse]
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
@@ -398,7 +450,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
@@ -416,7 +468,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe "500035710"
+          x.child.birthReferenceNumber.get shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None

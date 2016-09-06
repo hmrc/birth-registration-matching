@@ -70,8 +70,6 @@ class PayloadSpec extends UnitSpec {
           | "whereBirthRegistered" : "england"
           |}
         """.stripMargin)
-
-
     }
 
     "return error when whereBirthRegistered is number" in {
@@ -105,6 +103,7 @@ class PayloadSpec extends UnitSpec {
 
       jsonObject.validate[Payload].isError shouldBe true
     }
+
   }
 
 }
