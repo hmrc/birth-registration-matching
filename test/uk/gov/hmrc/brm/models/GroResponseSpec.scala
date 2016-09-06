@@ -238,6 +238,170 @@ class GroResponseSpec extends UnitSpec {
 
   lazy val jsonBrokenObject = Json.parse("{")
 
+  lazy val jsonAllStatusFlags = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "correction": "None",
+      |    "cancelled": false,
+      |    "blockedRegistration": false,
+      |    "marginalNote": "None",
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingPotentiallyFicticiousBirth = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "correction": "None",
+      |    "cancelled": false,
+      |    "blockedRegistration": false,
+      |    "marginalNote": "None",
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingCorrection = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "cancelled": false,
+      |    "blockedRegistration": false,
+      |    "marginalNote": "None",
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingCancelled = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "correction": "None",
+      |    "blockedRegistration": false,
+      |    "marginalNote": "None",
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingBlockedRegistration = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "correction": "None",
+      |    "cancelled": false,
+      |    "marginalNote": "None",
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingMarginalNote = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "correction": "None",
+      |    "cancelled": false,
+      |    "blockedRegistration": false,
+      |    "reRegistered": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+  lazy val jsonStatusFlagsExcludingReRegistered = Json.parse(
+    """
+      |{
+      | "subjects" : {
+      |  "child" : {
+      |   "name" : {
+      |    "givenName" : "John",
+      |    "surname" : "Jones"
+      |   },
+      |   "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "systemNumber" : 500035710,
+      | "status": {
+      |    "potentiallyFictitiousBirth": false,
+      |    "correction": "None",
+      |    "cancelled": false,
+      |    "blockedRegistration": false,
+      |    "marginalNote": "None"
+      |  }
+      |}
+    """.stripMargin)
+
+
+
   "GroResponse" should {
     "be an instance of GroResponse" in {
       val response = new GroResponse(child = Child(
@@ -472,6 +636,188 @@ class GroResponseSpec extends UnitSpec {
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when all status flags exist" in {
+      val result = jsonAllStatusFlags.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when potentiallyFictitiousBirth key is excluded" in {
+      val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when correction key is excluded" in {
+      val result = jsonStatusFlagsExcludingCorrection.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction shouldBe None
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when cancelled key is excluded" in {
+      val result = jsonStatusFlagsExcludingCancelled.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when blockedRegistration key is excluded" in {
+      val result = jsonStatusFlagsExcludingBlockedRegistration.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when marginalNote key is excluded" in {
+      val result = jsonStatusFlagsExcludingMarginalNote.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote shouldBe None
+          x.status.get.reRegistered.get shouldBe "None"
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Status object when reRegistered key is excluded" in {
+      val result = jsonStatusFlagsExcludingReRegistered.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.firstName shouldBe "John"
+          x.child.lastName shouldBe "Jones"
+          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
+          x.child.dateOfBirth.get shouldBe a[LocalDate]
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction.get shouldBe "None"
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote.get shouldBe "None"
+          x.status.get.reRegistered shouldBe None
         }
         case JsError(x) => {
           throw new Exception
