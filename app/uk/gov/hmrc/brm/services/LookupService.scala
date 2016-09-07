@@ -59,40 +59,35 @@ trait LookupService {
       Future.successful(BirthResponseBuilder.withNoMatch())
     )(
       reference =>
-        if (reference.trim.isEmpty) {
-          Logger.debug(s"\n[LookupService][reference isEmpty]\n")
-          Future.failed(new BadRequestException("BirthReferenceNumber is empty"))
-        } else {
-          getConnector(payload).getReference(reference) map {
-            response =>
+        getConnector(payload).getReference(reference) map {
+          response =>
 
-              Logger.debug(s"[LookupService][response] $response")
-              Logger.debug(s"[LookupService][payload] $payload")
+            Logger.debug(s"[LookupService][response] $response")
+            Logger.debug(s"[LookupService][payload] $payload")
 
-              response.status match {
-                case Status.OK =>
-                    response.json.validate[GroResponse].fold(
-                      error => {
-                        Logger.warn(s"[LookupService][validate json][failed to validate json]]")
-                        BirthResponseBuilder.withNoMatch()
-                      },
-                      success => {
-                        val firstName = success.child.firstName
-                        val lastName = success.child.lastName
+            response.status match {
+              case Status.OK =>
+                response.json.validate[GroResponse].fold(
+                  error => {
+                    Logger.warn(s"[LookupService][validate json][failed to validate json]]")
+                    BirthResponseBuilder.withNoMatch()
+                  },
+                  success => {
+                    val firstName = success.child.firstName
+                    val lastName = success.child.lastName
 
-                        val isMatch = firstName.equals(payload.firstName) && lastName.equals(payload.lastName)
-                        BirthResponseBuilder.getResponse(isMatch)
-                      }
-                    )
-                case Status.NOT_FOUND =>
-                  BirthResponseBuilder.withNoMatch()
-                case Status.UNAUTHORIZED =>
-                  BirthResponseBuilder.withNoMatch()
-                case _ =>
-                  Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse - ${response.status}")
-                  throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
-              }
-          }
+                    val isMatch = firstName.equals(payload.firstName) && lastName.equals(payload.lastName)
+                    BirthResponseBuilder.getResponse(isMatch)
+                  }
+                )
+              case Status.NOT_FOUND =>
+                BirthResponseBuilder.withNoMatch()
+              case Status.UNAUTHORIZED =>
+                BirthResponseBuilder.withNoMatch()
+              case _ =>
+                Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse - ${response.status}")
+                throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
+            }
         }
     )
   }
