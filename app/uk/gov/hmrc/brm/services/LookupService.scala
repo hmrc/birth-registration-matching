@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.services
 
 import play.api.Logger
 import play.api.http.Status
-import play.api.libs.json.JsObject
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
 import uk.gov.hmrc.brm.models.{GroResponse, Payload}
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
@@ -59,38 +59,28 @@ trait LookupService {
       Future.successful(BirthResponseBuilder.withNoMatch())
     )(
       reference =>
+
+        /**
+         * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
+         */
         getConnector(payload).getReference(reference) map {
           response =>
-
             Logger.debug(s"[LookupService][response] $response")
             Logger.debug(s"[LookupService][payload] $payload")
 
-            response.status match {
-              case Status.OK =>
-
-                response.json
-
-                response.json.validate[GroResponse].fold(
-                  error => {
-                    Logger.warn(s"[LookupService][validate json][failed to validate json]]")
-                    BirthResponseBuilder.withNoMatch()
-                  },
-                  success => {
-                    val firstName = success.child.firstName
-                    val lastName = success.child.lastName
-
-                    val isMatch = firstName.equals(payload.firstName) && lastName.equals(payload.lastName)
-                    BirthResponseBuilder.getResponse(isMatch)
-                  }
-                )
-              case Status.NOT_FOUND =>
+            response.json.validate[GroResponse].fold(
+              error => {
+                Logger.warn(s"[LookupService][validate json][failed to validate json]]")
                 BirthResponseBuilder.withNoMatch()
-              case Status.UNAUTHORIZED =>
-                BirthResponseBuilder.withNoMatch()
-              case _ =>
-                Logger.error(s"[${this.getClass.getName}][InternalServerError] handleResponse - ${response.status}")
-                throw new Upstream5xxResponse(s"[${super.getClass.getName}][InternalServerError]", Status.INTERNAL_SERVER_ERROR, Status.INTERNAL_SERVER_ERROR)
-            }
+              },
+              success => {
+                val firstName = success.child.firstName
+                val lastName = success.child.lastName
+
+                val isMatch = firstName.equals(payload.firstName) && lastName.equals(payload.lastName)
+                BirthResponseBuilder.getResponse(isMatch)
+              }
+            )
         }
     )
   }
