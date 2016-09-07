@@ -42,24 +42,36 @@ class BirthEventsControllerSpec
   /**
     * - Should
     * - Wire up dependencies correctly
-    * - Return 200 with application/json type
-    * - Return JSON response of false on unsuccessful detail match
-    * - Return JSON response of true on successful detail match
-    * - Return JSON response of false on unsuccessful birthReferenceNumber  match
-    * - Return JSON response of true on successful birthReferenceNumber  match
-    * - Return 200 if request contains missing birthReferenceNumber key
-    * - Return 200 if request contains missing birthReferenceNumber value
-    * - Return 400 if request contains missing dateOfBirth key
-    * - Return 400 if request contains missing dateOfBirth value
-    * - Return 400 if request contains missing firstName key
-    * - Return 400 if request contains missing firstName value
-    * - Return 400 if request contains missing lastName key
-    * - Return 400 if request contains missing lastName value
-    * - Return 400 if request contains missing whereBirthRegistered key
-    * - Return 400 if request contains missing whereBirthRegistered value
-    * - Return BadRequest when GRO returns 4xx
-    * - Return InternalServerError when GRO returns 5xx
-    **/
+    * - return 200 with application/json type
+    * - return JSON response of false on unsuccessful detail match
+    * - return JSON response of true on successful detail match
+    * - return JSON response of false on unsuccessful birthReferenceNumber match
+    * - return JSON response of true on successful birthReferenceNumber match
+    * - return response code 200 if request contains missing birthReferenceNumber key
+    * - return response code 400 if request contains missing birthReferenceNumber value
+    * - return response code 400 if request contains missing dateOfBirth key
+    * - return response code 400 if request contains missing dateOfBirth value
+    * - return response code 400 if request contains invalid dateOfBirth format
+    * - return response code 400 if request contains missing firstName key
+    * - return response code 400 if request contains missing firstName value
+    * - return response code 400 if request contains missing lastName key
+    * - return response code 400 if request contains missing lastName value
+    * - return response code 400 if request contains missing whereBirthRegistered key
+    * - return response code 400 if request contains missing whereBirthRegistered value
+    * - return BadGateway when GRO returns 4xx
+    * - return BadRequest when GRO returns 4xx BadRequest
+    * - return GatewayTimeout when GRO returns 5xx when timeout
+    * - return InternalServerError when GRO returns 5xx
+    * - return match false when GRO returns invalid json
+    * - return not match when GRO returns NOT FOUND
+    * - return not match when GRO returns NOT FOUND response
+    * - return not match when GRO returns UNAUTHORIZED response
+    * - return InternalServerError when GRO returns 5xx response
+    * - return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches
+    * - return validated value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches
+    * - return validated value of false when the dateOfBirth is invalid and the gro record matches
+    * - return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches
+    * */
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
@@ -242,6 +254,17 @@ class BirthEventsControllerSpec
        |}
     """.stripMargin)
 
+  val userInvalidDOBFormat = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "1234567890",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
   val userValidDOB = Json.parse(
     s"""
        |{
@@ -383,6 +406,15 @@ class BirthEventsControllerSpec
 
     "return response code 400 if request contains missing dateOfBirth value" in {
       val request = postRequest(userNoMatchExcludingDateOfBirthValue)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      verify(mockConnector, times(0)).getReference(Matchers.any())(Matchers.any())
+    }
+
+    "return response code 400 if request contains invalid dateOfBirth format" in {
+      val request = postRequest(userInvalidDOBFormat)
       val result = MockController.post().apply(request)
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
@@ -566,4 +598,5 @@ class BirthEventsControllerSpec
     }
 
   }
+
 }
