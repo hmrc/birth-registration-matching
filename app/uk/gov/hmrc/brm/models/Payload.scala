@@ -18,10 +18,12 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.utils.BRMFormat
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
+
 
 /**
   * Created by chrisianson on 27/07/16.
@@ -48,9 +50,9 @@ object Payload extends BRMFormat {
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-    (JsPath \ "birthReferenceNumber").readNullable[String] and
-    (JsPath \ "firstName").read[String] and
-    (JsPath \ "lastName").read[String] and
+    (JsPath \ "birthReferenceNumber").readNullable[String](minLength[String](1)) and
+    (JsPath \ "firstName").read[String](minLength[String](1)) and
+    (JsPath \ "lastName").read[String](minLength[String](1)) and
     (JsPath \ "dateOfBirth").read[LocalDate]  and
       (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
      )(Payload.apply _)
