@@ -29,7 +29,7 @@ class BirthRegisterCountrySpec extends UnitSpec {
     }
 
     "return valid response for four countries" in {
-      val countryList = List("england", "wales", "Scotland", "Northern Ireland");
+      val countryList = List("england", "wales", "scotland", "northern ireland");
 
       for (country <- countryList) {
         BirthRegisterCountry.withName(country)

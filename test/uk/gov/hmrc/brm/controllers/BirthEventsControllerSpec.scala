@@ -45,6 +45,7 @@ class BirthEventsControllerSpec
     * - Return 200 with application/json type
     * - Return JSON response of false on unsuccessful detail match
     * - Return JSON response of true on successful detail match
+    * - Return 200 JSON response of true on successful detail match with country in mixedcase
     * - Return JSON response of false on unsuccessful birthReferenceNumber  match
     * - Return JSON response of true on successful birthReferenceNumber  match
     * - Return 200 if request contains missing birthReferenceNumber key
@@ -146,6 +147,17 @@ class BirthEventsControllerSpec
        | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "500035710",
        | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userMatchCountryNameInMixCase = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2012-02-16",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "EngLand"
        |}
     """.stripMargin)
 
@@ -348,6 +360,16 @@ class BirthEventsControllerSpec
     "return JSON response of true on successful detail match" in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+
+    "return 200 JSON response of true on successful detail match with country in mix case" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      val request = postRequest(userMatchCountryNameInMixCase)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
       contentType(result).get shouldBe "application/json"

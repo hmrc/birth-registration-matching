@@ -26,8 +26,9 @@ object BirthRegisterCountry extends Enumeration {
   type BirthRegisterCountry = Value
   val ENGLAND = Value("england")
   val WALES = Value("wales")
-  val NORTHERN_IRELAND = Value("Northern Ireland")
-  val SCOTLAND  = Value("Scotland")
+  val NORTHERN_IRELAND = Value("northern ireland")
+  val SCOTLAND  = Value("scotland")
+
 
 
   def birthRegisterReads: Reads[BirthRegisterCountry] = new Reads[BirthRegisterCountry] {
@@ -35,7 +36,7 @@ object BirthRegisterCountry extends Enumeration {
       json match {
         case JsString(s) => {
           try {
-            JsSuccess(BirthRegisterCountry.withName(s))
+            JsSuccess(BirthRegisterCountry.withName(s.trim.toLowerCase()))
           } catch {
             case _: NoSuchElementException => JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value: '$s'")
           }
