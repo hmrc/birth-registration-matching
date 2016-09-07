@@ -1,0 +1,30 @@
+{
+  "location": {
+  },
+  "subjects": {
+    "child": {
+      "name": {
+
+      },
+      "originalName": {
+      }
+    },
+    "father": {
+      "name": {
+      }
+    },
+    "mother": {
+      "name": {
+      }
+    },
+    "informant": {
+      "name": {
+      }
+    }
+  },
+  "systemNumber": 999999926,
+  "id": 999999926,
+  "status": {
+  },
+  "previousRegistration": {}
+}

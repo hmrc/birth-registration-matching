@@ -46,6 +46,8 @@ class GroResponseSpec extends UnitSpec {
 
   lazy val jsonFullRecord = JsonUtils.getJsonFromFile("500035710")
 
+  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("key-no-value")
+
   lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
 
   lazy val jsonValidWithUTF8 = Json.parse(
@@ -529,7 +531,31 @@ class GroResponseSpec extends UnitSpec {
       }
     }
 
-    "return GroResponse object with null Child attributes when systemNumber is a string" in {
+    "return GroResponse object with Child and Status objects when json contains subjects and status keys but no values exist" in {
+      val result = jsonRecordKeysNoValues.validate[GroResponse]
+      result match {
+        case JsSuccess(x, _) => {
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber.get shouldBe 999999926
+          x.child.firstName shouldBe ""
+          x.child.lastName shouldBe ""
+          x.child.dateOfBirth shouldBe None
+          x.status.get shouldBe a[Status]
+          x.status.get.potentiallyFictitiousBirth shouldBe false
+          x.status.get.correction shouldBe None
+          x.status.get.cancelled shouldBe false
+          x.status.get.blockedRegistration shouldBe false
+          x.status.get.marginalNote shouldBe None
+          x.status.get.reRegistered shouldBe None
+        }
+        case JsError(x) => {
+          throw new Exception
+        }
+      }
+    }
+
+    "return GroResponse object with Child object when systemNumber is a string" in {
       val result = jsonInvalidSystemNumberType.validate[GroResponse]
       result match {
         case JsSuccess(x, _) => {
