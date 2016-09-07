@@ -57,8 +57,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
-//      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: $message")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")

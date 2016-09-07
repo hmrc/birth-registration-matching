@@ -66,27 +66,19 @@ trait LookupService {
           getConnector(payload).getReference(reference) map {
             response =>
               Logger.debug(s"[LookupService][response] $response")
-//              response.status match {
-//                case Status.OK =>
-                  val json = response.json
-                  if (json.validate[JsObject].isError  || json.validate[JsObject].get.keys.isEmpty) {
-                    BirthResponseBuilder.withNoMatch()
-                  } else {
-                    Logger.debug(s"[LookupService][payload] $payload")
+              val json = response.json
+              if (json.validate[JsObject].isError || json.validate[JsObject].get.keys.isEmpty) {
+                BirthResponseBuilder.withNoMatch()
+              } else {
+                Logger.debug(s"[LookupService][payload] $payload")
 
-                    val firstName = (json \ "subjects" \ "child" \ "name" \ "givenName").as[String]
-                    val surname = (json \ "subjects" \ "child" \ "name" \ "surname").as[String]
+                val firstName = (json \ "subjects" \ "child" \ "name" \ "givenName").as[String]
+                val surname = (json \ "subjects" \ "child" \ "name" \ "surname").as[String]
 
-                    val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
-                    BirthResponseBuilder.getResponse(isMatch)
-                  }
-//              }
-          } /*recover {
-            case  e : Exception => throw e
-             // Logger.debug(s"[LookupService][recover] IVE HAD TO RECOVER not found")
-            //Future.failed(Upstream4xxResponse(message, NOT_FOUND, _, _)
-
-          }*/
+                val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
+                BirthResponseBuilder.getResponse(isMatch)
+              }
+          }
         }
     )
   }
