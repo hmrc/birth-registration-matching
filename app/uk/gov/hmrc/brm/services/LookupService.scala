@@ -67,6 +67,9 @@ trait LookupService {
 
             response.status match {
               case Status.OK =>
+
+                response.json
+
                 response.json.validate[GroResponse].fold(
                   error => {
                     Logger.warn(s"[LookupService][validate json][failed to validate json]]")

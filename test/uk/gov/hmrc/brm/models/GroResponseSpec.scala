@@ -407,7 +407,7 @@ class GroResponseSpec extends UnitSpec {
   "GroResponse" should {
     "be an instance of GroResponse" in {
       val response = new GroResponse(child = Child(
-        birthReferenceNumber = Some(500035710),
+        birthReferenceNumber = 500035710,
         firstName = "John",
         lastName = "Jones",
         dateOfBirth = Option(new LocalDate("2007-02-18"))))
@@ -422,7 +422,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "Adam TEST"
           x.child.lastName shouldBe "SMITH"
           x.child.dateOfBirth.get.toString shouldBe "2006-11-12"
@@ -447,7 +447,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -465,7 +465,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "Johnéë"
           x.child.lastName shouldBe "Jonésë"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -483,7 +483,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
           x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ-'"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -501,7 +501,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -517,16 +517,18 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingEmptyObject.validate[GroResponse]
       result match {
         case JsSuccess(x, _) => {
-          x shouldBe a[GroResponse]
-          x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe None
-          x.child.firstName shouldBe ""
-          x.child.lastName shouldBe ""
-          x.child.dateOfBirth shouldBe None
-          x.status shouldBe None
+          x should not be a[GroResponse]
+          x.child should not be a[Child]
+          x.child.birthReferenceNumber should not be None
+          x.child.firstName should not be ""
+          x.child.lastName should not be ""
+          x.child.dateOfBirth should not be None
+          x.status should not be None
         }
         case JsError(x) => {
-          throw new Exception
+          x.length shouldBe 1
+          x.head._2.length shouldBe 1
+          x.head._1.toString() shouldBe "/systemNumber"
         }
       }
     }
@@ -537,7 +539,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 999999926
+          x.child.birthReferenceNumber shouldBe 999999926
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
@@ -559,36 +561,39 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonInvalidSystemNumberType.validate[GroResponse]
       result match {
         case JsSuccess(x, _) => {
-          x shouldBe a[GroResponse]
-          x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe None
-          x.child.firstName shouldBe "John"
-          x.child.lastName shouldBe "Jones"
-          x.child.dateOfBirth shouldBe None
-          x.status shouldBe None
+          x should not be a[GroResponse]
+          x.child should not be a[Child]
+          x.child.birthReferenceNumber should not be None
+          x.child.firstName should not be ""
+          x.child.lastName should not be ""
+          x.child.dateOfBirth should not be None
+          x.status should not be None
         }
         case JsError(x) => {
-          throw new Exception
+          x.length shouldBe 1
+          x.head._2.length shouldBe 1
+          x.head._1.toString() shouldBe "/systemNumber"
         }
       }
     }
 
     "return GroResponse object with Child object when systemNumber key is missing" in {
       val result = jsonMissingSystemNumberKey.validate[GroResponse]
-      result shouldBe a[JsSuccess[_]]
+      result should not be a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
-          x shouldBe a[GroResponse]
-          x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe None
-          x.child.firstName shouldBe "John"
-          x.child.lastName shouldBe "Jones"
-          x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
-          x.child.dateOfBirth.get shouldBe a[LocalDate]
-          x.status shouldBe None
+          x should not be a[GroResponse]
+          x.child should not be a[Child]
+          x.child.birthReferenceNumber should not be None
+          x.child.firstName should not be ""
+          x.child.lastName should not be ""
+          x.child.dateOfBirth should not be None
+          x.status should not be None
         }
         case JsError(x) => {
-          throw new Exception
+          x.length shouldBe 1
+          x.head._2.length shouldBe 1
+          x.head._1.toString() shouldBe "/systemNumber"
         }
       }
     }
@@ -600,7 +605,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -620,7 +625,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe ""
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -640,7 +645,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
@@ -659,7 +664,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
@@ -678,7 +683,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
@@ -697,7 +702,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -723,7 +728,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -749,7 +754,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -775,7 +780,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -801,7 +806,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -827,7 +832,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
@@ -853,7 +858,7 @@ class GroResponseSpec extends UnitSpec {
         case JsSuccess(x, _) => {
           x shouldBe a[GroResponse]
           x.child shouldBe a[Child]
-          x.child.birthReferenceNumber.get shouldBe 500035710
+          x.child.birthReferenceNumber shouldBe 500035710
           x.child.firstName shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
