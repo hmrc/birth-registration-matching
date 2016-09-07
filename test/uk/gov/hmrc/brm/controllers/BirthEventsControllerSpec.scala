@@ -25,7 +25,7 @@ import play.api.test.{FakeApplication, FakeRequest}
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.JsonUtils
-import uk.gov.hmrc.play.http.{HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.play.http.{BadRequestException, HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -61,6 +61,7 @@ class BirthEventsControllerSpec
     * - return BadGateway when GRO returns 4xx
     * - return BadRequest when GRO returns 4xx BadRequest
     * - return GatewayTimeout when GRO returns 5xx when timeout
+    * - return BadRequest when GRO returns BadRequestException
     * - return InternalServerError when GRO returns 5xx
     * - return match false when GRO returns invalid json
     * - return not match when GRO returns NOT FOUND
@@ -388,7 +389,6 @@ class BirthEventsControllerSpec
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchExcludingReferenceNumber)
       val result = MockController.post().apply(request)
-
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -503,6 +503,15 @@ class BirthEventsControllerSpec
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       status(result) shouldBe GATEWAY_TIMEOUT
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+    "return BadRequest when GRO returns BadRequestException" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
+      val request = postRequest(userNoMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
