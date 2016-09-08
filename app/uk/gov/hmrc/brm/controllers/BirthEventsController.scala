@@ -76,11 +76,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     case e : NotImplementedException  =>
       Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
-
     case Upstream5xxResponse(message, upstreamCode, _) =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
-
     case e : NotFoundException =>
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
