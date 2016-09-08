@@ -24,7 +24,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
+
 import uk.gov.hmrc.play.http.{BadRequestException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse}
+
+import uk.gov.hmrc.play.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.play.microservice.controller
 import uk.gov.hmrc.brm.config.BrmConfig
 
@@ -58,8 +62,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
-//      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: $message")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
@@ -78,7 +81,16 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
 
+    case e : NotFoundException =>
+      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
+      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
+    case e : Exception =>
+      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: message: ${e}")
+      respond(InternalServerError)
   }
+
+
+
  private def validateDob(d: LocalDate): Boolean = {
     BrmConfig.validateDobForGro match {
       case true =>
@@ -108,7 +120,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
-               } recover handleException("getReference")
+               }recover handleException("getReference")
            }
          }
       )

@@ -24,8 +24,13 @@ import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest}
 import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.LookupService
+
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, JsonBuilder, JsonUtils}
 import uk.gov.hmrc.play.http.{HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
+
+import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.play.http.{HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -564,7 +569,7 @@ class BirthEventsControllerSpec
     }
 
     "return not match when GRO returns NOT FOUND response " in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(httpResponse(NOT_FOUND))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       status(result) shouldBe OK
@@ -572,23 +577,13 @@ class BirthEventsControllerSpec
       contentType(result).get shouldBe "application/json"
     }
 
-    "return not match when GRO returns UNAUTHORIZED response " in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(httpResponse(UNAUTHORIZED))
-      val request = postRequest(userNoMatchIncludingReferenceNumber)
-      val result = MockController.post().apply(request)
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
-      contentType(result).get shouldBe "application/json"
-    }
-
-    "return InternalServerError when GRO returns 5xx response" in {
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(httpResponse(INTERNAL_SERVER_ERROR))
+    "return 500 when proxy throws exception" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
       val result = MockController.post().apply(request)
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentType(result).get shouldBe "application/json"
 
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
     "return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {

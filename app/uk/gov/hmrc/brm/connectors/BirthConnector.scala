@@ -49,10 +49,13 @@ trait BirthConnector extends ServicesConfig {
     httpGet.GET[HttpResponse](endpoint)
   }
 
-  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
+
+  def getReference(reference: String)(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[BirthConnector][getReference]: $reference")
-    requestReference(reference)
-  }
+    val response = requestReference(reference)
+    Logger.debug(s"[BirthConnector][getReference][response]: ${response}")
+    response
+ }
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
