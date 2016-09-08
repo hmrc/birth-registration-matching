@@ -51,6 +51,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     override val serviceUrl = ""
     override val baseUri = ""
     override val detailsUri = ""
+
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -75,7 +76,9 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       result.status shouldBe 200
     }
 
+
     "getChildDetails returns json response" in {
+
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
       val result = await(MockBirthConnector.getChildDetails(childDetailPayload))
@@ -109,4 +112,5 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         result.status shouldBe 404
     }
   }
+
 }

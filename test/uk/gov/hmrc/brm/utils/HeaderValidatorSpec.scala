@@ -40,8 +40,11 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
 
   val mockConnector = mock[BirthConnector]
 
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
+    override val nirsConnector = mockConnector
+    override val nrsConnector = mockConnector
   }
 
   object MockController extends BirthEventsController {
@@ -83,6 +86,18 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
 
     "return true when Accept header and auditSource header are valid" in {
       acceptHeaderValidationRules(accept = Some("application/vnd.hmrc.1.0+json"), auditSource = Some("DFS")) shouldBe true
+    }
+
+    "return true when Accept header for mixed case and auditSource header are valid " in {
+      acceptHeaderValidationRules(accept = Some("application/vNd.HMRC.1.0+jSon"), auditSource = Some("DFS")) shouldBe true
+    }
+
+    "return false when Accept header is not valid and auditSource header is valid " in {
+      acceptHeaderValidationRules(accept = Some(""), auditSource = Some("DFS")) shouldBe false
+    }
+
+    "return false when Accept header has no value and auditSource header is valid " in {
+      acceptHeaderValidationRules(accept = None, auditSource = Some("DFS")) shouldBe false
     }
   }
 

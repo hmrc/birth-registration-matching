@@ -22,10 +22,15 @@ import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.{FakeApplication, FakeRequest}
-import uk.gov.hmrc.brm.connectors.BirthConnector
+import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.LookupService
+
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, JsonBuilder, JsonUtils}
+import uk.gov.hmrc.play.http.{HttpResponse, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.http.{HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -45,6 +50,7 @@ class BirthEventsControllerSpec
     * - Return 200 with application/json type
     * - Return JSON response of false on unsuccessful detail match
     * - Return JSON response of true on successful detail match
+    * - Return 200 JSON response of true on successful detail match with country in mixedcase
     * - Return JSON response of false on unsuccessful birthReferenceNumber  match
     * - Return JSON response of true on successful birthReferenceNumber  match
     * - Return 200 if request contains missing birthReferenceNumber key
@@ -146,6 +152,17 @@ class BirthEventsControllerSpec
        | "dateOfBirth" : "2012-02-16",
        | "birthReferenceNumber" : "500035710",
        | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userMatchCountryNameInMixCase = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2012-02-16",
+       | "birthReferenceNumber" : "500035710",
+       | "whereBirthRegistered" : "EngLand"
        |}
     """.stripMargin)
 
@@ -275,30 +292,49 @@ class BirthEventsControllerSpec
        |}
     """.stripMargin)
 
-  def postRequest(v: JsValue) : FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
+
+  val userWithScotlandBirthRegsitered = new JsonBuilder().withKeyValue("firstName", "Adam TEST").appendMore().
+    withKeyValue("lastName", "SMITH").appendMore().
+    withKeyValue("dateOfBirth", "2012-02-16").appendMore().
+    withKeyValue("birthReferenceNumber", "500035710").appendMore().
+    withKeyValue("whereBirthRegistered", BirthRegisterCountry.SCOTLAND.toString)
+    .buildToJson()
+
+  val userWithNorthernIrelandBirthRegsitered = new JsonBuilder().withKeyValue("firstName", "Adam TEST").appendMore().
+    withKeyValue("lastName", "SMITH").appendMore().
+    withKeyValue("dateOfBirth", "2012-02-16").appendMore().
+    withKeyValue("birthReferenceNumber", "500035710").appendMore().
+    withKeyValue("whereBirthRegistered", BirthRegisterCountry.NORTHERN_IRELAND.toString)
+    .buildToJson()
+
+  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
+    override val nirsConnector = NirsConnector
+    override val nrsConnector = NrsConnector
   }
 
   object MockController extends BirthEventsController {
     val service = MockLookupService
   }
 
-  def httpResponse(js : JsValue) = HttpResponse.apply(200, Some(js))
-  def httpResponse(responseCode : Int ) = HttpResponse.apply(responseCode)
+  def httpResponse(js: JsValue) = HttpResponse.apply(200, Some(js))
+
+  def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   var config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> true
   )
 
- "initialising" should {
-   "wire up dependencies correctly" in {
-     BirthEventsController.service shouldBe a[LookupService]
-   }
+  "initialising" should {
+    "wire up dependencies correctly" in {
+      BirthEventsController.service shouldBe a[LookupService]
+    }
   }
 
   before {
@@ -329,6 +365,16 @@ class BirthEventsControllerSpec
     "return JSON response of true on successful detail match" in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userMatchIncludingReferenceNumber)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+
+    "return 200 JSON response of true on successful detail match with country in mix case" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      val request = postRequest(userMatchCountryNameInMixCase)
       val result = MockController.post().apply(request)
       (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
       contentType(result).get shouldBe "application/json"
@@ -503,6 +549,25 @@ class BirthEventsControllerSpec
       contentType(result).get shouldBe "application/json"
     }
 
+
+    "return JSON response of false when birth registered is scotland" in {
+
+      val request = postRequest(userWithScotlandBirthRegsitered)
+      val result = MockController.post().apply(request)
+
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+    "return JSON response of false when birth registered is Northern Ireland" in {
+
+      val request = postRequest(userWithNorthernIrelandBirthRegsitered)
+      val result = MockController.post().apply(request)
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+      contentType(result).get shouldBe "application/json"
+    }
+
     "return not match when GRO returns NOT FOUND response " in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
       val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -518,6 +583,7 @@ class BirthEventsControllerSpec
       val result = MockController.post().apply(request)
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentType(result).get shouldBe "application/json"
+
     }
 
     "return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {

@@ -40,6 +40,7 @@ trait BirthConnector extends ServicesConfig {
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
     httpGet.GET[HttpResponse](s"$detailsUri/$reference")
+
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
@@ -48,12 +49,13 @@ trait BirthConnector extends ServicesConfig {
     httpGet.GET[HttpResponse](endpoint)
   }
 
+
   def getReference(reference: String)(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[BirthConnector][getReference]: $reference")
     val response = requestReference(reference)
     Logger.debug(s"[BirthConnector][getReference][response]: ${response}")
     response
-  }
+ }
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
@@ -64,9 +66,33 @@ trait BirthConnector extends ServicesConfig {
 object GROEnglandConnector extends BirthConnector {
   override val serviceUrl = baseUrl("birth-registration-matching")
   override val httpGet : HttpGet = WSHttp
-
   override val baseUri = "birth-registration-matching-proxy"
   override val detailsUri = s"$serviceUrl/$baseUri/match"
+
+}
+
+object NirsConnector extends BirthConnector {
+  override val serviceUrl = null
+  override val httpGet : HttpGet = null
+  override val baseUri = ""
+  override val detailsUri = ""
+
+  override  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
+    Logger.debug(s"[NirsConnector][getReference]: $reference")
+    Future.failed(new NotImplementedException("No service available for NRS connector."))
+  }
+}
+
+object NrsConnector extends BirthConnector {
+  override val serviceUrl = null
+  override val httpGet : HttpGet = null
+  override val baseUri = ""
+  override val detailsUri = ""
+
+  override  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
+    Logger.debug(s"[NrsConnector][getReference]: $reference")
+    Future.failed(new NotImplementedException("No service available for NRS connector."))
+  }
 }
 
 
