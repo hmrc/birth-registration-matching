@@ -405,6 +405,7 @@ class BirthEventsControllerSpec
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
     }
 
     "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
@@ -414,6 +415,7 @@ class BirthEventsControllerSpec
       status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
     }
 
     "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
@@ -438,7 +440,6 @@ class BirthEventsControllerSpec
     "return response code 400 if request contains missing dateOfBirth key" in {
       val request = postRequest(userNoMatchExcludingDateOfBirthKey)
       val result = MockController.post().apply(request)
-
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
