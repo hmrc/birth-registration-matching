@@ -140,6 +140,28 @@ class BirthEventsControllerSpec
        |}
     """.stripMargin)
 
+  val userNoMatchIncludingReferenceCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "2012-08-03",
+       | "birthReferenceNumber" : "ab1_-CD263",
+       | "whereBirthRegistered" : "wales"
+       |}
+    """.stripMargin)
+
+  val userNoMatchIncludingInvalidData = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "2012-08-03",
+       | "birthReferenceNumber" : "123*34)",
+       | "whereBirthRegistered" : "wales"
+       |}
+    """.stripMargin)
+
   val userMatchExcludingReferenceNumber = Json.parse(
     s"""
        |{
@@ -384,6 +406,25 @@ class BirthEventsControllerSpec
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
+
+    "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      val request = postRequest(userNoMatchIncludingReferenceCharacters)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe OK
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
+    "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      val request = postRequest(userNoMatchIncludingInvalidData)
+      val result = MockController.post().apply(request)
+      status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    }
+
 
     "return response code 400 if request contains missing birthReferenceNumber value" in {
       when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
