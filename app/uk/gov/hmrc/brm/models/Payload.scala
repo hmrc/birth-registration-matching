@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
+import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
@@ -30,18 +31,18 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply =
   */
 
 case class Payload(
-                  birthReferenceNumber: Option[String] = None,
-                  firstName: String,
-                  lastName: String,
-                  dateOfBirth: LocalDate,
-                  whereBirthRegistered : BirthRegisterCountry
+                    birthReferenceNumber: Option[String] = None,
+                    firstName: String,
+                    lastName: String,
+                    dateOfBirth: LocalDate,
+                    whereBirthRegistered : BirthRegisterCountry
                   ){
 }
 
 object Payload extends BRMFormat {
 
   implicit val PayloadWrites: Writes[Payload] = (
-      (JsPath \ "birthReferenceNumber").write[Option[String]] and
+    (JsPath \ "birthReferenceNumber").write[Option[String]] and
       (JsPath \ "firstName").write[String] and
       (JsPath \ "lastName").write[String] and
       (JsPath \ "dateOfBirth").write[LocalDate](jodaLocalDateWrites(datePattern)) and
@@ -50,10 +51,10 @@ object Payload extends BRMFormat {
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-    (JsPath \ "birthReferenceNumber").readNullable[String](minLength[String](1)) and
-    (JsPath \ "firstName").read[String](minLength[String](1)) and
-    (JsPath \ "lastName").read[String](minLength[String](1)) and
-    (JsPath \ "dateOfBirth").read[LocalDate]  and
+    (JsPath \ "birthReferenceNumber").readNullable[String](birthReferenceNumberValidate) and
+      (JsPath \ "firstName").read[String](minLength[String](1)) and
+      (JsPath \ "lastName").read[String](minLength[String](1)) and
+      (JsPath \ "dateOfBirth").read[LocalDate]  and
       (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
-     )(Payload.apply _)
+    )(Payload.apply _)
 }

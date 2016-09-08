@@ -97,7 +97,37 @@ class PayloadSpec extends UnitSpec {
           | }
         """.stripMargin)
 
-      jsonObject.validate[Payload].isError shouldBe false
+      jsonObject.validate[Payload].isSuccess shouldBe true
+    }
+
+    "return success when birthReferenceNumber value exists and is alphanumeric" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "ab12CD263",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          | }
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isSuccess shouldBe true
+    }
+
+    "return success when birthReferenceNumber value exists and contains a hyphen and underscore" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "12_34-456",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          | }
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isSuccess shouldBe true
     }
 
     "return error when whereBirthRegistered is number" in {
@@ -135,6 +165,21 @@ class PayloadSpec extends UnitSpec {
         """
           |{
           | "birthReferenceNumber": "",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          | }
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when birthReferenceNumber value exists but is an invalid format" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "1*3456789",
           | "firstName" : "John",
           | "lastName" : "Smith",
           | "dateOfBirth" : "1997-01-13",

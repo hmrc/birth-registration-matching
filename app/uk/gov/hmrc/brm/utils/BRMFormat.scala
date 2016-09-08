@@ -16,10 +16,20 @@
 
 package uk.gov.hmrc.brm.utils
 
+import play.api.data.validation.ValidationError
+import play.api.libs.json.Reads
+
 /**
   * Created by chrisianson on 27/07/16.
   */
 object BRMFormat extends BRMFormat
 trait BRMFormat {
   val datePattern = "yyyy-MM-dd"
+
+  val birthReferenceNumberValidate : Reads[String] =
+    Reads.StringReads.filter(ValidationError(""))(
+      str => {
+        str.matches("""^[a-zA-Z0-9_-]+$""")
+      }
+    )
 }
