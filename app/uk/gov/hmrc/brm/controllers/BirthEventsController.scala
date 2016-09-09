@@ -24,7 +24,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
+
+import uk.gov.hmrc.play.http.{BadRequestException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.play.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
+
 import uk.gov.hmrc.play.microservice.controller
 import uk.gov.hmrc.brm.config.BrmConfig
 
@@ -53,6 +57,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
+
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
@@ -68,6 +73,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     case e :  BadRequestException =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
+    case e : NotImplementedException  =>
+      Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
+      respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
@@ -79,7 +87,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(InternalServerError)
   }
 
-  private def validateDob(d: LocalDate): Boolean = {
+
+
+ private def validateDob(d: LocalDate): Boolean = {
     BrmConfig.validateDobForGro match {
       case true =>
         val validDate = new LocalDate("2009-07-01")
@@ -89,7 +99,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     }
   }
 
-  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
+ def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
      implicit request =>
        request.body.validate[Payload].fold(
          error => {
@@ -111,6 +121,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                } recover handleException("getReference")
            }
          }
-       )
+      )
+
    }
 }

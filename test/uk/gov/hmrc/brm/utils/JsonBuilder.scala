@@ -16,26 +16,32 @@
 
 package uk.gov.hmrc.brm.utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import play.api.libs.json.{JsValue, Json}
+
+import scala.collection.mutable.StringBuilder
 
 /**
-  * Created by user on 23/08/16.
+  * Created by user on 01/09/16.
   */
-class BirthResponseBuilderSpec extends UnitSpec {
+class JsonBuilder  {
+  var jsonString : StringBuilder = new StringBuilder(" {")
 
 
-  "BirthResponseBuilder" should {
-    "return validated true with Match" in {
-      BirthResponseBuilder.withMatch().validated shouldBe true
-    }
-
-    "return validated false with Match" in {
-      BirthResponseBuilder.withNoMatch().validated  shouldBe false
-    }
-
-    "return validated true with input value as true" in {
-      BirthResponseBuilder.getResponse(true).validated  shouldBe true
-    }
+  def withKeyValue (key: String, value:String ): JsonBuilder = {
+    jsonString.append("\""+key + "\"").append(":").append("\""+value + "\"")
+    this
   }
+  def appendMore (): JsonBuilder = {
+    jsonString.append(",")
+    this
+  }
+
+  def buildToJson():JsValue = {
+    jsonString.append("}")
+    Json.parse(jsonString.toString())
+  }
+
+
+
 
 }

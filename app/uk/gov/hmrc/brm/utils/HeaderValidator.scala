@@ -45,7 +45,7 @@ trait HeaderValidator extends Results {
 
     val acceptStatus = accept.flatMap(
       a =>
-        matchHeader(a) map(
+        matchHeader(a.toLowerCase()) map(
           res =>
             validateContentType(res.group("contenttype")) &&
               validateVersion(res.group("version"))
