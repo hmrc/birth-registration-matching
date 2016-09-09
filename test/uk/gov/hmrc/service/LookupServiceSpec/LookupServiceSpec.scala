@@ -48,6 +48,12 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
 
   "LookupService" should {
 
+    "initialise with dependencies" in {
+      LookupService.groConnector shouldBe a[BirthConnector]
+      LookupService.nrsConnector shouldBe a[BirthConnector]
+      LookupService.nirsConnector shouldBe a[BirthConnector]
+    }
+
     "accept Payload as an argument - false match" in {
       val groResponseInvalid = Json.parse(
         """
