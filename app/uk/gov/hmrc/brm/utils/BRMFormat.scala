@@ -16,8 +16,11 @@
 
 package uk.gov.hmrc.brm.utils
 
+import org.joda.time.LocalDate
 import play.api.data.validation.ValidationError
 import play.api.libs.json.Reads
+import play.api.libs.json.Reads.{apply => _, _}
+import uk.gov.hmrc.brm.models.brm.Payload._
 
 /**
   * Created by chrisianson on 27/07/16.
@@ -32,4 +35,12 @@ trait BRMFormat {
         str.matches("""^[a-zA-Z0-9_-]+$""")
       }
     )
+
+  val isAfter1900 : Reads[LocalDate] =
+    jodaLocalDateReads(datePattern).filter(ValidationError(""))(
+      str => {
+        str.getYear >= 1900
+      }
+    )
+
 }

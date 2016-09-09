@@ -131,6 +131,36 @@ class PayloadSpec extends UnitSpec {
       jsonObject.validate[Payload].isSuccess shouldBe true
     }
 
+    "return error when dateOfBirth has 0000 for year" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "0000-01-10",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when dateOfBirth only has a year" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "2016",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
     "return error when whereBirthRegistered is number" in {
       val jsonObject: JsValue = Json.parse(
         """
