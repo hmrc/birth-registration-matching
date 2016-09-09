@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.models
 
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import uk.gov.hmrc.brm.models.brm.ErrorResponse
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 /**

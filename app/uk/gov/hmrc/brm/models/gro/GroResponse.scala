@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models
+package uk.gov.hmrc.brm.models.gro
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import uk.gov.hmrc.brm.models.gro.Status
 
 /**
   * Created by chrisianson on 09/08/16.

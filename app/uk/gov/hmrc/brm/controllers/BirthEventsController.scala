@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import uk.gov.hmrc.brm.models.Payload
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 import uk.gov.hmrc.play.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}

@@ -20,7 +20,8 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector}
-import uk.gov.hmrc.brm.models.{GroResponse, Payload}
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.gro.GroResponse
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
 import uk.gov.hmrc.play.http._
 

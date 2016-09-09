@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models
+package uk.gov.hmrc.brm.models.brm
 
 import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}

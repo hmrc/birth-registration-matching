@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models
+package uk.gov.hmrc.brm.models.gro
 
 import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
-
 import uk.gov.hmrc.brm.utils.BRMFormat
 
 /**
