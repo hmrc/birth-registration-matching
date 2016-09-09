@@ -77,7 +77,7 @@ trait LookupService {
                 val firstName = success.child.firstName
                 val lastName = success.child.lastName
 
-                val isMatch = firstName.equals(payload.firstName) && lastName.equals(payload.lastName)
+                val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
                 BirthResponseBuilder.getResponse(isMatch)
               }
             )
