@@ -40,6 +40,7 @@ class GroResponseSpec extends UnitSpec {
     * - should return GroResponse object with Child object when dateOfBirth key is missing
     * - should return GroResponse object with Child object when name key is missing
     * - should return GroResponse object with Child object when dateOfBirth value is invalid format
+    * - should return GROResponse object with missing properties in all objects
     * - should return a JsonParseException from a broken json object
     * - should return an JsonMappingException from an invalid json object
     */
@@ -148,6 +149,48 @@ class GroResponseSpec extends UnitSpec {
       | "systemNumber" : 500035710
       |}
     """.stripMargin)
+
+  lazy val jsonMissingObjectsProperties = Json.parse(
+  """
+    |{
+    |  "location": {
+    |
+    |  },
+    |  "subjects": {
+    |    "child": {
+    |      "name": {
+    |
+    |      },
+    |      "originalName": {
+    |
+    |      }
+    |    },
+    |    "father": {
+    |      "name": {
+    |
+    |      }
+    |    },
+    |    "mother": {
+    |      "name": {
+    |
+    |      }
+    |    },
+    |    "informant": {
+    |      "name": {
+    |
+    |      }
+    |    }
+    |  },
+    |  "systemNumber": 999999920,
+    |  "id": 999999920,
+    |  "status": {
+    |    "blockedRegistration": false
+    |  },
+    |  "previousRegistration": {}
+    |
+    |  }
+  """.stripMargin
+  )
 
   lazy val jsonMissingSystemNumberKey = Json.parse(
     """
@@ -595,6 +638,23 @@ class GroResponseSpec extends UnitSpec {
           x.head._2.length shouldBe 1
           x.head._1.toString() shouldBe "/systemNumber"
         }
+      }
+    }
+
+    "return GROResponse object with missing properties in all objects" in {
+      val result = jsonMissingObjectsProperties.validate[GroResponse]
+      result shouldBe a[JsSuccess[_]]
+      result match {
+        case JsSuccess(x, _) =>
+          x shouldBe a[GroResponse]
+          x.child shouldBe a[Child]
+          x.child.birthReferenceNumber shouldBe 999999920
+          x.child.firstName shouldBe empty
+          x.child.lastName shouldBe empty
+          x.child.dateOfBirth shouldBe None
+          x.status shouldBe Some(Status(false, None, false, false, None, None))
+        case JsError(x) =>
+          throw new Exception
       }
     }
 
