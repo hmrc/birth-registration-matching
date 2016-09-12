@@ -17,10 +17,9 @@
 package uk.gov.hmrc.brm.services
 
 import play.api.Logger
-import play.api.http.Status._
-import play.api.libs.json.JsObject
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.gro.GroResponse
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
-import uk.gov.hmrc.brm.models.Payload
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
 import uk.gov.hmrc.play.http._
 
@@ -67,26 +66,28 @@ trait LookupService {
       Future.successful(BirthResponseBuilder.withNoMatch())
     )(
       reference =>
-        if (reference.trim.isEmpty) {
-          Logger.debug(s"\n[LookupService][reference isEmpty]\n")
-          Future.failed(new BadRequestException("BirthReferenceNumber is empty"))
-        } else {
-          getConnector(payload).getReference(reference) map {
-            response =>
-              Logger.debug(s"[LookupService][response] $response")
-              val json = response.json
-              if (json.validate[JsObject].isError || json.validate[JsObject].get.keys.isEmpty) {
+
+        /**
+         * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
+         */
+        getConnector(payload).getReference(reference) map {
+          response =>
+            Logger.debug(s"[LookupService][response] $response")
+            Logger.debug(s"[LookupService][payload] $payload")
+
+            response.json.validate[GroResponse].fold(
+              error => {
+                Logger.warn(s"[LookupService][validate json][failed to validate json]]")
                 BirthResponseBuilder.withNoMatch()
-              } else {
-                Logger.debug(s"[LookupService][payload] $payload")
+              },
+              success => {
+                val firstName = success.child.firstName
+                val lastName = success.child.lastName
 
-                val firstName = (json \ "subjects" \ "child" \ "name" \ "givenName").as[String]
-                val surname = (json \ "subjects" \ "child" \ "name" \ "surname").as[String]
-
-                val isMatch = firstName.equals(payload.firstName) && surname.equals(payload.lastName)
+                val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
                 BirthResponseBuilder.getResponse(isMatch)
               }
-          }
+            )
         }
     )
   }

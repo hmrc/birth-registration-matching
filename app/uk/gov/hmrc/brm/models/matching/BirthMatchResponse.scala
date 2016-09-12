@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models
+package uk.gov.hmrc.brm.models.matching
 
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
 
 

@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
-import uk.gov.hmrc.brm.models.ErrorResponse
+import uk.gov.hmrc.brm.models.brm.ErrorResponse
 
 import scala.concurrent.Future
 import scala.util.matching.Regex

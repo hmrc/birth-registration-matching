@@ -16,10 +16,31 @@
 
 package uk.gov.hmrc.brm.utils
 
+import org.joda.time.LocalDate
+import play.api.data.validation.ValidationError
+import play.api.libs.json.Reads
+import play.api.libs.json.Reads.{apply => _, _}
+import uk.gov.hmrc.brm.config.BrmConfig
+
 /**
   * Created by chrisianson on 27/07/16.
   */
 object BRMFormat extends BRMFormat
 trait BRMFormat {
   val datePattern = "yyyy-MM-dd"
+
+  val birthReferenceNumberValidate : Reads[String] =
+    Reads.StringReads.filter(ValidationError(""))(
+      str => {
+        str.matches("""^[a-zA-Z0-9_-]+$""")
+      }
+    )
+
+  val isAfterDate : Reads[LocalDate] =
+    jodaLocalDateReads(datePattern).filter(ValidationError(""))(
+      date => {
+        date.getYear >= BrmConfig.minimumDateOfBirthYear
+      }
+    )
+
 }

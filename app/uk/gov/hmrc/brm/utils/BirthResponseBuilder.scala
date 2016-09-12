@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import uk.gov.hmrc.brm.models.BirthMatchResponse
+import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 
 /**
   * Created by user on 22/08/16.

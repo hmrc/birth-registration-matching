@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.config
+package uk.gov.hmrc.brm.models.gro
 
-import uk.gov.hmrc.play.config.ServicesConfig
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 /**
-  * Created by chrisianson on 26/08/16.
+  * Created by chrisianson on 09/08/16.
   */
-trait BrmConfig extends ServicesConfig
-{
-   def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
+case class GroResponse(
+                        child: Child,
+                        status: Option[Status] = None
+                      )
 
-   val defaultDate: Int = 1900
+object GroResponse {
 
-   def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
+  implicit val implicitReads: Reads[GroResponse] = (
+    JsPath.read[Child] and
+      (JsPath \ "status").readNullable[Status]
+    )(GroResponse.apply _)
 }
-
-object BrmConfig extends BrmConfig

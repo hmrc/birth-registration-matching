@@ -21,7 +21,7 @@ import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import uk.gov.hmrc.brm.models.Payload
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 
@@ -118,7 +118,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
-               }recover handleException("getReference")
+               } recover handleException("getReference")
            }
          }
       )

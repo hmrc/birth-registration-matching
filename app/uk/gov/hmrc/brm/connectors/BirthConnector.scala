@@ -68,28 +68,27 @@ object GROEnglandConnector extends BirthConnector {
   override val httpGet : HttpGet = WSHttp
   override val baseUri = "birth-registration-matching-proxy"
   override val detailsUri = s"$serviceUrl/$baseUri/match"
-
 }
 
 object NirsConnector extends BirthConnector {
-  override val serviceUrl = null
-  override val httpGet : HttpGet = null
+  override val serviceUrl = ""
+  override val httpGet : HttpGet = WSHttp
   override val baseUri = ""
-  override val detailsUri = ""
+  override val detailsUri = s"$serviceUrl/$baseUri"
 
-  override  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
+  override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     Logger.debug(s"[NirsConnector][getReference]: $reference")
-    Future.failed(new NotImplementedException("No service available for NRS connector."))
+    Future.failed(new NotImplementedException("No service available for GRONI connector."))
   }
 }
 
 object NrsConnector extends BirthConnector {
-  override val serviceUrl = null
-  override val httpGet : HttpGet = null
+  override val serviceUrl = ""
+  override val httpGet : HttpGet = WSHttp
   override val baseUri = ""
-  override val detailsUri = ""
+  override val detailsUri = s"$serviceUrl/$baseUri"
 
-  override  def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
+  override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     Logger.debug(s"[NrsConnector][getReference]: $reference")
     Future.failed(new NotImplementedException("No service available for NRS connector."))
   }
