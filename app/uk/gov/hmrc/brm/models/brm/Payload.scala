@@ -17,8 +17,6 @@
 package uk.gov.hmrc.brm.models.brm
 
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
@@ -55,7 +53,7 @@ object Payload extends BRMFormat {
     (JsPath \ "birthReferenceNumber").readNullable[String](birthReferenceNumberValidate) and
       (JsPath \ "firstName").read[String](minLength[String](1)) and
       (JsPath \ "lastName").read[String](minLength[String](1)) and
-      (JsPath \ "dateOfBirth").read[LocalDate](isAfter1900) and
+      (JsPath \ "dateOfBirth").read[LocalDate](isAfterDate) and
       (JsPath \ "whereBirthRegistered").read[BirthRegisterCountry](birthRegisterReads)
     )(Payload.apply _)
 }

@@ -20,12 +20,12 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 /**
   * Created by chrisianson on 02/08/16.
   */
-class PayloadSpec extends UnitSpec {
+class PayloadSpec extends UnitSpec with WithFakeApplication {
 
   "Payload" should {
 

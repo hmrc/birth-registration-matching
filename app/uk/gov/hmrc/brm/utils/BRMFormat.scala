@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import play.api.data.validation.ValidationError
 import play.api.libs.json.Reads
 import play.api.libs.json.Reads.{apply => _, _}
-import uk.gov.hmrc.brm.models.brm.Payload._
+import uk.gov.hmrc.brm.config.BrmConfig
 
 /**
   * Created by chrisianson on 27/07/16.
@@ -36,10 +36,10 @@ trait BRMFormat {
       }
     )
 
-  val isAfter1900 : Reads[LocalDate] =
+  val isAfterDate : Reads[LocalDate] =
     jodaLocalDateReads(datePattern).filter(ValidationError(""))(
-      str => {
-        str.getYear >= 1900
+      date => {
+        date.getYear >= BrmConfig.minimumDateOfBirthYear
       }
     )
 
