@@ -23,18 +23,17 @@ import uk.gov.hmrc.play.test.UnitSpec
   */
 class BirthResponseBuilderSpec extends UnitSpec {
 
-
   "BirthResponseBuilder" should {
-    "return validated true with Match" in {
-      BirthResponseBuilder.withMatch().validated shouldBe true
+    "return matched true with Match" in {
+      BirthResponseBuilder.withMatch().matched shouldBe true
     }
 
-    "return validated false with Match" in {
-      BirthResponseBuilder.withNoMatch().validated  shouldBe false
+    "return matched false with Match" in {
+      BirthResponseBuilder.withNoMatch().matched  shouldBe false
     }
 
-    "return validated true with input value as true" in {
-      BirthResponseBuilder.getResponse(true).validated  shouldBe true
+    "return matched true with input value as true" in {
+      BirthResponseBuilder.getResponse(true).matched  shouldBe true
     }
   }
 
