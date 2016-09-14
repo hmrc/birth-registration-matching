@@ -27,10 +27,10 @@ private object AppDependencies {
   private val domainVersion = "3.7.0"
   private val hmrcTestVersion = "1.6.0"
   private val mockito = "1.9.5"
-  private val metricsPlayVersion = "0.2.1"
+  private val metricsPlayVersion = "2.3.0_0.2.1"
+  private val metricsGraphite = "3.0.2"
 
   val compile = Seq(
-
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
@@ -39,7 +39,8 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
-    "com.kenshoo" %% "metrics-play" % metricsPlayVersion
+    "com.kenshoo" %% "metrics-play" % metricsPlayVersion,
+    "com.codahale.metrics" % "metrics-graphite" % metricsGraphite
   )
 
   trait TestDependencies {
