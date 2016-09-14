@@ -1,5 +1,5 @@
 dry-run: null
-hookfiles: null
+hookfiles: ./hooks.yml
 language: nodejs
 sandbox: false
 server: sbt "run 8098"
