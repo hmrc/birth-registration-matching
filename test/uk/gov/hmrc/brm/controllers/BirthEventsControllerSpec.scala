@@ -68,10 +68,10 @@ class BirthEventsControllerSpec
     * - return not match when GRO returns NOT FOUND response
     * - return not match when GRO returns UNAUTHORIZED response
     * - return InternalServerError when GRO returns 5xx response
-    * - return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches
-    * - return validated value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches
-    * - return validated value of false when the dateOfBirth is invalid and the gro record matches
-    * - return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches
+    * - return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches
+    * - return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches
+    * - return matched value of false when the dateOfBirth is invalid and the gro record matches
+    * - return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches
     * */
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -417,7 +417,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -426,7 +426,7 @@ class BirthEventsControllerSpec
         when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
         val request = postRequest(userMatchCountryNameInMixCase)
         val result = MockController.post().apply(request)
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -436,7 +436,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -445,7 +445,7 @@ class BirthEventsControllerSpec
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -455,7 +455,7 @@ class BirthEventsControllerSpec
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
         val request = postRequest(userMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -468,7 +468,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       }
 
       "return match false when GRO returns invalid json" in {
@@ -476,7 +476,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -492,7 +492,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       }
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
@@ -589,7 +589,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userWhereBirthRegisteredNI)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -599,7 +599,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userNoMatchIncludingReferenceNumberCamelCase)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -608,7 +608,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userWhereBirthRegisteredScotland)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -701,7 +701,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -711,7 +711,7 @@ class BirthEventsControllerSpec
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-        (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
@@ -729,46 +729,46 @@ class BirthEventsControllerSpec
 
     "validating date of birth with GRO switch" should {
 
-      "return validated value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
+      "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
         running(FakeApplication(additionalConfiguration = config)) {
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
           val request = postRequest(userValidDOB)
           val result = MockController.post().apply(request)
           status(result) shouldBe OK
-          (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
       }
 
-      "return validated value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
+      "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
         running(FakeApplication(additionalConfiguration = config)) {
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090701)))
           val request = postRequest(userValidDOB20090701)
           val result = MockController.post().apply(request)
           status(result) shouldBe OK
-          (contentAsJson(result) \ "validated").as[Boolean] shouldBe true
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
       }
 
-      "return validated value of false when the dateOfBirth is invalid and the gro record matches" in {
+      "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
         running(FakeApplication(additionalConfiguration = config)) {
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
           val request = postRequest(userInvalidDOB)
           val result = MockController.post().apply(request)
           status(result) shouldBe OK
-          (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
       }
 
-      "return validated value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
+      "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
         running(FakeApplication(additionalConfiguration = config)) {
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090630)))
           val request = postRequest(userValidDOB20090630)
           val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
-          (contentAsJson(result) \ "validated").as[Boolean] shouldBe false
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
       }

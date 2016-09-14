@@ -18,19 +18,14 @@ package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
 import play.api.Logger
-import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
-
-import uk.gov.hmrc.play.http.{BadRequestException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse}
-
-import uk.gov.hmrc.play.http.{BadRequestException, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
-
+import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
-import uk.gov.hmrc.brm.config.BrmConfig
 
 import scala.concurrent.Future
 
@@ -112,7 +107,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
                Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
              case _ =>
-               Logger.debug(s"[BirthEventsController][Connector][getReference] payload validated.")
+               Logger.debug(s"[BirthEventsController][Connector][getReference] payload matched.")
                service.lookup(payload) map {
                  bm => {
                    Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
@@ -122,6 +117,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
            }
          }
       )
-
    }
+
 }
