@@ -29,8 +29,6 @@ object BirthRegisterCountry extends Enumeration {
   val NORTHERN_IRELAND = Value("northern ireland")
   val SCOTLAND  = Value("scotland")
 
-
-
   def birthRegisterReads: Reads[BirthRegisterCountry] = new Reads[BirthRegisterCountry] {
     override def reads(json: JsValue): JsResult[BirthRegisterCountry.Value] =
       json match {

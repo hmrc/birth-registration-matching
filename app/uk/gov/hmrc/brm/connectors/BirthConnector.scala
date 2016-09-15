@@ -23,6 +23,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
 import play.api.mvc.Result
 import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.metrics.{ProxyMetrics, Metrics}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -40,7 +41,6 @@ trait BirthConnector extends ServicesConfig {
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
     httpGet.GET[HttpResponse](s"$detailsUri/$reference")
-
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
@@ -49,13 +49,10 @@ trait BirthConnector extends ServicesConfig {
     httpGet.GET[HttpResponse](endpoint)
   }
 
-
   def getReference(reference: String)(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[BirthConnector][getReference]: $reference")
-    val response = requestReference(reference)
-    Logger.debug(s"[BirthConnector][getReference][response]: ${response}")
-    response
- }
+    requestReference(reference)
+  }
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
     Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
