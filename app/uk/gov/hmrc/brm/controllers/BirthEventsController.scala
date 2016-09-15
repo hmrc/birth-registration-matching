@@ -23,7 +23,7 @@ import play.api.mvc.Result
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
 
@@ -49,6 +49,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       .as("application/json")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
       .withHeaders((CONTENT_TYPE, "application/json"))
+
   }
 
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
@@ -95,7 +96,11 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   }
 
  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
+
      implicit request =>
+      val key =  Keygenerator.generateKey(request)
+       hc.withExtraHeaders(("request-brm-key",key))
+       Logger.debug(s"[BirthEventsController][post] key ${key}")
        request.body.validate[Payload].fold(
          error => {
            Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")

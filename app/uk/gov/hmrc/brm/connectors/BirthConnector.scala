@@ -39,11 +39,13 @@ trait BirthConnector extends ServicesConfig {
   val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-    httpGet.GET[HttpResponse](s"$detailsUri/$reference")
+    httpGet.GET[HttpResponse](s"$detailsUri/$reference")(null, hc)
 
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
+
+
     val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
     httpGet.GET[HttpResponse](endpoint)
