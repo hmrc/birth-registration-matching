@@ -23,36 +23,42 @@ import play.api.Logger
 
 trait Metrics {
 
-  def proxyConnectorTimer(diff: Long, unit: TimeUnit) : Unit
-  def proxyConnectorStatus(code: Int) : Unit
+  Logger.info(s"[${super.getClass}][constructor] Pre-loading metrics keys")
 
-  def matchCount() : Unit
-  def noMatchCount() : Unit
+  val prefix : String
+
+  def time(diff: Long, unit: TimeUnit) =
+    MetricsRegistry.defaultRegistry.timer(s"$prefix-timer").update(diff, unit)
+
+  def connectorStatus(code: Int) : Unit =
+    MetricsRegistry.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
+
+  def startTimer() : Long = System.currentTimeMillis()
+
+  def endTimer(start: Long) = {
+    val end = System.currentTimeMillis() - start
+    time(end, TimeUnit.MILLISECONDS)
+  }
+
 }
 
-object Metrics extends Metrics {
+object ProxyMetrics extends Metrics {
+  override val prefix = "proxy"
+}
 
-  val timer = (name: String) => MetricsRegistry.defaultRegistry.timer(name)
-  val counter = (name: String) => MetricsRegistry.defaultRegistry.counter(name)
+object NRSMetrics extends Metrics {
+  override val prefix = "nrs"
+}
 
-  Logger.info("[Metrics][constructor] Preloading metrics keys")
+object GRONIMetrics extends Metrics {
+  override val prefix = "gro-ni"
+}
 
-  // register metrics with timer and counter
-  Seq(
-    ("proxy-connector-timer", timer),
-    ("proxy-connector-status-200", counter),
-    ("proxy-connector-status-400", counter),
-    ("proxy-connector-status-500", counter),
-    ("match-count", counter),
-    ("no-match-count", counter)
-  ) foreach { t => t._2(t._1) }
+object MatchMetrics extends Metrics {
 
-  override def proxyConnectorTimer(diff: Long, unit: TimeUnit) =
-    MetricsRegistry.defaultRegistry.timer("proxy-connector-timer").update(diff, unit)
+  override val prefix = "match"
 
-  override def proxyConnectorStatus(code: Int) : Unit =
-    MetricsRegistry.defaultRegistry.counter(s"proxy-connector-status-$code").inc()
+  def matchCount() = MetricsRegistry.defaultRegistry.counter(s"$prefix-count").inc()
+  def noMatchCount() = MetricsRegistry.defaultRegistry.counter(s"no-$prefix-count").inc()
 
-  override def matchCount() = MetricsRegistry.defaultRegistry.counter("match-count").inc()
-  override def noMatchCount() = MetricsRegistry.defaultRegistry.counter("no-match-count").inc()
 }

@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.brm.services
 
+import java.util.concurrent.TimeUnit
+
 import play.api.Logger
+import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
+import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.gro.GroResponse
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
 import uk.gov.hmrc.play.http._
 
@@ -36,13 +39,10 @@ object LookupService extends LookupService {
   override val nrsConnector = NrsConnector
 }
 
-trait LookupService {
+trait LookupServiceBinder {
+  self : LookupService =>
 
-  protected val groConnector: BirthConnector
-  protected val nirsConnector: BirthConnector
-  protected val nrsConnector: BirthConnector
-
-  private def getConnector(payload: Payload): BirthConnector = {
+  protected def getConnector()(implicit payload: Payload): BirthConnector = {
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groConnector
@@ -51,7 +51,15 @@ trait LookupService {
       case BirthRegisterCountry.SCOTLAND  =>
         nrsConnector
     }
- }
+  }
+
+}
+
+trait LookupService extends LookupServiceBinder {
+
+  protected val groConnector: BirthConnector
+  protected val nirsConnector: BirthConnector
+  protected val nrsConnector: BirthConnector
 
   /**
     * connects to groconnector and return match if match input details.
@@ -60,18 +68,22 @@ trait LookupService {
     * @param hc
     * @return
     */
-  def lookup(payload: Payload)(implicit hc: HeaderCarrier) = {
+  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics : Metrics) = {
     //check if birthReferenceNumber has value
     payload.birthReferenceNumber.fold(
       Future.successful(BirthResponseBuilder.withNoMatch())
     )(
-      reference =>
-
+      reference => {
         /**
          * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
          */
-        getConnector(payload).getReference(reference) map {
+        val start = metrics.startTimer()
+
+        getConnector.getReference(reference) map {
           response =>
+
+            metrics.endTimer(start)
+
             Logger.debug(s"[LookupService][response] $response")
             Logger.debug(s"[LookupService][payload] $payload")
 
@@ -85,10 +97,14 @@ trait LookupService {
                 val lastName = success.child.lastName
 
                 val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
+
+                if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
+
                 BirthResponseBuilder.getResponse(isMatch)
               }
             )
         }
+      }
     )
   }
 }
