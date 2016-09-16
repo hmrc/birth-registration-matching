@@ -18,14 +18,15 @@ package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
 import play.api.Logger
-import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
+import uk.gov.hmrc.brm.utils.BrmLogger._
 
 import scala.concurrent.Future
 
@@ -39,6 +40,8 @@ object BirthEventsController extends BirthEventsController {
 }
 
 trait BirthEventsController extends controller.BaseController with HeaderValidator {
+
+  val CLASS_NAME : String = this.getClass.getCanonicalName
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -55,10 +58,10 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   private def handleException(method: String) : PartialFunction[Throwable, Result] = {
 
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+      warn(CLASS_NAME, "handleException", s"NotFound: $message.")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: $message")
+      warn(CLASS_NAME, "handleException", s"BadRequest: $message.")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
@@ -76,7 +79,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
     case e : NotFoundException =>
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
+      warn(CLASS_NAME, "handleException", s"NotFound: ${e.getMessage}.")
+      //Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e : Exception =>
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: message: ${e}")
@@ -98,9 +102,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
 
      implicit request =>
-      val key =  Keygenerator.generateKey(request)
-       hc.withExtraHeaders(("request-brm-key",key))
-       Logger.debug(s"[BirthEventsController][post] key ${key}")
+
+       generateAndSetKey(request)
+
        request.body.validate[Payload].fold(
          error => {
            Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
@@ -109,13 +113,13 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
          payload => {
           payload match {
              case x: Payload if !validateDob(x.dateOfBirth) =>
-               Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
+               debug(CLASS_NAME, "post()", s"validateDob returned false.")
                Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
              case _ =>
                Logger.debug(s"[BirthEventsController][Connector][getReference] payload matched.")
                service.lookup(payload) map {
                  bm => {
-                   Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+                   debug(CLASS_NAME, "post()", s"response received.")
                    respond(Ok(Json.toJson(bm)))
                  }
                } recover handleException("getReference")
@@ -123,5 +127,11 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
          }
       )
    }
+
+
+  private def generateAndSetKey(request: Request[JsValue]): Unit = {
+    val key = Keygenerator.generateKey(request)
+    Keygenerator.setKey(key)
+  }
 
 }

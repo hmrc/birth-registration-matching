@@ -23,11 +23,13 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
 import play.api.mvc.Result
 import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.utils.Keygenerator
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.util.Try
 
 trait BirthConnector extends ServicesConfig {
@@ -39,7 +41,9 @@ trait BirthConnector extends ServicesConfig {
   val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-    httpGet.GET[HttpResponse](s"$detailsUri/$reference")(null, hc)
+    
+    val newHc = hc.withExtraHeaders(BRM_KEY-> Keygenerator.geKey())
+    httpGet.GET[HttpResponse](s"$detailsUri/$reference")(implicitly[HttpReads[HttpResponse]], newHc)
 
   }
 

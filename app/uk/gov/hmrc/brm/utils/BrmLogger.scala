@@ -23,22 +23,22 @@ import play.api.Logger
   */
 object BrmLogger {
 
-
+  var BRM_KEY : String = "BRM-Key"
 
   def info(className:String, methodName: String, message: String ): Unit = {
-    Logger.info(s"[${className}][${methodName}] : [${message}]")
+    Logger.info(s"[${BRM_KEY}:${Keygenerator.geKey()}], [${className}][${methodName}] : [${message}]")
   }
 
   def warn(className:String, methodName: String, message: String ): Unit ={
-    Logger.warn(s"[${className}][${methodName}] : [${message}]")
+    Logger.warn(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
   def error(className:String, methodName: String, message: String ): Unit ={
-    Logger.error(s"[${className}][${methodName}] : [${message}]")
+    Logger.error(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
   def debug(className:String, methodName: String, message: String ): Unit ={
-    Logger.error(s"[${className}][${methodName}] : [${message}]")
+    Logger.error(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
   def info(objectName:Object, methodName: String, message: String ): Unit = {

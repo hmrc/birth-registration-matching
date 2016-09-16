@@ -27,8 +27,8 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
   */
 object Keygenerator {
 
-  val DATE_FORMAT : String = "yyyyMMdd:HHmmss"
-
+  val DATE_FORMAT : String = "yyyyMMdd:HHmmssSS"
+  private var keyForRequest : String = null
 
   def generateKey(request: Request[JsValue]) = {
     var dateTime = new DateTime()
@@ -38,5 +38,15 @@ object Keygenerator {
     println(key)
     key
   }
+
+  def geKey():String = {
+    keyForRequest
+  }
+
+  def setKey(key: String ): Unit = {
+    keyForRequest = key
+  }
+
+
 
 }
