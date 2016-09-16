@@ -23,7 +23,7 @@ import play.api.Logger
 
 trait Metrics {
 
-  Logger.info(s"[${super.getClass}][constructor] Pre-loading metrics keys")
+  Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
 
   val prefix : String
 
@@ -43,18 +43,29 @@ trait Metrics {
 }
 
 object ProxyMetrics extends Metrics {
+
+  Logger.debug(s"[ProxyMetrics][init]]")
+
   override val prefix = "proxy"
 }
 
 object NRSMetrics extends Metrics {
+
+  Logger.debug(s"[NRSMetrics][init]]")
+
   override val prefix = "nrs"
 }
 
 object GRONIMetrics extends Metrics {
+
+  Logger.debug(s"[GRONIMetrics][init]]")
+
   override val prefix = "gro-ni"
 }
 
 object MatchMetrics extends Metrics {
+
+  Logger.debug(s"[MatchMetrics][init]]")
 
   override val prefix = "match"
 
