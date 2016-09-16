@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.implicits
 
+import play.api.Logger
 import uk.gov.hmrc.brm.metrics.{GRONIMetrics, Metrics, NRSMetrics, ProxyMetrics}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -28,10 +29,13 @@ object Implicits {
   implicit def getMetrics()(implicit payload : Payload) : Metrics = {
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
+        Logger.debug(s"[Implicits][Metrics][getMetrics] Proxy")
         ProxyMetrics
       case BirthRegisterCountry.NORTHERN_IRELAND  =>
+        Logger.debug(s"[Implicits][Metrics][getMetrics] GRO-NI")
         GRONIMetrics
       case BirthRegisterCountry.SCOTLAND  =>
+        Logger.debug(s"[Implicits][Metrics][getMetrics] NRS")
         NRSMetrics
     }
   }

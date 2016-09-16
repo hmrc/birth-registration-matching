@@ -74,12 +74,15 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
     case e: BadRequestException =>
+      getMetrics().connectorStatus(BAD_REQUEST)
       Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e: NotImplementedException =>
+      getMetrics().connectorStatus(OK)
       Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: NotFoundException =>
+      getMetrics().connectorStatus(NOT_FOUND)
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: Exception =>
