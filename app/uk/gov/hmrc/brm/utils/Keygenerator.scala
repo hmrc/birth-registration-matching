@@ -16,37 +16,62 @@
 
 package uk.gov.hmrc.brm.utils
 
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.Request
-import org.joda.time.{DateTime, LocalDate, LocalDateTime}
-import org.joda.time.LocalDate._
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+
+import scala.util.matching.Regex
+import scala.util.matching.Regex.Match
+
 
 /**
   * Created by user on 15/09/16.
   */
 object Keygenerator {
 
-  val DATE_FORMAT : String = "yyyyMMdd:HHmmssSS"
-  private var keyForRequest : String = null
+  val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
+  private var keyForRequest: String = null
+  private val versionKey: String = "version"
+  val matchHeader: String => Option[Match] =
+    new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", versionKey, "contenttype") findFirstMatchIn _
+
 
   def generateKey(request: Request[JsValue]) = {
-    var dateTime = new DateTime()
-    val formatter = DateTimeFormat.forPattern(DATE_FORMAT);
-    val formattedDate : String = formatter.print(dateTime)
-    val key = s"${formattedDate}-${request.id}-${request.headers.get("Audit-Source").getOrElse("")}"
-    println(key)
+
+    val formattedDate: String = getDateKey
+    val apiVersion: String = getApiVersion(request)
+    //format is date-requestid-audio source - api version number
+    val key = s"${formattedDate}-${request.id}-${request.headers.get("Audit-Source").getOrElse("")}-${apiVersion}"
     key
   }
 
-  def geKey():String = {
+  private def getDateKey: String = {
+    var dateTime = new DateTime()
+    val formatter = DateTimeFormat.forPattern(DATE_FORMAT);
+    val formattedDate: String = formatter.print(dateTime)
+    formattedDate
+  }
+
+  private def getApiVersion(request: Request[JsValue]): String = {
+    var accept = request.headers.get(HeaderNames.ACCEPT)
+    val apiVersion = accept.flatMap(
+      a =>
+        matchHeader(a.toLowerCase()) map (
+          res => res.group(versionKey)
+          )
+    ) getOrElse ""
+    apiVersion
+  }
+
+  def geKey(): String = {
     keyForRequest
   }
 
-  def setKey(key: String ): Unit = {
+  def setKey(key: String): Unit = {
     keyForRequest = key
   }
-
 
 
 }

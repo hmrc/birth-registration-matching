@@ -19,44 +19,44 @@ package uk.gov.hmrc.brm.utils
 import play.api.Logger
 
 /**
-  * Created by manish.wadhwani on 15/09/16.
+  * Created by user on 19/09/16.
   */
-object BrmLogger {
+class BrmLogger(logger: org.slf4j.Logger) extends Logger(logger) {
 
-  var BRM_KEY : String = "BRM-Key"
+  var BRM_KEY: String = "BRM-Key"
 
-  def info(className:String, methodName: String, message: String ): Unit = {
-    Logger.info(s"[${BRM_KEY}:${Keygenerator.geKey()}], [${className}][${methodName}] : [${message}]")
+  def info(className: String, methodName: String, message: String): Unit = {
+
+    logger.info(s"[${BRM_KEY}:${Keygenerator.geKey()}], [${className}][${methodName}] : [${message}]")
   }
 
-  def warn(className:String, methodName: String, message: String ): Unit ={
-    Logger.warn(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
+  def warn(className: String, methodName: String, message: String): Unit = {
+    logger.warn(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
-  def error(className:String, methodName: String, message: String ): Unit ={
-    Logger.error(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
+  def error(className: String, methodName: String, message: String): Unit = {
+    logger.error(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
-  def debug(className:String, methodName: String, message: String ): Unit ={
-    Logger.error(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
+  def debug(className: String, methodName: String, message: String): Unit = {
+    logger.debug(s"[${BRM_KEY}:${Keygenerator.geKey()}],[${className}][${methodName}] : [${message}]")
   }
 
-  def info(objectName:Object, methodName: String, message: String ): Unit = {
-    info(objectName.getClass.getCanonicalName,methodName: String, message: String)
+  def info(objectName: Object, methodName: String, message: String): Unit = {
+    info(objectName.getClass.getCanonicalName, methodName: String, message: String)
   }
 
-  def warn(objectName:Object, methodName: String, message: String ): Unit ={
-    warn(objectName.getClass.getCanonicalName,methodName: String, message: String)
+  def warn(objectName: Object, methodName: String, message: String): Unit = {
+    warn(objectName.getClass.getCanonicalName, methodName: String, message: String)
   }
 
-  def error(objectName:Object, methodName: String, message: String ): Unit ={
-    error(objectName.getClass.getCanonicalName,methodName: String, message: String)
+  def error(objectName: Object, methodName: String, message: String): Unit = {
+    error(objectName.getClass.getCanonicalName, methodName: String, message: String)
   }
 
-  def debug(objectName:Object, methodName: String, message: String ): Unit ={
-    debug(objectName.getClass.getCanonicalName,methodName: String, message: String)
+  def debug(objectName: Object, methodName: String, message: String): Unit = {
+    debug(objectName.getClass.getCanonicalName, methodName: String, message: String)
   }
-
-
-
 }
+
+object BrmLogger extends BrmLogger(Logger.logger)

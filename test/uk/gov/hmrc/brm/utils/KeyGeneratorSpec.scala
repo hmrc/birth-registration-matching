@@ -16,25 +16,23 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, DateTimeUtils}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
+import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.{Headers, Request}
-import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.brm.utils._
 
-import scala.concurrent.Future
+
 
 
 /**
   * Created by user on 15/09/16.
   */
-class KeyGeneratorSpec extends UnitSpec with MockitoSugar  with BeforeAndAfter {
+class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
   val mockRequest = mock[Request[JsValue]]
   val headers = mock[Headers]
 
@@ -46,7 +44,7 @@ class KeyGeneratorSpec extends UnitSpec with MockitoSugar  with BeforeAndAfter {
 
 
   "KeyGenerator" should {
-    "return key" in {
+    "returns key" in {
       when(mockRequest.id).thenReturn(10)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(Matchers.any())).thenReturn(Some("dfs"))
@@ -56,37 +54,68 @@ class KeyGeneratorSpec extends UnitSpec with MockitoSugar  with BeforeAndAfter {
     }
 
 
-    "return key in 20091010:051010-0-dfs" in {
+    "return key as 20160915:05101000-0-dfs-1.0 for audio source dfs and version 1.0" in {
 
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
+
       val key = Keygenerator.generateKey(mockRequest)
-      key shouldBe "20160915:051010-0-dfs"
+      key shouldBe "20160915:05101000-0-dfs-1.0"
       key.contains("dfs") shouldBe true
       key.contains("20160915:051010") shouldBe true
+      key.contains("1.0") shouldBe true
     }
 
     "return key when audio source is empty" in {
 
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(None)
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key = Keygenerator.generateKey(mockRequest)
-      key shouldBe "20160915:051010-0-"
+      key shouldBe "20160915:05101000-0--1.0"
       key.contains("dfs") shouldBe false
+      key.contains("1.0") shouldBe true
     }
 
     "return key when request id is empty" in {
 
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key = Keygenerator.generateKey(mockRequest)
-      key shouldBe "20160915:051010-0-dfs"
+      key shouldBe "20160915:05101000-0-dfs-1.0"
+
+    }
+
+
+    "return key when version is empty" in {
+
+      when(mockRequest.headers).thenReturn(headers)
+      when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
+      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
+      val key = Keygenerator.generateKey(mockRequest)
+      key shouldBe "20160915:05101000-0-dfs-"
+
+    }
+
+    "return key contains version 2.0 for version 2.0." in {
+
+      when(mockRequest.headers).thenReturn(headers)
+      when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.2.0+json"))
+      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
+      val key = Keygenerator.generateKey(mockRequest)
+      key.contains("2.0") shouldBe true
 
     }
   }
