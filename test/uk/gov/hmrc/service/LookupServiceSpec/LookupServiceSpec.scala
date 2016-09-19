@@ -23,11 +23,12 @@ import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.connectors.BirthConnector
+import uk.gov.hmrc.brm.metrics.Metrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.http.{NotImplementedException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -44,109 +45,141 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     override val nirsConnector = mockConnector
   }
 
+  implicit val metrics = mock[Metrics]
+
   implicit val hc = HeaderCarrier()
 
-  "LookupService" should {
+  "LookupService" when {
 
-    "initialise with dependencies" in {
-      LookupService.groConnector shouldBe a[BirthConnector]
-      LookupService.nrsConnector shouldBe a[BirthConnector]
-      LookupService.nirsConnector shouldBe a[BirthConnector]
+    "initialising" should {
+
+      "initialise with dependencies" in {
+        LookupService.groConnector shouldBe a[BirthConnector]
+        LookupService.nrsConnector shouldBe a[BirthConnector]
+        LookupService.nirsConnector shouldBe a[BirthConnector]
+      }
+
     }
 
-    "accept Payload as an argument - false match" in {
-      val groResponseInvalid = Json.parse(
-        """
-          |{
-          |  "location": {
-          |
-          |  },
-          |  "subjects": {
-          |    "child": {
-          |      "name": {
-          |
-          |      },
-          |      "originalName": {
-          |
-          |      }
-          |    },
-          |    "father": {
-          |      "name": {
-          |
-          |      }
-          |    },
-          |    "mother": {
-          |      "name": {
-          |
-          |      }
-          |    },
-          |    "informant": {
-          |      "name": {
-          |
-          |      }
-          |    }
-          |  },
-          |  "systemNumber": 999999920,
-          |  "id": 999999920,
-          |  "status": {
-          |    "blockedRegistration": false
-          |  },
-          |  "previousRegistration": {}
-          |
-          |  }
-        """.stripMargin)
-      when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
-      val service = MockService
-      val payload = Payload(Some("999999920"), "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-      val result = await(service.lookup(payload))
-      result shouldBe BirthMatchResponse(false)
+    "requesting england or wales" should {
+
+      "accept Payload as an argument - false match" in {
+        val groResponseInvalid = Json.parse(
+          """
+            |{
+            |  "location": {
+            |
+            |  },
+            |  "subjects": {
+            |    "child": {
+            |      "name": {
+            |
+            |      },
+            |      "originalName": {
+            |
+            |      }
+            |    },
+            |    "father": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "mother": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "informant": {
+            |      "name": {
+            |
+            |      }
+            |    }
+            |  },
+            |  "systemNumber": 999999920,
+            |  "id": 999999920,
+            |  "status": {
+            |    "blockedRegistration": false
+            |  },
+            |  "previousRegistration": {}
+            |
+            |  }
+          """.stripMargin)
+        when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+        val service = MockService
+        implicit val payload = Payload(Some("999999920"), "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(false)
+      }
+
+      "accept Payload as an argument - true match" in {
+        val groResponseValid = Json.parse(
+          """
+            |{
+            |  "location": {
+            |
+            |  },
+            |  "subjects": {
+            |    "child" : {
+            |   "name" : {
+            |    "givenName" : "Chris",
+            |    "surname" : "Jones"
+            |   },
+            |   "dateOfBirth" : "2012-02-16"
+            |  },
+            |    "father": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "mother": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "informant": {
+            |      "name": {
+            |
+            |      }
+            |    }
+            |  },
+            |  "systemNumber": 123456789,
+            |  "id": 123456789,
+            |  "status": {
+            |    "blockedRegistration": false
+            |  },
+            |  "previousRegistration": {}
+            |
+            |  }
+          """.stripMargin)
+        when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+        val service = MockService
+        implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(true)
+      }
+
     }
 
-    "accept Payload as an argument - true match" in {
-      val groResponseValid = Json.parse(
-        """
-          |{
-          |  "location": {
-          |
-          |  },
-          |  "subjects": {
-          |    "child" : {
-          |   "name" : {
-          |    "givenName" : "Chris",
-          |    "surname" : "Jones"
-          |   },
-          |   "dateOfBirth" : "2012-02-16"
-          |  },
-          |    "father": {
-          |      "name": {
-          |
-          |      }
-          |    },
-          |    "mother": {
-          |      "name": {
-          |
-          |      }
-          |    },
-          |    "informant": {
-          |      "name": {
-          |
-          |      }
-          |    }
-          |  },
-          |  "systemNumber": 123456789,
-          |  "id": 123456789,
-          |  "status": {
-          |    "blockedRegistration": false
-          |  },
-          |  "previousRegistration": {}
-          |
-          |  }
-        """.stripMargin)
-      when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
-      val service = MockService
-      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val result = await(service.lookup(payload))
-      result shouldBe BirthMatchResponse(true)
+    "requesting Scotland" should {
+
+      "accept Payload as an argument" in {
+          val service = MockService
+          implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+      }
+
+    }
+
+    "requesting Northern Ireland" should {
+
+      "accept Payload as an argument" in {
+          val service = MockService
+          implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+      }
+
     }
 
   }
