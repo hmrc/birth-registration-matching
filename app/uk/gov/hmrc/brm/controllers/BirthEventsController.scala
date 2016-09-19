@@ -28,7 +28,7 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
-
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.concurrent.Future
 
 
@@ -58,11 +58,11 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
       getMetrics().connectorStatus(NOT_FOUND)
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+      warn(CLASS_NAME, "handleException", s"NotFound: $message.")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
       getMetrics().connectorStatus(BAD_REQUEST)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: $message")
+      warn(CLASS_NAME, "handleException", s"BadRequest: $message.")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       getMetrics().connectorStatus(BAD_GATEWAY)
@@ -74,7 +74,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(GatewayTimeout(message))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       getMetrics().connectorStatus(INTERNAL_SERVER_ERROR)
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
+      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
     case e: BadRequestException =>
       getMetrics().connectorStatus(BAD_REQUEST)
@@ -89,7 +89,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: Exception =>
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: message: $e")
+      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: message: ${e}")
       respond(InternalServerError)
   }
 
@@ -120,14 +120,14 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
           if (!validateDob(p.dateOfBirth)) {
             // date of birth is before acceptable date
-            Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
+            debug(CLASS_NAME, "post()", s"validateDob returned false.")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           } else {
             Logger.debug(s"[BirthEventsController][Connector][getReference] payload matched.")
             service.lookup() map {
               bm => {
                 getMetrics().connectorStatus(OK)
-                Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+                debug(CLASS_NAME, "post()", s"response received.")
                 respond(Ok(Json.toJson(bm)))
               }
             } recover handleException("getReference")

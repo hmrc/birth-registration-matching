@@ -44,7 +44,6 @@ trait BirthConnector extends ServicesConfig {
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
 
-
     val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
     httpGet.GET[HttpResponse](endpoint)
