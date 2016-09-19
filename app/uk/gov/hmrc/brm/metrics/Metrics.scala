@@ -44,28 +44,54 @@ trait Metrics {
 
 object ProxyMetrics extends Metrics {
 
-  Logger.debug(s"[ProxyMetrics][init]]")
+  Logger.debug(s"[ProxyMetrics][init]")
 
   override val prefix = "proxy"
 }
 
 object NRSMetrics extends Metrics {
 
-  Logger.debug(s"[NRSMetrics][init]]")
+  Logger.debug(s"[NRSMetrics][init]")
 
   override val prefix = "nrs"
 }
 
 object GRONIMetrics extends Metrics {
 
-  Logger.debug(s"[GRONIMetrics][init]]")
+  Logger.debug(s"[GRONIMetrics][init]")
 
   override val prefix = "gro-ni"
 }
+case class APIVersionMetrics(version :String) extends Metrics{
+  Logger.debug(s"[APIVersionMetrics][init]")
+  override val prefix = version
+  def count() = MetricsRegistry.defaultRegistry.counter(s"api-version-$prefix-count").inc()
+}
+
+case class AuditSourceMetrics(auditSource :String) extends Metrics{
+  Logger.debug(s"[AuditSourceMetrics][init]")
+  override val prefix = auditSource.toLowerCase
+  def count() = MetricsRegistry.defaultRegistry.counter(s"audit-source-$prefix-count").inc()
+}
+
+
+abstract class WhereBirthRegisteredMetrics(location: String) extends Metrics {
+
+  Logger.debug(s"[WhereBirthRegisteredMetrics][init]")
+
+  override val prefix = location
+
+  def count() = MetricsRegistry.defaultRegistry.counter(s"$prefix-count").inc()
+}
+
+object EnglandAndWalesBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("england-and-wales")
+object ScotlandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("scotland")
+object NorthernIrelandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("northern-ireland")
+object InvalidBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("invalid-birth-registered")
 
 object MatchMetrics extends Metrics {
 
-  Logger.debug(s"[MatchMetrics][init]]")
+  Logger.debug(s"[MatchMetrics][init]")
 
   override val prefix = "match"
 

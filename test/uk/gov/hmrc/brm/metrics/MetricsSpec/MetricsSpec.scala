@@ -221,4 +221,61 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   }
 
+  "WhereBirthRegisteredMetrics" should {
+
+    "increment for england and wales" in {
+      val metrics = EnglandAndWalesBirthRegisteredMetrics
+      metrics.count()
+      MetricsRegistry.defaultRegistry.getCounters.get("england-and-wales-count").getCount shouldBe 1
+    }
+
+    "increment for northern ireland" in {
+      val metrics = NorthernIrelandBirthRegisteredMetrics
+      metrics.count()
+      MetricsRegistry.defaultRegistry.getCounters.get("northern-ireland-count").getCount shouldBe 1
+    }
+
+    "increment for scotland" in {
+      val metrics = ScotlandBirthRegisteredMetrics
+      metrics.count()
+      MetricsRegistry.defaultRegistry.getCounters.get("scotland-count").getCount shouldBe 1
+    }
+
+    "increment for invalid register" in {
+      val metrics = InvalidBirthRegisteredMetrics
+      metrics.count()
+      MetricsRegistry.defaultRegistry.getCounters.get("invalid-birth-registered-count").getCount shouldBe 1
+    }
+
+  }
+
+  "API version" should {
+
+    "increment for version 1.0" in{
+      APIVersionMetrics("1.0").count()
+      MetricsRegistry.defaultRegistry.getCounters.get("api-version-1.0-count").getCount shouldBe 1
+    }
+
+    "increment for version 5.0" in {
+      APIVersionMetrics("5.0").count()
+      MetricsRegistry.defaultRegistry.getCounters.get("api-version-5.0-count").getCount shouldBe 1
+    }
+
+    "increment for version 3.0 older should be null" in {
+      APIVersionMetrics("3.0").count()
+      intercept[NullPointerException] {
+        MetricsRegistry.defaultRegistry.getCounters.get("api-version-3.0-count").getCount shouldBe 1
+        MetricsRegistry.defaultRegistry.getCounters.get("api-version-2.0-count").getCount
+      }
+    }
+
+    "Audit-Source" should {
+
+      "increment for audit-source" in {
+        AuditSourceMetrics("DFS").count()
+        MetricsRegistry.defaultRegistry.getCounters.get("audit-source-dfs-count").getCount shouldBe 1
+      }
+    }
+
+  }
 }

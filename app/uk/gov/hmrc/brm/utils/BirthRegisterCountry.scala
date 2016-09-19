@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json._
+import uk.gov.hmrc.brm.metrics.{InvalidBirthRegisteredMetrics, ScotlandBirthRegisteredMetrics, NorthernIrelandBirthRegisteredMetrics, EnglandAndWalesBirthRegisteredMetrics}
 
 /**
   * Created by user on 19/08/16.
@@ -34,9 +35,23 @@ object BirthRegisterCountry extends Enumeration {
       json match {
         case JsString(s) => {
           try {
-            JsSuccess(BirthRegisterCountry.withName(s.trim.toLowerCase()))
+
+            // increase count metrics
+            val enum = BirthRegisterCountry.withName(s.trim.toLowerCase)
+            enum match {
+              case ENGLAND | WALES =>
+                EnglandAndWalesBirthRegisteredMetrics.count()
+              case NORTHERN_IRELAND =>
+                NorthernIrelandBirthRegisteredMetrics.count()
+              case SCOTLAND =>
+                ScotlandBirthRegisteredMetrics.count()
+            }
+
+            JsSuccess(BirthRegisterCountry.withName(s.trim.toLowerCase))
           } catch {
-            case _: NoSuchElementException => JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value: '$s'")
+            case _: NoSuchElementException =>
+              InvalidBirthRegisteredMetrics.count()
+              JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value: '$s'")
           }
         }
         case _ => JsError("String value expected")
