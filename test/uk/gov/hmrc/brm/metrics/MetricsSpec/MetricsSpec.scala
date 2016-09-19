@@ -253,19 +253,19 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
     "increment for version 1.0" in{
       APIVersionMetrics("1.0").count()
-      MetricsRegistry.defaultRegistry.getCounters.get("api-version-1.0-count").getCount shouldBe 1
+      MetricsRegistry.defaultRegistry.getCounters.get("api-version-1.0").getCount shouldBe 1
     }
 
     "increment for version 5.0" in {
       APIVersionMetrics("5.0").count()
-      MetricsRegistry.defaultRegistry.getCounters.get("api-version-5.0-count").getCount shouldBe 1
+      MetricsRegistry.defaultRegistry.getCounters.get("api-version-5.0").getCount shouldBe 1
     }
 
     "increment for version 3.0 older should be null" in {
       APIVersionMetrics("3.0").count()
       intercept[NullPointerException] {
-        MetricsRegistry.defaultRegistry.getCounters.get("api-version-3.0-count").getCount shouldBe 1
-        MetricsRegistry.defaultRegistry.getCounters.get("api-version-2.0-count").getCount
+        MetricsRegistry.defaultRegistry.getCounters.get("api-version-3.0").getCount shouldBe 1
+        MetricsRegistry.defaultRegistry.getCounters.get("api-version-2.0").getCount
       }
     }
 
@@ -273,7 +273,7 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
       "increment for audit-source" in {
         AuditSourceMetrics("DFS").count()
-        MetricsRegistry.defaultRegistry.getCounters.get("audit-source-dfs-count").getCount shouldBe 1
+        MetricsRegistry.defaultRegistry.getCounters.get("audit-source-dfs").getCount shouldBe 1
       }
     }
 

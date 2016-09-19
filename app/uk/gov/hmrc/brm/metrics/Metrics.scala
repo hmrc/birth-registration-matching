@@ -65,13 +65,13 @@ object GRONIMetrics extends Metrics {
 case class APIVersionMetrics(version :String) extends Metrics{
   Logger.debug(s"[APIVersionMetrics][init]")
   override val prefix = version
-  def count() = MetricsRegistry.defaultRegistry.counter(s"api-version-$prefix-count").inc()
+  def count() = MetricsRegistry.defaultRegistry.counter(s"api-version-$prefix").inc()
 }
 
 case class AuditSourceMetrics(auditSource :String) extends Metrics{
   Logger.debug(s"[AuditSourceMetrics][init]")
   override val prefix = auditSource.toLowerCase
-  def count() = MetricsRegistry.defaultRegistry.counter(s"audit-source-$prefix-count").inc()
+  def count() = MetricsRegistry.defaultRegistry.counter(s"audit-source-$prefix").inc()
 }
 
 
