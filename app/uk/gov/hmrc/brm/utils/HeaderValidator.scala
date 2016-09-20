@@ -41,7 +41,7 @@ trait HeaderValidator extends Results {
 
   val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  
+
   def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 
     val acceptStatus = accept.flatMap(

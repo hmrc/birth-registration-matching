@@ -120,4 +120,9 @@ class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
     }
   }
 
+  after{
+
+    DateTimeUtils.setCurrentMillisSystem()
+  }
+
 }
