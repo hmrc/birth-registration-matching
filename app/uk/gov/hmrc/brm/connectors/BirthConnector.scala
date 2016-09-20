@@ -18,18 +18,14 @@ package uk.gov.hmrc.brm.connectors
 
 import play.api.Logger
 import play.api.Play.current
-import play.api.http.Status
-import play.api.libs.json.JsValue
 import play.api.libs.ws.WS
-import play.api.mvc.Result
 import uk.gov.hmrc.brm.config.WSHttp
-import uk.gov.hmrc.brm.metrics.{ProxyMetrics, Metrics}
+import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.brm.utils.Keygenerator
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
 
 trait BirthConnector extends ServicesConfig {
 
@@ -40,10 +36,14 @@ trait BirthConnector extends ServicesConfig {
   val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-    httpGet.GET[HttpResponse](s"$detailsUri/$reference")
+
+    val newHc = hc.withExtraHeaders(BRM_KEY-> Keygenerator.geKey())
+    httpGet.GET[HttpResponse](s"$detailsUri/$reference")(implicitly[HttpReads[HttpResponse]], newHc)
+
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
+
     val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
     Logger.debug(s"Request details endpoint: $endpoint")
     httpGet.GET[HttpResponse](endpoint)

@@ -17,18 +17,17 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
-import play.api.Logger
-import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.metrics.Metrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
-import uk.gov.hmrc.brm.implicits.Implicits._
-
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.concurrent.Future
 
 
@@ -41,6 +40,8 @@ object BirthEventsController extends BirthEventsController {
 
 trait BirthEventsController extends controller.BaseController with HeaderValidator {
 
+  val CLASS_NAME : String = this.getClass.getCanonicalName
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service: LookupService
@@ -50,43 +51,44 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       .as("application/json")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
       .withHeaders((CONTENT_TYPE, "application/json"))
+
   }
 
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
       getMetrics().connectorStatus(NOT_FOUND)
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: $message")
+      warn(CLASS_NAME, "handleException", s"[$method] NotFound: $message.")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
       getMetrics().connectorStatus(BAD_REQUEST)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequest: $message")
+      warn(CLASS_NAME, "handleException", s"[$method] BadRequest: $message.")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       getMetrics().connectorStatus(BAD_GATEWAY)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
+      warn(CLASS_NAME, "handleException",s"[$method] BadGateway: $message")
       respond(BadGateway(message))
     case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
       getMetrics().connectorStatus(GATEWAY_TIMEOUT)
-      Logger.warn(s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
+      warn(CLASS_NAME, "handleException",s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
       respond(GatewayTimeout(message))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       getMetrics().connectorStatus(INTERNAL_SERVER_ERROR)
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: code: $upstreamCode message: $message")
+      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: code: $upstreamCode message: $message")
       respond(InternalServerError)
     case e: BadRequestException =>
       getMetrics().connectorStatus(BAD_REQUEST)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
+      warn(CLASS_NAME, "handleException",s"[$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e: NotImplementedException =>
       getMetrics().connectorStatus(OK)
-      Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
+       warn(CLASS_NAME, "handleException", s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: NotFoundException =>
       getMetrics().connectorStatus(NOT_FOUND)
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
+      warn(CLASS_NAME, "handleException",s"[$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: Exception =>
-      Logger.error(s"[BirthEventsController][Connector][$method] InternalServerError: message: $e")
+      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: message: ${e}")
       respond(InternalServerError)
   }
 
@@ -100,11 +102,15 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     }
   }
 
+
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
+
+      generateAndSetKey(request)
+
       request.body.validate[Payload].fold(
         error => {
-          Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
+          info(CLASS_NAME, "post()",s" error: $error")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
@@ -113,21 +119,28 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
           if (!validateDob(p.dateOfBirth)) {
             // date of birth is before acceptable date
-            Logger.debug(s"[BirthEventsController][post] validateDob returned false.")
+            debug(CLASS_NAME, "post()", s"validateDob returned false.")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           } else {
-            Logger.debug(s"[BirthEventsController][Connector][getReference] payload matched.")
+            debug(CLASS_NAME, "post()",s"payload matched.")
             service.lookup() map {
               bm => {
                 getMetrics().connectorStatus(OK)
-                Logger.debug(s"[BirthEventsController][Connector][getReference] response received.")
+                debug(CLASS_NAME, "post()", s"response received.")
                 respond(Ok(Json.toJson(bm)))
               }
             } recover handleException("getReference")
 
           }
         }
+
       )
+  }
+
+
+  private def generateAndSetKey(request: Request[JsValue]): Unit = {
+    val key = Keygenerator.generateKey(request)
+    Keygenerator.setKey(key)
   }
 
 }

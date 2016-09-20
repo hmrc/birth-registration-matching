@@ -24,6 +24,7 @@ import uk.gov.hmrc.brm.models.brm.ErrorResponse
 import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 /**
   * Created by chrisianson on 23/08/16.
@@ -40,7 +41,6 @@ trait HeaderValidator extends Results {
 
   val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  val matchHeader : String => Option[Match] = new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", "version", "contenttype") findFirstMatchIn _
 
   def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 

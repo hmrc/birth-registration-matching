@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.brm.services
 
-import java.util.concurrent.TimeUnit
-
-import play.api.Logger
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -28,7 +25,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
+import uk.gov.hmrc.brm.utils.BrmLogger._
 /**
   * Created by user on 22/08/16.
   */
@@ -60,6 +57,7 @@ trait LookupService extends LookupServiceBinder {
   protected val groConnector: BirthConnector
   protected val nirsConnector: BirthConnector
   protected val nrsConnector: BirthConnector
+  val CLASS_NAME : String = this.getClass.getCanonicalName
 
   /**
     * connects to groconnector and return match if match input details.
@@ -84,12 +82,13 @@ trait LookupService extends LookupServiceBinder {
 
             metrics.endTimer(start)
 
-            Logger.debug(s"[LookupService][response] $response")
-            Logger.debug(s"[LookupService][payload] $payload")
+            debug(CLASS_NAME,"lookup()", s"[response] $response")
+            debug(CLASS_NAME,"lookup()", s"[payload] $payload")
+
 
             response.json.validate[GroResponse].fold(
               error => {
-                Logger.warn(s"[LookupService][validate json][failed to validate json]]")
+                warn(CLASS_NAME,"lookup()",s"[failed to validate json]]")
                 BirthResponseBuilder.withNoMatch()
               },
               success => {
