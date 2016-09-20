@@ -18,12 +18,9 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.Request
-
-import scala.util.matching.Regex
-import scala.util.matching.Regex.Match
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 
 /**
@@ -34,8 +31,6 @@ object Keygenerator {
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
   private var keyForRequest: String = null
   private val versionKey: String = "version"
-  val matchHeader: String => Option[Match] =
-    new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", versionKey, "contenttype") findFirstMatchIn _
 
 
   def generateKey(request: Request[JsValue]) = {
@@ -54,16 +49,7 @@ object Keygenerator {
     formattedDate
   }
 
-  private def getApiVersion(request: Request[JsValue]): String = {
-    var accept = request.headers.get(HeaderNames.ACCEPT)
-    val apiVersion = accept.flatMap(
-      a =>
-        matchHeader(a.toLowerCase()) map (
-          res => res.group(versionKey)
-          )
-    ) getOrElse ""
-    apiVersion
-  }
+
 
   def geKey(): String = {
     keyForRequest

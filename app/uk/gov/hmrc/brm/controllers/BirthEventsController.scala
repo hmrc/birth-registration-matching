@@ -17,7 +17,6 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.config.BrmConfig
@@ -58,19 +57,19 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
       getMetrics().connectorStatus(NOT_FOUND)
-      warn(CLASS_NAME, "handleException", s"NotFound: $message.")
+      warn(CLASS_NAME, "handleException", s"[$method] NotFound: $message.")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
       getMetrics().connectorStatus(BAD_REQUEST)
-      warn(CLASS_NAME, "handleException", s"BadRequest: $message.")
+      warn(CLASS_NAME, "handleException", s"[$method] BadRequest: $message.")
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       getMetrics().connectorStatus(BAD_GATEWAY)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadGateway: $message")
+      warn(CLASS_NAME, "handleException",s"[$method] BadGateway: $message")
       respond(BadGateway(message))
     case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
       getMetrics().connectorStatus(GATEWAY_TIMEOUT)
-      Logger.warn(s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
+      warn(CLASS_NAME, "handleException",s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
       respond(GatewayTimeout(message))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       getMetrics().connectorStatus(INTERNAL_SERVER_ERROR)
@@ -78,15 +77,15 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(InternalServerError)
     case e: BadRequestException =>
       getMetrics().connectorStatus(BAD_REQUEST)
-      Logger.warn(s"[BirthEventsController][Connector][$method] BadRequestException: ${e.getMessage}")
+      warn(CLASS_NAME, "handleException",s"[$method] BadRequestException: ${e.getMessage}")
       respond(BadRequest(e.getMessage))
     case e: NotImplementedException =>
       getMetrics().connectorStatus(OK)
-      Logger.warn(s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
+       warn(CLASS_NAME, "handleException", s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: NotFoundException =>
       getMetrics().connectorStatus(NOT_FOUND)
-      Logger.warn(s"[BirthEventsController][Connector][$method] NotFound: ${e.getMessage}")
+      warn(CLASS_NAME, "handleException",s"[$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: Exception =>
       error(CLASS_NAME, "handleException", s"[$method] InternalServerError: message: ${e}")
@@ -111,7 +110,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
       request.body.validate[Payload].fold(
         error => {
-          Logger.info(s"[BirthEventsController][Connector][getReference] error: $error")
+          info(CLASS_NAME, "post()",s" error: $error")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
@@ -123,7 +122,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
             debug(CLASS_NAME, "post()", s"validateDob returned false.")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           } else {
-            Logger.debug(s"[BirthEventsController][Connector][getReference] payload matched.")
+            debug(CLASS_NAME, "post()",s"payload matched.")
             service.lookup() map {
               bm => {
                 getMetrics().connectorStatus(OK)
