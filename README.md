@@ -30,7 +30,7 @@ Base endpoint ```/birth-registration-matching```
 
 | Parameters | Type | Description |
 | ---- | ------ | ----------  |
-| birthReferenceNumber | ```String``` | Birth reference number |
+| birthReferenceNumber | ```Optional(String)``` | Birth reference number |
 | firstName | ```String``` | Child's first name |
 | lastName | ```String``` | Child's last name |
 | dateOfBirth | ```Date (yyyy-MM-dd)``` | Child's date of birth |
