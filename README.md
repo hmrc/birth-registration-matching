@@ -30,11 +30,11 @@ Base endpoint ```/birth-registration-matching```
 
 | Parameters | Type | Description |
 | ---- | ------ | ----------  |
-| birthReferenceNumber | ```String``` | ? |
-| firstName | ```String``` | ? |
-| lastName | ```String``` | ? |
-| dateOfBirth | ```Date (yyyy-MM-dd)``` | ? |
-| whereBirthRegistered | ```Enum``` | ? |
+| birthReferenceNumber | ```String``` | Birth reference number |
+| firstName | ```String``` | Child's first name |
+| lastName | ```String``` | Child's last name |
+| dateOfBirth | ```Date (yyyy-MM-dd)``` | Child's date of birth |
+| whereBirthRegistered | ```Enum``` ```england / wales / scotland / northern ireland``` | Where the child was registered (England / Wales / Scotland / Northern Ireland) |
 
 #### Example Request
 
