@@ -14,29 +14,29 @@ Full API documentation can be found below:
 
 - [**Version 1.0 Documentation**][2fba9783]
 
-#### Quickstart
+### Quickstart
 
-Base endpoint ```/birth-registration-matching```
+Base endpoint `/birth-registration-matching`
 
-| PATH | Method | Description |
-| ---- | ------ | ----------  |
-| ```/match``` | ```POST``` | Returns whether there is match against the childs birth record |
+PATH     | Method | Description
+-------- | ------ | --------------------------------------------------------------
+`/match` | `POST` | Returns whether there is match against the childs birth record
 
-| Headers | Type | Example |
-| ---- | ------ | ----------  |
-| Accept | ```String``` | application/vnd.hmrc.1.0+json |
-| Audit-Source | ```String``` | dfs |
-| Content-Type | ```String``` | application/json |
+Headers      | Type     | Example                       | Description
+------------ | -------- | ----------------------------- | --------------------------------
+Accept       | `String` | application/vnd.hmrc.1.0+json | API Version
+Audit-Source | `String` | dfs                           | Unique identifier of the service
+Content-Type | `String` | application/json              | Type of payload
 
-| Parameters | Type | Description |
-| ---- | ------ | ----------  |
-| birthReferenceNumber | ```Optional(String)``` | Birth reference number |
-| firstName | ```String``` | Child's first name |
-| lastName | ```String``` | Child's last name |
-| dateOfBirth | ```Date (yyyy-MM-dd)``` | Child's date of birth |
-| whereBirthRegistered | ```Enum``` ```england / wales / scotland / northern ireland``` | Where the child was registered (England / Wales / Scotland / Northern Ireland) |
+Parameters           | Type                                                   | Description
+-------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------
+birthReferenceNumber | `Optional(String)`                                     | Birth reference number
+firstName            | `String`                                               | Child's first name
+lastName             | `String`                                               | Child's last name
+dateOfBirth          | `Date (yyyy-MM-dd)`                                    | Child's date of birth
+whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | Where the child was registered (England / Wales / Scotland / Northern Ireland)
 
-#### Example Request
+### Example Request
 
 ```bash
 curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -H "Postman-Token: fa8722cf-cf61-163a-e301-2132ce21b344" -d '{
@@ -48,7 +48,7 @@ curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -
 }' "https://localhost:8098/birth-registration-matching/match"
 ```
 
-#### Example response
+### Example response
 
 ```json
 {
