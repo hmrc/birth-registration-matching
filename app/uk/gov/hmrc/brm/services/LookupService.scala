@@ -20,7 +20,7 @@ import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConn
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.gro.GroResponse
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,6 +34,7 @@ object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
   override val nirsConnector = NirsConnector
   override val nrsConnector = NrsConnector
+  override val matchingService = MatchingService
 }
 
 trait LookupServiceBinder {
@@ -57,6 +58,7 @@ trait LookupService extends LookupServiceBinder {
   protected val groConnector: BirthConnector
   protected val nirsConnector: BirthConnector
   protected val nrsConnector: BirthConnector
+  protected val matchingService : MatchingService
   val CLASS_NAME : String = this.getClass.getCanonicalName
 
   /**
@@ -96,6 +98,7 @@ trait LookupService extends LookupServiceBinder {
                 val lastName = success.child.lastName
 
                 val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
+                matchingService.performMatch(payload, success,MatchingType.FULL)
 
                 if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
 
