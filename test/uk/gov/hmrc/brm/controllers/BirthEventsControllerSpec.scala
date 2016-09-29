@@ -87,7 +87,7 @@ class BirthEventsControllerSpec
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
-  val mockMatchingService = mock[MatchingService]
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val nirsConnector = NirsConnector
