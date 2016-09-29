@@ -33,11 +33,14 @@ trait MatchingService {
       case MatchingType.FULL => FullMatching
     }
 
-    algorithm.performMatch(input, response) match {
+   var result = algorithm.performMatch(input, response)
+    result.audit  //for audit purpose
+    result
+    /*match {
       case Good() => ResultMatch(true)
       case Bad() => ResultMatch(false)
-    }
-
+    }*/
+    result
 
   }
 }

@@ -18,12 +18,38 @@ package uk.gov.hmrc.brm.models.matching
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.services.{Bad, Good, Match}
 
 /**
   * Created by user on 28/09/16.
   */
-case class ResultMatch (isMatch : Boolean)
+case class ResultMatch(firstNameMatch: Match,
+                       lastNameMatch: Match,
+                       dobMatch: Match) {
 
-object ResultMatch {
-  implicit val formats = Json.format[ResultMatch]
+
+  def isMatch: Boolean = {
+    var resultMatch = firstNameMatch and lastNameMatch and dobMatch
+
+    getBoolean(resultMatch)
+  }
+
+
+  def audit: Map[(String, Boolean), _] = {
+    Map(
+      ("match" , isMatch) ->
+      Map(
+        "firstName" -> getBoolean(firstNameMatch)
+      )
+    )
+
+  }
+
+  private def getBoolean(matchResult: Match): Boolean = {
+    matchResult match {
+      case Good() => true
+      case Bad() => false
+    }
+  }
 }
+

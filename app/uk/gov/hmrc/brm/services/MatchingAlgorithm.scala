@@ -19,13 +19,14 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.gro.GroResponse
+import uk.gov.hmrc.brm.models.matching.ResultMatch
 
 /**
   * Created by user on 28/09/16.
   */
 trait MatchingAlgorithm {
 
-  def performMatch(payload: Payload, responsePayload: GroResponse): Match
+  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch
 
 
   protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
@@ -55,12 +56,13 @@ trait MatchingAlgorithm {
 
 
 object FullMatching extends MatchingAlgorithm {
-  def performMatch(payload: Payload, responsePayload: GroResponse): Match = {
+  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch = {
     val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
     val lastNames = lastNameMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
 
-    firstNames and lastNames and dates
+    //firstNames and lastNames and dates
+    ResultMatch(firstNames,lastNames,dates)
 
   }
 }
