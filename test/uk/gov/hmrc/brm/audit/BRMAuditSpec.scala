@@ -17,22 +17,32 @@
 package uk.gov.hmrc.brm.audit
 
 import org.mockito.Matchers
-import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.play.audit.http.connector.{AuditResult, AuditConnector}
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
 import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
 /**
- * Created by adamconder on 28/09/2016.
- */
+  * Created by adamconder on 28/09/2016.
+  */
 class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   val mockConnector = mock[AuditConnector]
+
   object MockBRMAudit extends BRMAudit {
     override val connector = mockConnector
   }
+
+  val event = new EnglandAndWalesAuditEvent(
+    Map(
+      "match" -> "true",
+      "firstNameMatch" -> "true",
+      "lastNameMatch" -> "true",
+      "dateOfBirthMatch" -> "false"
+    )
+  )
 
   "BRMAudit" should {
 
@@ -42,19 +52,15 @@ class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
     }
 
     "audit event for BRMEvent" in {
-      val event = new EnglandAndWalesAuditEvent(
-        Map(
-          "match" -> "true",
-          "firstNameMatch" -> "true",
-          "lastNameMatch" -> "true",
-          "dateOfBirthMatch" -> "false"
-        )
-      )
-
-
       when(mockConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(MockBRMAudit.event(event))
       result shouldBe a[AuditResult]
+    }
+
+    "audit event for BRMEvent should return a Failure message when sendEvent fails" in {
+      when(mockConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.failed(AuditResult.Failure("")))
+      val result = await(MockBRMAudit.event(event))
+      result shouldBe a[AuditResult.Failure]
     }
 
   }
