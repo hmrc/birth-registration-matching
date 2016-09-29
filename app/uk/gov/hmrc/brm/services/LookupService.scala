@@ -97,8 +97,9 @@ trait LookupService extends LookupServiceBinder {
                 val firstName = success.child.firstName
                 val lastName = success.child.lastName
 
-                val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
-                matchingService.performMatch(payload, success,MatchingType.FULL)
+                //val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
+                val isMatch = matchingService.performMatch(payload, success,MatchingType.FULL).isMatch
+                debug(CLASS_NAME,"lookup()", s"[resultMatch] $isMatch")
 
                 if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
 
