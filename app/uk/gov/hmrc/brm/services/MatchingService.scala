@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.gro.GroResponse
+import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.utils.MatchingType
 
