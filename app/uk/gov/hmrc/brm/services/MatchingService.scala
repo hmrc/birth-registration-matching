@@ -20,6 +20,7 @@ import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 
 
@@ -27,6 +28,8 @@ import uk.gov.hmrc.brm.utils.MatchingType
   * Created by manish.wadhwani on 28/09/16.
   */
 trait MatchingService {
+  val CLASS_NAME: String = this.getClass.getCanonicalName
+
   def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value): ResultMatch = {
 
     val algorithm = matchingType match {
@@ -34,17 +37,14 @@ trait MatchingService {
     }
 
     val result = algorithm.performMatch(input, response)
-
+    debug(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(
       result.audit
     )
 
     BRMAudit.event(event)
     result
-
   }
-
 }
-
 
 object MatchingService extends MatchingService
