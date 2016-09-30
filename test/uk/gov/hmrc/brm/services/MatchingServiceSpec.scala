@@ -34,7 +34,6 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
 
   }
 
-
   "valid request payload and valid groresponse " should {
     "return true result match" in {
 
@@ -73,9 +72,7 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
       var resultMatch = MockMatchingService.performMatch(payload, dobNotMatchGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
+
   }
-
-
-
 
 }

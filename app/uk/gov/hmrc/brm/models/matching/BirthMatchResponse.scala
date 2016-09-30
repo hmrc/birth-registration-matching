@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.models.matching
 
 import play.api.libs.json._
 
-case class BirthMatchResponse(matched : Boolean = false)
+case class BirthMatchResponse(matched: Boolean = false)
 
 object BirthMatchResponse {
   implicit val formats = Json.format[BirthMatchResponse]

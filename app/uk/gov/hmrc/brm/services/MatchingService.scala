@@ -28,13 +28,12 @@ import uk.gov.hmrc.brm.utils.MatchingType
 trait MatchingService {
   def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value): ResultMatch = {
 
-
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
     }
 
-   var result = algorithm.performMatch(input, response)
-    result.audit  //for audit purpose
+    val result = algorithm.performMatch(input, response)
+    result.audit //for audit purpose
     result
     /*match {
       case Good() => ResultMatch(true)
@@ -43,6 +42,7 @@ trait MatchingService {
     result
 
   }
+
 }
 
 

@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.{Bad, Good, Match}
 
 /**
@@ -29,7 +27,7 @@ case class ResultMatch(firstNameMatch: Match,
 
 
   def isMatch: Boolean = {
-    var resultMatch = firstNameMatch and lastNameMatch and dobMatch
+    val resultMatch = firstNameMatch and lastNameMatch and dobMatch
 
     getBoolean(resultMatch)
   }
@@ -37,10 +35,10 @@ case class ResultMatch(firstNameMatch: Match,
 
   def audit: Map[(String, Boolean), _] = {
     Map(
-      ("match" , isMatch) ->
-      Map(
-        "firstName" -> getBoolean(firstNameMatch)
-      )
+      ("match", isMatch) ->
+        Map(
+          "firstName" -> getBoolean(firstNameMatch)
+        )
     )
 
   }
