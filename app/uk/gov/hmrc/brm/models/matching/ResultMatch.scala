@@ -33,14 +33,11 @@ case class ResultMatch(firstNameMatch: Match,
   }
 
 
-  def audit: Map[(String, Boolean), _] = {
+  def audit: Map[String, String] = {
     Map(
-      ("match", isMatch) ->
-        Map(
-          "firstName" -> getBoolean(firstNameMatch)
-        )
+      "match"-> String.valueOf(isMatch),
+      "firstName" -> String.valueOf(getBoolean(firstNameMatch))
     )
-
   }
 
   private def getBoolean(matchResult: Match): Boolean = {
