@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.services
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 
 
@@ -26,24 +27,19 @@ import uk.gov.hmrc.brm.utils.MatchingType
   * Created by manish.wadhwani on 28/09/16.
   */
 trait MatchingService {
+  val CLASS_NAME: String = this.getClass.getCanonicalName
+
   def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value): ResultMatch = {
 
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
     }
 
-    val result = algorithm.performMatch(input, response)
+    var result = algorithm.performMatch(input, response)
+    debug(CLASS_NAME, "performMatch", s"${result.audit}")
     result.audit //for audit purpose
     result
-    /*match {
-      case Good() => ResultMatch(true)
-      case Bad() => ResultMatch(false)
-    }*/
-    result
-
   }
-
 }
-
 
 object MatchingService extends MatchingService

@@ -30,16 +30,13 @@ trait MatchingAlgorithm {
 
 
   protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
-    matching[String](brmsFirstname, groFirstName, (a, b) => a.equalsIgnoreCase(b)
-    )
+    matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _  )
 
   protected def lastNameMatch(brmsLastName: Option[String], groLastName: Option[String]): Match =
-    matching[String](brmsLastName, groLastName, (a, b) => a.equalsIgnoreCase(b)
-    )
+    matching[String](brmsLastName, groLastName, _ equalsIgnoreCase _ )
 
   protected def dobMatch(brmsDob: Option[LocalDate], groDob: Option[LocalDate]): Match =
-    matching[LocalDate](brmsDob, groDob, (a, b) => a.isEqual(b)
-    )
+    matching[LocalDate](brmsDob, groDob, _ isEqual _ )
 
   protected def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
     (input, other) match {
