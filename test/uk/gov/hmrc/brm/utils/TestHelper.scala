@@ -67,7 +67,7 @@ object TestHelper {
       |  }
     """.stripMargin)
 
-  def validGroRespons: GroResponse ={
+  def validGroResponse: GroResponse ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(123456789, "Chris", "Jones",Some(birthDate))
     GroResponse(child, None)

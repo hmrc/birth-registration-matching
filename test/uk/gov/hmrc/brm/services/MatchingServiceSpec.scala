@@ -39,7 +39,7 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
     "return true result match" in {
 
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      var resultMatch = MockMatchingService.performMatch(payload, validGroRespons, MatchingType.FULL)
+      var resultMatch = MockMatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
   }
@@ -55,14 +55,14 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
     "return false when firstName not match" in {
 
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      var resultMatch = MockMatchingService.performMatch(payload, invalidGroResponse, MatchingType.FULL)
+      var resultMatch = MockMatchingService.performMatch(payload, firstNameNotMatchedGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
     "return false when lastName not match" in {
 
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      var resultMatch = MockMatchingService.performMatch(payload, invalidGroResponse, MatchingType.FULL)
+      var resultMatch = MockMatchingService.performMatch(payload, lastNameNotMatchGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
@@ -70,7 +70,7 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
     "return false when dob not match" in {
 
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      var resultMatch = MockMatchingService.performMatch(payload, invalidGroResponse, MatchingType.FULL)
+      var resultMatch = MockMatchingService.performMatch(payload, dobNotMatchGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
   }
