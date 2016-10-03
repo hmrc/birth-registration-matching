@@ -70,9 +70,6 @@ object PartialMatching extends MatchingAlgorithm {
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
 
     getMatchResult(firstNames, lastNames,dates )
-
-   // ResultMatch(firstNames,lastNames,dates)
-
   }
 
 
@@ -86,8 +83,6 @@ object PartialMatching extends MatchingAlgorithm {
     ResultMatch(firstNames,lastNames,dates,matchResult )
 
   }
-
-
 }
 
 sealed abstract class Match {

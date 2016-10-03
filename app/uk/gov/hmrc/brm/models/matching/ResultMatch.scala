@@ -44,8 +44,6 @@ case class ResultMatch(firstNameMatch: Match,
   }
 
   private def getBoolean(matchResult: Match): Boolean = {
-    var returnValue: Boolean = false
-
     matchResult match {
       case Good() => true
       case Bad() => false
