@@ -71,6 +71,7 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
       var resultMatch = MockMatchingService.performMatch(payload, dobNotMatchGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
+
     }
 
   }

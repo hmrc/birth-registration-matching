@@ -94,7 +94,7 @@ trait LookupService extends LookupServiceBinder {
                 BirthResponseBuilder.withNoMatch()
               },
               success => {
-                //val isMatch = firstName.equalsIgnoreCase(payload.firstName) && lastName.equalsIgnoreCase(payload.lastName)
+
                 val isMatch = matchingService.performMatch(payload, success, MatchingType.FULL).isMatch
                 debug(CLASS_NAME, "lookup()", s"[resultMatch] $isMatch")
 

@@ -57,7 +57,6 @@ object FullMatching extends MatchingAlgorithm {
     val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
 
-    //firstNames and lastNames and dates
     ResultMatch(firstNames,lastNames,dates)
 
   }
@@ -65,10 +64,6 @@ object FullMatching extends MatchingAlgorithm {
 
 sealed abstract class Match {
 
-  /*def or(other: Match): Match = (this, other) match {
-    case (Bad(), Bad()) => Bad()
-    case _ => Good()
-  }*/
   def and(other: Match): Match = (this, other) match {
     case (Good(), Good()) => Good()
     case _ => Bad()

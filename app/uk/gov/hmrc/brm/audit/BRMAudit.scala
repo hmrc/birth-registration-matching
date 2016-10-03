@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
 abstract class AuditEvent(auditType : String, detail : Map[String, String])
   extends DataEvent(auditSource = "brm", auditType = auditType, detail = detail)
 
-// TODO BE USED BY MANISH CODE IN MODEL WHEN CONVERTING TO MAP
+
 sealed class EnglandAndWalesAuditEvent(result : Map[String, String])
   extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result)
 

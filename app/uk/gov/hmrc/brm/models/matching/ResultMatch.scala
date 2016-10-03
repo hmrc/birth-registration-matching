@@ -34,9 +34,13 @@ case class ResultMatch(firstNameMatch: Match,
 
 
   def audit: Map[String, String] = {
+    val matchKey = if (isMatch) "match" else "noMatch"
+
     Map(
-      "match"-> String.valueOf(isMatch),
-      "firstName" -> String.valueOf(getBoolean(firstNameMatch))
+      s"$matchKey" -> "true",
+      s"${matchKey}FirstName" -> s"${getBoolean(firstNameMatch)}",
+      s"${matchKey}LastName" -> s"${getBoolean(lastNameMatch)}",
+      s"${matchKey}DateOfBirth" -> s"${getBoolean(dobMatch)}"
     )
   }
 
