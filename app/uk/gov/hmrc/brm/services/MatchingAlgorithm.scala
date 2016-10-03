@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import org.joda.time.LocalDate
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
@@ -56,10 +57,37 @@ object FullMatching extends MatchingAlgorithm {
     val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
     val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
-
-    ResultMatch(firstNames,lastNames,dates)
+    val resultMatch = firstNames and  lastNames and dates
+    ResultMatch(firstNames,lastNames,dates,resultMatch )
 
   }
+}
+
+object PartialMatching extends MatchingAlgorithm {
+  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch = {
+    val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
+    val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
+    val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
+
+    getMatchResult(firstNames, lastNames,dates )
+
+   // ResultMatch(firstNames,lastNames,dates)
+
+  }
+
+
+  private def getMatchResult(firstNames : Match, lastNames : Match,  dates: Match) : ResultMatch = {
+    var matchResult : Match = Good()
+
+    if (BrmConfig.matchFirstName)  matchResult = matchResult and  firstNames
+    if (BrmConfig.matchLastName) matchResult =  matchResult and  lastNames
+    if (BrmConfig.matchDateOfBirth)  matchResult= matchResult and  dates
+
+    ResultMatch(firstNames,lastNames,dates,matchResult )
+
+  }
+
+
 }
 
 sealed abstract class Match {

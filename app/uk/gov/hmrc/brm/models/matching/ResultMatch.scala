@@ -23,13 +23,12 @@ import uk.gov.hmrc.brm.services.{Bad, Good, Match}
   */
 case class ResultMatch(firstNameMatch: Match,
                        lastNameMatch: Match,
-                       dobMatch: Match) {
+                       dobMatch: Match,
+                       matchResult : Match) {
 
 
   def isMatch: Boolean = {
-    val resultMatch = firstNameMatch and lastNameMatch and dobMatch
-
-    getBoolean(resultMatch)
+    getBoolean(matchResult)
   }
 
 

@@ -103,7 +103,11 @@ class BirthEventsControllerSpec
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   var config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.validateDobForGro" -> true
+    "microservice.services.birth-registration-matching.validateDobForGro" -> true,
+  "microservice.services.birth-registration-matching.matching.firstName" -> true,
+  "microservice.services.birth-registration-matching.matching.lastName" -> true,
+  "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
+
   )
 
   "BirthEventsController" when {

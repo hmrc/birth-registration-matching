@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -95,7 +96,7 @@ trait LookupService extends LookupServiceBinder {
               },
               success => {
 
-                val isMatch = matchingService.performMatch(payload, success, MatchingType.FULL).isMatch
+                val isMatch = matchingService.performMatch(payload, success, getMatchingType()).isMatch
                 debug(CLASS_NAME, "lookup()", s"[resultMatch] $isMatch")
 
                 if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
@@ -106,5 +107,11 @@ trait LookupService extends LookupServiceBinder {
         }
       }
     )
+  }
+
+  def getMatchingType(): MatchingType.Value = {
+
+    var result  = BrmConfig.matchFirstName && BrmConfig.matchLastName &&  BrmConfig.matchDateOfBirth
+    if(result) MatchingType.FULL else MatchingType.PARTIAL
   }
 }

@@ -28,6 +28,13 @@ trait BrmConfig extends ServicesConfig
    val defaultDate: Int = 1900
 
    def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
+
+   def matchFirstName : Boolean = getConfBool("birth-registration-matching.matching.firstName", true)
+   def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName", true)
+   def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth", true)
+
+
+
 }
 
 object BrmConfig extends BrmConfig
