@@ -41,6 +41,29 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
       var resultMatch = MockMatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
+
+
+    "return true when case is different for firstname, lastname" in {
+
+      val payload = Payload(Some("123456789"), "chRis", "joNes", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      var resultMatch = MockMatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      resultMatch.isMatch shouldBe true
+    }
+
+
+    "return true when case is different for firstName only" in {
+
+      val payload = Payload(Some("123456789"), "chRis", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      var resultMatch = MockMatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      resultMatch.isMatch shouldBe true
+    }
+
+    "return true when case is different for lastName only" in {
+
+      val payload = Payload(Some("123456789"), "Chris", "joNES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      var resultMatch = MockMatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      resultMatch.isMatch shouldBe true
+    }
   }
 
   "valid request payload and invalid groresponse " should {
@@ -58,6 +81,8 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
       resultMatch.isMatch shouldBe false
     }
 
+
+
     "return false when lastName not match" in {
 
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -73,6 +98,8 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
       resultMatch.isMatch shouldBe false
 
     }
+
+
 
   }
 
