@@ -24,7 +24,7 @@ import uk.gov.hmrc.brm.services.{Bad, Good, Match}
 case class ResultMatch(firstNameMatch: Match,
                        lastNameMatch: Match,
                        dobMatch: Match,
-                       matchResult : Match) {
+                       matchResult: Match) {
 
 
   def isMatch: Boolean = {
@@ -37,17 +37,23 @@ case class ResultMatch(firstNameMatch: Match,
 
     Map(
       s"$matchKey" -> "true",
-      s"${matchKey}FirstName" -> s"${getBoolean(firstNameMatch)}",
-      s"${matchKey}LastName" -> s"${getBoolean(lastNameMatch)}",
-      s"${matchKey}DateOfBirth" -> s"${getBoolean(dobMatch)}"
+      s"${matchKey}FirstName" -> s"${getAuditValue(getBoolean(firstNameMatch), isMatch)}",
+      s"${matchKey}LastName" -> s"${getAuditValue(getBoolean(lastNameMatch), isMatch)}",
+      s"${matchKey}DateOfBirth" -> s"${getAuditValue(getBoolean(dobMatch), isMatch)}"
     )
   }
 
   private def getBoolean(matchResult: Match): Boolean = {
+    var returnValue: Boolean = false
+
     matchResult match {
       case Good() => true
       case Bad() => false
     }
+  }
+
+  private def getAuditValue(matchResult: Boolean, isMatch: Boolean): Boolean = {
+    if (isMatch) matchResult else !matchResult
   }
 }
 
