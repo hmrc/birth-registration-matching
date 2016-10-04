@@ -96,7 +96,7 @@ trait LookupService extends LookupServiceBinder {
               },
               success => {
 
-                val isMatch = matchingService.performMatch(payload, success, getMatchingType()).isMatch
+                val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
                 debug(CLASS_NAME, "lookup()", s"[resultMatch] $isMatch")
 
                 if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
@@ -109,9 +109,8 @@ trait LookupService extends LookupServiceBinder {
     )
   }
 
-  def getMatchingType(): MatchingType.Value = {
-
-    var result  = BrmConfig.matchFirstName && BrmConfig.matchLastName &&  BrmConfig.matchDateOfBirth
-    if(result) MatchingType.FULL else MatchingType.PARTIAL
+  def getMatchingType : MatchingType.Value = {
+    val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
+    if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 }

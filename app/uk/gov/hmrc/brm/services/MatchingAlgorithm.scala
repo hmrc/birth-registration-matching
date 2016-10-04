@@ -41,8 +41,8 @@ trait MatchingAlgorithm {
 
   protected def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
     (input, other) match {
-      case (Some(input), Some(other)) =>
-        if (matchFunction(input, other)) Good()
+      case (Some(x), Some(y)) =>
+        if (matchFunction(x, y)) Good()
         else Bad()
       case _ => Bad()
     }
@@ -57,31 +57,30 @@ object FullMatching extends MatchingAlgorithm {
     val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
     val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
-    val resultMatch = firstNames and  lastNames and dates
-    ResultMatch(firstNames,lastNames,dates,resultMatch )
+    val resultMatch = firstNames and lastNames and dates
 
+    ResultMatch(firstNames, lastNames, dates, resultMatch)
   }
 }
 
 object PartialMatching extends MatchingAlgorithm {
   def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch = {
-    val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
-    val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
-    val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
 
-    getMatchResult(firstNames, lastNames,dates )
-  }
+    val firstNames = if (BrmConfig.matchFirstName) {
+      firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
+    } else Good()
 
+    val lastNames = if(BrmConfig.matchLastName) {
+      lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
+    } else Good()
 
-  private def getMatchResult(firstNames : Match, lastNames : Match,  dates: Match) : ResultMatch = {
-    var matchResult : Match = Good()
+    val dates = if(BrmConfig.matchDateOfBirth) {
+      dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
+    } else Good()
 
-    if (BrmConfig.matchFirstName)  matchResult = matchResult and  firstNames
-    if (BrmConfig.matchLastName) matchResult =  matchResult and  lastNames
-    if (BrmConfig.matchDateOfBirth)  matchResult= matchResult and  dates
+    val resultMatch = firstNames and lastNames and dates
 
-    ResultMatch(firstNames,lastNames,dates,matchResult )
-
+    ResultMatch(firstNames, lastNames, dates, resultMatch)
   }
 }
 

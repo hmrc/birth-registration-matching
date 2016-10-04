@@ -22,5 +22,4 @@ package uk.gov.hmrc.brm.utils
 object MatchingType extends Enumeration {
   val FULL  = Value
   val PARTIAL  = Value
-
 }

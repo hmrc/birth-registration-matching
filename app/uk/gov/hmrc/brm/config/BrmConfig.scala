@@ -33,8 +33,6 @@ trait BrmConfig extends ServicesConfig
    def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName", true)
    def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth", true)
 
-
-
 }
 
 object BrmConfig extends BrmConfig
