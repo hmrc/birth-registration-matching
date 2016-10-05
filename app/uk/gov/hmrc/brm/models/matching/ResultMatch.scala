@@ -31,15 +31,12 @@ case class ResultMatch(firstNameMatch: Match,
     getBoolean(matchResult)
   }
 
-
   def audit: Map[String, String] = {
-    val matchKey = if (isMatch) "match" else "noMatch"
-
     Map(
-      s"$matchKey" -> "true",
-      s"${matchKey}FirstName" -> s"${getAuditValue(getBoolean(firstNameMatch), isMatch)}",
-      s"${matchKey}LastName" -> s"${getAuditValue(getBoolean(lastNameMatch), isMatch)}",
-      s"${matchKey}DateOfBirth" -> s"${getAuditValue(getBoolean(dobMatch), isMatch)}"
+      s"match" -> s"$isMatch",
+      s"matchFirstName" -> s"${getBoolean(firstNameMatch)}",
+      s"matchLastName" -> s"${getBoolean(lastNameMatch)}",
+      s"matchDateOfBirth" -> s"${getBoolean(dobMatch)}"
     )
   }
 
@@ -48,10 +45,6 @@ case class ResultMatch(firstNameMatch: Match,
       case Good() => true
       case Bad() => false
     }
-  }
-
-  private def getAuditValue(matchResult: Boolean, isMatch: Boolean): Boolean = {
-    if (isMatch) matchResult else !matchResult
   }
 }
 
