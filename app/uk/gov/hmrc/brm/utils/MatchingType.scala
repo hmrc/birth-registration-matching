@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.matching
+package uk.gov.hmrc.brm.utils
 
-import play.api.libs.json._
-
-case class BirthMatchResponse(matched: Boolean = false)
-
-object BirthMatchResponse {
-  implicit val formats = Json.format[BirthMatchResponse]
+/**
+  * Created by user on 28/09/16.
+  */
+object MatchingType extends Enumeration {
+  val FULL  = Value
+  val PARTIAL  = Value
 }

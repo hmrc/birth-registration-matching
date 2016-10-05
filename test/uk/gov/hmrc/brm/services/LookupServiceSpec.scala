@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.service.LookupServiceSpec
+package uk.gov.hmrc.brm.services
 
 import org.joda.time.LocalDate
 import org.mockito.Matchers
@@ -26,9 +26,8 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.metrics.Metrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.http.{NotImplementedException, HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -43,6 +42,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     override val groConnector = mockConnector
     override val nrsConnector = mockConnector
     override val nirsConnector = mockConnector
+    override val matchingService = MatchingService
   }
 
   implicit val metrics = mock[Metrics]
