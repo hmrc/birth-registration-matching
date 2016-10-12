@@ -65,11 +65,11 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(BadRequest(message))
     case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
       getMetrics().connectorStatus(BAD_GATEWAY)
-      warn(CLASS_NAME, "handleException",s"[$method] BadGateway: $message")
+      error(CLASS_NAME, "handleException",s"[$method] BadGateway: $message")
       respond(BadGateway(message))
     case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
       getMetrics().connectorStatus(GATEWAY_TIMEOUT)
-      warn(CLASS_NAME, "handleException",s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
+      error(CLASS_NAME, "handleException",s"[BirthEventsController][Connector][$method] GatewayTimeout: $message")
       respond(GatewayTimeout(message))
     case Upstream5xxResponse(message, upstreamCode, _) =>
       getMetrics().connectorStatus(INTERNAL_SERVER_ERROR)
@@ -81,14 +81,14 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       respond(BadRequest(e.getMessage))
     case e: NotImplementedException =>
       getMetrics().connectorStatus(OK)
-       warn(CLASS_NAME, "handleException", s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
+      info(CLASS_NAME, "handleException", s"[BirthEventsController][handleException][$method] NotImplementedException: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: NotFoundException =>
       getMetrics().connectorStatus(NOT_FOUND)
       warn(CLASS_NAME, "handleException",s"[$method] NotFound: ${e.getMessage}")
       respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch())))
     case e: Exception =>
-      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: message: ${e}")
+      error(CLASS_NAME, "handleException", s"[$method] InternalServerError: message: $e")
       respond(InternalServerError)
   }
 
@@ -102,10 +102,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     }
   }
 
-
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
-
       generateAndSetKey(request)
 
       request.body.validate[Payload].fold(
@@ -119,14 +117,15 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
           if (!validateDob(p.dateOfBirth)) {
             // date of birth is before acceptable date
-            debug(CLASS_NAME, "post()", s"validateDob returned false.")
+            info(CLASS_NAME, "post()", s"date of birth is before date accepted by GRO, returned match=false")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           } else {
-            debug(CLASS_NAME, "post()",s"payload matched.")
+            info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")
             service.lookup() map {
               bm => {
                 getMetrics().connectorStatus(OK)
-                debug(CLASS_NAME, "post()", s"response received.")
+                info(CLASS_NAME, "post()", s"BirthMatchResponse received")
+                info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
                 respond(Ok(Json.toJson(bm)))
               }
             } recover handleException("getReference")

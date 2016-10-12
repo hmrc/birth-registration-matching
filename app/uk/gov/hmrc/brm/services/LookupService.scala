@@ -72,9 +72,10 @@ trait LookupService extends LookupServiceBinder {
     */
   def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: Metrics) = {
     //check if birthReferenceNumber has value
-    payload.birthReferenceNumber.fold(
+    payload.birthReferenceNumber.fold {
+      info(CLASS_NAME, "lookup()", s"reference number not provided - matched: false")
       Future.successful(BirthResponseBuilder.withNoMatch())
-    )(
+    }(
       reference => {
         /**
           * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
@@ -83,21 +84,22 @@ trait LookupService extends LookupServiceBinder {
 
         getConnector.getReference(reference) map {
           response =>
-
             metrics.endTimer(start)
 
+            info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
             debug(CLASS_NAME, "lookup()", s"[response] $response")
             debug(CLASS_NAME, "lookup()", s"[payload] $payload")
 
             response.json.validate[GroResponse].fold(
               error => {
-                warn(CLASS_NAME, "lookup()", s"[failed to validate json]]")
+                warn(CLASS_NAME, "lookup()", s"failed to validate json")
+                warn(CLASS_NAME, "lookup()", s"returned matched: false")
                 BirthResponseBuilder.withNoMatch()
               },
               success => {
 
                 val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
-                debug(CLASS_NAME, "lookup()", s"[resultMatch] $isMatch")
+                info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
                 if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
 
@@ -111,6 +113,7 @@ trait LookupService extends LookupServiceBinder {
 
   def getMatchingType : MatchingType.Value = {
     val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
+    info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 }

@@ -29,7 +29,6 @@ trait MatchingAlgorithm {
 
   def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch
 
-
   protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
     matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _  )
 
