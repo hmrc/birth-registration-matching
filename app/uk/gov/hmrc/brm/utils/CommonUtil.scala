@@ -34,10 +34,10 @@ object CommonUtil {
 
 
   def getApiVersion(request: Request[JsValue]): String = {
-    var accept = request.headers.get(HeaderNames.ACCEPT)
+    val accept = request.headers.get(HeaderNames.ACCEPT)
     val apiVersion = accept.flatMap(
       a =>
-        matchHeader(a.toLowerCase()) map (
+        matchHeader(a.toLowerCase) map (
           res => res.group(versionKey)
           )
     ) getOrElse ""

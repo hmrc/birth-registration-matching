@@ -23,19 +23,15 @@ import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
   */
 object BirthResponseBuilder {
 
-
   def withMatch(): BirthMatchResponse = {
-
      BirthMatchResponse(true)
   }
 
   def withNoMatch(): BirthMatchResponse = {
-
     BirthMatchResponse(false)
   }
 
-  def getResponse(isMatch : Boolean ): BirthMatchResponse = {
-
+  def getResponse(isMatch : Boolean): BirthMatchResponse = {
     BirthMatchResponse(isMatch)
   }
 

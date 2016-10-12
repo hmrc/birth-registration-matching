@@ -30,26 +30,22 @@ object Keygenerator {
 
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
   private var keyForRequest: String = null
-  private val versionKey: String = "version"
-
 
   def generateKey(request: Request[JsValue]) = {
 
     val formattedDate: String = getDateKey
     val apiVersion: String = getApiVersion(request)
-    //format is date-requestid-audio source - api version number
-    val key = s"${formattedDate}-${request.id}-${request.headers.get("Audit-Source").getOrElse("")}-${apiVersion}"
+    //format is date-requestid-audit source - api version number
+    val key = s"$formattedDate-${request.id}-${request.headers.get("Audit-Source").getOrElse("")}-$apiVersion"
     key
   }
 
   private def getDateKey: String = {
-    var dateTime = new DateTime()
-    val formatter = DateTimeFormat.forPattern(DATE_FORMAT);
+    val dateTime = new DateTime()
+    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
     val formattedDate: String = formatter.print(dateTime)
     formattedDate
   }
-
-
 
   def geKey(): String = {
     keyForRequest
@@ -58,6 +54,5 @@ object Keygenerator {
   def setKey(key: String): Unit = {
     keyForRequest = key
   }
-
 
 }

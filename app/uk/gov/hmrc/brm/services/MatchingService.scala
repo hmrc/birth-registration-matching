@@ -31,14 +31,14 @@ trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value): ResultMatch = {
-    debug(CLASS_NAME, "MatchingType", s"$matchingType")
+    info(CLASS_NAME, "MatchingType", s"$matchingType")
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
       case MatchingType.PARTIAL => PartialMatching
     }
 
     val result = algorithm.performMatch(input, response)
-    debug(CLASS_NAME, "performMatch", s"${result.audit}")
+    info(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(
       result.audit
     )

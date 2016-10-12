@@ -20,7 +20,7 @@ import play.api.Logger
 import play.api.Play.current
 import play.api.libs.ws.WS
 import uk.gov.hmrc.brm.config.WSHttp
-import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.brm.utils.BrmLogger
 import uk.gov.hmrc.brm.utils.Keygenerator
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
@@ -36,26 +36,26 @@ trait BirthConnector extends ServicesConfig {
   val detailsUri : String
 
   private def requestReference(reference: String)(implicit hc : HeaderCarrier) = {
-
-    val newHc = hc.withExtraHeaders(BRM_KEY-> Keygenerator.geKey())
+    val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
+    BrmLogger.info(s"BirthConnector", "requestReference", s"endpoint: $detailsUri")
     httpGet.GET[HttpResponse](s"$detailsUri/$reference")(implicitly[HttpReads[HttpResponse]], newHc)
-
   }
 
   private def requestDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
-
     val endpoint = WS.url(detailsUri).withQueryString(params.toList: _*).url
-    Logger.debug(s"Request details endpoint: $endpoint")
+    BrmLogger.info(s"BirthConnector", "requestDetails", s"endpoint: $endpoint")
     httpGet.GET[HttpResponse](endpoint)
   }
 
   def getReference(reference: String)(implicit hc : HeaderCarrier) = {
-    Logger.debug(s"[BirthConnector][getReference]: $reference")
+    BrmLogger.debug(s"BirthConnector", "getReference", s"$reference")
+    BrmLogger.info(s"BirthConnector", "getReference", "calling getReference")
     requestReference(reference)
   }
 
   def getChildDetails(params : Map[String, String])(implicit hc : HeaderCarrier) = {
-    Logger.debug(s"[GROEnglandAndWalesConnector][getDetails]: $params")
+    BrmLogger.debug(s"BirthConnector", "getDetails", s"$params")
+    BrmLogger.info(s"BirthConnector", "getChildDetails", "calling getChildDetails")
     requestDetails(params)
   }
 }
@@ -74,7 +74,7 @@ object NirsConnector extends BirthConnector {
   override val detailsUri = s"$serviceUrl/$baseUri"
 
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
-    Logger.debug(s"[NirsConnector][getReference]: $reference")
+    BrmLogger.debug(s"NirsConnector", "getReference", s"$reference")
     Future.failed(new NotImplementedException("No service available for GRONI connector."))
   }
 }
@@ -86,11 +86,7 @@ object NrsConnector extends BirthConnector {
   override val detailsUri = s"$serviceUrl/$baseUri"
 
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
-    Logger.debug(s"[NrsConnector][getReference]: $reference")
+    BrmLogger.debug(s"NRSConnector", "getReference", s"$reference")
     Future.failed(new NotImplementedException("No service available for NRS connector."))
   }
 }
-
-
-
-
