@@ -23,15 +23,16 @@ import uk.gov.hmrc.play.config.ServicesConfig
   */
 trait BrmConfig extends ServicesConfig
 {
-   def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
+  def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)
+  def minimumDateValueForGroValidation: String = getConfString("birth-registration-matching.validDateForGro", "1900-01-01")
 
-   val defaultDate: Int = 1900
+  val defaultDate: Int = 1900
 
-   def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
+  def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
 
-   def matchFirstName : Boolean = getConfBool("birth-registration-matching.matching.firstName", true)
-   def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName", true)
-   def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth", true)
+  def matchFirstName : Boolean = getConfBool("birth-registration-matching.matching.firstName", true)
+  def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName", true)
+  def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth", true)
 
 }
 
