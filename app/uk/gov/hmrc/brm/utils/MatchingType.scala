@@ -16,25 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import uk.gov.hmrc.play.test.UnitSpec
-
 /**
-  * Created by user on 23/08/16.
+  * Created by user on 28/09/16.
   */
-class BirthResponseBuilderSpec extends UnitSpec {
-
-  "BirthResponseBuilder" should {
-    "return matched true with Match" in {
-      BirthResponseBuilder.withMatch().matched shouldBe true
-    }
-
-    "return matched false with Match" in {
-      BirthResponseBuilder.withNoMatch().matched  shouldBe false
-    }
-
-    "return matched true with input value as true" in {
-      BirthResponseBuilder.getResponse(true).matched  shouldBe true
-    }
-  }
-
+object MatchingType extends Enumeration {
+  val FULL  = Value
+  val PARTIAL  = Value
 }

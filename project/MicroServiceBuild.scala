@@ -18,19 +18,18 @@ private object AppDependencies {
   import play.PlayImport._
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "4.2.1"
-  private val playAuthVersion = "3.1.0"
+  private val microserviceBootstrapVersion = "4.4.0"
+  private val playAuthVersion = "3.3.0"
   private val playHealthVersion = "1.1.0"
   private val playJsonLoggerVersion = "2.1.1"  
-  private val playUrlBindersVersion = "1.0.0"
-  private val playConfigVersion = "2.0.1"
+  private val playUrlBindersVersion = "1.1.0"
+  private val playConfigVersion = "2.1.0"
   private val domainVersion = "3.7.0"
-  private val hmrcTestVersion = "1.6.0"
+  private val hmrcTestVersion = "1.8.0"
   private val mockito = "1.9.5"
-  private val metricsPlayVersion = "0.2.1"
+  private val metricsPlayVersion = "2.3.0_0.2.1"
 
   val compile = Seq(
-
     ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
@@ -54,7 +53,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "com.kenshoo" %% "metrics-play" % metricsPlayVersion
       )
     }.test
   }
@@ -69,7 +69,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "com.kenshoo" %% "metrics-play" % metricsPlayVersion
       )
     }.test
   }

@@ -25,7 +25,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
-import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -45,6 +45,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
     override val groConnector = mockConnector
     override val nirsConnector = mockConnector
     override val nrsConnector = mockConnector
+    override val matchingService = MatchingService
   }
 
   object MockController extends BirthEventsController {

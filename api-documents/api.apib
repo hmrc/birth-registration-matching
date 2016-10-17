@@ -4,8 +4,6 @@ FORMAT: 1A
 
 NOTE: This is a draft of the API and is subject to change.
 
-## IMPORTANT: Users need to be authenticated through PTA before accessing this API
-
 Birth Matching Registration Service is a service that allows you to check if the GRO for England and Wales contains a birth registration record for a given child.
 
 ## Group Birth Registration Match
@@ -78,7 +76,7 @@ Check for an existing birth record based on a birth reference number
     {
           "properties": {
             "matched": {
-              "type": "boolean"
+              "type": boolean
             }
           }
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.gro
+package uk.gov.hmrc.brm.models.response.gro
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._

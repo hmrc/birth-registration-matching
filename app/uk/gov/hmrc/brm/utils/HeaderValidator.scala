@@ -18,11 +18,13 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import uk.gov.hmrc.brm.metrics.{AuditSourceMetrics, APIVersionMetrics}
 import uk.gov.hmrc.brm.models.brm.ErrorResponse
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 /**
   * Created by chrisianson on 23/08/16.
@@ -39,24 +41,31 @@ trait HeaderValidator extends Results {
 
   val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  val matchHeader : String => Option[Match] = new Regex( """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$""", "version", "contenttype") findFirstMatchIn _
 
   def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 
     val acceptStatus = accept.flatMap(
-      a =>
-        matchHeader(a.toLowerCase()) map(
-          res =>
+      a => {
+        matchHeader(a.toLowerCase) map (
+          res => {
+            val version = res.group("version")
+            APIVersionMetrics(version).count()
+
             validateContentType(res.group("contenttype")) &&
-              validateVersion(res.group("version"))
+              validateVersion(version)
+            }
           )
+      }
     ) getOrElse false
 
     val auditSourceStatus = auditSource.flatMap(
       a =>
         matchAuditSource(a) map (
-          res =>
-            validateAuditSource(res.group("auditsource"))
+          res => {
+            val source = res.group("auditsource")
+            AuditSourceMetrics(source).count()
+            validateAuditSource(source)
+          }
           )
     ) getOrElse false
 
@@ -65,6 +74,7 @@ trait HeaderValidator extends Results {
 
   def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+
       if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
         block(request)
       }
