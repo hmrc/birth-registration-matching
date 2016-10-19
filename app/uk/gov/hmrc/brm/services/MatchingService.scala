@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 
 /**
@@ -30,7 +31,7 @@ import uk.gov.hmrc.brm.utils.MatchingType
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value): ResultMatch = {
+  def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value)(implicit hc: HeaderCarrier) : ResultMatch = {
     info(CLASS_NAME, "MatchingType", s"$matchingType")
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching

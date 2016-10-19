@@ -20,6 +20,7 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -35,6 +36,8 @@ class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
     override val connector = mockConnector
   }
 
+  implicit val hc = HeaderCarrier()
+
   val event = new EnglandAndWalesAuditEvent(
     Map(
       "match" -> "true",
@@ -42,7 +45,7 @@ class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
       "lastNameMatch" -> "true",
       "dateOfBirthMatch" -> "false"
     )
-  )
+  )(hc)
 
   "BRMAudit" should {
 
