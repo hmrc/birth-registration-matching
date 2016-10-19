@@ -20,9 +20,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, Reads}
 
-/**
-  * Created by chrisianson on 01/09/16.
-  */
 case class Status (
                     potentiallyFictitiousBirth : Boolean = false,
                     correction : Option[String] = None,

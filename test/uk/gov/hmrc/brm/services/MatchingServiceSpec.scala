@@ -29,9 +29,6 @@ import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.config.BrmConfig
 
-/**
-  * Created by user on 29/09/16.
-  */
 class MatchingServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val configFirstName: Map[String, _] = Map(

@@ -20,9 +20,6 @@ import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import uk.gov.hmrc.brm.models.brm.ErrorResponse
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-/**
-  * Created by chrisianson on 29/07/16.
-  */
 class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
 
   /**

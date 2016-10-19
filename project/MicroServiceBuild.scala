@@ -27,7 +27,6 @@ private object AppDependencies {
   private val domainVersion = "3.7.0"
   private val hmrcTestVersion = "1.8.0"
   private val mockito = "1.9.5"
-  private val metricsPlayVersion = "2.3.0_0.2.1"
 
   val compile = Seq(
     ws,
@@ -37,8 +36,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
-    "uk.gov.hmrc" %% "domain" % domainVersion,
-    "com.kenshoo" %% "metrics-play" % metricsPlayVersion
+    "uk.gov.hmrc" %% "domain" % domainVersion
   )
 
   trait TestDependencies {
@@ -53,8 +51,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito,
-        "com.kenshoo" %% "metrics-play" % metricsPlayVersion
+        "org.mockito" % "mockito-all" % mockito
       )
     }.test
   }
@@ -69,8 +66,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito,
-        "com.kenshoo" %% "metrics-play" % metricsPlayVersion
+        "org.mockito" % "mockito-all" % mockito
       )
     }.test
   }

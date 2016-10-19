@@ -24,11 +24,6 @@ import play.api.libs.json._
 import uk.gov.hmrc.brm.utils.BRMFormat
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
 
-
-/**
-  * Created by chrisianson on 27/07/16.
-  */
-
 case class Payload(
                     birthReferenceNumber: Option[String] = None,
                     firstName: String,

@@ -18,9 +18,6 @@ package uk.gov.hmrc.brm.utils
 
 import uk.gov.hmrc.play.test.UnitSpec
 
-/**
-  * Created by user on 02/09/16.
-  */
 class BirthRegisterCountrySpec extends UnitSpec {
 
   "BirthRegisterCountry" should {

@@ -18,9 +18,6 @@ package uk.gov.hmrc.brm.config
 
 import uk.gov.hmrc.play.config.ServicesConfig
 
-/**
-  * Created by chrisianson on 26/08/16.
-  */
 trait BrmConfig extends ServicesConfig
 {
    def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", false)

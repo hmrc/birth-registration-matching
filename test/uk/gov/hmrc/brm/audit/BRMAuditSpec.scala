@@ -25,9 +25,6 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-/**
-  * Created by adamconder on 28/09/2016.
-  */
 class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   val mockConnector = mock[AuditConnector]

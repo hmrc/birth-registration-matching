@@ -19,9 +19,6 @@ package uk.gov.hmrc.brm.utils
 import play.api.libs.json._
 import uk.gov.hmrc.brm.metrics.{InvalidBirthRegisteredMetrics, ScotlandBirthRegisteredMetrics, NorthernIrelandBirthRegisteredMetrics, EnglandAndWalesBirthRegisteredMetrics}
 
-/**
-  * Created by user on 19/08/16.
-  */
 object BirthRegisterCountry extends Enumeration {
 
   type BirthRegisterCountry = Value

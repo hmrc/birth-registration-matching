@@ -21,9 +21,6 @@ import play.api.libs.json.{JsValue, Json}
 
 import scala.io.Source
 
-/**
-  * Created by chrisianson on 08/07/16.
-  */
 object JsonUtils {
 
   def getJsonFromFile[A](filename : A) = loadResource(s"/resources/gro/$filename.json")

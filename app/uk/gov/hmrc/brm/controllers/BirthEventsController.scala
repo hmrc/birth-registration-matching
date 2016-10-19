@@ -30,10 +30,6 @@ import uk.gov.hmrc.play.microservice.controller
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.concurrent.Future
 
-
-/**
- * Created by chrisianson on 25/07/16.
- */
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
 }

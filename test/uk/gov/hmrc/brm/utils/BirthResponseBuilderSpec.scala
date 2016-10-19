@@ -18,9 +18,6 @@ package uk.gov.hmrc.brm.utils
 
 import uk.gov.hmrc.play.test.UnitSpec
 
-/**
-  * Created by user on 23/08/16.
-  */
 class BirthResponseBuilderSpec extends UnitSpec {
 
   "BirthResponseBuilder" should {

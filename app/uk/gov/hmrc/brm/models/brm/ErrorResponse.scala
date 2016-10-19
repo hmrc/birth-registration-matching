@@ -19,27 +19,11 @@ package uk.gov.hmrc.brm.models.brm
 import play.api.i18n.Messages
 import play.api.libs.json.{JsValue, Json}
 
-/**
-  * Created by chrisianson on 29/07/16.
-  */
 trait ErrorResponse {
   def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue
 }
 
 object ErrorResponse extends ErrorResponse {
-
-//  trait JSException
-//  case class JsonException(code: Int, message: String) extends JSException {
-//
-//    override def toString = {
-//      Json.parse(
-//        s"""
-//          |"code": $code,
-//          |"message": $message
-//        """.stripMargin).toString()
-//    }
-//
-//  }
 
   def keys(errorCode : Int) = Map(
     "code" -> s"error.code.$errorCode.code",

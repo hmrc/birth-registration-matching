@@ -22,9 +22,6 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.utils.BRMFormat
 
-/**
-  * Created by chrisianson on 31/08/16.
-  */
 case class Child(
                   birthReferenceNumber: Int,
                   firstName: String,

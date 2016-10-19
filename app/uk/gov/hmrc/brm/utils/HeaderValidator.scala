@@ -26,9 +26,6 @@ import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
-/**
-  * Created by chrisianson on 23/08/16.
-  */
 trait HeaderValidator extends Results {
 
   private val validVersions : List[String] = List("1.0")
