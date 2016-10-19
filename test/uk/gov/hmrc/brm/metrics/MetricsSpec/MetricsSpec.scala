@@ -23,9 +23,6 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
 
-/**
- * Created by adamconder on 14/09/2016.
- */
 class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   "ProxyMetrics" should {

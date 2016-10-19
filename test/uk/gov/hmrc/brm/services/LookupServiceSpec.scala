@@ -32,9 +32,6 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-/**
- * Created by adamconder on 09/09/2016.
- */
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val mockConnector = mock[BirthConnector]

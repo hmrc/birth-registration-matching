@@ -31,9 +31,6 @@ import uk.gov.hmrc.brm.utils.TestHelper._
 
 import scala.concurrent.Future
 
-/**
-  * Created by chrisianson on 26/07/16.
-  */
 class BirthEventsControllerSpec
   extends UnitSpec
   with WithFakeApplication

@@ -21,9 +21,6 @@ import uk.gov.hmrc.brm.metrics.{GRONIMetrics, Metrics, NRSMetrics, ProxyMetrics}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 
-/**
- * Created by adamconder on 15/09/2016.
- */
 object Implicits {
 
   implicit def getMetrics()(implicit payload : Payload) : Metrics = {

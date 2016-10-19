@@ -23,9 +23,6 @@ import play.api.mvc.Request
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
-/**
-  * Created by user on 20/09/16.
-  */
 object CommonUtil {
 
   val versionKey: String = "version"

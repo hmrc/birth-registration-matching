@@ -22,10 +22,6 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Request
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
-
-/**
-  * Created by user on 15/09/16.
-  */
 object Keygenerator {
 
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"

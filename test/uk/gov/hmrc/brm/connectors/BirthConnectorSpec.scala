@@ -33,9 +33,6 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-/**
-  * Created by chrisianson on 01/08/16.
-  */
 class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
 
   import scala.concurrent.ExecutionContext.Implicits.global

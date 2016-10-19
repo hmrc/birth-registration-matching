@@ -22,9 +22,6 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 
-/**
-  * Created by user on 28/09/16.
-  */
 trait MatchingAlgorithm {
 
   def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch

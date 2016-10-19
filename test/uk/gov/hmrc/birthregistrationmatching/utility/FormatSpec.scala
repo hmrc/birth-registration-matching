@@ -20,9 +20,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import uk.gov.hmrc.utility._
 
-/**
-  * Created by chrisianson on 26/07/16.
-  */
 class FormatSpec extends UnitSpec {
 
   "NameFormat" should {

@@ -28,10 +28,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.brm.utils.BrmLogger._
 
-/**
-  * Created by user on 22/08/16.
-  */
-
 object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
   override val nirsConnector = NirsConnector

@@ -24,10 +24,6 @@ import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-
-/**
-  * Created by manish.wadhwani on 28/09/16.
-  */
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 

@@ -20,9 +20,6 @@ import org.scalatest.Suite
 import play.api.test.FakeApplication
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-/**
- * Created by adamconder on 27/06/2016.
- */
 trait BRMFakeApplication extends WithFakeApplication {
   this: Suite =>
 
