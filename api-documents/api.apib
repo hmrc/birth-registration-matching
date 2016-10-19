@@ -22,6 +22,11 @@ Check for an existing birth record based on a birth reference number
 
 + Request (application/json)
 
+  + Headers
+     Content-Type: application/json
+     Accept: application/vnd.hmrc.1.0+json
+     Audit-Source: dfs
+
   + Schema
     {
           "properties": {
@@ -58,29 +63,32 @@ Check for an existing birth record based on a birth reference number
           }
     }
 
-{
-  "birthReferenceNumber": "123456789",
-  "firstName": "John",
-  "lastName": "Smith",
-  "dateOfBirth": "2014-05-18",
-  "whereBirthRegistered": "england"
-}
+    + Body
 
-+ Headers
-    Accept: application/vnd.hmrc.1.0+json
-    Audit-Source: dfs
+        {
+          "birthReferenceNumber": "123456789",
+          "firstName": "John",
+          "lastName": "Smith",
+          "dateOfBirth": "2014-05-18",
+          "whereBirthRegistered": "england"
+        }
 
 + Response 200 (application/json)
 
-  + Schema
+    + Headers
+        Content-Type: application/json
+
+ <!-- + Schema
     {
           "properties": {
             "matched": {
               "type": boolean
             }
           }
-    }
+    } -->
 
-{
-  "matched": false
-}
+  + Body
+
+    {
+      "matched": false
+    }
