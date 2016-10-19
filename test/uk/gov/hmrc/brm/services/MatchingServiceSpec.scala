@@ -20,6 +20,7 @@ import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import org.mockito.Matchers
@@ -65,6 +66,8 @@ class MatchingServiceSpec extends UnitSpec with WithFakeApplication with Mockito
   object MockMatchingService extends MatchingService {
 
   }
+
+  implicit val hc = HeaderCarrier()
 
   "valid request payload and valid groresponse " should {
     "return true result match" in {
