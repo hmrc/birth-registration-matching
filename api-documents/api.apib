@@ -18,9 +18,9 @@ Check for an existing birth record based on a birth reference number
 + dateOfBirth - childs date of birth (yyyy-mm-dd)
 + whereBirthRegistered - where is the birth registered (england, wales)
 
-### Check Birth [POST]
+# Check Birth [POST]
 
-+ Request (application/json)
++ Request no match sample request (application/json)
 
   + Headers
   
@@ -84,9 +84,9 @@ Check for an existing birth record based on a birth reference number
               "matched": false
             }
             
-### Check Birth (match) [POST]
+# Check Birth (match) [POST]
 
-+ Request (application/json)
++ Request match sample request (application/json)
 
   + Headers
   
@@ -145,7 +145,16 @@ Check for an existing birth record based on a birth reference number
     + Headers
 
   + Body
-
             {
               "matched": true
             }
+
++ Response 400
+
+  + Body
+
+
++ Response 500
+
+   + Body
+
