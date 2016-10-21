@@ -1,14 +1,16 @@
-
 sudo: false
 language: scala
 scala:
-- 2.11.6
+  - 2.11.6
 jdk:
-- oraclejdk8
+  - oraclejdk8
 cache:
   directories:
-    - '$HOME/.ivy2/cache'
+    - $HOME/.ivy2/cache
 branches:
   except:
     - master
-    
+before_install:
+  - npm install -g dredd@stable
+before_script:
+  - dredd

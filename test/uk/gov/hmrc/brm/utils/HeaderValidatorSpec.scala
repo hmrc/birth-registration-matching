@@ -31,9 +31,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-/**
-  * Created by chrisianson on 23/08/16.
-  */
 class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidator with BRMFakeApplication {
 
   private val jsonResponse = """{"code":"145","status":"400","details":"The headers you supplied are invalid","title":"Headers invalid","about":"http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html"}"""

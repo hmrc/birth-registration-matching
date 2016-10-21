@@ -26,12 +26,6 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{Headers, Request}
 import uk.gov.hmrc.play.test.UnitSpec
 
-
-
-
-/**
-  * Created by user on 15/09/16.
-  */
 class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
   val mockRequest = mock[Request[JsValue]]
   val headers = mock[Headers]

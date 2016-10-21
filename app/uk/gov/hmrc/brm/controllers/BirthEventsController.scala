@@ -30,10 +30,6 @@ import uk.gov.hmrc.play.microservice.controller
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.concurrent.Future
 
-
-/**
- * Created by chrisianson on 25/07/16.
- */
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
 }
@@ -48,10 +44,9 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
   private def respond(response: Result) = {
     response
-      .as("application/json")
+      .as("application/json; charset=utf-8")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
-      .withHeaders((CONTENT_TYPE, "application/json"))
-
+      
   }
 
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {

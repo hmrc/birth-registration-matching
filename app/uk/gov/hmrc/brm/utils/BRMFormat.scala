@@ -22,9 +22,6 @@ import play.api.libs.json.Reads
 import play.api.libs.json.Reads.{apply => _, _}
 import uk.gov.hmrc.brm.config.BrmConfig
 
-/**
-  * Created by chrisianson on 27/07/16.
-  */
 object BRMFormat extends BRMFormat
 trait BRMFormat {
   val datePattern = "yyyy-MM-dd"

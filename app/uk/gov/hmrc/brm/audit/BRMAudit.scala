@@ -18,29 +18,24 @@ package uk.gov.hmrc.brm.audit
 
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.utils.BrmLogger
-import uk.gov.hmrc.play.audit.http.connector.{AuditResult, AuditConnector}
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
+import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.AuditExtensions._
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
-/**
- * Created by adamconder on 28/09/2016.
- */
+abstract class AuditEvent(auditType : String, detail : Map[String, String], transactionName: String)(implicit hc: HeaderCarrier)
+  extends DataEvent(auditSource = "brm", auditType = auditType, detail = detail, tags = hc.toAuditTags(transactionName, "N/A"))
 
-abstract class AuditEvent(auditType : String, detail : Map[String, String])
-  extends DataEvent(auditSource = "brm", auditType = auditType, detail = detail)
+sealed class EnglandAndWalesAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
+  extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result, transactionName = "brm-england-and-wales-match")
 
+sealed class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match")
 
-sealed class EnglandAndWalesAuditEvent(result : Map[String, String])
-  extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result)
-
-sealed class ScotlandAuditEvent(result : Map[String, String])
-  extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result)
-
-sealed class NorthernIrelandAuditEvent(result : Map[String, String])
-  extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results", detail = result)
-
+sealed class NorthernIrelandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results", detail = result, transactionName = "brm-northern-ireland-match")
 
 trait BRMAudit {
 
@@ -55,7 +50,7 @@ trait BRMAudit {
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BrmLogger.warn(s"BRMAudit", s"event: ${event.auditType}", s"event failed to audit ${msg}")
+        BrmLogger.warn(s"BRMAudit", s"event: ${event.auditType}", s"event failed to audit $msg")
         e
     }
   }

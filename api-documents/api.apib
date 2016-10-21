@@ -18,69 +18,145 @@ Check for an existing birth record based on a birth reference number
 + dateOfBirth - childs date of birth (yyyy-mm-dd)
 + whereBirthRegistered - where is the birth registered (england, wales)
 
-### Check Birth [POST]
+# Check Birth [POST]
 
-+ Request (application/json)
++ Request no match sample request (application/json)
+
+  + Headers
+  
+            Accept: application/vnd.hmrc.1.0+json
+            Audit-Source: dfs
 
   + Schema
-    {
-          "properties": {
-            "birthReferenceNumber": {
+  
+            {
+              "properties": {
+              "birthReferenceNumber": {
               "type": "string",
               "required": false,
               "pattern": "/^-?\d+$",
               "description": "Unique reference number found on birth certificate"
-            },
-            "firstName": {
+              },
+              "firstName": {
               "type": "string",
               "required": true,
               "pattern": "/^[\w\s]+$/",
               "description": "Childs firstname"
-            },
-            "lastName": {
+              },
+              "lastName": {
               "type": "string",
               "required": true,
               "pattern": "/^[\w\s]+$/",
               "description": "Childs lastname"
-            },
-            "dateOfBirth": {
+              },
+              "dateOfBirth": {
               "type": "string",
               "required": true,
               "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/",
               "description": "Childs date of birth"
-            },
-            "whereBirthRegistered": {
+              },
+              "whereBirthRegistered": {
               "type": "string",
               "required": true,
               "pattern": "/^[\w\s]+$/",
               "description": "Where the birth is registered"
-            },
-          }
-    }
+              },
+              }
+            }
+            
+    + Body
+    
+            {
+              "birthReferenceNumber": "123456789",
+              "firstName": "John",
+              "lastName": "Smith",
+              "dateOfBirth": "2014-05-18",
+              "whereBirthRegistered": "england"
+            }
 
-{
-  "birthReferenceNumber": "123456789",
-  "firstName": "John",
-  "lastName": "Smith",
-  "dateOfBirth": "2014-05-18",
-  "whereBirthRegistered": "england"
-}
++ Response 200 (application/json; charset=utf-8)
 
-+ Headers
-    Accept: application/vnd.hmrc.1.0+json
-    Audit-Source: dfs
+    + Headers
 
-+ Response 200 (application/json)
+
+  + Body
+
+            {
+              "matched": false
+            }
+            
+# Check Birth (match) [POST]
+
++ Request match sample request (application/json; charset=utf-8)
+
+  + Headers
+  
+            Accept: application/vnd.hmrc.1.0+json
+            Audit-Source: dfs
 
   + Schema
-    {
-          "properties": {
-            "matched": {
-              "type": boolean
+  
+            {
+              "properties": {
+              "birthReferenceNumber": {
+              "type": "string",
+              "required": false,
+              "pattern": "/^-?\d+$",
+              "description": "Unique reference number found on birth certificate"
+              },
+              "firstName": {
+              "type": "string",
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Childs firstname"
+              },
+              "lastName": {
+              "type": "string",
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Childs lastname"
+              },
+              "dateOfBirth": {
+              "type": "string",
+              "required": true,
+              "pattern": "/[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/",
+              "description": "Childs date of birth"
+              },
+              "whereBirthRegistered": {
+              "type": "string",
+              "required": true,
+              "pattern": "/^[\w\s]+$/",
+              "description": "Where the birth is registered"
+              },
+              }
             }
-          }
-    }
+            
+    + Body
+    
+            {
+              "birthReferenceNumber" : "500035710",
+              "firstName": "Adam TEST",
+              "lastName": "SMITH",
+              "dateOfBirth": "2006-11-12",
+              "whereBirthRegistered" : "england"
+            }
 
-{
-  "matched": true
-}
++ Response 200 (application/json; charset=utf-8)
+
+    + Headers
+      
+
+  + Body
+            {
+              "matched": true
+            }
+
++ Response 400
+
+  + Body
+
+
++ Response 500
+
+   + Body
+

@@ -19,9 +19,6 @@ package uk.gov.hmrc.brm.models.response.gro
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-/**
-  * Created by chrisianson on 09/08/16.
-  */
 case class GroResponse(
                         child: Child,
                         status: Option[Status] = None
