@@ -18,9 +18,6 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.Logger
 
-/**
-  * Created by user on 19/09/16.
-  */
 class BrmLogger(logger: org.slf4j.Logger) extends Logger(logger) {
 
   val BRM_KEY: String = "BRM-Key"

@@ -20,9 +20,6 @@ import org.joda.time.LocalDate
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.models.response.gro.{Child, GroResponse}
 
-/**
-  * Created by user on 29/09/16.
-  */
 object TestHelper {
 
 

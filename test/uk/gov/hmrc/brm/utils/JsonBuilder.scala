@@ -20,9 +20,6 @@ import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.mutable.StringBuilder
 
-/**
-  * Created by user on 01/09/16.
-  */
 class JsonBuilder  {
   var jsonString : StringBuilder = new StringBuilder(" {")
 

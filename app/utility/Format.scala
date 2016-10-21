@@ -18,10 +18,6 @@ package uk.gov.hmrc.utility
 
 import play.api.Logger
 
-/**
-  * Created by chrisianson on 26/07/16.
-  */
-
 object Trim {
   def apply(v: String): String = {
     v.trim
