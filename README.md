@@ -60,4 +60,4 @@ curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
 
-[2fba9783]: https://cdn.rawgit.com/hmrc/birth-registration-matching/master/api-documents/api.html "API Documentation"
+[2fba9783]: https://rawgit.com/hmrc/birth-registration-matching/master/api-documents/api.html "API Documentation"
