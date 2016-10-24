@@ -22,11 +22,11 @@ PATH     | Method | Description
 -------- | ------ | --------------------------------------------------------------
 `/match` | `POST` | Returns whether there is match against the childs birth record
 
-Headers      | Type     | Example                       | Description
------------- | -------- | ----------------------------- | --------------------------------
-Accept       | `String` | application/vnd.hmrc.1.0+json | API Version
-Audit-Source | `String` | dfs                           | Unique identifier of the service
-Content-Type | `String` | application/json              | Type of payload
+Headers      | Type     | Example                         | Description
+------------ | -------- | -----------------------------   | --------------------------------
+Accept       | `String` | application/vnd.hmrc.1.0+json   | API Version
+Audit-Source | `String` | dfs                             | Unique identifier of the service
+Content-Type | `String` | application/json; charset=utf-8 | Type of payload
 
 Parameters           | Type                                                   | Description
 -------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------
@@ -60,4 +60,4 @@ curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
 
-[2fba9783]: http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html "API Documentation"
+[2fba9783]: https://cdn.rawgit.com/hmrc/birth-registration-matching/master/api-documents/api.html "API Documentation"
