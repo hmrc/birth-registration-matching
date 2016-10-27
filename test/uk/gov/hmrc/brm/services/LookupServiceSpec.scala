@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
@@ -104,7 +105,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
         val service = MockService
         implicit val payload = Payload(Some("999999920"), "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result = await(service.lookup)
+        val result = await(service.lookup)(Duration.create(5, "seconds"))
         result shouldBe BirthMatchResponse(false)
       }
 
