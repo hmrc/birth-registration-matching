@@ -19,9 +19,9 @@ package uk.gov.hmrc.brm.connectors
 import play.api.Logger
 import play.api.Play.current
 import play.api.libs.ws.WS
+import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent, NorthernIrelandAuditEvent, ScotlandAuditEvent}
 import uk.gov.hmrc.brm.config.WSHttp
-import uk.gov.hmrc.brm.utils.BrmLogger
-import uk.gov.hmrc.brm.utils.Keygenerator
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BrmLogger, Keygenerator}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -75,6 +75,10 @@ object NirsConnector extends BirthConnector {
 
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NirsConnector", "getReference", s"$reference")
+    var result : Map[String, String] = Map("match" -> "false")
+    val event = new NorthernIrelandAuditEvent(result)
+    BRMAudit.event(event)
+
     Future.failed(new NotImplementedException("No service available for GRONI connector."))
   }
 }
@@ -87,6 +91,11 @@ object NrsConnector extends BirthConnector {
 
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NRSConnector", "getReference", s"$reference")
+
+    var result : Map[String, String] = Map("match" -> "false")
+    val event = new ScotlandAuditEvent(result)
+    BRMAudit.event(event)
+
     Future.failed(new NotImplementedException("No service available for NRS connector."))
   }
 }
