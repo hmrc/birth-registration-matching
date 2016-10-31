@@ -25,7 +25,7 @@ import play.api.Logger
 
 import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
-trait BRMMetrics extends MicroserviceSupport {
+trait BRMMetrics extends MicroserviceMetrics {
 
   //val metrics : Metrics = Play.current.injector.instanceOf[Metrics]
 
