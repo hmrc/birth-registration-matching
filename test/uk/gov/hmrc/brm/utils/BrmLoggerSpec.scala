@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
-import org.specs2.mock.mockito.ArgumentCapture
+import org.specs2.mock.mockito._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with WithFakeApplication {
@@ -30,7 +30,6 @@ class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with 
 
   before {
     reset(mockLogger)
-
   }
 
   "BrmLogger" should {

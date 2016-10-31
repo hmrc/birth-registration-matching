@@ -16,17 +16,21 @@
 
 package uk.gov.hmrc.brm.utils
 
+import com.kenshoo.play.metrics.Metrics
+import play.api.Play
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
-import uk.gov.hmrc.brm.metrics.{AuditSourceMetrics, APIVersionMetrics}
+import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
 import uk.gov.hmrc.brm.models.brm.ErrorResponse
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.concurrent.Future
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
-import uk.gov.hmrc.brm.utils.CommonUtil._
 
 trait HeaderValidator extends Results {
+
+ val metrics: Metrics = Play.current.injector.instanceOf[Metrics]
 
   private val validVersions : List[String] = List("1.0")
 
@@ -37,7 +41,6 @@ trait HeaderValidator extends Results {
   val validateAuditSource : String => Boolean = !_.isEmpty
 
   val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
-
 
   def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
 

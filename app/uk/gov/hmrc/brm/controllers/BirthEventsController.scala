@@ -21,7 +21,6 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.implicits.Implicits._
-import uk.gov.hmrc.brm.metrics.Metrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
@@ -29,6 +28,7 @@ import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import scala.concurrent.Future
+import uk.gov.hmrc.brm.metrics.{BRMMetrics}
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
@@ -46,7 +46,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     response
       .as("application/json; charset=utf-8")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
-      
   }
 
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
@@ -108,7 +107,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
         },
         payload => {
           implicit val p : Payload = payload
-          implicit val metrics : Metrics = getMetrics()
+          implicit val metrics : BRMMetrics = getMetrics()
 
           if (!validateDob(p.dateOfBirth)) {
             // date of birth is before acceptable date
@@ -130,7 +129,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
       )
   }
-
 
   private def generateAndSetKey(request: Request[JsValue]): Unit = {
     val key = Keygenerator.generateKey(request)
