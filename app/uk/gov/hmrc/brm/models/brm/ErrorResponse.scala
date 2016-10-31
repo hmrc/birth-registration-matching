@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.brm.models.brm
 
-import play.api.i18n.Messages
+import play.api.Play
 import play.api.libs.json.{JsValue, Json}
+import play.api.i18n.{MessagesApi}
 
 trait ErrorResponse {
   def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue
 }
 
 object ErrorResponse extends ErrorResponse {
+
+  val messages : MessagesApi = Play.current.injector.instanceOf[MessagesApi]
 
   def keys(errorCode : Int) = Map(
     "code" -> s"error.code.$errorCode.code",
@@ -40,8 +43,8 @@ object ErrorResponse extends ErrorResponse {
   def getErrorResponseByErrorCode(errorCode: Int, message: Option[String] = None): JsValue = {
 
     def buildJsonResponse(v: String): Option[String] = {
-      if (Messages.isDefinedAt(v)) {
-        Some(Messages(v))
+      if (messages.isDefinedAt(v)) {
+        Some(messages(v))
       } else {
         None
       }
