@@ -18,16 +18,11 @@ package uk.gov.hmrc.brm.metrics
 
 import java.util.concurrent.TimeUnit
 
-import com.kenshoo.play.metrics.Metrics
-import play.api.Play
-
 import play.api.Logger
 
 import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
 trait BRMMetrics extends MicroserviceMetrics {
-
-  //val metrics : Metrics = Play.current.injector.instanceOf[Metrics]
 
   Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
 
