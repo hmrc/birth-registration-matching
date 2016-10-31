@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.brm
 
+import com.kenshoo.play.metrics.PlayModule
 import org.scalatest.Suite
 import play.api.test.FakeApplication
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 trait BRMFakeApplication extends WithFakeApplication {
   this: Suite =>
+
+  override def bindModules = Seq(new PlayModule)
 
   var config: Map[String, _] = Map(
     "csrf.sign.tokens" -> false,

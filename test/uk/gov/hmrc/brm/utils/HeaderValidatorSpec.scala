@@ -116,7 +116,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        result.body.toString() shouldBe jsonResponse
       }
     }
 
@@ -127,7 +127,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        result.body.toString() shouldBe jsonResponse
       }
     }
 
@@ -138,7 +138,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        result.body.toString() shouldBe jsonResponse
       }
     }
 
@@ -149,7 +149,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        result.body.toString() shouldBe jsonResponse
       }
     }
 
@@ -160,7 +160,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        result.body.toString() shouldBe jsonResponse
       }
     }
 

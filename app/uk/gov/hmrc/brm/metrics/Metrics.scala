@@ -23,9 +23,11 @@ import play.api.Play
 
 import play.api.Logger
 
-trait BRMMetrics {
+import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
-  val metrics : Metrics = Play.current.injector.instanceOf[Metrics]
+trait BRMMetrics extends MicroserviceSupport {
+
+  //val metrics : Metrics = Play.current.injector.instanceOf[Metrics]
 
   Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
 
