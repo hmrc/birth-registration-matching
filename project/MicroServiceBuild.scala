@@ -26,6 +26,7 @@ private object AppDependencies {
   private val domainVersion = "4.0.0"
   private val hmrcTestVersion = "2.0.0"
   private val mockito = "1.9.5"
+  private val specs2 = "2.3.13"
 
   val compile = Seq(
     ws,
@@ -49,7 +50,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "org.specs2" % "specs2_2.10" % specs2
       )
     }.test
   }
