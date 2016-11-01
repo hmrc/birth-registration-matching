@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import uk.gov.hmrc.brm.audit.{BRMAudit, EventRecordFound, OtherAuditEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
@@ -93,7 +94,7 @@ trait LookupService extends LookupServiceBinder {
                 BirthResponseBuilder.withNoMatch()
               },
               success => {
-
+                logEvent(hc)
                 val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
                 info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
@@ -111,5 +112,11 @@ trait LookupService extends LookupServiceBinder {
     val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
     info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
+  }
+
+  private def logEvent(implicit hc: HeaderCarrier) = {
+    var result : Map[String, String] = Map("recordFound" -> "true")
+    val event = new EventRecordFound(result)(hc)
+    BRMAudit.event(event)
   }
 }

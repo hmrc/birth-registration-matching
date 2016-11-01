@@ -25,20 +25,23 @@ import uk.gov.hmrc.play.audit.AuditExtensions._
 
 import scala.concurrent.Future
 
-abstract class AuditEvent(auditType : String, detail : Map[String, String], transactionName: String)(implicit hc: HeaderCarrier)
-  extends DataEvent(auditSource = "brm", auditType = auditType, detail = detail, tags = hc.toAuditTags(transactionName, "N/A"))
+abstract class AuditEvent(auditType : String, detail : Map[String, String], transactionName: String, path:String ="N/A")(implicit hc: HeaderCarrier)
+  extends DataEvent(auditSource = "brm", auditType = auditType, detail = detail, tags = hc.toAuditTags(transactionName, path))
 
 sealed class EnglandAndWalesAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result, transactionName = "brm-england-and-wales-match")
+  extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result, transactionName = "brm-england-and-wales-match",path)
 
 sealed class ScotlandAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match")
+  extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match",path)
 
 sealed class NorthernIrelandAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results", detail = result, transactionName = "brm-northern-ireland-match")
+  extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results", detail = result, transactionName = "brm-northern-ireland-match",path)
 
 sealed class OtherAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match")
+  extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match",path)
+
+sealed class EventRecordFound(result : Map[String, String], path: String = "GRO/match")(implicit hc: HeaderCarrier)
+  extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
 
 trait BRMAudit {
 
