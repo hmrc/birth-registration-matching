@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import com.google.inject.{Singleton, Inject}
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
@@ -31,17 +32,10 @@ import uk.gov.hmrc.play.microservice.controller
 
 import scala.concurrent.Future
 
-object BirthEventsController extends BirthEventsController {
-  override val service = LookupService
-}
-
-trait BirthEventsController extends controller.BaseController with HeaderValidator {
-
+class BirthEventsController @Inject()(val service : LookupService) extends controller.BaseController with HeaderValidator {
   val CLASS_NAME : String = this.getClass.getCanonicalName
 
   import scala.concurrent.ExecutionContext.Implicits.global
-
-  protected val service: LookupService
 
   private def respond(response: Result) = {
     response
@@ -135,5 +129,5 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     val key = Keygenerator.generateKey(request)
     Keygenerator.setKey(key)
   }
-
 }
+
