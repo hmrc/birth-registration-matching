@@ -147,7 +147,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
   private def logEvent(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier)= {
     var jsObject = JsError.toFlatJson(error)
-   
+
     var errorMessage = ((jsObject \ "obj.whereBirthRegistered") (0)) \ "msg"
     if (errorMessage.isInstanceOf[JsString]) {
       var errorMessageStr = errorMessage.as[String]
@@ -156,7 +156,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       if (messageSplit.length == 3) {
         var country = messageSplit(2)
         debug(CLASS_NAME, "logEvent()",s"Logging event for country ${country}")
-        println(messageSplit(2))
         var result: Map[String, String] = Map("match" -> "false", "country" -> country)
         val event = new OtherAuditEvent(result)
         BRMAudit.event(event)
