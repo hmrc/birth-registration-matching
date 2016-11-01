@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.brm.utils
 
-import com.kenshoo.play.metrics.Metrics
-import play.api.Play
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
@@ -29,8 +27,6 @@ import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
 trait HeaderValidator extends Results {
-
- val metrics: Metrics = Play.current.injector.instanceOf[Metrics]
 
   private val validVersions : List[String] = List("1.0")
 

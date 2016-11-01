@@ -23,19 +23,17 @@ private object AppDependencies {
   private val playJsonLoggerVersion = "3.0.0"
   private val playUrlBindersVersion = "2.0.0"
   private val playConfigVersion = "3.0.0"
-  private val domainVersion = "4.0.0"
   private val hmrcTestVersion = "2.0.0"
   private val mockito = "1.9.5"
   private val specs2 = "2.3.13"
 
   val compile = Seq(
-    ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "logback-json-logger" % playJsonLoggerVersion,
-    "uk.gov.hmrc" %% "domain" % domainVersion
+    "uk.gov.hmrc" %% "http-verbs" % "6.2.0"
   )
 
   trait TestDependencies {

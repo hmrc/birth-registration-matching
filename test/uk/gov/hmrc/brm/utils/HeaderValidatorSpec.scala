@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.brm.utils
 
+import akka.stream.Materializer
+import com.google.inject.Inject
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
@@ -31,7 +33,10 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidator with BRMFakeApplication {
+class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpec
+  with OneAppPerSuite
+  with MockitoSugar
+  with HeaderValidator {
 
   private val jsonResponse = """{"code":"145","status":"400","details":"The headers you supplied are invalid","title":"Headers invalid","about":"http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html"}"""
 
@@ -109,58 +114,48 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
     }
 
     "return response code 400 for invalid content-type in Accept header" in {
-      running(fakeApplication) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
-          .withBody(payload)
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        result.body.toString() shouldBe jsonResponse
-      }
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
+        .withBody(payload)
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe BAD_REQUEST
+      jsonBodyOf(result) shouldBe jsonResponse
     }
 
     "return response code 400 for invalid version in Accept header" in {
-      running(fakeApplication) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         result.body.toString() shouldBe jsonResponse
-      }
     }
 
     "return response code 400 for excluded Accept header" in {
-      running(fakeApplication) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders(("Audit-Source", "DFS"))
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         result.body.toString() shouldBe jsonResponse
-      }
     }
 
     "return response code 400 for excluded Audit-Source value" in {
-      running(fakeApplication) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         result.body.toString() shouldBe jsonResponse
-      }
     }
 
     "return response code 400 for excluded Audit-Source header" in {
-      running(fakeApplication) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         result.body.toString() shouldBe jsonResponse
-      }
     }
 
   }

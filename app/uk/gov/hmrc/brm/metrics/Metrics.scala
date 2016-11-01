@@ -23,7 +23,6 @@ import play.api.Logger
 import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
 trait BRMMetrics extends MicroserviceMetrics {
-
   Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
 
   val prefix : String
@@ -43,41 +42,33 @@ trait BRMMetrics extends MicroserviceMetrics {
 }
 
 object ProxyMetrics extends BRMMetrics {
-
-  Logger.debug(s"[ProxyMetrics][init]")
-
+  Logger.info(s"[ProxyMetrics][init]")
   override val prefix = "proxy"
 }
 
 object NRSMetrics extends BRMMetrics {
-
-  Logger.debug(s"[NRSMetrics][init]")
-
+  Logger.info(s"[NRSMetrics][init]")
   override val prefix = "nrs"
 }
 
 object GRONIMetrics extends BRMMetrics {
-
-  Logger.debug(s"[GRONIMetrics][init]")
-
+  Logger.info(s"[GRONIMetrics][init]")
   override val prefix = "gro-ni"
 }
 case class APIVersionMetrics(version :String) extends BRMMetrics {
-  Logger.debug(s"[APIVersionMetrics][init]")
+  Logger.info(s"[APIVersionMetrics][init]")
   override val prefix = version
   def count() = metrics.defaultRegistry.counter(s"api-version-$prefix").inc()
 }
 
 case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
-  Logger.debug(s"[AuditSourceMetrics][init]")
+  Logger.info(s"[AuditSourceMetrics][init]")
   override val prefix = auditSource.toLowerCase
   def count() = metrics.defaultRegistry.counter(s"audit-source-$prefix").inc()
 }
 
 abstract class WhereBirthRegisteredMetrics (location: String) extends BRMMetrics {
-
-  Logger.debug(s"[WhereBirthRegisteredMetrics][init]")
-
+  Logger.info(s"[WhereBirthRegisteredMetrics][init]")
   override val prefix = location
 
   def count() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
@@ -89,9 +80,7 @@ object NorthernIrelandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics
 object InvalidBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("invalid-birth-registered")
 
 object MatchMetrics extends BRMMetrics {
-
-  Logger.debug(s"[MatchMetrics][init]")
-
+  Logger.info(s"[MatchMetrics][init]")
   override val prefix = "match"
 
   def matchCount() = metrics.defaultRegistry.counter(s"$prefix-count").inc()

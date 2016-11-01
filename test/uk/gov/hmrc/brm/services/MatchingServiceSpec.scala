@@ -20,7 +20,6 @@ import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -114,60 +113,56 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   "valid payload and valid groresponse " should {
 
-    "return true result for firstName only match for partial matching" in {
-      val app = new GuiceApplicationBuilder()
+    "return true result for firstName only match for partial matching" in running(
+      GuiceApplicationBuilder(
+        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+      )
         .configure(configFirstName)
-//        .bindings(bindModules: _*).in(Mode.Test)
         .build()
-
-      running(app) {
+    ) {
         val payload = Payload(Some("123456789"), "Chris", "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
         val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
         BrmConfig.matchLastName shouldBe false
         resultMatch.isMatch shouldBe true
-      }
     }
 
-    "return true result for lastName only match for partial matching" in {
-//      val app = new GuiceApplicationBuilder()
-//        .configure(configLastName)
-//        .bindings(bindModules: _*).in(Mode.Test)
-//        .build()
-
-      running(FakeApplication(additionalConfiguration = configLastName)) {
+    "return true result for lastName only match for partial matching" in running(
+      GuiceApplicationBuilder(
+        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+      )
+        .configure(configLastName)
+        .build()
+    ) {
         val payload = Payload(Some("123456789"), "wrongFirstName", "Jones", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
         val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
         BrmConfig.matchFirstName shouldBe false
         BrmConfig.matchDateOfBirth shouldBe false
         resultMatch.isMatch shouldBe true
-      }
     }
 
-    "return true result for date of birth only match for partial matching" in {
-//      val app = new GuiceApplicationBuilder()
-//        .configure(configDob)
-//        .bindings(bindModules: _*).in(Mode.Test)
-//        .build()
-
-      running(FakeApplication(additionalConfiguration = configDob)) {
+    "return true result for date of birth only match for partial matching" in running(
+      GuiceApplicationBuilder(
+        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+      )
+        .configure(configDob)
+        .build()
+    ) {
         val payload = Payload(Some("123456789"), "wrongFirstName", "wrongLastName", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
         BrmConfig.matchFirstName shouldBe false
         resultMatch.isMatch shouldBe true
-      }
     }
 
-    "return true result for firstName and LastName only match for partial matching" in {
-//      val app = new GuiceApplicationBuilder()
-//        .configure(configFirstNameLastName)
-//        .bindings(bindModules: _*).in(Mode.Test)
-//        .build()
-
-      running(FakeApplication(additionalConfiguration = configFirstNameLastName)) {
+    "return true result for firstName and LastName only match for partial matching" in running(
+      GuiceApplicationBuilder(
+        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+      )
+        .configure(configFirstNameLastName)
+        .build()
+    ) {
         val payload = Payload(Some("123456789"), "chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
         resultMatch.isMatch shouldBe true
-      }
     }
   }
 }
