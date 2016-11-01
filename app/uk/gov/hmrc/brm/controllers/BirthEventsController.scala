@@ -21,14 +21,15 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.implicits.Implicits._
+import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
-import uk.gov.hmrc.brm.utils.BrmLogger._
+
 import scala.concurrent.Future
-import uk.gov.hmrc.brm.metrics.{BRMMetrics}
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
