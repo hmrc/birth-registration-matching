@@ -57,9 +57,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     override val matchingService = MatchingService
   }
 
-  object MockController extends BirthEventsController {
-    override val service = MockLookupService
-  }
+  val MockController = new BirthEventsController(MockLookupService)
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> true,
