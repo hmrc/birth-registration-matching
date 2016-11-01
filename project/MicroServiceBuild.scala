@@ -51,7 +51,8 @@ private object AppDependencies {
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.mockito" % "mockito-all" % mockito,
-        "org.specs2" % "specs2_2.10" % specs2
+        "org.specs2" % "specs2_2.10" % specs2,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
       )
     }.test
   }
@@ -66,7 +67,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
       )
     }.test
   }
