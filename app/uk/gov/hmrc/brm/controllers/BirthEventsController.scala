@@ -111,7 +111,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
           logEvent(error)
           info(CLASS_NAME, "post()",s" error: $error")
-          debug(CLASS_NAME, "post()",s" error: $error")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
