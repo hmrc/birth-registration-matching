@@ -45,7 +45,7 @@ class HeaderValidatorSpec extends UnitSpec with MockitoSugar with HeaderValidato
     override val matchingService = MatchingService
   }
 
-  object MockController extends BirthEventsController {
+  object MockController extends BirthEventsController with ControllerUtil {
     override val service = MockLookupService
   }
 
