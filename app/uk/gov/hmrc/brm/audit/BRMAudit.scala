@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.brm.audit
 
+import play.api.Logger
+import play.api.data.validation.ValidationError
+import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.AuditExtensions._
 
 import scala.concurrent.Future
 
@@ -59,6 +63,31 @@ trait BRMAudit {
         BrmLogger.warn(s"BRMAudit", s"event: ${event.auditType}", s"event failed to audit $msg")
         e
     }
+  }
+
+  def auditWhereBirthRegistered(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) = {
+    def logEvent(key: String, error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier)= {
+      val validationError = error.filter(_._1.toString().contains(key))
+      val errors = validationError.map(x => {
+        x._2.headOption.map(_.message)
+      })
+
+      errors match {
+        case head :: tail =>
+          val message = head.getOrElse("")
+          val index = message.lastIndexOf(":") + 1
+          val input = message.slice(index, message.length)
+          Logger.debug(s"\n\n validation error: $errors input: $input \n\n")
+
+          debug("BRMAudit", "logEvent()", s"Logging event for country $input")
+          val result: Map[String, String] = Map("match" -> "false", "country" -> input)
+          val audit = new OtherAuditEvent(result)
+          event(audit)
+        case Nil =>
+      }
+    }
+
+    logEvent("whereBirthRegistered", error)
   }
 
 }

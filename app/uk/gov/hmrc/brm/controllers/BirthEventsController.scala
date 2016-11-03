@@ -17,19 +17,18 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
-import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.brm.audit.{BRMAudit, NorthernIrelandAuditEvent, OtherAuditEvent}
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.metrics.Metrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, Keygenerator}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.microservice.controller
-import uk.gov.hmrc.brm.utils.BrmLogger._
 
 import scala.concurrent.Future
 
@@ -49,7 +48,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     response
       .as("application/json; charset=utf-8")
       .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
-      
   }
 
   private def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
@@ -100,16 +98,12 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
     }
   }
 
-
-
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
       generateAndSetKey(request)
-
       request.body.validate[Payload].fold(
         error => {
-
-          logEvent(error)
+          BRMAudit.auditWhereBirthRegistered(error)
           info(CLASS_NAME, "post()",s" error: $error")
           Future.successful(respond(BadRequest("")))
         },
@@ -131,7 +125,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
                 respond(Ok(Json.toJson(bm)))
               }
             } recover handleException("getReference")
-
           }
         }
 
@@ -142,24 +135,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
   private def generateAndSetKey(request: Request[JsValue]): Unit = {
     val key = Keygenerator.generateKey(request)
     Keygenerator.setKey(key)
-  }
-
-  private def logEvent(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier)= {
-    var jsObject = JsError.toFlatJson(error)
-
-    var errorMessage = ((jsObject \ "obj.whereBirthRegistered") (0)) \ "msg"
-    if (errorMessage.isInstanceOf[JsString]) {
-      var errorMessageStr = errorMessage.as[String]
-      var messageSplit: Array[String] = errorMessageStr.split(":")
-
-      if (messageSplit.length == 3) {
-        var country = messageSplit(2)
-        debug(CLASS_NAME, "logEvent()",s"Logging event for country ${country}")
-        var result: Map[String, String] = Map("match" -> "false", "country" -> country)
-        val event = new OtherAuditEvent(result)
-        BRMAudit.event(event)
-      }
-    }
   }
 
 }

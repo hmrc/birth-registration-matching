@@ -75,7 +75,7 @@ object NirsConnector extends BirthConnector {
 
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NirsConnector", "getReference", s"$reference")
-    var result : Map[String, String] = Map("match" -> "false")
+    val result : Map[String, String] = Map("match" -> "false")
     val event = new NorthernIrelandAuditEvent(result)
     BRMAudit.event(event)
 
@@ -92,7 +92,7 @@ object NrsConnector extends BirthConnector {
   override def getReference(reference: String)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NRSConnector", "getReference", s"$reference")
 
-    var result : Map[String, String] = Map("match" -> "false")
+    val result : Map[String, String] = Map("match" -> "false")
     val event = new ScotlandAuditEvent(result)
     BRMAudit.event(event)
 
