@@ -47,8 +47,13 @@ object Keygenerator {
     keyForRequest
   }
 
-  def setKey(key: String): Unit = {
+   def setKey(key: String): Unit = {
     keyForRequest = key
+  }
+
+  def generateAndSetKey(request: Request[JsValue]): Unit = {
+    val key = generateKey(request)
+    setKey(key)
   }
 
 

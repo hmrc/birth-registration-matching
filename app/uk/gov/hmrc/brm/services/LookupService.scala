@@ -94,7 +94,7 @@ trait LookupService extends LookupServiceBinder {
                 BirthResponseBuilder.withNoMatch()
               },
               success => {
-                logEvent(hc)
+                BRMAudit.logEventRecordFound(hc)
                 val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
                 info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
@@ -114,9 +114,5 @@ trait LookupService extends LookupServiceBinder {
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 
-  private def logEvent(implicit hc: HeaderCarrier) = {
-    val result : Map[String, String] = Map("recordFound" -> "true")
-    val event = new EventRecordFound(result)(hc)
-    BRMAudit.event(event)
-  }
+
 }

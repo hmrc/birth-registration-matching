@@ -91,6 +91,12 @@ trait BRMAudit {
     logEvent(Payload.whereBirthRegistered, error)
   }
 
+  def logEventRecordFound(implicit hc: HeaderCarrier) = {
+    val result : Map[String, String] = Map("recordFound" -> "true")
+    val recordEvent = new EventRecordFound(result)(hc)
+    event(recordEvent)
+  }
+
 }
 
 object BRMAudit extends BRMAudit {
