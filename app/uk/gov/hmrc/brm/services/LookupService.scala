@@ -115,7 +115,7 @@ trait LookupService extends LookupServiceBinder {
   }
 
   private def logEvent(implicit hc: HeaderCarrier) = {
-    var result : Map[String, String] = Map("recordFound" -> "true")
+    val result : Map[String, String] = Map("recordFound" -> "true")
     val event = new EventRecordFound(result)(hc)
     BRMAudit.event(event)
   }
