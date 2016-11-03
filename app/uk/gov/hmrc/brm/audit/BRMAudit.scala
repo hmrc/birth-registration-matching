@@ -76,14 +76,17 @@ trait BRMAudit {
       errors match {
         case head :: tail =>
           val message = head.getOrElse("")
-          val index = message.lastIndexOf(":") + 1
-          val input = message.slice(index, message.length)
-          Logger.debug(s"\n\n validation error: $errors input: $input \n\n")
+          if(message.contains("value:")){
+              val index = message.lastIndexOf(":") + 1
+              val input = message.slice(index, message.length)
+              Logger.debug(s"\n\n error : $error\n\n")
+              Logger.debug(s"\n\n validation error: $errors input: $input \n\n")
 
-          debug("BRMAudit", "logEvent()", s"Logging event for country $input")
-          val result: Map[String, String] = Map("match" -> "false", "country" -> input)
-          val audit = new OtherAuditEvent(result)
-          event(audit)
+              debug("BRMAudit", "logEvent()", s"Logging event for country $input")
+              val result: Map[String, String] = Map("match" -> "false", "country" -> input)
+              val audit = new OtherAuditEvent(result)
+              event(audit)
+          }
         case Nil =>
       }
     }
