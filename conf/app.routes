@@ -1,3 +1,3 @@
 # microservice specific routes
 
-POST        /match                  @uk.gov.hmrc.brm.controllers.BirthEventsController.post
+POST        /match                  uk.gov.hmrc.brm.controllers.BirthEventsController.post

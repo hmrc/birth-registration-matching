@@ -92,7 +92,9 @@ class BirthEventsControllerSpec
     override val matchingService = MatchingService
   }
 
-  val MockController = new BirthEventsController(MockLookupService)
+  object MockController extends BirthEventsController {
+    override val service = MockLookupService
+  }
 
   def httpResponse(js: JsValue) = HttpResponse.apply(200, Some(js))
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
@@ -102,7 +104,7 @@ class BirthEventsControllerSpec
     "initialising" should {
 
       "wire up dependencies correctly" in {
-        new BirthEventsController(LookupService).service shouldBe a[LookupService]
+        BirthEventsController.service shouldBe a[LookupService]
       }
 
     }

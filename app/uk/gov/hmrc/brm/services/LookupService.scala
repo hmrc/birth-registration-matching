@@ -53,10 +53,10 @@ trait LookupServiceBinder {
 
 trait LookupService extends LookupServiceBinder {
 
-  val groConnector: BirthConnector
-  val nirsConnector: BirthConnector
-  val nrsConnector: BirthConnector
-  val matchingService: MatchingService
+  protected val groConnector: BirthConnector
+  protected val nirsConnector: BirthConnector
+  protected val nrsConnector: BirthConnector
+  protected val matchingService: MatchingService
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   /**
