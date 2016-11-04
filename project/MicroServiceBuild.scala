@@ -32,8 +32,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
-    "uk.gov.hmrc" %% "http-verbs" % "6.2.0"
+    "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion
   )
 
   trait TestDependencies {
