@@ -73,9 +73,7 @@ trait HeaderValidator extends Results {
 
       if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
         block(request)
-      }
-      else
-      {
+      } else {
         val errorCode = 145
         Future.successful(BadRequest(ErrorResponse.getErrorResponseByErrorCode(errorCode)))
       }

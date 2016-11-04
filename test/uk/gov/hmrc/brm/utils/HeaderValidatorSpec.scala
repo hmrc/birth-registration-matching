@@ -128,7 +128,7 @@ class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpe
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        result.body.toString() shouldBe jsonResponse
+        jsonBodyOf(result) shouldBe jsonResponse
     }
 
     "return response code 400 for excluded Accept header" in {
@@ -137,7 +137,7 @@ class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpe
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        result.body.toString() shouldBe jsonResponse
+        jsonBodyOf(result) shouldBe jsonResponse
     }
 
     "return response code 400 for excluded Audit-Source value" in {
@@ -146,7 +146,7 @@ class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpe
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        result.body.toString() shouldBe jsonResponse
+        jsonBodyOf(result) shouldBe jsonResponse
     }
 
     "return response code 400 for excluded Audit-Source header" in {
@@ -155,7 +155,7 @@ class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpe
           .withBody(payload)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
-        result.body.toString() shouldBe jsonResponse
+        jsonBodyOf(result) shouldBe jsonResponse
     }
 
   }
