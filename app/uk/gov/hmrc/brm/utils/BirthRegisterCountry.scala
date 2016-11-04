@@ -48,7 +48,7 @@ object BirthRegisterCountry extends Enumeration {
           } catch {
             case _: NoSuchElementException =>
               InvalidBirthRegisteredMetrics.count()
-              JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value: '$s'")
+              JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value:$s")
           }
         }
         case _ => JsError("String value expected")

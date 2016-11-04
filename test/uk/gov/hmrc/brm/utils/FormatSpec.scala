@@ -17,7 +17,6 @@
 package uk.gov.hmrc.brm.utils
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.utility._
 
 class FormatSpec extends UnitSpec {
 

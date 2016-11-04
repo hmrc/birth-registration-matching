@@ -26,9 +26,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
-import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.brm.utils.{ControllerUtil, JsonUtils}
+import uk.gov.hmrc.play.http.{BadRequestException, HttpResponse, NotFoundException, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -92,7 +92,7 @@ class BirthEventsControllerSpec
     override val matchingService = MatchingService
   }
 
-  object MockController extends BirthEventsController {
+  object MockController extends BirthEventsController with ControllerUtil {
     override val service = MockLookupService
   }
 

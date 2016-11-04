@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.utility
-
-import play.api.Logger
+package uk.gov.hmrc.brm.utils
 
 object Trim {
   def apply(v: String): String = {
