@@ -35,7 +35,6 @@ object JsonUtils {
 
     resourceAsString(path) match {
       case Some(x) =>
-        Logger.debug(s"source: $x")
         val json : JsValue = Json.parse(x)
         json
       case _ =>
