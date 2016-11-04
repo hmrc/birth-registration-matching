@@ -15,7 +15,6 @@ object MicroServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-  import play.sbt.PlayImport._
   import play.core.PlayVersion
 
   private val microserviceBootstrapVersion = "5.5.0"
@@ -26,7 +25,7 @@ private object AppDependencies {
   private val hmrcTestVersion = "2.0.0"
   private val mockito = "1.9.5"
   private val specs2 = "2.3.13"
-  private val playFilter = "4.8.0"
+  private val playFilter = "5.4.0"
 
   val compile = Seq(
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
