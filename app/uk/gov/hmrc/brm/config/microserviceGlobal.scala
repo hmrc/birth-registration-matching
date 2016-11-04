@@ -49,12 +49,10 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode with Mi
 
   override val microserviceAuditFilter = MicroserviceAuditFilter
 
-  private lazy val headersFilter = HeadersFilter
-
   override val authFilter = None
 
-  override lazy val microserviceFilters: Seq[EssentialFilter] = {
-    defaultMicroserviceFilters ++ Seq(headersFilter)
+  override def microserviceFilters: Seq[EssentialFilter] = {
+    defaultMicroserviceFilters ++ Seq(HeadersFilter)
   }
 
 }
