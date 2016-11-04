@@ -21,12 +21,12 @@ import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConn
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
-import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.brm.utils.BrmLogger._
 
 object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
