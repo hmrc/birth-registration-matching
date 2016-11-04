@@ -49,7 +49,9 @@ class HeaderValidatorSpec @Inject()(implicit mat : Materializer) extends UnitSpe
     override val matchingService = MatchingService
   }
 
-  val MockController = new BirthEventsController(MockLookupService)
+  object MockController extends BirthEventsController {
+    override val service = MockLookupService
+  }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
 
