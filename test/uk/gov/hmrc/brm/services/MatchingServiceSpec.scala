@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import org.joda.time.LocalDate
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -28,7 +29,8 @@ import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
-class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
+
+class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
 
   val configFirstName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
@@ -53,6 +55,55 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
+
+  implicit val hc = HeaderCarrier()
+
+  val firstNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstName).build()
+  val lastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configLastName).build()
+  val dobApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configDob).build()
+  val firstNameLastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstNameLastName).build()
+
+  "valid payload and valid groresponse " should {
+
+    "return true result for firstName only match for partial matching" in running(
+      firstNameApp
+    ) {
+      val payload = Payload(Some("123456789"), "Chris", "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      BrmConfig.matchLastName shouldBe false
+      resultMatch.isMatch shouldBe true
+    }
+
+    "return true result for lastName only match for partial matching" in running(
+      lastNameApp
+    ) {
+      val payload = Payload(Some("123456789"), "wrongFirstName", "Jones", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      BrmConfig.matchFirstName shouldBe false
+      BrmConfig.matchDateOfBirth shouldBe false
+      resultMatch.isMatch shouldBe true
+    }
+
+    "return true result for date of birth only match for partial matching" in running(
+      dobApp
+    ) {
+      val payload = Payload(Some("123456789"), "wrongFirstName", "wrongLastName", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      BrmConfig.matchFirstName shouldBe false
+      resultMatch.isMatch shouldBe true
+    }
+
+    "return true result for firstName and LastName only match for partial matching" in running(
+      firstNameLastNameApp
+    ) {
+      val payload = Payload(Some("123456789"), "chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      resultMatch.isMatch shouldBe true
+    }
+  }
+}
+
+class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
   implicit val hc = HeaderCarrier()
 
@@ -111,58 +162,4 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
     }
   }
 
-  "valid payload and valid groresponse " should {
-
-    "return true result for firstName only match for partial matching" in running(
-      GuiceApplicationBuilder(
-        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-      )
-        .configure(configFirstName)
-        .build()
-    ) {
-        val payload = Payload(Some("123456789"), "Chris", "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
-        BrmConfig.matchLastName shouldBe false
-        resultMatch.isMatch shouldBe true
-    }
-
-    "return true result for lastName only match for partial matching" in running(
-      GuiceApplicationBuilder(
-        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-      )
-        .configure(configLastName)
-        .build()
-    ) {
-        val payload = Payload(Some("123456789"), "wrongFirstName", "Jones", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
-        BrmConfig.matchFirstName shouldBe false
-        BrmConfig.matchDateOfBirth shouldBe false
-        resultMatch.isMatch shouldBe true
-    }
-
-    "return true result for date of birth only match for partial matching" in running(
-      GuiceApplicationBuilder(
-        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-      )
-        .configure(configDob)
-        .build()
-    ) {
-        val payload = Payload(Some("123456789"), "wrongFirstName", "wrongLastName", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
-        BrmConfig.matchFirstName shouldBe false
-        resultMatch.isMatch shouldBe true
-    }
-
-    "return true result for firstName and LastName only match for partial matching" in running(
-      GuiceApplicationBuilder(
-        disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-      )
-        .configure(configFirstNameLastName)
-        .build()
-    ) {
-        val payload = Payload(Some("123456789"), "chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
-        resultMatch.isMatch shouldBe true
-    }
-  }
 }
