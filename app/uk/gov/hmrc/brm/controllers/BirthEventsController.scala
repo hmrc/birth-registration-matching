@@ -19,10 +19,11 @@ package uk.gov.hmrc.brm.controllers
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits._
-import uk.gov.hmrc.brm.metrics.Metrics
+import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._
 import uk.gov.hmrc.brm.utils._
@@ -42,8 +43,6 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
   protected val service: LookupService
 
-
-
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
       generateAndSetKey(request)
@@ -55,7 +54,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
         },
         payload => {
           implicit val p : Payload = payload
-          implicit val metrics : Metrics = getMetrics()
+          implicit val metrics : BRMMetrics = getMetrics()
 
           if (!validateDob(p.dateOfBirth)) {
             // date of birth is before acceptable date

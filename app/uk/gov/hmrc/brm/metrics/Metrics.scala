@@ -18,20 +18,20 @@ package uk.gov.hmrc.brm.metrics
 
 import java.util.concurrent.TimeUnit
 
-import com.kenshoo.play.metrics.MetricsRegistry
 import play.api.Logger
 
-trait Metrics {
+import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
+trait BRMMetrics extends MicroserviceMetrics {
   Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
 
   val prefix : String
 
   def time(diff: Long, unit: TimeUnit) =
-    MetricsRegistry.defaultRegistry.timer(s"$prefix-timer").update(diff, unit)
+    metrics.defaultRegistry.timer(s"$prefix-timer").update(diff, unit)
 
   def connectorStatus(code: Int) : Unit =
-    MetricsRegistry.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
+    metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
 
   def startTimer() : Long = System.currentTimeMillis()
 
@@ -39,49 +39,39 @@ trait Metrics {
     val end = System.currentTimeMillis() - start
     time(end, TimeUnit.MILLISECONDS)
   }
-
 }
 
-object ProxyMetrics extends Metrics {
-
-  Logger.debug(s"[ProxyMetrics][init]")
-
+object ProxyMetrics extends BRMMetrics {
+  Logger.info(s"[ProxyMetrics][init]")
   override val prefix = "proxy"
 }
 
-object NRSMetrics extends Metrics {
-
-  Logger.debug(s"[NRSMetrics][init]")
-
+object NRSMetrics extends BRMMetrics {
+  Logger.info(s"[NRSMetrics][init]")
   override val prefix = "nrs"
 }
 
-object GRONIMetrics extends Metrics {
-
-  Logger.debug(s"[GRONIMetrics][init]")
-
+object GRONIMetrics extends BRMMetrics {
+  Logger.info(s"[GRONIMetrics][init]")
   override val prefix = "gro-ni"
 }
-case class APIVersionMetrics(version :String) extends Metrics{
-  Logger.debug(s"[APIVersionMetrics][init]")
+case class APIVersionMetrics(version :String) extends BRMMetrics {
+  Logger.info(s"[APIVersionMetrics][init]")
   override val prefix = version
-  def count() = MetricsRegistry.defaultRegistry.counter(s"api-version-$prefix").inc()
+  def count() = metrics.defaultRegistry.counter(s"api-version-$prefix").inc()
 }
 
-case class AuditSourceMetrics(auditSource :String) extends Metrics{
-  Logger.debug(s"[AuditSourceMetrics][init]")
+case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
+  Logger.info(s"[AuditSourceMetrics][init]")
   override val prefix = auditSource.toLowerCase
-  def count() = MetricsRegistry.defaultRegistry.counter(s"audit-source-$prefix").inc()
+  def count() = metrics.defaultRegistry.counter(s"audit-source-$prefix").inc()
 }
 
-
-abstract class WhereBirthRegisteredMetrics(location: String) extends Metrics {
-
-  Logger.debug(s"[WhereBirthRegisteredMetrics][init]")
-
+abstract class WhereBirthRegisteredMetrics (location: String) extends BRMMetrics {
+  Logger.info(s"[WhereBirthRegisteredMetrics][init]")
   override val prefix = location
 
-  def count() = MetricsRegistry.defaultRegistry.counter(s"$prefix-count").inc()
+  def count() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
 }
 
 object EnglandAndWalesBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("england-and-wales")
@@ -89,13 +79,10 @@ object ScotlandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("scotl
 object NorthernIrelandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("northern-ireland")
 object InvalidBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("invalid-birth-registered")
 
-object MatchMetrics extends Metrics {
-
-  Logger.debug(s"[MatchMetrics][init]")
-
+object MatchMetrics extends BRMMetrics {
+  Logger.info(s"[MatchMetrics][init]")
   override val prefix = "match"
 
-  def matchCount() = MetricsRegistry.defaultRegistry.counter(s"$prefix-count").inc()
-  def noMatchCount() = MetricsRegistry.defaultRegistry.counter(s"no-$prefix-count").inc()
-
+  def matchCount() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
+  def noMatchCount() = metrics.defaultRegistry.counter(s"no-$prefix-count").inc()
 }

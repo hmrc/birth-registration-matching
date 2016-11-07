@@ -67,7 +67,7 @@ trait LookupService extends LookupServiceBinder {
     * @param hc
     * @return
     */
-  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: Metrics) = {
+  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
     //check if birthReferenceNumber has value
     payload.birthReferenceNumber.fold {
       info(CLASS_NAME, "lookup()", s"reference number not provided - matched: false")

@@ -23,7 +23,7 @@ import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.metrics.Metrics
+import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -43,7 +43,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     override val matchingService = MatchingService
   }
 
-  implicit val metrics = mock[Metrics]
+  implicit val metrics = mock[BRMMetrics]
 
   implicit val hc = HeaderCarrier()
 

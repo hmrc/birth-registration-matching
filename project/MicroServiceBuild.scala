@@ -15,27 +15,24 @@ object MicroServiceBuild extends Build with MicroService {
 }
 
 private object AppDependencies {
-  import play.PlayImport._
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "4.4.0"
-  private val playHealthVersion = "1.1.0"
-  private val playJsonLoggerVersion = "2.1.1"
-  private val playUrlBindersVersion = "1.1.0"
-  private val playConfigVersion = "2.1.0"
-  private val domainVersion = "3.7.0"
-  private val hmrcTestVersion = "1.9.0"
+  private val microserviceBootstrapVersion = "5.5.0"
+  private val playHealthVersion = "2.0.0"
+  private val playJsonLoggerVersion = "3.0.0"
+  private val playUrlBindersVersion = "2.0.0"
+  private val playConfigVersion = "3.0.0"
+  private val hmrcTestVersion = "2.0.0"
   private val mockito = "1.9.5"
-  private val playFilter = "4.8.0"
+  private val specs2 = "2.3.13"
+  private val playFilter = "5.4.0"
 
   val compile = Seq(
-    ws,
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
-    "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "play-filters" % playFilter
   )
 
@@ -51,7 +48,9 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "org.specs2" % "specs2_2.10" % specs2,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
       )
     }.test
   }
@@ -66,7 +65,8 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito
+        "org.mockito" % "mockito-all" % mockito,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
       )
     }.test
   }

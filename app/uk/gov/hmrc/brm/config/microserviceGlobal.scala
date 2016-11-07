@@ -22,25 +22,25 @@ import play.api.mvc.EssentialFilter
 import play.api.{Application, Configuration, Play}
 import uk.gov.hmrc.play.audit.filters.AuditFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
+import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
 import uk.gov.hmrc.play.filters.frontend.HeadersFilter
 import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
-import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
-
+import uk.gov.hmrc.play.microservice.bootstrap.{DefaultMicroserviceGlobal, MicroserviceFilters}
 
 object ControllerConfiguration extends ControllerConfig {
   lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
 }
 
-object MicroserviceAuditFilter extends AuditFilter with AppName {
+object MicroserviceAuditFilter extends AuditFilter with AppName with MicroserviceFilterSupport  {
   override val auditConnector = MicroserviceAuditConnector
   override def controllerNeedsAuditing(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsAuditing
 }
 
-object MicroserviceLoggingFilter extends LoggingFilter {
+object MicroserviceLoggingFilter extends LoggingFilter with MicroserviceFilterSupport {
   override def controllerNeedsLogging(controllerName: String) = ControllerConfiguration.paramsForController(controllerName).needsLogging
 }
 
-object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode {
+object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode with MicroserviceFilters {
   override val auditConnector = MicroserviceAuditConnector
 
   override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"microservice.metrics")
@@ -49,11 +49,10 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode {
 
   override val microserviceAuditFilter = MicroserviceAuditFilter
 
-
   override val authFilter = None
 
-  override val microserviceFilters: Seq[EssentialFilter] = defaultMicroserviceFilters ++ Some(HeadersFilter)
-
-
+  override def microserviceFilters: Seq[EssentialFilter] = {
+    defaultMicroserviceFilters ++ Seq(HeadersFilter)
+  }
 
 }

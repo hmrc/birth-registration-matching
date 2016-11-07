@@ -30,7 +30,6 @@ class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with 
 
   before {
     reset(mockLogger)
-
   }
 
   "BrmLogger" should {
