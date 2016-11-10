@@ -63,49 +63,60 @@ trait LookupService extends LookupServiceBinder {
   /**
     * connects to groconnector and return match if match input details.
     *
-    * @param payload
     * @param hc
+    * @param payload
+    * @param metrics
     * @return
     */
   def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
-    //check if birthReferenceNumber has value
-    payload.birthReferenceNumber.fold {
-      info(CLASS_NAME, "lookup()", s"reference number not provided - matched: false")
-      Future.successful(BirthResponseBuilder.withNoMatch())
-    }(
-      reference => {
-        /**
-          * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
-          */
-        val start = metrics.startTimer()
+    getRecord(hc, payload, metrics).map {
+      response =>
 
-        getConnector.getReference(reference) map {
-          response =>
-            metrics.endTimer(start)
+        info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
+        debug(CLASS_NAME, "lookup()", s"[response] $response")
+        debug(CLASS_NAME, "lookup()", s"[payload] $payload")
 
-            info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-            debug(CLASS_NAME, "lookup()", s"[response] $response")
-            debug(CLASS_NAME, "lookup()", s"[payload] $payload")
+        response.json.validate[GroResponse].fold(
+          error => {
+            warn(CLASS_NAME, "lookup()", s"failed to validate json")
+            warn(CLASS_NAME, "lookup()", s"returned matched: false")
+            BirthResponseBuilder.withNoMatch()
+          },
+          success => {
+            BRMAudit.logEventRecordFound(hc)
+            val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
+            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
-            response.json.validate[GroResponse].fold(
-              error => {
-                warn(CLASS_NAME, "lookup()", s"failed to validate json")
-                warn(CLASS_NAME, "lookup()", s"returned matched: false")
-                BirthResponseBuilder.withNoMatch()
-              },
-              success => {
-                BRMAudit.logEventRecordFound(hc)
-                val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
-                info(CLASS_NAME, "lookup()", s"matched: $isMatch")
+            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
 
-                if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
+            BirthResponseBuilder.getResponse(isMatch)
+          }
+        )
+    }
+  }
 
-                BirthResponseBuilder.getResponse(isMatch)
-              }
-            )
-        }
-      }
-    )
+  private def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
+    val allPartials = Seq(noReferenceNumberPF, referenceNumberIncludedPF).reduce(_ orElse _)
+    val start = metrics.startTimer()
+    val httpResponse = allPartials.apply(payload)
+    metrics.endTimer(start)
+    httpResponse
+  }
+
+  private def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+    case payload@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
+      info(CLASS_NAME, "lookup()", s"reference number not provided, search by details")
+      getConnector()(payload).getChildDetails(payload)
+    }
+  }
+
+  private def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+    case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
+      /**
+        * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
+        */
+      getConnector()(payload).getReference(payload)
+    }
   }
 
   def getMatchingType : MatchingType.Value = {
@@ -113,6 +124,5 @@ trait LookupService extends LookupServiceBinder {
     info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
-
 
 }
