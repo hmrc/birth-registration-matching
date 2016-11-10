@@ -21,7 +21,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
@@ -109,9 +109,21 @@ class BirthEventsControllerSpec
 
     }
 
-    "POST /birth-registration-matching-proxy/match" should {
+    "POST /birth-registration-matching-proxy/match NOT INCLUDING reference number" should {
+      "return JSON response of false on unsuccessful child detail match" in {
+        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+        val request = postRequest(userNoMatchExcludingReferenceKey)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+    }
 
-      "return JSON response of false on unsuccessful detail match" in {
+    "POST /birth-registration-matching-proxy/match INCLUDING reference number" should {
+
+      "return JSON response of false on unsuccessful reference match" in {
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = MockController.post().apply(request)
@@ -121,7 +133,7 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
-      "return 200 JSON response of true on successful detail match with country in mix case" in {
+      "return 200 JSON response of true on successful reference match with country in mix case" in {
         when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
         val request = postRequest(userMatchCountryNameInMixCase)
         val result = MockController.post().apply(request)
