@@ -39,6 +39,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
 
+  override val METHOD_NAME: String = "BirthEventsController::post"
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service: LookupService
@@ -72,8 +74,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
             } recover handleException("getReference")
           }
         }
-
       )
+
   }
 
 }
