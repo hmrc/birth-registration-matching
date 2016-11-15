@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response.gro
+package uk.gov.hmrc.brm.models.response
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 
-case class GroResponse(
-                        child: Child,
-                        status: Option[Status] = None
-                      )
+case class Record(child: Child, status: Option[Status] = None)
 
-object GroResponse {
+object Record {
 
-  implicit val implicitReads: Reads[GroResponse] = (
+  implicit val implicitReads: Reads[Record] = (
     JsPath.read[Child] and
       (JsPath \ "status").readNullable[Status]
-    )(GroResponse.apply _)
+    )(Record.apply _)
 }
+
+//abstract class Record[C, S](child : C, status: Option[S])
+//
+//case class Response[C, S](
+//                   records : List[Record[C, S]]
+//                   )
+
+// json.validate[Response[Record]

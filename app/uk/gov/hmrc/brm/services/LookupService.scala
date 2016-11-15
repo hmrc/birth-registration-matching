@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
@@ -76,17 +77,30 @@ trait LookupService extends LookupServiceBinder {
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
         debug(CLASS_NAME, "lookup()", s"[response] ${response.json}")
         debug(CLASS_NAME, "lookup()", s"[payload] $payload")
+
+        /**
+          * Should be:
+          * response.validate[T]
+          * response.validate[List[Record]] so this is going to be a List[Record]
+          * then in matching service this takes in Payload and List[Record] and @tailrec these records to match
+          *
+          * Future:
+          * Later on we can make it validate[List[Record[C, S]] where C is the Child Type and S is the Status Type
+          * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
+          */
+
         //TODO
-        val firstRecord  = response.json
+//        val firstRecord  = response.json
        /* val firstRecord  = response.json.asInstanceOf[JsArray].value.head
         debug(CLASS_NAME, "lookup()", s"[firstRecord] $firstRecord")*/
-        firstRecord.validate[GroResponse].fold(
+        response.json.validate[List[Record]].fold(
           error => {
-            warn(CLASS_NAME, "lookup()", s"failed to validate json")
-            warn(CLASS_NAME, "lookup()", s"returned matched: false")
+            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
+            debug(CLASS_NAME, "lookup()", s"errors: $error")
             BirthResponseBuilder.withNoMatch()
           },
           success => {
+            debug(CLASS_NAME, "lookup()", s"records: $success")
             BRMAudit.logEventRecordFound(hc)
             val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
             info(CLASS_NAME, "lookup()", s"matched: $isMatch")
