@@ -18,8 +18,8 @@ package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value)(implicit hc: HeaderCarrier) : ResultMatch = {
+  def performMatch(input: Payload, response: Record, matchingType: MatchingType.Value)(implicit hc: HeaderCarrier) : ResultMatch = {
     info(CLASS_NAME, "MatchingType", s"$matchingType")
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching

@@ -63,13 +63,13 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
   val dobApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configDob).build()
   val firstNameLastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstNameLastName).build()
 
-  "valid payload and valid groresponse " should {
+  "valid payload and valid Record " should {
 
     "return true result for firstName only match for partial matching" in running(
       firstNameApp
     ) {
       val payload = Payload(Some("123456789"), "Chris", "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.PARTIAL)
       BrmConfig.matchLastName shouldBe false
       resultMatch.isMatch shouldBe true
     }
@@ -78,7 +78,7 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
       lastNameApp
     ) {
       val payload = Payload(Some("123456789"), "wrongFirstName", "Jones", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.PARTIAL)
       BrmConfig.matchFirstName shouldBe false
       BrmConfig.matchDateOfBirth shouldBe false
       resultMatch.isMatch shouldBe true
@@ -88,7 +88,7 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
       dobApp
     ) {
       val payload = Payload(Some("123456789"), "wrongFirstName", "wrongLastName", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.PARTIAL)
       BrmConfig.matchFirstName shouldBe false
       resultMatch.isMatch shouldBe true
     }
@@ -97,7 +97,7 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
       firstNameLastNameApp
     ) {
       val payload = Payload(Some("123456789"), "chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.PARTIAL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.PARTIAL)
       resultMatch.isMatch shouldBe true
     }
   }
@@ -107,57 +107,57 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   implicit val hc = HeaderCarrier()
 
-  "valid request payload and valid groresponse " should {
+  "valid request payload and valid Record " should {
 
     "return true result match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
 
     "return true when case is different for firstname, lastname" in {
       val payload = Payload(Some("123456789"), "chRis", "joNes", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
 
 
     "return true when case is different for firstName only" in {
       val payload = Payload(Some("123456789"), "chRis", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
 
     "return true when case is different for lastName only" in {
       val payload = Payload(Some("123456789"), "Chris", "joNES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, validGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, validRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe true
     }
   }
 
-  "valid request payload and invalid groresponse " should {
+  "valid request payload and invalid Record " should {
 
     "return false result match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, invalidGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, invalidRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
     "return false when firstName not match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, firstNameNotMatchedGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, firstNameNotMatchedRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
     "return false when lastName not match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, lastNameNotMatchGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, lastNameNotMatchRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
     "return false when dob not match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-      val resultMatch = MatchingService.performMatch(payload, dobNotMatchGroResponse, MatchingType.FULL)
+      val resultMatch = MatchingService.performMatch(payload, dobNotMatchRecord, MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
   }

@@ -19,12 +19,12 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.response.Record
 
 trait MatchingAlgorithm {
 
-  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch
+  def performMatch(payload: Payload, responsePayload: Record): ResultMatch
 
   protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
     matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _  )
@@ -49,7 +49,7 @@ trait MatchingAlgorithm {
 
 
 object FullMatching extends MatchingAlgorithm {
-  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch = {
+  def performMatch(payload: Payload, responsePayload: Record): ResultMatch = {
     val firstNames = firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))
     val lastNames = lastNameMatch(Some(payload.lastName), Some(responsePayload.child.lastName))
     val dates = dobMatch(Some(payload.dateOfBirth), responsePayload.child.dateOfBirth)
@@ -60,7 +60,7 @@ object FullMatching extends MatchingAlgorithm {
 }
 
 object PartialMatching extends MatchingAlgorithm {
-  def performMatch(payload: Payload, responsePayload: GroResponse): ResultMatch = {
+  def performMatch(payload: Payload, responsePayload: Record): ResultMatch = {
 
     val firstNames = if (BrmConfig.matchFirstName) {
       firstNamesMatch(Some(payload.firstName), Some(responsePayload.child.firstName))

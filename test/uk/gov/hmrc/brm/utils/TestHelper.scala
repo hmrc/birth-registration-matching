@@ -18,7 +18,8 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.LocalDate
 import play.api.libs.json.Json
-import uk.gov.hmrc.brm.models.response.gro.{Child, GroResponse}
+import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.models.response.gro.Child
 
 object TestHelper {
 
@@ -64,35 +65,35 @@ object TestHelper {
       |  }
     """.stripMargin)
 
-  def validGroResponse: GroResponse ={
+  def validRecord: Record ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(123456789, "Chris", "Jones",Some(birthDate))
-    GroResponse(child, None)
+    Record(child, None)
   }
 
 
-  def invalidGroResponse: GroResponse ={
+  def invalidRecord: Record ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(1, "invalidfirstName", "invalidLastName",None)
-    GroResponse(child, None)
+    Record(child, None)
   }
 
-  def firstNameNotMatchedGroResponse: GroResponse ={
+  def firstNameNotMatchedRecord: Record ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(123456789, "Manish", "Jones",Some(birthDate))
-    GroResponse(child, None)
+    Record(child, None)
   }
 
-  def lastNameNotMatchGroResponse: GroResponse ={
+  def lastNameNotMatchRecord: Record ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(123456789, "Chris", "lastName",Some(birthDate))
-    GroResponse(child, None)
+    Record(child, None)
   }
 
-  def dobNotMatchGroResponse: GroResponse ={
+  def dobNotMatchRecord: Record ={
     var birthDate = new LocalDate("2012-02-16")
     val  child =  Child(123456789, "Chris", "Jones",None)
-    GroResponse(child, None)
+    Record(child, None)
   }
 
 

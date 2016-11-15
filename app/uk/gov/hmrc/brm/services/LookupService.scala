@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.libs.json.JsArray
-import uk.gov.hmrc.brm.audit.{BRMAudit, EventRecordFound, OtherAuditEvent}
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.models.response.gro.GroResponse
+import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.brm.utils.BrmLogger._
 
 object LookupService extends LookupService {
   override val groConnector = GROEnglandConnector
@@ -100,9 +98,11 @@ trait LookupService extends LookupServiceBinder {
             BirthResponseBuilder.withNoMatch()
           },
           success => {
+
             debug(CLASS_NAME, "lookup()", s"records: $success")
             BRMAudit.logEventRecordFound(hc)
-            val isMatch = matchingService.performMatch(payload, success, getMatchingType).isMatch
+            //TODO
+            val isMatch = matchingService.performMatch(payload, success.head, getMatchingType).isMatch
             info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
             if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
