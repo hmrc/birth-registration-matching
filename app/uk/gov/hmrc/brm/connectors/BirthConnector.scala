@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import java.net.URLEncoder
+
 import play.api.Logger
 import play.api.Play.current
 import play.api.libs.ws.WS
@@ -49,14 +51,13 @@ trait BirthConnector extends ServicesConfig {
     case Payload(None, f, l, d, _) =>
       val nameValuePair = Map(
         "forenames" -> f,
-        "lastname" -> f,
+        "lastname" -> l,
         "dateofbirth" -> s"$d"
       )
 
-      println(s"DETAILS URI - ${detailsUri}")
-      println(s"NAME VALUE PAIR - ${nameValuePair.toList.toString()}")
+      val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
+      detailsUri.concat(s"?${query}")
 
-      WS.url(detailsUri).withQueryString(nameValuePair.toList: _*).url
   }
 
   private def request(payload: Payload, operation: RequestType)(implicit hc: HeaderCarrier) = {
@@ -66,6 +67,7 @@ trait BirthConnector extends ServicesConfig {
     }
 
     val uri = f(payload)
+    BrmLogger.debug(s"BirthConnector", "request", s"calling url - ${uri}")
     val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
     httpGet.GET[HttpResponse](uri)(implicitly[HttpReads[HttpResponse]], newHc)
   }

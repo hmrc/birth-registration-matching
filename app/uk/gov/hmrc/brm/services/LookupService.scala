@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import play.api.libs.json.JsArray
 import uk.gov.hmrc.brm.audit.{BRMAudit, EventRecordFound, OtherAuditEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
@@ -73,10 +74,13 @@ trait LookupService extends LookupServiceBinder {
       response =>
 
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-        debug(CLASS_NAME, "lookup()", s"[response] $response")
+        debug(CLASS_NAME, "lookup()", s"[response] ${response.json}")
         debug(CLASS_NAME, "lookup()", s"[payload] $payload")
-
-        response.json.validate[GroResponse].fold(
+        //TODO
+        val firstRecord  = response.json
+       /* val firstRecord  = response.json.asInstanceOf[JsArray].value.head
+        debug(CLASS_NAME, "lookup()", s"[firstRecord] $firstRecord")*/
+        firstRecord.validate[GroResponse].fold(
           error => {
             warn(CLASS_NAME, "lookup()", s"failed to validate json")
             warn(CLASS_NAME, "lookup()", s"returned matched: false")
