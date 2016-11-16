@@ -22,7 +22,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.{Record, Records}
+import uk.gov.hmrc.brm.models.response.{Record}
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
@@ -116,10 +116,21 @@ trait LookupService extends LookupServiceBinder {
 //            debug(CLASS_NAME, "lookup()", s"errors: $error")
             BirthResponseBuilder.withNoMatch()
           case r @ Seq(x) =>
+             val record = r.head
+
+            debug(CLASS_NAME, "lookup()", s"records: $r")
+            BRMAudit.logEventRecordFound(hc)
+            //TODO
+            val isMatch = matchingService.performMatch(payload, record, getMatchingType).isMatch
+            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
+
+            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
+
+            BirthResponseBuilder.getResponse(isMatch)
 
         }
 
-        response.json.validate[Record].fold(
+        /*response.json.validate[Record].fold(
           error => {
             warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
             debug(CLASS_NAME, "lookup()", s"errors: $error")
@@ -138,7 +149,7 @@ trait LookupService extends LookupServiceBinder {
 
             BirthResponseBuilder.getResponse(isMatch)
           }
-        )
+        )*/
     }
   }
 
