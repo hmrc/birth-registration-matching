@@ -23,7 +23,6 @@ case class ResultMatch(firstNameMatch: Match,
                        dobMatch: Match,
                        matchResult: Match) {
 
-
   def isMatch: Boolean = {
     getBoolean(matchResult)
   }

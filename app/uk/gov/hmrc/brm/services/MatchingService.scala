@@ -27,14 +27,18 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  def performMatch(input: Payload, response: Record, matchingType: MatchingType.Value)(implicit hc: HeaderCarrier) : ResultMatch = {
+  def performMatch(input: Payload,
+                   records: List[Record],
+                   matchingType: MatchingType.Value)
+                  (implicit hc: HeaderCarrier) : ResultMatch =
+  {
     info(CLASS_NAME, "MatchingType", s"$matchingType")
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
       case MatchingType.PARTIAL => PartialMatching
     }
 
-    val result = algorithm.performMatch(input, response)
+    val result = algorithm.performMatch(input, records)
     info(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(
       result.audit

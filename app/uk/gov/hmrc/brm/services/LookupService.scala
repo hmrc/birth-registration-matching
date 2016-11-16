@@ -70,14 +70,26 @@ trait LookupService extends LookupServiceBinder {
     * @return
     */
 
-  private def parseRecords(json: JsValue) : Seq[Record] = {
+  private def parseRecords(json: JsValue) : List[Record] = {
     val records = json.validate[List[Record]].fold(
-      error => json.validate[Record].fold(e => Seq(), r => Seq(r)),
-      success => success
+      error => {
+        info(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
+        json.validate[Record].fold(
+          e => {
+            info(CLASS_NAME, "parseRecords()", s"Failed to validate as[Record]")
+            List()
+          },
+          r => {
+            info(CLASS_NAME, "parseRecords()", s"Successfully validated as[Record]")
+            List(r)
+          }
+        )
+      },
+      success => {
+        info(CLASS_NAME, "parseRecords()", s"Successfully validated as[List[Record]]")
+        success
+      }
     )
-
-    println(s"RECORDS - ${records}")
-
     records
   }
 
@@ -86,8 +98,7 @@ trait LookupService extends LookupServiceBinder {
       response =>
 
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-        debug(CLASS_NAME, "lookup()", s"[response] ${response.json}")
-        debug(CLASS_NAME, "lookup()", s"[payload] $payload")
+        debug(CLASS_NAME, "lookup()", s"[response] ${response.json}, [payload] $payload")
 
         /**
           * Should be:
@@ -100,60 +111,31 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-        //TODO
-//        val firstRecord  = response.json
-       /* val firstRecord  = response.json.asInstanceOf[JsArray].value.head
-        debug(CLASS_NAME, "lookup()", s"[firstRecord] $firstRecord")*/
-
-
-//        var jsArrayList: JsArray = null
-//        if(response.json.validate[JsValue].isSuccess) {
-//           jsArrayList = JsArray.apply(Seq(response.json.as[JsValue]))
-//        }else {
-//           jsArrayList = response.json.as[JsArray]
-//        }
-        parseRecords(response.json) match {
-          case Nil =>
-            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
-//            debug(CLASS_NAME, "lookup()", s"errors: $error")
-            BirthResponseBuilder.withNoMatch()
-          case r @ Seq(_*)  if(r.length == 1)=> {
-
-            val record = r.head
-
-            debug(CLASS_NAME, "lookup()", s"records: $r")
-            BRMAudit.logEventRecordFound(hc)
-            //TODO
-            val isMatch = matchingService.performMatch(payload, record, getMatchingType).isMatch
-            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
-            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
-            BirthResponseBuilder.getResponse(isMatch)
-          }
-          case r @ Seq(_*) if(r.length > 1) =>
-            warn(CLASS_NAME, "lookup()", s"more than one record returned")
-            BirthResponseBuilder.withNoMatch()
+        val isMatch = matchingService.performMatch(payload, parseRecords(response.json), getMatchingType).isMatch
+        if(isMatch)
+        {
+          BirthResponseBuilder.getResponse(isMatch)
+        }
+        else
+        {
+          BirthResponseBuilder.withNoMatch()
         }
 
-        /*response.json.validate[Record].fold(
-          error => {
-            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
-            debug(CLASS_NAME, "lookup()", s"errors: $error")
-            BirthResponseBuilder.withNoMatch()
-          },
-          success => {
-            val records = success
-
-            debug(CLASS_NAME, "lookup()", s"records: $success")
-            BRMAudit.logEventRecordFound(hc)
-            //TODO
-            val isMatch = matchingService.performMatch(payload, records, getMatchingType).isMatch
-            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
-
-            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
-
-            BirthResponseBuilder.getResponse(isMatch)
-          }
-        )*/
+      //        parseRecords(response.json) match {
+      //          case Nil =>
+      //            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
+      //            BirthResponseBuilder.withNoMatch()
+      //          case head :: Nil =>
+      //            val record = head
+      //            BRMAudit.logEventRecordFound(hc)
+      //            val isMatch = matchingService.performMatch(payload, record, getMatchingType).isMatch
+      //            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
+      //            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
+      //            BirthResponseBuilder.getResponse(isMatch)
+      //          case r @ head :: tail =>
+      //            warn(CLASS_NAME, "lookup()", s"more than one record returned")
+      //            BirthResponseBuilder.withNoMatch()
+      //        }
     }
   }
 
