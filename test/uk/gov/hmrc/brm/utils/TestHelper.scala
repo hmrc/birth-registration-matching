@@ -139,6 +139,16 @@ object TestHelper {
        |}
     """.stripMargin)
 
+  val userMultipleMatchExcludingReferenceKey = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Gibby",
+       | "lastName" : "Haynes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
   val userNoMatchExcludingReferenceValue = Json.parse(
     s"""
        |{

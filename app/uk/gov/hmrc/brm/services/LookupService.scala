@@ -76,6 +76,8 @@ trait LookupService extends LookupServiceBinder {
       success => success
     )
 
+    println(s"RECORDS - ${records}")
+
     records
   }
 
@@ -115,19 +117,21 @@ trait LookupService extends LookupServiceBinder {
             warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
 //            debug(CLASS_NAME, "lookup()", s"errors: $error")
             BirthResponseBuilder.withNoMatch()
-          case r @ Seq(x) =>
-             val record = r.head
+          case r @ Seq(_*)  if(r.length == 1)=> {
+
+            val record = r.head
 
             debug(CLASS_NAME, "lookup()", s"records: $r")
             BRMAudit.logEventRecordFound(hc)
             //TODO
             val isMatch = matchingService.performMatch(payload, record, getMatchingType).isMatch
             info(CLASS_NAME, "lookup()", s"matched: $isMatch")
-
             if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
-
             BirthResponseBuilder.getResponse(isMatch)
-
+          }
+          case r @ Seq(_*) if(r.length > 1) =>
+            warn(CLASS_NAME, "lookup()", s"more than one record returned")
+            BirthResponseBuilder.withNoMatch()
         }
 
         /*response.json.validate[Record].fold(

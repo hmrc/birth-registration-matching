@@ -39,43 +39,9 @@ class BirthEventsControllerSpec
   with OneAppPerSuite
   with BeforeAndAfter {
 
-  /**
-    * - Should
-    * - Wire up dependencies correctly
-    * - return 200 with application/json type
-    * - return JSON response of false on unsuccessful detail match
-    * - return JSON response of true on successful detail match
-    * - return JSON response of false on unsuccessful birthReferenceNumber match
-    * - return JSON response of true on successful birthReferenceNumber match
-    * - return response code 200 if request contains missing birthReferenceNumber key
-    * - return response code 400 if request contains missing birthReferenceNumber value
-    * - return response code 400 if request contains missing dateOfBirth key
-    * - return response code 400 if request contains missing dateOfBirth value
-    * - return response code 400 if request contains invalid dateOfBirth format
-    * - return response code 400 if request contains missing firstName key
-    * - return response code 400 if request contains missing firstName value
-    * - return response code 400 if request contains missing lastName key
-    * - return response code 400 if request contains missing lastName value
-    * - return response code 400 if request contains missing whereBirthRegistered key
-    * - return response code 400 if request contains missing whereBirthRegistered value
-    * - return BadGateway when GRO returns 4xx
-    * - return BadRequest when GRO returns 4xx BadRequest
-    * - return GatewayTimeout when GRO returns 5xx when timeout
-    * - return BadRequest when GRO returns BadRequestException
-    * - return InternalServerError when GRO returns 5xx
-    * - return match false when GRO returns invalid json
-    * - return not match when GRO returns NOT FOUND
-    * - return not match when GRO returns NOT FOUND response
-    * - return not match when GRO returns UNAUTHORIZED response
-    * - return InternalServerError when GRO returns 5xx response
-    * - return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches
-    * - return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches
-    * - return matched value of false when the dateOfBirth is invalid and the gro record matches
-    * - return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches
-    * */
-
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
-  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("500035710-multiple")
+  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("500035710-array")
+  val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("400000004-multiple-match")
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
@@ -121,7 +87,6 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
-
       "return JSON response of true on successful child detail match" in {
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).
           thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection)))
@@ -131,6 +96,16 @@ class BirthEventsControllerSpec
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
          contentType(result).get shouldBe "application/json"
          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "return JSON response of false on successful child detail match when multiple records are returned" in {
+        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObjectMultipleWithMatch)))
+        val request = postRequest(userMultipleMatchExcludingReferenceKey)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
     }
 
