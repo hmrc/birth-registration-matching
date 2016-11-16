@@ -30,6 +30,12 @@ object Record {
     )(Record.apply _)
 }
 
+//case class Records(records : List[Record])
+//
+//object Records {
+//  implicit val reads = __.read[List[Record]].map(f => Records(f))
+//}
+
 //abstract class Record[C, S](child : C, status: Option[S])
 //
 //case class Response[C, S](

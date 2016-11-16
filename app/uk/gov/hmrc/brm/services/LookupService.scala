@@ -22,7 +22,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.models.response.{Record, Records}
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
 import uk.gov.hmrc.play.http._
@@ -69,6 +69,16 @@ trait LookupService extends LookupServiceBinder {
     * @param metrics
     * @return
     */
+
+  private def parseRecords(json: JsValue) : Seq[Record] = {
+    val records = json.validate[List[Record]].fold(
+      error => json.validate[Record].fold(e => Seq(), r => Seq(r)),
+      success => success
+    )
+
+    records
+  }
+
   def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
     getRecord(hc, payload, metrics).map {
       response =>
@@ -92,24 +102,36 @@ trait LookupService extends LookupServiceBinder {
 //        val firstRecord  = response.json
        /* val firstRecord  = response.json.asInstanceOf[JsArray].value.head
         debug(CLASS_NAME, "lookup()", s"[firstRecord] $firstRecord")*/
-        var jsArrayList: JsArray = null
-        if(response.json.validate[JsValue].isSuccess) {
-           jsArrayList = JsArray.apply(Seq(response.json.as[JsValue]))
-        }else {
-           jsArrayList = response.json.as[JsArray]
+
+
+//        var jsArrayList: JsArray = null
+//        if(response.json.validate[JsValue].isSuccess) {
+//           jsArrayList = JsArray.apply(Seq(response.json.as[JsValue]))
+//        }else {
+//           jsArrayList = response.json.as[JsArray]
+//        }
+        parseRecords(response.json) match {
+          case Nil =>
+            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
+//            debug(CLASS_NAME, "lookup()", s"errors: $error")
+            BirthResponseBuilder.withNoMatch()
+          case r @ Seq(x) =>
+
         }
-        jsArrayList.validate[List[Record]].fold(
+
+        response.json.validate[Record].fold(
           error => {
             warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
             debug(CLASS_NAME, "lookup()", s"errors: $error")
             BirthResponseBuilder.withNoMatch()
           },
           success => {
+            val records = success
 
             debug(CLASS_NAME, "lookup()", s"records: $success")
             BRMAudit.logEventRecordFound(hc)
             //TODO
-            val isMatch = matchingService.performMatch(payload, success.head, getMatchingType).isMatch
+            val isMatch = matchingService.performMatch(payload, records, getMatchingType).isMatch
             info(CLASS_NAME, "lookup()", s"matched: $isMatch")
 
             if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
