@@ -29,7 +29,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 trait MatchingService extends ServicesConfig {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  val matchOnMultiple: Boolean
+  protected val matchOnMultiple: Boolean
 
   def performMatch(input: Payload,
                    records: List[Record],
@@ -44,8 +44,6 @@ trait MatchingService extends ServicesConfig {
     }
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
-
-    if (result.isMatch) BRMAudit.logEventRecordFound(hc)
 
     info(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(

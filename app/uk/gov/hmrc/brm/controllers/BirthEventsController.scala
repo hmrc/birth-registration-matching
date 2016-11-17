@@ -23,11 +23,9 @@ import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._
-import uk.gov.hmrc.brm.utils._
-import uk.gov.hmrc.play.microservice.controller
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
 
@@ -35,7 +33,7 @@ object BirthEventsController extends BirthEventsController {
   override val service = LookupService
 }
 
-trait BirthEventsController extends controller.BaseController with HeaderValidator with ControllerUtil {
+trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
 

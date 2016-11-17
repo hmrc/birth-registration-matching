@@ -104,7 +104,17 @@ object NirsConnector extends BirthConnector {
     val event = new NorthernIrelandAuditEvent(result)
     BRMAudit.event(event)
 
-    Future.failed(new NotImplementedException("No service available for GRONI connector."))
+    Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
+  }
+
+  override def getChildDetails(payload: Payload)(implicit hc : HeaderCarrier)  = {
+    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"${payload.toString()}")
+
+    val result : Map[String, String] = Map("match" -> "false")
+    val event = new ScotlandAuditEvent(result)
+    BRMAudit.event(event)
+
+    Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
   }
 }
 
@@ -121,6 +131,16 @@ object NrsConnector extends BirthConnector {
     val event = new ScotlandAuditEvent(result)
     BRMAudit.event(event)
 
-    Future.failed(new NotImplementedException("No service available for NRS connector."))
+    Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
+  }
+
+  override def getChildDetails(payload: Payload)(implicit hc : HeaderCarrier)  = {
+    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"${payload.toString()}")
+
+    val result : Map[String, String] = Map("match" -> "false")
+    val event = new ScotlandAuditEvent(result)
+    BRMAudit.event(event)
+
+    Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
   }
 }
