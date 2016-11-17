@@ -21,17 +21,14 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.annotation.tailrec
 
 trait MatchingAlgorithm {
 
-  private val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
+  private[MatchingAlgorithm] val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
-  val matchFunction: PartialFunction[(Payload, Record), ResultMatch]
-
-  implicit val hc = HeaderCarrier()
+  protected[MatchingAlgorithm] val matchFunction: PartialFunction[(Payload, Record), ResultMatch]
 
   def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean = false): ResultMatch = {
     @tailrec
@@ -57,16 +54,16 @@ trait MatchingAlgorithm {
     }
   }
 
-  protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
+  protected[MatchingAlgorithm] def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
     matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _)
 
-  protected def lastNameMatch(brmsLastName: Option[String], groLastName: Option[String]): Match =
+  protected[MatchingAlgorithm] def lastNameMatch(brmsLastName: Option[String], groLastName: Option[String]): Match =
     matching[String](brmsLastName, groLastName, _ equalsIgnoreCase _)
 
-  protected def dobMatch(brmsDob: Option[LocalDate], groDob: Option[LocalDate]): Match =
+  protected[MatchingAlgorithm] def dobMatch(brmsDob: Option[LocalDate], groDob: Option[LocalDate]): Match =
     matching[LocalDate](brmsDob, groDob, _ isEqual _)
 
-  protected def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
+  protected[MatchingAlgorithm] def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
     (input, other) match {
       case (Some(x), Some(y)) =>
         if (matchFunction(x, y)) {
@@ -75,7 +72,6 @@ trait MatchingAlgorithm {
         else {
           Bad()
         }
-
       case _ => Bad()
     }
   }

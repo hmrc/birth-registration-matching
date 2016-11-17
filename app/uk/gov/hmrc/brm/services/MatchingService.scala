@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
@@ -28,7 +29,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 trait MatchingService extends ServicesConfig {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  val matchOnMultiple: Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", false)
+  val matchOnMultiple: Boolean
 
   def performMatch(input: Payload,
                    records: List[Record],
@@ -56,4 +57,6 @@ trait MatchingService extends ServicesConfig {
   }
 }
 
-object MatchingService extends MatchingService
+object MatchingService extends MatchingService {
+  override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple
+}
