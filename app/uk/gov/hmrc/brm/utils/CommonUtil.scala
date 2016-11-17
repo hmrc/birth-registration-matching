@@ -19,41 +19,11 @@ package uk.gov.hmrc.brm.utils
 import org.joda.time.LocalDate
 import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
-import play.api.mvc.{Controller, Request, Result}
+import play.api.mvc.{Controller, Request}
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.models.brm.Payload
 
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
-
-trait ControllerUtil extends Controller with BrmException {
-
-  lazy val contentType: String = "application/json; charset=utf-8"
-  lazy val headers: (String, String)  = (ACCEPT, "application/vnd.hmrc.1.0+json")
-
-  def respond(response: Result): Result = {
-    response
-      .as(contentType)
-      .withHeaders(headers)
-  }
-
-  def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case t =>
-      val allPfs = Seq(
-        notFoundPF(method),
-        badRequestPF(method),
-        badGatewayPF(method),
-        gatewayTimeoutPF(method),
-        upstreamErrorPF(method),
-        badRequestExceptionPF(method),
-        notImplementedExceptionPF(method),
-        notFoundExceptionPF(method),
-        exceptionPF(method)).reduce(_ orElse _)
-
-      respond(allPfs.apply(t))
-  }
-  
-}
 
 object CommonUtil extends Controller {
 

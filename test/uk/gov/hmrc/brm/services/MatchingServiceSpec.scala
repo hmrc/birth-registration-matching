@@ -31,9 +31,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 
 class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
-
-  //  val attemptMatchOnMultipleResultConfig
-
+  
   "microservice.services.birth-registration-matching.matching.match-on-multiple"
 
   val configFirstName: Map[String, _] = Map(

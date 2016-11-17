@@ -143,9 +143,6 @@ trait LookupService extends LookupServiceBinder {
 
   private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload@Payload(Some(birthReferenceNumber), _, _, _, _) =>
-      /**
-        * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
-        */
       info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
   }

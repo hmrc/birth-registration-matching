@@ -29,17 +29,3 @@ object Record {
       (JsPath \ "status").readNullable[Status]
     )(Record.apply _)
 }
-
-//case class Records(records : List[Record])
-//
-//object Records {
-//  implicit val reads = __.read[List[Record]].map(f => Records(f))
-//}
-
-//abstract class Record[C, S](child : C, status: Option[S])
-//
-//case class Response[C, S](
-//                   records : List[Record[C, S]]
-//                   )
-
-// json.validate[Response[Record]

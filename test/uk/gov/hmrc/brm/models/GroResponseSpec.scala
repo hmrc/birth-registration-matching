@@ -49,6 +49,8 @@ class GroResponseSpec extends UnitSpec {
 
   lazy val jsonFullRecord = JsonUtils.getJsonFromFile("500035710")
 
+  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("500035710-array")
+
   lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("key-no-value")
 
   lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
@@ -447,8 +449,6 @@ class GroResponseSpec extends UnitSpec {
       |}
     """.stripMargin)
 
-
-
   "Record" should {
     "be an instance of Record" in {
       val response = new Record(child = Child(
@@ -461,29 +461,27 @@ class GroResponseSpec extends UnitSpec {
       response.status shouldBe None
     }
 
-    "return Record object with all Child attributes when json is a full record" in {
-      val result = jsonFullRecord.validate[Record]
-      result match {
-        case JsSuccess(x, _) => {
-          x shouldBe a[Record]
-          x.child shouldBe a[Child]
-          x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "Adam TEST"
-          x.child.lastName shouldBe "SMITH"
-          x.child.dateOfBirth.get.toString shouldBe "2006-11-12"
-          x.child.dateOfBirth.get shouldBe a[LocalDate]
-          x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
-          throw new Exception
-        }
-      }
+    "return Record object with all Child attributes when json is a full record within an array" in {
+
+      val listOfRecords = jsonFullRecordCollection.as[List[Record]]
+
+      val record = listOfRecords.head
+
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 500035710
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2006-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[Status]
+      record.status.get.potentiallyFictitiousBirth shouldBe false
+      record.status.get.correction.get shouldBe "None"
+      record.status.get.cancelled shouldBe false
+      record.status.get.blockedRegistration shouldBe false
+      record.status.get.marginalNote.get shouldBe "None"
+      record.status.get.reRegistered.get shouldBe "None"
     }
 
     "return Record object with all Child attributes when json is valid and complete (ASCII)" in {
@@ -562,13 +560,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingEmptyObject.validate[Record]
       result match {
         case JsSuccess(x, _) => {
-          x should not be a[Record]
-          x.child should not be a[Child]
-          x.child.birthReferenceNumber should not be None
-          x.child.firstName should not be ""
-          x.child.lastName should not be ""
-          x.child.dateOfBirth should not be None
-          x.status should not be None
+          throw new Exception
         }
         case JsError(x) => {
           x.length shouldBe 1
@@ -606,13 +598,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonInvalidSystemNumberType.validate[Record]
       result match {
         case JsSuccess(x, _) => {
-          x should not be a[Record]
-          x.child should not be a[Child]
-          x.child.birthReferenceNumber should not be None
-          x.child.firstName should not be ""
-          x.child.lastName should not be ""
-          x.child.dateOfBirth should not be None
-          x.status should not be None
+          throw new Exception
         }
         case JsError(x) => {
           x.length shouldBe 1
@@ -627,13 +613,7 @@ class GroResponseSpec extends UnitSpec {
       result should not be a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
-          x should not be a[Record]
-          x.child should not be a[Child]
-          x.child.birthReferenceNumber should not be None
-          x.child.firstName should not be ""
-          x.child.lastName should not be ""
-          x.child.dateOfBirth should not be None
-          x.status should not be None
+          throw new Exception
         }
         case JsError(x) => {
           x.length shouldBe 1

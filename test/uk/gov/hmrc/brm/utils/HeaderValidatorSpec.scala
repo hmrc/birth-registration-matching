@@ -48,7 +48,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
 
-  object MockController extends BirthEventsController with ControllerUtil {
+  object MockController extends BirthEventsController with BRMBaseController {
     override val service = MockLookupService
   }
 
