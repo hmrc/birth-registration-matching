@@ -70,7 +70,7 @@ trait LookupService extends LookupServiceBinder {
     * @return
     */
 
-  private def parseRecords(json: JsValue)(implicit hc : HeaderCarrier) : List[Record] = {
+  private[LookupService] def parseRecords(json: JsValue)(implicit hc : HeaderCarrier) : List[Record] = {
     val records = json.validate[List[Record]].fold(
       error => {
         info(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
@@ -126,31 +126,31 @@ trait LookupService extends LookupServiceBinder {
     }
   }
 
-  private def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
+  private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
     val allPartials = Seq(noReferenceNumberPF, referenceNumberIncludedPF).reduce(_ orElse _)
     val start = metrics.startTimer()
+    // return the correct PF to execute based on the payload
     val httpResponse = allPartials.apply(payload)
     metrics.endTimer(start)
     httpResponse
   }
 
-  private def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
+  private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+    case payload@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) =>
       info(CLASS_NAME, "lookup()", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
-    }
   }
 
-  private def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
+  private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+    case payload@Payload(Some(birthReferenceNumber), _, _, _, _) =>
       /**
         * TODO: Return a generic interface BirthResponse which can use Reads/Adapter to map JsValue to case class
         */
+      info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
-    }
   }
 
-  def getMatchingType : MatchingType.Value = {
+  private[LookupService] def getMatchingType : MatchingType.Value = {
     val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
     info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL

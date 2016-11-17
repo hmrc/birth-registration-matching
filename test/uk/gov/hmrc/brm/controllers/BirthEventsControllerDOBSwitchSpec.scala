@@ -77,7 +77,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
       val request = postRequest(userValidDOB)
-      val result = MockController.post().apply(request)
+      val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -86,7 +86,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090701)))
       val request = postRequest(userValidDOB20090701)
-      val result = MockController.post().apply(request)
+      val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -95,7 +95,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(userInvalidDOB)
-      val result = MockController.post().apply(request)
+      val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
