@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import play.api.libs.json.JsValue
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
@@ -69,7 +70,7 @@ trait LookupService extends LookupServiceBinder {
     * @return
     */
 
-  private def parseRecords(json: JsValue) : List[Record] = {
+  private def parseRecords(json: JsValue)(implicit hc : HeaderCarrier) : List[Record] = {
     val records = json.validate[List[Record]].fold(
       error => {
         info(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
@@ -79,12 +80,14 @@ trait LookupService extends LookupServiceBinder {
             List()
           },
           r => {
+            BRMAudit.logEventRecordFound(hc)
             info(CLASS_NAME, "parseRecords()", s"Successfully validated as[Record]")
             List(r)
           }
         )
       },
       success => {
+        BRMAudit.logEventRecordFound(hc)
         info(CLASS_NAME, "parseRecords()", s"Successfully validated as[List[Record]]")
         success
       }
@@ -113,30 +116,13 @@ trait LookupService extends LookupServiceBinder {
           */
 
         val isMatch = matchingService.performMatch(payload, parseRecords(response.json), getMatchingType).isMatch
-        if(isMatch)
-        {
+        if(isMatch) {
+          MatchMetrics.matchCount()
           BirthResponseBuilder.getResponse(isMatch)
-        }
-        else
-        {
+        } else {
+          MatchMetrics.noMatchCount()
           BirthResponseBuilder.withNoMatch()
         }
-
-      //        parseRecords(response.json) match {
-      //          case Nil =>
-      //            warn(CLASS_NAME, "lookup()", s"failed to validate json, returned matched: false")
-      //            BirthResponseBuilder.withNoMatch()
-      //          case head :: Nil =>
-      //            val record = head
-      //            BRMAudit.logEventRecordFound(hc)
-      //            val isMatch = matchingService.performMatch(payload, record, getMatchingType).isMatch
-      //            info(CLASS_NAME, "lookup()", s"matched: $isMatch")
-      //            if (isMatch) MatchMetrics.matchCount() else MatchMetrics.noMatchCount()
-      //            BirthResponseBuilder.getResponse(isMatch)
-      //          case r @ head :: tail =>
-      //            warn(CLASS_NAME, "lookup()", s"more than one record returned")
-      //            BirthResponseBuilder.withNoMatch()
-      //        }
     }
   }
 
