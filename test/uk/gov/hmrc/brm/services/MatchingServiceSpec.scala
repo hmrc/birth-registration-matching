@@ -32,6 +32,10 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
 
+  //  val attemptMatchOnMultipleResultConfig
+
+  "microservice.services.birth-registration-matching.matching.match-on-multiple"
+
   val configFirstName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
@@ -107,7 +111,40 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   implicit val hc = HeaderCarrier()
 
-  "valid request payload and valid Record " should {
+  "config file contains valid keys" should {
+
+    "match-on-multiple should be an instance of Boolean" in {
+      MatchingService.matchOnMultiple.isInstanceOf[Boolean] shouldBe true
+    }
+  }
+
+  "when match-on-multiple is set to true" should {
+
+    object MockMatchingService extends MatchingService {
+      override val matchOnMultiple = true
+    }
+
+    "should return true if a minimum of one record matches" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe true
+    }
+
+    "return false if no records match" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+    "return false result match when List is empty" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+  }
+
+  "valid request payload and valid Record" should {
 
     "return true result match" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -160,6 +197,7 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
       val resultMatch = MatchingService.performMatch(payload, List(dobNotMatchRecord), MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
+
   }
 
 }

@@ -22,23 +22,30 @@ import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-trait MatchingService {
+trait MatchingService extends ServicesConfig {
   val CLASS_NAME: String = this.getClass.getCanonicalName
+
+  val matchOnMultiple: Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", false)
 
   def performMatch(input: Payload,
                    records: List[Record],
                    matchingType: MatchingType.Value)
-                  (implicit hc: HeaderCarrier) : ResultMatch =
-  {
+                  (implicit hc: HeaderCarrier): ResultMatch = {
+
     info(CLASS_NAME, "MatchingType", s"$matchingType")
+
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
       case MatchingType.PARTIAL => PartialMatching
     }
 
-    val result = algorithm.performMatch(input, records)
+    val result = algorithm.performMatch(input, records, matchOnMultiple)
+
+    if (result.isMatch) BRMAudit.logEventRecordFound(hc)
+
     info(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(
       result.audit

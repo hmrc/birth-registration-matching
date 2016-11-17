@@ -21,6 +21,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.annotation.tailrec
 
@@ -28,52 +29,63 @@ trait MatchingAlgorithm {
 
   private val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
-  protected val matchFunction : PartialFunction[(Payload, Record), ResultMatch]
+  val matchFunction: PartialFunction[(Payload, Record), ResultMatch]
 
-  protected def performMatch(payload: Payload, records: List[Record]): ResultMatch = {
+  implicit val hc = HeaderCarrier()
+
+  def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean = false): ResultMatch = {
     @tailrec
-    def matchHelper(records:List[Record], result: ResultMatch, f : ((Payload, Record)) => ResultMatch) : ResultMatch = {
-      if(result.isMatch) result else {
-        records match {
-          case Nil => noMatch
-          case head :: Nil =>
-            f(payload, head)
-          case head :: tail =>
-            val r = f(payload, head)
-            matchHelper(tail, r, f)
-        }
+    def matchHelper(records: List[Record], result: ResultMatch, f: ((Payload, Record)) => ResultMatch): ResultMatch = {
+      records match {
+        case Nil => noMatch
+        case head :: Nil =>
+          f(payload, head)
+        case head :: tail =>
+          val r = f(payload, head)
+          matchHelper(tail, r, f)
       }
     }
 
-    // TODO MAKE THIS A SWITCH
-    if (records.length > 1) noMatch
-    matchHelper(records, noMatch, matchFunction)
+    if (matchOnMultiple) {
+      matchHelper(records, noMatch, matchFunction)
+    }
+    else {
+      records.length match {
+        case 1 => matchHelper(records, noMatch, matchFunction)
+        case _ => noMatch
+      }
+    }
   }
 
   protected def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
-    matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _  )
+    matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _)
 
   protected def lastNameMatch(brmsLastName: Option[String], groLastName: Option[String]): Match =
-    matching[String](brmsLastName, groLastName, _ equalsIgnoreCase _ )
+    matching[String](brmsLastName, groLastName, _ equalsIgnoreCase _)
 
   protected def dobMatch(brmsDob: Option[LocalDate], groDob: Option[LocalDate]): Match =
-    matching[LocalDate](brmsDob, groDob, _ isEqual _ )
+    matching[LocalDate](brmsDob, groDob, _ isEqual _)
 
   protected def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
     (input, other) match {
       case (Some(x), Some(y)) =>
-        if (matchFunction(x, y)) Good()
-        else Bad()
+        if (matchFunction(x, y)) {
+          Good()
+        }
+        else {
+          Bad()
+        }
+
       case _ => Bad()
     }
   }
-  
+
 }
 
 
 object FullMatching extends MatchingAlgorithm {
 
-  override val matchFunction : PartialFunction[(Payload, Record), ResultMatch] = {
+  override val matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
       val firstNames = firstNamesMatch(Some(payload.firstName), Some(record.child.firstName))
       val lastNames = lastNameMatch(Some(payload.lastName), Some(record.child.lastName))
@@ -86,7 +98,7 @@ object FullMatching extends MatchingAlgorithm {
 
 object PartialMatching extends MatchingAlgorithm {
 
-  override val matchFunction : PartialFunction[(Payload, Record), ResultMatch] = {
+  override val matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
 
       val firstNames = if (BrmConfig.matchFirstName) {
@@ -95,13 +107,13 @@ object PartialMatching extends MatchingAlgorithm {
         Good()
       }
 
-      val lastNames = if(BrmConfig.matchLastName) {
+      val lastNames = if (BrmConfig.matchLastName) {
         lastNameMatch(Some(payload.lastName), Some(record.child.lastName))
       } else {
         Good()
       }
 
-      val dates = if(BrmConfig.matchDateOfBirth) {
+      val dates = if (BrmConfig.matchDateOfBirth) {
         dobMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
       } else {
         Good()
