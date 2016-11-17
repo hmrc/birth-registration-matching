@@ -56,7 +56,7 @@ trait BirthConnector extends ServicesConfig {
       )
 
       val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
-      detailsUri.concat(s"?${query}")
+      detailsUri.concat(s"?$query")
 
   }
 
@@ -67,19 +67,16 @@ trait BirthConnector extends ServicesConfig {
     }
 
     val uri = f(payload)
-    BrmLogger.debug(s"BirthConnector", "request", s"calling url - ${uri}")
     val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
     httpGet.GET[HttpResponse](uri)(implicitly[HttpReads[HttpResponse]], newHc)
   }
 
   def getReference(payload: Payload)(implicit hc : HeaderCarrier) = {
-    BrmLogger.debug(s"BirthConnector", "getReference", s"${payload.birthReferenceNumber}")
     BrmLogger.info(s"BirthConnector", "getReference", "calling request with reference number")
     request(payload, ReferenceRequest())
   }
 
   def getChildDetails(payload: Payload)(implicit hc : HeaderCarrier) = {
-    BrmLogger.debug(s"BirthConnector", "getDetails", s"${payload.toString()}")
     BrmLogger.info(s"BirthConnector", "getChildDetails", "calling request with child details")
     request(payload, DetailsRequest())
   }
@@ -99,7 +96,8 @@ object NirsConnector extends BirthConnector {
   override val detailsUri = s"$serviceUrl/$baseUri"
 
   override def getReference(payload: Payload)(implicit hc : HeaderCarrier)  = {
-    BrmLogger.debug(s"NirsConnector", "getReference", s"${payload.birthReferenceNumber}")
+    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
+
     val result : Map[String, String] = Map("match" -> "false")
     val event = new NorthernIrelandAuditEvent(result)
     BRMAudit.event(event)
@@ -108,7 +106,7 @@ object NirsConnector extends BirthConnector {
   }
 
   override def getChildDetails(payload: Payload)(implicit hc : HeaderCarrier)  = {
-    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"${payload.toString()}")
+    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     val result : Map[String, String] = Map("match" -> "false")
     val event = new ScotlandAuditEvent(result)
@@ -125,7 +123,7 @@ object NrsConnector extends BirthConnector {
   override val detailsUri = s"$serviceUrl/$baseUri"
 
   override def getReference(payload: Payload)(implicit hc : HeaderCarrier)  = {
-    BrmLogger.debug(s"NRSConnector", "getReference", s"${payload.birthReferenceNumber}")
+    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     val result : Map[String, String] = Map("match" -> "false")
     val event = new ScotlandAuditEvent(result)
@@ -135,7 +133,7 @@ object NrsConnector extends BirthConnector {
   }
 
   override def getChildDetails(payload: Payload)(implicit hc : HeaderCarrier)  = {
-    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"${payload.toString()}")
+    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     val result : Map[String, String] = Map("match" -> "false")
     val event = new ScotlandAuditEvent(result)

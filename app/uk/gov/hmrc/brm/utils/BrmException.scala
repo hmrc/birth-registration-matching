@@ -30,31 +30,31 @@ trait BrmException extends Controller {
   val METHOD_NAME: String = "handleException"
 
   def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(message, NOT_FOUND, _, _) =>
+    case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
       logException(Some(message), Some("notFound"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
   def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(message, BAD_REQUEST, _, _) =>
+    case Upstream4xxResponse(m, BAD_REQUEST, _, _) =>
       logException(Some(message), Some("BadRequest"), BAD_REQUEST)
       BadRequest(message)
   }
 
   def badGatewayPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(message, BAD_GATEWAY, _) =>
+    case Upstream5xxResponse(m, BAD_GATEWAY, _) =>
       logException(Some(message), Some("BadRequest"), BAD_GATEWAY)
       BadGateway(message)
   }
 
   def gatewayTimeoutPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(message, GATEWAY_TIMEOUT, _) =>
+    case Upstream5xxResponse(m, GATEWAY_TIMEOUT, _) =>
       logException(Some(message), Some("GatewayTimeout"), GATEWAY_TIMEOUT)
       GatewayTimeout(message)
   }
 
   def upstreamErrorPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(message, upstreamCode, _) =>
+    case Upstream5xxResponse(m, upstreamCode, _) =>
       logException(Some(message), Some(s"InternalServerError: code: $upstreamCode"), INTERNAL_SERVER_ERROR)
       InternalServerError
   }

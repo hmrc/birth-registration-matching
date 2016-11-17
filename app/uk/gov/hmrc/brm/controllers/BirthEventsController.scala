@@ -49,7 +49,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
       request.body.validate[Payload].fold(
         error => {
           BRMAudit.auditWhereBirthRegistered(error)
-          info(CLASS_NAME, "post()",s" error: $error")
+          info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
