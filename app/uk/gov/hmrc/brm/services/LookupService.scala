@@ -73,10 +73,10 @@ trait LookupService extends LookupServiceBinder {
   private[LookupService] def parseRecords(json: JsValue)(implicit hc : HeaderCarrier) : List[Record] = {
     val records = json.validate[List[Record]].fold(
       error => {
-        warn(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
+        info(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
         json.validate[Record].fold(
           e => {
-            warn(CLASS_NAME, "parseRecords()", s"Failed to validate as[Record]")
+            info(CLASS_NAME, "parseRecords()", s"Failed to validate as[Record]")
             List()
           },
           r => {

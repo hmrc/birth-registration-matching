@@ -47,7 +47,13 @@
 
     <logger name="com.google.inject" level="INFO"/>
 
-    <logger name="application" level="INFO"/>
+    <logger name="org.asynchttpclient" level="WARN" />
+
+    <logger name="akka.event" level="INFO"/>
+
+    <logger name="io.netty" level="INFO"/>
+
+    <logger name="application" level="DEBUG"/>
 
     <logger name="connector" level="INFO">
         <appender-ref ref="STDOUT"/>
