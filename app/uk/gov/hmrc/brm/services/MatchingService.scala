@@ -23,10 +23,9 @@ import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-trait MatchingService extends ServicesConfig {
+trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   protected val matchOnMultiple: Boolean
