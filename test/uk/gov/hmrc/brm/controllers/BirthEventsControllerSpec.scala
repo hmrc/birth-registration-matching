@@ -122,7 +122,6 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        result.body.contentLength shouldBe Some(0)
       }
 
       "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
@@ -409,7 +408,6 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        result.body.contentLength shouldBe Some(0)
       }
 
       "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
