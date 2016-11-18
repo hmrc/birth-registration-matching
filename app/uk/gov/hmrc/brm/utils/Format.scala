@@ -22,12 +22,6 @@ object Trim {
   }
 }
 
-object LowerCase {
-  def apply(v: String): String = {
-    v.toLowerCase
-  }
-}
-
 object LeadingZeros {
   def apply(v: String): String = {
 
@@ -45,7 +39,7 @@ object LeadingZeros {
 object NameFormat {
 
   def apply(v: String): String = {
-    LowerCase.apply(Trim.apply(v))
+    Trim.apply(v)
   }
 }
 

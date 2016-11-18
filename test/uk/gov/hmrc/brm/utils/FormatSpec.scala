@@ -22,11 +22,6 @@ class FormatSpec extends UnitSpec {
 
   "NameFormat" should {
 
-    "convert to lowercase" in {
-      val input: String = "JAMES"
-      NameFormat(input) shouldBe ("james")
-    }
-
     "trim whitespace from the start of a string" in {
       val input: String = " james"
       NameFormat(input) shouldBe ("james")
@@ -44,11 +39,6 @@ class FormatSpec extends UnitSpec {
 
     "don't trim whitespace from the middle of a string" in {
       val input: String = "james jones "
-      NameFormat(input) shouldBe ("james jones")
-    }
-
-    "trim whitespace and convert to lowercase" in {
-      val input: String = " JamEs JONES "
       NameFormat(input) shouldBe ("james jones")
     }
   }
