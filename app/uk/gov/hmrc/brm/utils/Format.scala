@@ -44,14 +44,14 @@ object LeadingZeros {
 
 object NameFormat {
 
-  def format(v: String): String = {
+  def apply(v: String): String = {
     LowerCase.apply(Trim.apply(v))
   }
 }
 
 object DateFormat {
 
-  def format(v: String): String = {
+  def apply(v: String): String = {
     LeadingZeros.apply(Trim.apply(v))
   }
 }

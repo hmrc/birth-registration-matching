@@ -24,17 +24,32 @@ class FormatSpec extends UnitSpec {
 
     "convert to lowercase" in {
       val input: String = "JAMES"
-      NameFormat.format(input) shouldBe("james")
+      NameFormat(input) shouldBe ("james")
     }
 
     "trim whitespace from the start of a string" in {
       val input: String = " james"
-      NameFormat.format(input) shouldBe("james")
+      NameFormat(input) shouldBe ("james")
     }
 
     "trim whitespace from the end of a string" in {
       val input: String = "james "
-      NameFormat.format(input) shouldBe("james")
+      NameFormat(input) shouldBe ("james")
+    }
+
+    "trim whitespace from the start and end of a string" in {
+      val input: String = " james jones "
+      NameFormat(input) shouldBe ("james jones")
+    }
+
+    "don't trim whitespace from the middle of a string" in {
+      val input: String = "james jones "
+      NameFormat(input) shouldBe ("james jones")
+    }
+
+    "trim whitespace and convert to lowercase" in {
+      val input: String = " JamEs JONES "
+      NameFormat(input) shouldBe ("james jones")
     }
   }
 
@@ -42,22 +57,22 @@ class FormatSpec extends UnitSpec {
 
     "insert leading zeros on month" in {
       val input: String = "2007-1-01"
-      DateFormat.format(input) shouldBe("2007-01-01")
+      DateFormat(input) shouldBe ("2007-01-01")
     }
 
     "insert leading zeros on day" in {
       val input: String = "2007-01-1"
-      DateFormat.format(input) shouldBe("2007-01-01")
+      DateFormat(input) shouldBe ("2007-01-01")
     }
 
     "apply no formatting to correctly formatted strings" in {
       val input: String = "2007-12-24"
-      DateFormat.format(input) shouldBe("2007-12-24")
+      DateFormat(input) shouldBe ("2007-12-24")
     }
 
     "return original string if the string couldn't be formatted" in {
       val input: String = "2007"
-      DateFormat.format(input) shouldBe "2007"
+      DateFormat(input) shouldBe "2007"
     }
   }
 

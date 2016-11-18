@@ -24,7 +24,7 @@ import play.api.libs.ws.WS
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent, NorthernIrelandAuditEvent, ScotlandAuditEvent}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BrmLogger, Keygenerator}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BrmLogger, Keygenerator, NameFormat}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -50,14 +50,13 @@ trait BirthConnector extends ServicesConfig {
   private val detailsURI : PartialFunction[Payload, String] = {
     case Payload(None, f, l, d, _) =>
       val nameValuePair = Map(
-        "forenames" -> f,
-        "lastname" -> l,
+        "forenames" -> NameFormat(f),
+        "lastname" -> NameFormat(l),
         "dateofbirth" -> s"$d"
       )
 
       val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
       detailsUri.concat(s"?$query")
-
   }
 
   private def request(payload: Payload, operation: RequestType)(implicit hc: HeaderCarrier) = {
