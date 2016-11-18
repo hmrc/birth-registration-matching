@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Matchers.{eq => mockEq}
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.events.TestFailed
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
-import play.api.libs.json.JsValue
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
-import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.ws.{WSGet, WSHttp}
+import uk.gov.hmrc.play.http.ws.WSGet
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -54,7 +53,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     override val serviceUrl = ""
     override val baseUri = ""
     override val detailsUri = ""
-
   }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
@@ -65,6 +63,10 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "dateOfBirth" -> "2006-11-12"
   )
 
+  val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
   before {
     reset(mockHttpGet)
   }
@@ -74,26 +76,15 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "getReference returns json response" in {
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
-      val result = await(MockBirthConnector.getReference("500035710"))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 200
-    }
-
-
-    "getChildDetails returns json response" in {
-
-      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
-      val result = await(MockBirthConnector.getChildDetails(childDetailPayload))
+      val result = await(MockBirthConnector.getReference(payload))
       result shouldBe a[HttpResponse]
       result.status shouldBe 200
     }
 
     "getReference returns http 500 when GRO is offline" in {
-
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
-      val result = await(MockBirthConnector.getReference("50003570"))
+      val result = await(MockBirthConnector.getReference(payload))
       result shouldBe a[HttpResponse]
       result.status shouldBe 500
     }
@@ -102,63 +93,117 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
-        val result = await(MockBirthConnector.getReference("50003570"))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 400
+      val result = await(MockBirthConnector.getReference(payload))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 400
     }
 
-    "getReference returns http 400 when GRO is not found data" in {
+    "getReference returns http 404 when GRO has not found data" in {
       when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
-        val result = await(MockBirthConnector.getReference("123333"))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 404
-    }
-  }
-
-  "GROEnglandConnector" should {
-
-    "initialise with correct properties" in {
-      GROEnglandConnector.httpGet shouldBe a[WSGet]
-      GROEnglandConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match"
+      val result = await(MockBirthConnector.getReference(payload))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 404
     }
 
-  }
-
-  "NRSConnector" should {
-
-    "initialise with correct properties" in {
-      NrsConnector.httpGet shouldBe a[WSGet]
-      NrsConnector.detailsUri shouldBe "/"
+    "getChildDetails returns json response" in {
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
+      val result = await(MockBirthConnector.getChildDetails(payloadNoReference))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 200
     }
 
-    "getReference returns http NotImplementedException" in {
-      val future = NrsConnector.getReference("123333")
-      future.onComplete {
-        case Failure(e) =>
-          e.getMessage shouldBe "No service available for NRS connector."
-        case Success(_) =>
-          throw new Exception
+    "getChildDetails returns http 500 when GRO is offline" in {
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+      val result = await(MockBirthConnector.getChildDetails(payloadNoReference))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 500
+    }
+
+    "getChildDetails returns http 400 for BadRequest" in {
+
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
+      val result = await(MockBirthConnector.getChildDetails(payloadNoReference))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 400
+    }
+
+    "getChildDetails returns http 404 when GRO has not found data" in {
+      when(mockHttpGet.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
+      val result = await(MockBirthConnector.getChildDetails(payloadNoReference))
+      result shouldBe a[HttpResponse]
+      result.status shouldBe 404
+    }
+
+    "GROEnglandConnector" should {
+
+      "initialise with correct properties" in {
+        GROEnglandConnector.httpGet shouldBe a[WSGet]
+        GROEnglandConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match"
       }
+
     }
 
-  }
+    "NRSConnector" should {
 
-  "GRONIConnector" should {
-
-    "initialise with correct properties" in {
-      NirsConnector.httpGet shouldBe a[WSGet]
-      NirsConnector.detailsUri shouldBe "/"
-    }
-
-    "getReference returns http NotImplementedException" in {
-      val future = NirsConnector.getReference("123333")
-      future.onComplete {
-        case Failure(e) =>
-          e.getMessage shouldBe "No service available for GRONI connector."
-        case Success(_) =>
-          throw new Exception
+      "initialise with correct properties" in {
+        NrsConnector.httpGet shouldBe a[WSGet]
+        NrsConnector.detailsUri shouldBe "/"
       }
+
+      "getReference returns http NotImplementedException" in {
+        val future = NrsConnector.getReference(payload)
+        future.onComplete {
+          case Failure(e) =>
+            e.getMessage shouldBe "No getReference method available for NRS connector."
+          case Success(_) =>
+            throw new Exception
+        }
+      }
+
+      "getChildDetails returns http NotImplementedException" in {
+        val future = NrsConnector.getChildDetails(payload)
+        future.onComplete {
+          case Failure(e) =>
+            e.getMessage shouldBe "No getChildDetails method available for NRS connector."
+          case Success(_) =>
+            throw new Exception
+        }
+      }
+
+    }
+
+    "GRONIConnector" should {
+
+      "initialise with correct properties" in {
+        NirsConnector.httpGet shouldBe a[WSGet]
+        NirsConnector.detailsUri shouldBe "/"
+      }
+
+      "getReference returns http NotImplementedException" in {
+        val future = NirsConnector.getReference(payload)
+        future.onComplete {
+          case Failure(e) =>
+            e.getMessage shouldBe "No getReference method available for GRONI connector."
+          case Success(_) =>
+            throw new Exception
+        }
+      }
+
+      "getChildDetails returns http NotImplementedException" in {
+        val future = NirsConnector.getChildDetails(payload)
+        future.onComplete {
+          case Failure(e) =>
+            e.getMessage shouldBe "No getChildDetails method available for GRONI connector."
+          case Success(_) =>
+            throw new Exception
+        }
+      }
+
     }
 
   }

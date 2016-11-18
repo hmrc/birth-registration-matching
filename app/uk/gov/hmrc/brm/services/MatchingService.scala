@@ -17,9 +17,10 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.gro.GroResponse
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -27,14 +28,22 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
-  def performMatch(input: Payload, response: GroResponse, matchingType: MatchingType.Value)(implicit hc: HeaderCarrier) : ResultMatch = {
+  protected val matchOnMultiple: Boolean
+
+  def performMatch(input: Payload,
+                   records: List[Record],
+                   matchingType: MatchingType.Value)
+                  (implicit hc: HeaderCarrier): ResultMatch = {
+
     info(CLASS_NAME, "MatchingType", s"$matchingType")
+
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
       case MatchingType.PARTIAL => PartialMatching
     }
 
-    val result = algorithm.performMatch(input, response)
+    val result = algorithm.performMatch(input, records, matchOnMultiple)
+
     info(CLASS_NAME, "performMatch", s"${result.audit}")
     val event = new EnglandAndWalesAuditEvent(
       result.audit
@@ -45,4 +54,6 @@ trait MatchingService {
   }
 }
 
-object MatchingService extends MatchingService
+object MatchingService extends MatchingService {
+  override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple
+}

@@ -57,11 +57,11 @@ trait BRMAudit {
   def event(event: AuditEvent) : Future[AuditResult] = {
     connector.sendEvent(event) map {
       success =>
-        BrmLogger.info("BRMAudit", s"event: ${event.auditType}", "event successfully audited")
+        BrmLogger.info("BRMAudit", s"event", "event successfully audited")
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BrmLogger.warn(s"BRMAudit", s"event: ${event.auditType}", s"event failed to audit $msg")
+        BrmLogger.warn(s"BRMAudit", s"event", s"event failed to audit")
         e
     }
   }
@@ -79,8 +79,6 @@ trait BRMAudit {
           if(message.contains("value:")){
               val index = message.lastIndexOf(":") + 1
               val input = message.slice(index, message.length)
-              debug("BRMAudit", "logEvent()",s"\n\n validation error: $errors input: $input \n\n")
-              
               val result: Map[String, String] = Map("match" -> "false", "country" -> input)
               val audit = new OtherAuditEvent(result)
               event(audit)

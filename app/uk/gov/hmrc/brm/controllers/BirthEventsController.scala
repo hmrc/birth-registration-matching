@@ -23,11 +23,9 @@ import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator}
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._
-import uk.gov.hmrc.brm.utils._
-import uk.gov.hmrc.play.microservice.controller
+import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
 
@@ -35,9 +33,11 @@ object BirthEventsController extends BirthEventsController {
   override val service = LookupService
 }
 
-trait BirthEventsController extends controller.BaseController with HeaderValidator with ControllerUtil {
+trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
+
+  override val METHOD_NAME: String = "BirthEventsController::post"
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -49,7 +49,7 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
       request.body.validate[Payload].fold(
         error => {
           BRMAudit.auditWhereBirthRegistered(error)
-          info(CLASS_NAME, "post()",s" error: $error")
+          info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
@@ -72,8 +72,8 @@ trait BirthEventsController extends controller.BaseController with HeaderValidat
             } recover handleException("getReference")
           }
         }
-
       )
+
   }
 
 }
