@@ -16,22 +16,26 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import java.util.concurrent.TimeUnit
+
+import akka.stream.Materializer
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.{Logger, Play}
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
-import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.brm.utils.{BRMBaseController, JsonUtils}
+import uk.gov.hmrc.brm.utils.BRMBaseController
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 class BirthEventsControllerSpec
   extends UnitSpec
@@ -39,14 +43,12 @@ class BirthEventsControllerSpec
   with OneAppPerSuite
   with BeforeAndAfter {
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
-  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("500035710-array")
-  val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("400000004-multiple-match")
-  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("2012-02-16")
-  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
-  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
+  import uk.gov.hmrc.brm.utils.TestHelper._
+  import scala.concurrent.ExecutionContext.Implicits.global
 
-  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
+  implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
+
+  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
@@ -63,7 +65,7 @@ class BirthEventsControllerSpec
     override val service = MockLookupService
   }
 
-  def httpResponse(js: JsValue) = HttpResponse.apply(200, Some(js))
+  def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   "BirthEventsController" when {
@@ -77,6 +79,24 @@ class BirthEventsControllerSpec
     }
 
     "POST /birth-registration-matching-proxy/match NOT INCLUDING reference number" should {
+
+      "return JSON response on request for scotland" in {
+        val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyScotland)))(Duration.apply(10, TimeUnit.SECONDS))
+        status(result.get) shouldBe OK
+        contentType(result.get).get shouldBe "application/json"
+        header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
+
+        jsonBodyOf(result.get).map(x => x should have ('matched (false)))
+      }
+
+      "return JSON response on request for northern ireland" in {
+        val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
+        status(result.get) shouldBe OK
+        contentType(result.get).get shouldBe "application/json"
+        header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
+        jsonBodyOf(result.get).map(x => x should have ('matched (false)))
+      }
+
       "return JSON response on unsuccessful child detail match" in {
 
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))

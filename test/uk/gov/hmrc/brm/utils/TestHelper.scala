@@ -18,12 +18,24 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.LocalDate
 import play.api.libs.json.Json
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.Child
 
 object TestHelper {
 
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("500035710-array")
+  val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("400000004-multiple-match")
+  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("2012-02-16")
+  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
+  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
 
+  val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+  val payloadNoReferenceScotland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
+  val payloadNoReferenceNorthernIreland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
 
   val groResponseValidJson = Json.parse(
     """
@@ -136,6 +148,26 @@ object TestHelper {
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-02-16",
        | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingReferenceKeyScotland = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "2012-02-16",
+       | "whereBirthRegistered" : "scotland"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingReferenceKeyNorthernIreland = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "2012-02-16",
+       | "whereBirthRegistered" : "northern ireland"
        |}
     """.stripMargin)
 
