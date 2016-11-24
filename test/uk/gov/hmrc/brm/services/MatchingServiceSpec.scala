@@ -214,6 +214,34 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
     }
   }
 
+  "valid request payload and invalid Record with reference " should {
+
+    "return false result match" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, List(invalidRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+    "return false when firstName not match" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, List(firstNameNotMatchedRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+    "return false when lastName not match" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, List(lastNameNotMatchRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+    "return false when dob not match" in {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MatchingService.performMatch(payload, List(dobNotMatchRecord), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+  }
+
   "valid request payload and valid Record with child details" should {
 
     "return true result match" in {
@@ -241,7 +269,6 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
       resultMatch.isMatch shouldBe true
     }
   }
-
 
   "valid request payload and invalid Record with child details " should {
 
