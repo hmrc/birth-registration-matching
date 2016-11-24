@@ -36,6 +36,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  import uk.gov.hmrc.brm.utils.TestHelper._
+
   /**
     * - Should
     * - getReference returns json response
@@ -62,10 +64,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "lastName" -> "Wilson",
     "dateOfBirth" -> "2006-11-12"
   )
-
-  val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
-
-  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
 
   before {
     reset(mockHttpGet)
@@ -156,7 +154,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getReference returns http NotImplementedException" in {
-        val future = NrsConnector.getReference(payload)
+        val future = NrsConnector.getReference(payloadNoReferenceScotland)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getReference method available for NRS connector."
@@ -166,7 +164,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getChildDetails returns http NotImplementedException" in {
-        val future = NrsConnector.getChildDetails(payload)
+        val future = NrsConnector.getChildDetails(payloadNoReferenceScotland)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getChildDetails method available for NRS connector."
@@ -185,7 +183,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getReference returns http NotImplementedException" in {
-        val future = NirsConnector.getReference(payload)
+        val future = NirsConnector.getReference(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getReference method available for GRONI connector."
@@ -195,7 +193,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getChildDetails returns http NotImplementedException" in {
-        val future = NirsConnector.getChildDetails(payload)
+        val future = NirsConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getChildDetails method available for GRONI connector."

@@ -156,6 +156,101 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         result shouldBe BirthMatchResponse(true)
       }
 
+      "accept Payload as an argument without reference number - false match" in {
+        val groResponseInvalid = Json.parse(
+          """
+            |{
+            |  "location": {
+            |
+            |  },
+            |  "subjects": {
+            |    "child": {
+            |      "name": {
+            |
+            |      },
+            |      "originalName": {
+            |
+            |      }
+            |    },
+            |    "father": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "mother": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "informant": {
+            |      "name": {
+            |
+            |      }
+            |    }
+            |  },
+            |  "systemNumber": 999999920,
+            |  "id": 999999920,
+            |  "status": {
+            |    "blockedRegistration": false
+            |  },
+            |  "previousRegistration": {}
+            |
+            |  }
+          """.stripMargin)
+        when(MockService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+        val service = MockService
+        implicit val payload = Payload(None, "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        val result = await(service.lookup)(Duration.create(5, "seconds"))
+        result shouldBe BirthMatchResponse(false)
+      }
+
+      "accept payload as an argument without reference number - true match" in {
+        val groResponseValid = Json.parse(
+          """
+            |{
+            |  "location": {
+            |
+            |  },
+            |  "subjects": {
+            |    "child" : {
+            |   "name" : {
+            |    "givenName" : "Chris",
+            |    "surname" : "Jones"
+            |   },
+            |   "dateOfBirth" : "2012-02-16"
+            |  },
+            |    "father": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "mother": {
+            |      "name": {
+            |
+            |      }
+            |    },
+            |    "informant": {
+            |      "name": {
+            |
+            |      }
+            |    }
+            |  },
+            |  "systemNumber": 123456789,
+            |  "id": 123456789,
+            |  "status": {
+            |    "blockedRegistration": false
+            |  },
+            |  "previousRegistration": {}
+            |
+            |  }
+          """.stripMargin)
+        when(MockService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+        val service = MockService
+        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(true)
+      }
+
     }
 
     "requesting Scotland" should {
@@ -167,6 +262,13 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
           result should not be BirthMatchResponse(false)
       }
 
+      "accept payload without reference number as argument" in {
+        val service = MockService
+        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
+        val result = await(service.lookup)
+        result should not be BirthMatchResponse(false)
+      }
+
     }
 
     "requesting Northern Ireland" should {
@@ -176,6 +278,13 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
           implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
           val result = await(service.lookup)
           result should not be BirthMatchResponse(false)
+      }
+
+      "accept payload without reference number as argument" in {
+        val service = MockService
+        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+        val result = await(service.lookup)
+        result should not be BirthMatchResponse(false)
       }
 
     }
