@@ -31,8 +31,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 
 class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
-  
-  "microservice.services.birth-registration-matching.matching.match-on-multiple"
 
   val configFirstName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
@@ -177,6 +175,12 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
     "return false result match when List is empty" in {
       val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
       val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
+      resultMatch.isMatch shouldBe false
+    }
+
+    "return false result match when List contains duplicate matches" ignore {
+      val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+      val resultMatch = MockMatchingService.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
       resultMatch.isMatch shouldBe false
     }
 
