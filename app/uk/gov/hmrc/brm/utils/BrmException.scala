@@ -43,7 +43,7 @@ trait BrmException extends Controller {
 
   def badGatewayPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(m, BAD_GATEWAY, _) =>
-      logException(Some(message), Some("BadRequest"), BAD_GATEWAY)
+      logException(Some(message), Some("BadGateway"), BAD_GATEWAY)
       BadGateway(message)
   }
 
@@ -74,8 +74,8 @@ trait BrmException extends Controller {
   private def logException(message: Option[String] = None, status: Option[String] = None, statusCode: Int)(implicit payload: Payload) = {
     getMetrics().connectorStatus(statusCode)
     statusCode match {
-      case x if  x >= 500 && x < 600 => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case x if  x >= 400 && x < 500 => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception4xx() => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
       case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
     }
   }
@@ -90,6 +90,18 @@ trait BrmException extends Controller {
     case e: Exception =>
       logException(Some(message), Some(s"InternalServerError: message: $e"), INTERNAL_SERVER_ERROR)
       InternalServerError
+  }
+}
+
+private object Exception5xx {
+  def unapply(exception: Int): Boolean = {
+    exception >= 500 && exception < 600
+  }
+}
+
+private object Exception4xx {
+  def unapply(exception: Int): Boolean = {
+    exception >= 400 && exception < 500
   }
 }
 
