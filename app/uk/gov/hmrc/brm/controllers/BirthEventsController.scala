@@ -32,7 +32,6 @@ import scala.concurrent.Future
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
-  override val switchSearchByDetails = BrmConfig.switchSearchByDetails
 }
 
 trait BirthEventsController extends HeaderValidator with BRMBaseController {
@@ -44,7 +43,6 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service: LookupService
-  protected val switchSearchByDetails : Boolean
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
@@ -60,9 +58,9 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
           implicit val metrics : BRMMetrics = getMetrics()
 
           // Toggle switch for searching by child's name or whether we should validate date of birth
-          if (!validateDob(p.dateOfBirth) || !switchSearchByDetails) {
+          if (restrictSearchByDateOfBirthBeforeGROStartDate(p.dateOfBirth) || payload.restrictSearchByDetails) {
             // date of birth is before acceptable date
-            info(CLASS_NAME, "post()", s"date of birth is before date accepted by GRO, returned match=false")
+            info(CLASS_NAME, "post()", s"date of birth is before date accepted by GRO, or restricting search by child's details")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           } else {
             info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")

@@ -63,7 +63,6 @@ class BirthEventsControllerSpec
 
   object MockController extends BirthEventsController with BRMBaseController {
     override val service = MockLookupService
-    override val switchSearchByDetails = true
   }
 
   def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
