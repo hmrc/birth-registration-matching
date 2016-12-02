@@ -25,8 +25,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.connectors.{NrsConnector, NirsConnector, BirthConnector}
-import uk.gov.hmrc.brm.services.{MatchingService, LookupService}
+import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
+import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.http.HttpResponse
@@ -60,6 +60,8 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   object MockController extends BirthEventsController {
     override val service = MockLookupService
   }
+
+
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> true,

@@ -44,13 +44,12 @@ object CommonUtil extends Controller {
     ) getOrElse ""
   }
 
-  def validateDob(d: LocalDate): Boolean = {
+  def restrictSearchByDateOfBirthBeforeGROStartDate(d: LocalDate): Boolean = {
     BrmConfig.validateDobForGro match {
       case true =>
         val validDate = new LocalDate(BrmConfig.minimumDateValueForGroValidation)
-        d.isAfter(validDate) || d.isEqual(validDate)
-      case false =>
-        true
+        d.isBefore(validDate)
+      case _ => false
     }
 
   }

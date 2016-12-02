@@ -17,10 +17,12 @@
 package uk.gov.hmrc.brm.models.brm
 
 import org.joda.time.LocalDate
+import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.utils.BRMFormat
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
 
@@ -31,6 +33,17 @@ case class Payload(
                     dateOfBirth: LocalDate,
                     whereBirthRegistered : BirthRegisterCountry
                   ){
+
+  def restrictSearchByDetails : Boolean = {
+    if (birthReferenceNumber.isDefined) {
+      false
+    } else {
+      // if switch is false then stop and return no match
+      Logger.debug(s"[Payload][restrictSearchByDetails][${BrmConfig.disableSearchByDetails}")
+      BrmConfig.disableSearchByDetails
+    }
+  }
+
 }
 
 object Payload extends BRMFormat {
