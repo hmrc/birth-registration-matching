@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -31,6 +32,7 @@ import scala.concurrent.Future
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
+  override val switchSearchByDetails = BrmConfig.switchSearchByDetails
 }
 
 trait BirthEventsController extends HeaderValidator with BRMBaseController {
@@ -42,6 +44,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service: LookupService
+  protected val switchSearchByDetails : Boolean
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
@@ -56,7 +59,8 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
           implicit val p : Payload = payload
           implicit val metrics : BRMMetrics = getMetrics()
 
-          if (!validateDob(p.dateOfBirth)) {
+          // Toggle switch for searching by child's name or whether we should validate date of birth
+          if (!validateDob(p.dateOfBirth) || !switchSearchByDetails) {
             // date of birth is before acceptable date
             info(CLASS_NAME, "post()", s"date of birth is before date accepted by GRO, returned match=false")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))

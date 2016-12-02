@@ -50,6 +50,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   object MockController extends BirthEventsController with BRMBaseController {
     override val service = MockLookupService
+    override val switchSearchByDetails = true
   }
 
   object HeaderValidator extends HeaderValidator

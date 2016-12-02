@@ -33,6 +33,8 @@ trait BrmConfig extends ServicesConfig
 
   val matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", false)
 
+  val switchSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.searchByDetails", true)
+
 }
 
 object BrmConfig extends BrmConfig
