@@ -71,7 +71,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
                 info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
                 respond(Ok(Json.toJson(bm)))
               }
-            } recover handleException("getReference")
+            } recover handleException(if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails")
           }
         }
       )
