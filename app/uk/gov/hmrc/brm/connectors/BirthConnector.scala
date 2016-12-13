@@ -20,6 +20,7 @@ import java.net.URLEncoder
 
 import play.api.Logger
 import play.api.Play.current
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WS
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent, NorthernIrelandAuditEvent, ScotlandAuditEvent}
 import uk.gov.hmrc.brm.config.WSHttp
@@ -34,40 +35,78 @@ trait BirthConnector extends ServicesConfig {
 
   val serviceUrl : String
   val httpGet : HttpGet
+  val httpPost : HttpPost
 
   val baseUri : String
   val detailsUri : String
+  val referenceUri : String
 
   abstract class RequestType
   case class ReferenceRequest() extends RequestType
   case class DetailsRequest() extends RequestType
 
-  private val referenceURI : PartialFunction[Payload, String] = {
-    case Payload(Some(birthReferenceNumber), _, _, _, _) =>
-      s"$detailsUri/$birthReferenceNumber"
+//  private val referenceURI : PartialFunction[Payload, String] = {
+//    case Payload(Some(birthReferenceNumber), _, _, _, _) =>
+//      s"$detailsUri/$birthReferenceNumber"
+//  }
+//
+//  private val detailsURI : PartialFunction[Payload, String] = {
+//    case Payload(None, f, l, d, _) =>
+//      val nameValuePair = Map(
+//        "forenames" -> NameFormat(f),
+//        "lastname" -> NameFormat(l),
+//        "dateofbirth" -> s"$d"
+//      )
+//
+//      val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
+//      detailsUri.concat(s"?$query")
+//  }
+
+  private val referenceBody : PartialFunction[Payload, (String, JsValue)] = {
+    case Payload(Some(birthReferenceNumver), _, _, _, _) =>
+      (referenceUri, Json.parse(
+        s"""
+           |{
+           |  "birthreferencenumber" : "${birthReferenceNumver}"
+           |}
+         """.stripMargin))
   }
 
-  private val detailsURI : PartialFunction[Payload, String] = {
+  private val detailsBody : PartialFunction[Payload, (String, JsValue)] = {
     case Payload(None, f, l, d, _) =>
-      val nameValuePair = Map(
-        "forenames" -> NameFormat(f),
-        "lastname" -> NameFormat(l),
-        "dateofbirth" -> s"$d"
-      )
-
-      val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
-      detailsUri.concat(s"?$query")
+      (detailsUri, Json.parse(
+        s"""
+           |{
+           | "firstname" : "${NameFormat(f)}",
+           | "lastname" : "${NameFormat(l)}",
+           | "dateofbirth" : "${d}"
+           |}
+        """.stripMargin))
   }
 
   private def request(payload: Payload, operation: RequestType)(implicit hc: HeaderCarrier) = {
+//    val f = operation match {
+//      case ReferenceRequest() => referenceURI
+//      case DetailsRequest() => detailsURI
+//    }
+//
+//    val uri = f(payload)
+//    val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
+//    httpGet.GET[HttpResponse](uri)(implicitly[HttpReads[HttpResponse]], newHc)
+
     val f = operation match {
-      case ReferenceRequest() => referenceURI
-      case DetailsRequest() => detailsURI
+      case ReferenceRequest() => referenceBody
+      case DetailsRequest() => detailsBody
     }
 
-    val uri = f(payload)
-    val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
-    httpGet.GET[HttpResponse](uri)(implicitly[HttpReads[HttpResponse]], newHc)
+    val requestDetail = f(payload)
+
+    val uri = requestDetail._1
+    val body = requestDetail._2
+
+    httpPost.POST(uri, body,
+      Seq(BrmLogger.BRM_KEY-> Keygenerator.geKey(),
+        "Content-Type" -> "application/json; charset=utf-8"))
   }
 
   def getReference(payload: Payload)(implicit hc : HeaderCarrier) = {
@@ -84,15 +123,20 @@ trait BirthConnector extends ServicesConfig {
 object GROEnglandConnector extends BirthConnector {
   override val serviceUrl = baseUrl("birth-registration-matching")
   override val httpGet : HttpGet = WSHttp
+  override val httpPost : HttpPost = WSHttp
   override val baseUri = "birth-registration-matching-proxy"
-  override val detailsUri = s"$serviceUrl/$baseUri/match"
+  override val detailsUri = s"$serviceUrl/$baseUri/match/details"
+  override val referenceUri = s"$serviceUrl/$baseUri/match/reference"
+
 }
 
 object NirsConnector extends BirthConnector {
   override val serviceUrl = ""
   override val httpGet : HttpGet = WSHttp
+  override val httpPost : HttpPost = WSHttp
   override val baseUri = ""
   override val detailsUri = s"$serviceUrl/$baseUri"
+  override val referenceUri = s"$serviceUrl/$baseUri"
 
   override def getReference(payload: Payload)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
@@ -118,8 +162,10 @@ object NirsConnector extends BirthConnector {
 object NrsConnector extends BirthConnector {
   override val serviceUrl = ""
   override val httpGet : HttpGet = WSHttp
+  override val httpPost : HttpPost = WSHttp
   override val baseUri = ""
   override val detailsUri = s"$serviceUrl/$baseUri"
+  override val referenceUri = s"$serviceUrl/$baseUri"
 
   override def getReference(payload: Payload)(implicit hc : HeaderCarrier)  = {
     BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
