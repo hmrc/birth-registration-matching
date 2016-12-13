@@ -16,16 +16,11 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import java.net.URLEncoder
-
-import play.api.Logger
-import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.WS
-import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent, NorthernIrelandAuditEvent, ScotlandAuditEvent}
+import uk.gov.hmrc.brm.audit.{BRMAudit, NorthernIrelandAuditEvent, ScotlandAuditEvent}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BrmLogger, Keygenerator, NameFormat}
+import uk.gov.hmrc.brm.utils.{BrmLogger, Keygenerator, NameFormat}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -45,29 +40,12 @@ trait BirthConnector extends ServicesConfig {
   case class ReferenceRequest() extends RequestType
   case class DetailsRequest() extends RequestType
 
-//  private val referenceURI : PartialFunction[Payload, String] = {
-//    case Payload(Some(birthReferenceNumber), _, _, _, _) =>
-//      s"$detailsUri/$birthReferenceNumber"
-//  }
-//
-//  private val detailsURI : PartialFunction[Payload, String] = {
-//    case Payload(None, f, l, d, _) =>
-//      val nameValuePair = Map(
-//        "forenames" -> NameFormat(f),
-//        "lastname" -> NameFormat(l),
-//        "dateofbirth" -> s"$d"
-//      )
-//
-//      val query = nameValuePair.map(pair => pair._1 + "=" + URLEncoder.encode(pair._2, "UTF-8")).mkString("&")
-//      detailsUri.concat(s"?$query")
-//  }
-
   private val referenceBody : PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(birthReferenceNumver), _, _, _, _) =>
+    case Payload(Some(brn), _, _, _, _) =>
       (referenceUri, Json.parse(
         s"""
            |{
-           |  "birthreferencenumber" : "${birthReferenceNumver}"
+           |  "reference" : "$brn"
            |}
          """.stripMargin))
   }
@@ -77,22 +55,14 @@ trait BirthConnector extends ServicesConfig {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "firstname" : "${NameFormat(f)}",
+           | "forenames" : "${NameFormat(f)}",
            | "lastname" : "${NameFormat(l)}",
-           | "dateofbirth" : "${d}"
+           | "dateofbirth" : "$d"
            |}
         """.stripMargin))
   }
 
   private def request(payload: Payload, operation: RequestType)(implicit hc: HeaderCarrier) = {
-//    val f = operation match {
-//      case ReferenceRequest() => referenceURI
-//      case DetailsRequest() => detailsURI
-//    }
-//
-//    val uri = f(payload)
-//    val newHc = hc.withExtraHeaders(BrmLogger.BRM_KEY-> Keygenerator.geKey())
-//    httpGet.GET[HttpResponse](uri)(implicitly[HttpReads[HttpResponse]], newHc)
 
     val f = operation match {
       case ReferenceRequest() => referenceBody

@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.{Logger, Play}
+import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -44,6 +44,7 @@ class BirthEventsControllerSpec
   with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
