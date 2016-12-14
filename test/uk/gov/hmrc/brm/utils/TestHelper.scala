@@ -151,6 +151,16 @@ object TestHelper {
        |}
     """.stripMargin)
 
+  val userNoMatchUTF8SpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
   val userNoMatchExcludingReferenceKeyScotland = Json.parse(
     s"""
        |{

@@ -18,7 +18,6 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload

@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.{Logger, Play}
+import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -44,6 +44,7 @@ class BirthEventsControllerSpec
   with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
@@ -98,9 +99,17 @@ class BirthEventsControllerSpec
       }
 
       "return JSON response on unsuccessful child detail match" in {
-
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
         val request = postRequest(userNoMatchExcludingReferenceKey)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe OK
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "return JSON response on when details contain valid UTF-8 special characters" in {
+        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+        val request = postRequest(userNoMatchUTF8SpecialCharacters)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
