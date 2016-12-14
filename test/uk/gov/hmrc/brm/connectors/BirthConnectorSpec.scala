@@ -43,7 +43,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   val mockHttpPost = mock[HttpPost]
 
   object MockBirthConnector extends BirthConnector {
-    override val httpGet = mockHttpGet
     override val httpPost = mockHttpPost
     override val serviceUrl = ""
     override val baseUri = ""
@@ -141,7 +140,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "GROEnglandConnector" should {
 
       "initialise with correct properties" in {
-        GROEnglandConnector.httpGet shouldBe a[WSGet]
         GROEnglandConnector.httpPost shouldBe a[WSPost]
         GROEnglandConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match/details"
       }
@@ -151,7 +149,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "NRSConnector" should {
 
       "initialise with correct properties" in {
-        NrsConnector.httpGet shouldBe a[WSGet]
         NrsConnector.httpPost shouldBe a[WSPost]
         NrsConnector.detailsUri shouldBe "/"
       }
@@ -181,7 +178,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "GRONIConnector" should {
 
       "initialise with correct properties" in {
-        NirsConnector.httpGet shouldBe a[WSGet]
         NirsConnector.httpPost shouldBe a[WSPost]
         NirsConnector.detailsUri shouldBe "/"
       }

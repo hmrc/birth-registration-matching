@@ -307,6 +307,21 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
 
       jsonObject.validate[Payload].isError shouldBe true
     }
+
+    "return error when firstName contains invalid characters" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1234567890",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
   }
 
 }

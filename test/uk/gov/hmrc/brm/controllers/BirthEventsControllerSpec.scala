@@ -99,9 +99,17 @@ class BirthEventsControllerSpec
       }
 
       "return JSON response on unsuccessful child detail match" in {
-
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
         val request = postRequest(userNoMatchExcludingReferenceKey)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe OK
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "return JSON response on when details contain valid UTF-8 special characters" in {
+        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+        val request = postRequest(userNoMatchUTF8SpecialCharacters)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"

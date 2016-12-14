@@ -29,7 +29,6 @@ import scala.concurrent.Future
 trait BirthConnector extends ServicesConfig {
 
   val serviceUrl: String
-  val httpGet: HttpGet
   val httpPost: HttpPost
 
   val baseUri: String
@@ -99,7 +98,6 @@ trait BirthConnector extends ServicesConfig {
 
 object GROEnglandConnector extends BirthConnector {
   override val serviceUrl = baseUrl("birth-registration-matching")
-  override val httpGet: HttpGet = WSHttp
   override val httpPost: HttpPost = WSHttp
   override val baseUri = "birth-registration-matching-proxy"
   override val detailsUri = s"$serviceUrl/$baseUri/match/details"
@@ -108,7 +106,6 @@ object GROEnglandConnector extends BirthConnector {
 
 object NirsConnector extends BirthConnector {
   override val serviceUrl = ""
-  override val httpGet: HttpGet = WSHttp
   override val httpPost: HttpPost = WSHttp
   override val baseUri = ""
   override val detailsUri = s"$serviceUrl/$baseUri"
@@ -137,7 +134,6 @@ object NirsConnector extends BirthConnector {
 
 object NrsConnector extends BirthConnector {
   override val serviceUrl = ""
-  override val httpGet: HttpGet = WSHttp
   override val httpPost: HttpPost = WSHttp
   override val baseUri = ""
   override val detailsUri = s"$serviceUrl/$baseUri"
