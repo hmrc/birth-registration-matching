@@ -25,6 +25,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 object BRMFormat extends BRMFormat
 trait BRMFormat {
   val datePattern = "yyyy-MM-dd"
+  val invalidNameCharsRegx = "[;/\\\\]".r
 
   val birthReferenceNumberValidate : Reads[String] =
     Reads.StringReads.filter(ValidationError(""))(
@@ -36,9 +37,8 @@ trait BRMFormat {
   val nameValidation : Reads[String] =
     Reads.StringReads.filter(ValidationError(""))(
       str => {
-        var regEx = "[;/\\\\()]".r
         //special charactr should not be there and lenth min 1.
-        (!regEx.findFirstIn(str).isDefined) && str.length > 1
+        (!invalidNameCharsRegx.findFirstIn(str).isDefined) && str.length > 1
       }
     )
 
