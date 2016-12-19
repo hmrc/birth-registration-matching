@@ -89,7 +89,7 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         """
           |{
           | "birthReferenceNumber": "123456789",
-          | "firstName" : "John;",
+          | "firstName" : "John-->",
           | "lastName" : "Smith",
           | "dateOfBirth" : "1997-01-13",
           | "whereBirthRegistered" : "england"
@@ -106,6 +106,21 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
           | "birthReferenceNumber": "123456789",
           | "firstName" : "John",
           | "lastName" : "Smith/",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when lastname contains invalid character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "<!--#EXEC cmd=\"ls /\"--",
           | "dateOfBirth" : "1997-01-13",
           | "whereBirthRegistered" : "england"
           |}

@@ -25,7 +25,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 object BRMFormat extends BRMFormat
 trait BRMFormat {
   val datePattern = "yyyy-MM-dd"
-  val invalidNameCharsRegx = "[;/\\\\]".r
+  val invalidNameCharsRegx = "[;/\\\\()]|(<!)|(-->)".r
 
   val birthReferenceNumberValidate : Reads[String] =
     Reads.StringReads.filter(ValidationError(""))(
