@@ -33,6 +33,15 @@ trait BRMFormat {
       }
     )
 
+  val nameValidation : Reads[String] =
+    Reads.StringReads.filter(ValidationError(""))(
+      str => {
+        var regEx = "[;/\\\\()]".r
+        //special charactr should not be there and lenth min 1.
+        (!regEx.findFirstIn(str).isDefined) && str.length > 1
+      }
+    )
+
   val isAfterDate : Reads[LocalDate] =
     jodaLocalDateReads(datePattern).filter(ValidationError(""))(
       date => {
