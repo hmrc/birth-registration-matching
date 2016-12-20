@@ -23,30 +23,30 @@ import play.api.libs.json.Reads.{apply => _, _}
 import uk.gov.hmrc.brm.config.BrmConfig
 
 object BRMFormat extends BRMFormat
+
 trait BRMFormat {
+
   val datePattern = "yyyy-MM-dd"
-  val invalidNameCharsRegx = "[;/\\\\(){}]|(<!)|(-->)|(\\n)|(\")".r
 
-  val birthReferenceNumberValidate : Reads[String] =
-    Reads.StringReads.filter(ValidationError(""))(
-      str => {
-        str.matches("""^[a-zA-Z0-9_-]+$""")
-      }
+  private val invalidNameCharsRegEx =  "[;/\\\\(){}&]|(<!)|(-->)|(\\n)|(\")".r
+  private val validBirthReferenceNumberRegEx = """^[a-zA-Z0-9_-]+$"""
+
+  private val validationError = ValidationError("")
+
+
+  val birthReferenceNumberValidate: Reads[String] =
+    Reads.StringReads.filter(validationError)(
+      _.matches(validBirthReferenceNumberRegEx)
     )
 
-  val nameValidation : Reads[String] =
-    Reads.StringReads.filter(ValidationError(""))(
-      str => {
-        //special charactr should not be there and lenth min 1.
-        (!invalidNameCharsRegx.findFirstIn(str).isDefined) && str.length > 1
-      }
+  val nameValidation: Reads[String] =
+    Reads.StringReads.filter(validationError)(
+      !invalidNameCharsRegEx.findFirstIn(_).isDefined
     )
 
-  val isAfterDate : Reads[LocalDate] =
-    jodaLocalDateReads(datePattern).filter(ValidationError(""))(
-      date => {
-        date.getYear >= BrmConfig.minimumDateOfBirthYear
-      }
+  val isAfterDate: Reads[LocalDate] =
+    jodaLocalDateReads(datePattern).filter(validationError)(
+      _.getYear >= BrmConfig.minimumDateOfBirthYear
     )
 
 }
