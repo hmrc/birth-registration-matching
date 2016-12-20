@@ -114,6 +114,22 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
       jsonObject.validate[Payload].isError shouldBe true
     }
 
+    "return error when firstName contains double quote character." in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John\"",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+
     "return error when lastName contains newline character" in {
       val jsonObject: JsValue = Json.parse(
         """
