@@ -65,8 +65,8 @@ object Payload extends BRMFormat {
 
   implicit val requestFormat: Reads[Payload] = (
     (JsPath \ birthReferenceNumber).readNullable[String](birthReferenceNumberValidate) and
-      (JsPath \ firstName).read[String](nameValidation) and
-      (JsPath \ lastName).read[String](nameValidation) and
+      (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1)) and
+      (JsPath \ lastName).read[String](nameValidation  keepAnd minLength[String](1)) and
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
     )(Payload.apply _)
