@@ -28,7 +28,7 @@ trait BRMFormat {
 
   val datePattern = "yyyy-MM-dd"
 
-  private val invalidNameCharsRegEx =  "[;/\\\\(){}&]|(<!)|(-->)|(\\n)|(\")".r
+  private val invalidNameCharsRegEx =  "[;/\\\\(){}&|]|(<!)|(-->)|(\\n)|(\")".r
   private val validBirthReferenceNumberRegEx = """^[a-zA-Z0-9_-]+$"""
 
   private val validationError = ValidationError("")
