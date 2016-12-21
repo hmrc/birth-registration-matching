@@ -361,6 +361,26 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val firstNameWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "../WEB-INF/web.xml",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
+  val lastNameWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "Adam TEST",
+       |"lastName" : "Gibby&cat /etc/passwd&",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
   val userNoMatchExcludinglastNameKey = Json.parse(
     s"""
        |{

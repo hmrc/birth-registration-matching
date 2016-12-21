@@ -313,6 +313,14 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
+      "return response code 400 if request contains special characters in firstName" in {
+        val request = postRequest(firstNameWithSpecialCharacters)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe BAD_REQUEST
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
     }
 
     "POST lastName" should {
@@ -327,6 +335,14 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing lastName value" in {
         val request = postRequest(userNoMatchExcludinglastNameValue)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe BAD_REQUEST
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "return response code 400 if request contains special character in lastname value" in {
+        val request = postRequest(lastNameWithSpecialCharacters)
         val result = MockController.post().apply(request)
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"

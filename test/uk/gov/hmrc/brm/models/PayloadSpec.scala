@@ -84,6 +84,111 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
       jsonObject.validate[Payload].isSuccess shouldBe true
     }
 
+    "return error when firstName contains special character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John-->",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when firstName contains special character |" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "firstName" : "|",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when firstName contains newline character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John\n",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when firstName contains double quote character." in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John\"",
+          | "lastName" : "Smith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+
+    "return error when lastName contains newline character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Sm\nith",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when lastname contains special character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "Smith/",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
+    "return error when lastname contains invalid character" in {
+      val jsonObject: JsValue = Json.parse(
+        """
+          |{
+          | "birthReferenceNumber": "123456789",
+          | "firstName" : "John",
+          | "lastName" : "<!--#EXEC cmd=\"ls /\"--",
+          | "dateOfBirth" : "1997-01-13",
+          | "whereBirthRegistered" : "england"
+          |}
+        """.stripMargin)
+
+      jsonObject.validate[Payload].isError shouldBe true
+    }
+
     "return success when birthReferenceNumber key doesn't exist" in {
       val jsonObject: JsValue = Json.parse(
         """
