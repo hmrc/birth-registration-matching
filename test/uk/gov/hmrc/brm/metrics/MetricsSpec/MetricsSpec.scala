@@ -205,13 +205,13 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
     "have a match counter" in {
       val metrics = MatchMetrics
-      metrics.matchCount()
+      metrics.matchCount("match")
       metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount shouldBe 1
     }
 
     "have a no match counter" in {
       val metrics = MatchMetrics
-      metrics.noMatchCount()
+      metrics.noMatchCount("match")
       metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 1
     }
 

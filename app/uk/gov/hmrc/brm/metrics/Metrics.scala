@@ -83,6 +83,9 @@ object MatchMetrics extends BRMMetrics {
   Logger.info(s"[MatchMetrics][init]")
   override val prefix = "match"
 
-  def matchCount() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
-  def noMatchCount() = metrics.defaultRegistry.counter(s"no-$prefix-count").inc()
+  //def matchCount() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
+//  def noMatchCount() = metrics.defaultRegistry.counter(s"no-$prefix-count").inc()
+  //TODO to be discussed
+  def matchCount(additionalPrefix:String) = metrics.defaultRegistry.counter(s"$additionalPrefix-count").inc()
+  def noMatchCount(additionalPrefix:String) = metrics.defaultRegistry.counter(s"no-$additionalPrefix-count").inc()
 }

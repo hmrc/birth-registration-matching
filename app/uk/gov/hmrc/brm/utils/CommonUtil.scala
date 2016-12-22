@@ -20,7 +20,9 @@ import org.joda.time.LocalDate
 import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.{Controller, Request}
+import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.brm.Payload
 
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
@@ -52,6 +54,35 @@ object CommonUtil extends Controller {
       case _ => false
     }
 
+  }
+
+ abstract class RequestType
+
+  case class ReferenceRequest() extends RequestType
+
+  case class DetailsRequest() extends RequestType
+
+  def getOperationType(payload : Payload): RequestType = {
+    payload match {
+      case input@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
+        DetailsRequest()
+      }
+      case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
+        ReferenceRequest()
+      }
+
+    }
+  }
+
+  def getAuditkey(payload: Payload): String = {
+    CommonUtil.getOperationType(payload) match {
+      case DetailsRequest() => {
+        "details"
+      }
+      case ReferenceRequest() => {
+        "match"
+      }
+    }
   }
 
 }

@@ -24,7 +24,7 @@ import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, CommonUtil, MatchingType}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -115,11 +115,13 @@ trait LookupService extends LookupServiceBinder {
           */
 
         val isMatch = matchingService.performMatch(payload, parseRecords(response.json), getMatchingType).isMatch
+        var auditKey = CommonUtil.getAuditkey(payload)
         if(isMatch) {
-          MatchMetrics.matchCount()
+        //  CommonUtil.getOperationType(input)
+          MatchMetrics.matchCount(auditKey)
           BirthResponseBuilder.getResponse(isMatch)
         } else {
-          MatchMetrics.noMatchCount()
+          MatchMetrics.noMatchCount(auditKey)
           BirthResponseBuilder.withNoMatch()
         }
     }
