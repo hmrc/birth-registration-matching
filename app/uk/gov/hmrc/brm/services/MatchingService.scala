@@ -52,10 +52,12 @@ trait MatchingService {
               println("detail audited")
               val event = new EnglandAndWalesAuditEvent (result.audit, "birth-registration-matching/match/details")
               BRMAudit.event(event)
+        BRMAudit.logEventRecordFound(hc,"GRO/details")
       }
       case ReferenceRequest() => {
         val event = new EnglandAndWalesAuditEvent (result.audit)
         BRMAudit.event(event)
+        BRMAudit.logEventRecordFound(hc,"GRO/match")
       }
 
     }

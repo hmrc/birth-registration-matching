@@ -80,14 +80,14 @@ trait LookupService extends LookupServiceBinder {
             List()
           },
           r => {
-            BRMAudit.logEventRecordFound(hc)
+
             info(CLASS_NAME, "parseRecords()", s"Successfully validated as[Record]")
             List(r)
           }
         )
       },
       success => {
-        BRMAudit.logEventRecordFound(hc)
+
         info(CLASS_NAME, "parseRecords()", s"Successfully validated as[List[Record]]")
         success
       }

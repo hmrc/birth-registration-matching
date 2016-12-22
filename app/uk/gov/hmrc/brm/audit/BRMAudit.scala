@@ -45,7 +45,7 @@ sealed class NorthernIrelandAuditEvent(result : Map[String, String], path: Strin
 sealed class OtherAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
   extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match",path)
 
-sealed class EventRecordFound(result : Map[String, String], path: String = "GRO/match")(implicit hc: HeaderCarrier)
+sealed class EventRecordFound(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
   extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
 
 trait BRMAudit {
@@ -91,9 +91,9 @@ trait BRMAudit {
     logEvent(Payload.whereBirthRegistered, error)
   }
 
-  def logEventRecordFound(implicit hc: HeaderCarrier) = {
+  def logEventRecordFound(implicit hc: HeaderCarrier,  path: String) = {
     val result : Map[String, String] = Map("recordFound" -> "true")
-    val recordEvent = new EventRecordFound(result)(hc)
+    val recordEvent = new EventRecordFound(result, path)(hc)
     event(recordEvent)
   }
 
