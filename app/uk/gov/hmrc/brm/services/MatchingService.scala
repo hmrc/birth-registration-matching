@@ -54,16 +54,16 @@ trait MatchingService {
     CommonUtil.getOperationType(input) match {
       case DetailsRequest() => {
 
-              val event = new EnglandAndWalesAuditEvent (result.audit, "birth-registration-matching/match/details")
-              BRMAudit.event(event)
-        if(records.length!=0) {
+        val event = new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details")
+        BRMAudit.event(event)
+        if (records.length != 0) {
           BRMAudit.logEventRecordFound(hc, "GRO/details", hasMultipleRecords)
         }
       }
       case ReferenceRequest() => {
-        val event = new EnglandAndWalesAuditEvent (result.audit)
+        val event = new EnglandAndWalesAuditEvent(result.audit)
         BRMAudit.event(event)
-        if(records.length!=0) {
+        if (records.length != 0) {
           BRMAudit.logEventRecordFound(hc, "GRO/match", hasMultipleRecords)
         }
       }

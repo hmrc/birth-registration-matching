@@ -55,7 +55,7 @@ trait BRMAudit {
   protected val connector : AuditConnector
 
   def event(event: AuditEvent) : Future[AuditResult] = {
-    
+
     connector.sendEvent(event) map {
       success =>
         BrmLogger.info("BRMAudit", s"event", "event successfully audited")
