@@ -55,7 +55,7 @@ trait BRMAudit {
   protected val connector : AuditConnector
 
   def event(event: AuditEvent) : Future[AuditResult] = {
-    println(event.tags)
+    
     connector.sendEvent(event) map {
       success =>
         BrmLogger.info("BRMAudit", s"event", "event successfully audited")
@@ -91,8 +91,8 @@ trait BRMAudit {
     logEvent(Payload.whereBirthRegistered, error)
   }
 
-  def logEventRecordFound(implicit hc: HeaderCarrier,  path: String) = {
-    val result : Map[String, String] = Map("recordFound" -> "true")
+  def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
+    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"${hasMultipleRecords}")
     val recordEvent = new EventRecordFound(result, path)(hc)
     event(recordEvent)
   }

@@ -47,17 +47,25 @@ trait MatchingService {
 
     info(CLASS_NAME, "performMatch", s"${result.audit}")
 
+    val hasMultipleRecords = if(records.length >1 ) true else false
+
+    info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> ${hasMultipleRecords}")
+
     CommonUtil.getOperationType(input) match {
       case DetailsRequest() => {
-              println("detail audited")
+
               val event = new EnglandAndWalesAuditEvent (result.audit, "birth-registration-matching/match/details")
               BRMAudit.event(event)
-        BRMAudit.logEventRecordFound(hc,"GRO/details")
+        if(records.length!=0) {
+          BRMAudit.logEventRecordFound(hc, "GRO/details", hasMultipleRecords)
+        }
       }
       case ReferenceRequest() => {
         val event = new EnglandAndWalesAuditEvent (result.audit)
         BRMAudit.event(event)
-        BRMAudit.logEventRecordFound(hc,"GRO/match")
+        if(records.length!=0) {
+          BRMAudit.logEventRecordFound(hc, "GRO/match", hasMultipleRecords)
+        }
       }
 
     }
