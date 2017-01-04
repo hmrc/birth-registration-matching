@@ -34,6 +34,7 @@ trait BrmConfig extends ServicesConfig
   def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
 
   def disableSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.disableSearchByDetails", defBool = false)
+  def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
 
 }
 

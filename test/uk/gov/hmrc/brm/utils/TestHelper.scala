@@ -371,6 +371,46 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val firstNameWithMoreThan250Characters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
+  val firstNameWithMoreThan100Characters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
+  val lastNameWithMoreThan100Characters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "Adam",
+       |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
+  val lastNameWithMoreThan250Characters = Json.parse(
+    s"""
+       |{
+       |"firstname" : "Adam",
+       |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789"
+       |}
+     """.stripMargin)
+
   val lastNameWithSpecialCharacters = Json.parse(
     s"""
        |{
