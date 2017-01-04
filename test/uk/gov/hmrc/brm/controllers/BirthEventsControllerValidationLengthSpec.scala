@@ -70,7 +70,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     config
   ).build()
 
-  "validating max legnth change" should {
+  "validating max length change" should {
 
     "return matched value of true when the firstName length  is less than specified value and request is valid" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
