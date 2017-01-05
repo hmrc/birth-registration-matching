@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.brm.audit
 
-import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger
-import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -96,7 +94,6 @@ trait BRMAudit {
     val recordEvent = new EventRecordFound(result, path)(hc)
     event(recordEvent)
   }
-
 }
 
 object BRMAudit extends BRMAudit {
