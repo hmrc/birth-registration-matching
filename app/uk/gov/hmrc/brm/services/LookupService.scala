@@ -115,13 +115,11 @@ trait LookupService extends LookupServiceBinder {
           */
 
         val isMatch = matchingService.performMatch(payload, parseRecords(response.json), getMatchingType).isMatch
-        //TODO for grafana dashboard
-        var auditKey = CommonUtil.getAuditkey(payload)
         if(isMatch) {
-          MatchMetrics.matchCount(auditKey)
+          MatchMetrics.matchCount()
           BirthResponseBuilder.getResponse(isMatch)
         } else {
-          MatchMetrics.noMatchCount(auditKey)
+          MatchMetrics.noMatchCount()
           BirthResponseBuilder.withNoMatch()
         }
     }
