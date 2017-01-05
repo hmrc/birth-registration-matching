@@ -72,7 +72,7 @@ trait BrmException extends Controller {
   }
 
   private def logException(message: Option[String] = None, status: Option[String] = None, statusCode: Int)(implicit payload: Payload) = {
-    getMetrics().connectorStatus(statusCode)
+    MetricsFactory.getMetrics().status(statusCode)
     statusCode match {
       case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
       case Exception4xx() => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))

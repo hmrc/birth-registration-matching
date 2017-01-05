@@ -20,12 +20,16 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 
-case class Record(child: Child, status: Option[Status] = None)
+case class Record[C, S](child: C, status: Option[S] = None)
 
 object Record {
 
-  implicit val implicitReads: Reads[Record] = (
-    JsPath.read[Child] and
-      (JsPath \ "status").readNullable[Status]
+  implicit def readRecords[C, S](implicit cRds : Reads[C], sRds : Reads[S]) : Reads[Record[C, S]] = new Reads[Record[C, S]] {
+
+    def reads(json: JsValue): JsResult[Record[C, S]] = new Record[C, S](
+      Json.fromJson(cRds),
+        (JsPath \ "status").readNullable[Status]
     )(Record.apply _)
+
+  }
 }

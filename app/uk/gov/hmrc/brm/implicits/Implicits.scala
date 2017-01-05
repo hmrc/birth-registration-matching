@@ -16,25 +16,39 @@
 
 package uk.gov.hmrc.brm.implicits
 
-import play.api.Logger
-import uk.gov.hmrc.brm.metrics.{GRONIMetrics, BRMMetrics, NRSMetrics, ProxyMetrics}
+import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 
 object Implicits {
 
-  implicit def getMetrics()(implicit payload : Payload) : BRMMetrics = {
-    payload.whereBirthRegistered match {
-      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-        Logger.debug(s"[Implicits][Metrics][getMetrics] Proxy")
-        ProxyMetrics
-      case BirthRegisterCountry.NORTHERN_IRELAND  =>
-        Logger.debug(s"[Implicits][Metrics][getMetrics] GRO-NI")
-        GRONIMetrics
-      case BirthRegisterCountry.SCOTLAND  =>
-        Logger.debug(s"[Implicits][Metrics][getMetrics] NRS")
-        NRSMetrics
+  object MetricsFactory {
+
+    private lazy val referenceSet : Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
+      BirthRegisterCountry.ENGLAND -> GROReferenceMetrics,
+      BirthRegisterCountry.WALES -> GROReferenceMetrics,
+      BirthRegisterCountry.SCOTLAND -> NRSMetrics,
+      BirthRegisterCountry.NORTHERN_IRELAND -> GRONIMetrics
+    )
+
+    private lazy val detailsSet : Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
+      BirthRegisterCountry.ENGLAND -> GRODetailsMetrics,
+      BirthRegisterCountry.WALES -> GRODetailsMetrics,
+      BirthRegisterCountry.SCOTLAND -> NRSMetrics,
+      BirthRegisterCountry.NORTHERN_IRELAND -> GRONIMetrics
+    )
+
+    def getMetrics()(implicit payload : Payload) : BRMMetrics = {
+      payload.birthReferenceNumber match {
+        case Some(x) =>
+          referenceSet.getOrElse(payload.whereBirthRegistered, InvalidBirthRegisteredCountMetrics)
+        case None =>
+          detailsSet.getOrElse(payload.whereBirthRegistered, InvalidBirthRegisteredCountMetrics)
+      }
     }
+
   }
+
+
 
 }
