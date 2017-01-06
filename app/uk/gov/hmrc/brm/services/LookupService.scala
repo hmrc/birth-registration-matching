@@ -16,15 +16,12 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,6 +56,7 @@ trait LookupService extends LookupServiceBinder {
   protected val nirsConnector: BirthConnector
   protected val nrsConnector: BirthConnector
   protected val matchingService: MatchingService
+
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   /**
@@ -69,33 +67,6 @@ trait LookupService extends LookupServiceBinder {
     * @param metrics
     * @return
     */
-
-  private[LookupService] def parseRecords(json: JsValue)(implicit hc : HeaderCarrier) : List[Record] = {
-    val records = json.validate[List[Record]].fold(
-      error => {
-        info(CLASS_NAME, "parseRecords()", s"Failed to validate as[List[Record]]")
-        json.validate[Record].fold(
-          e => {
-            info(CLASS_NAME, "parseRecords()", s"Failed to validate as[Record]")
-            List()
-          },
-          r => {
-            BRMAudit.logEventRecordFound(hc)
-            info(CLASS_NAME, "parseRecords()", s"Successfully validated as[Record]")
-            List(r)
-          }
-        )
-      },
-      success => {
-        BRMAudit.logEventRecordFound(hc)
-        info(CLASS_NAME, "parseRecords()", s"Successfully validated as[List[Record]]")
-        success
-      }
-    )
-
-    if (records.isEmpty) warn(CLASS_NAME, "parseRecords()", s"Failed to parse response as[List[Record]] and as[Record]")
-    records
-  }
 
   def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
     getRecord(hc, payload, metrics).map {
@@ -114,12 +85,12 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-        val isMatch = matchingService.performMatch(payload, parseRecords(response.json), getMatchingType).isMatch
+        val isMatch = matchingService.performMatch(payload, RecordParser.parse(response.json), getMatchingType).isMatch
         if(isMatch) {
-          MatchMetrics.matchCount()
+          MatchCountMetric.count()
           BirthResponseBuilder.getResponse(isMatch)
         } else {
-          MatchMetrics.noMatchCount()
+          NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()
         }
     }
