@@ -45,36 +45,23 @@ trait MatchingService {
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
 
+    val multipleRecords = records.length > 1
+
     info(CLASS_NAME, "performMatch", s"${result.audit}")
-
-    logEvent(input, records, result)
-
-    result
-  }
-
-  private def logEvent(input: Payload, records: List[Record], result: ResultMatch)(implicit hc: HeaderCarrier): Unit = {
-
-    val hasMultipleRecords = if(records.length >1 ) true else false
-
-    info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> $hasMultipleRecords")
+    info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> $multipleRecords")
 
     CommonUtil.getOperationType(input) match {
       case DetailsRequest() => {
-
-        val event = new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details")
-        BRMAudit.event(event)
-        if (records.nonEmpty) {
-          BRMAudit.logEventRecordFound(hc, "GRO/details", hasMultipleRecords)
-        }
+        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details"),
+          records, multipleRecords, "GRO/details", hc)
       }
       case ReferenceRequest() => {
-        val event = new EnglandAndWalesAuditEvent(result.audit)
-        BRMAudit.event(event)
-        if (records.nonEmpty) {
-          BRMAudit.logEventRecordFound(hc, "GRO/match", hasMultipleRecords)
-        }
+        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit),
+          records, multipleRecords, "GRO/match", hc)
       }
     }
+
+    result
   }
 }
 

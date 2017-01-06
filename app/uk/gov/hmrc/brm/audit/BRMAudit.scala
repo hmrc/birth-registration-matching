@@ -20,6 +20,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -93,6 +94,11 @@ trait BRMAudit {
     val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"${hasMultipleRecords}")
     val recordEvent = new EventRecordFound(result, path)(hc)
     event(recordEvent)
+  }
+
+  def auditRequest(auditEvent: AuditEvent, records: List[Record], multipleRecords: Boolean, path: String, hc: HeaderCarrier) = {
+    BRMAudit.event( auditEvent )
+    if (records.nonEmpty) BRMAudit.logEventRecordFound(hc, path, multipleRecords)
   }
 }
 
