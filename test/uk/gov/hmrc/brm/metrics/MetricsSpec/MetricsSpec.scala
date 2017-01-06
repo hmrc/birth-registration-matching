@@ -18,66 +18,142 @@ package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import java.util.concurrent.TimeUnit
 
+import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
-  "ProxyMetrics" should {
+  "MetricsFactory" should {
+
+    "return England and Wales metrics for reference" in {
+      implicit val payload = Payload(Some("123456789"), "Adam", "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val factory = MetricsFactory.getMetrics()
+    }
+
+  }
+
+
+  "GROReferenceMetrics" should {
 
     "initialise" in {
-      val metrics = ProxyMetrics
-      metrics shouldBe a [BRMMetrics]
+      val metrics = GROReferenceMetrics
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "proxy"
     }
 
     "have a timer for the proxy connection" in {
-      val metrics = ProxyMetrics
-      metrics.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+      val metrics = GROReferenceMetrics
+      val time = metrics.startTimer()
+      metrics.endTimer(time)
       metrics.metrics.defaultRegistry.getTimers.get("proxy-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(200)
+      val metrics = GROReferenceMetrics
+      metrics.status(200)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(400)
+      val metrics = GROReferenceMetrics
+      metrics.status(400)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(404)
+      val metrics = GROReferenceMetrics
+      metrics.status(404)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(500)
+      val metrics = GROReferenceMetrics
+      metrics.status(500)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(502)
+      val metrics = GROReferenceMetrics
+      metrics.status(502)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
-      val metrics = ProxyMetrics
-      metrics.connectorStatus(504)
+      val metrics = GROReferenceMetrics
+      metrics.status(504)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
-      val metrics = ProxyMetrics
-      for (i <- 1 to 5) yield metrics.connectorStatus(423)
+      val metrics = GROReferenceMetrics
+      for (i <- 1 to 5) yield metrics.status(423)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-423").getCount shouldBe 5
     }
+
+  }
+
+  "GRODetailsMetrics" should {
+
+    "initialise" in {
+      val metrics = GRODetailsMetrics
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "proxy-details"
+    }
+    "have a timer for the proxy-details connection" in {
+      val metrics = GRODetailsMetrics
+      val time = metrics.startTimer()
+      metrics.endTimer(time)
+      metrics.metrics.defaultRegistry.getTimers.get("proxy-details-timer").getCount shouldBe 1
+    }
+    "have a 200 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(200)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-200").getCount shouldBe 1
+    }
+
+    "have a 400 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(400)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-400").getCount shouldBe 1
+    }
+
+    "have a 404 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(404)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-404").getCount shouldBe 1
+    }
+
+    "have a 500 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(500)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-500").getCount shouldBe 1
+    }
+
+    "have a 502 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(502)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-502").getCount shouldBe 1
+    }
+
+    "have a 504 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(504)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-504").getCount shouldBe 1
+    }
+
+    "accept a status code not registered" in {
+      val metrics = GRODetailsMetrics
+      for (i <- 1 to 5) yield metrics.status(423)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
+    }
+
+
+
 
   }
 
@@ -86,53 +162,55 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
     "initialise" in {
       val metrics = NRSMetrics
       metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "nrs"
     }
 
     "have a timer for the nrs connection" in {
       val metrics = NRSMetrics
-      metrics.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+      val time = metrics.startTimer()
+      metrics.endTimer(time)
       metrics.metrics.defaultRegistry.getTimers.get("nrs-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for nrs" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(200)
+      metrics.status(200)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for nrs" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(400)
+      metrics.status(400)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(404)
+      metrics.status(404)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for nrs" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(500)
+      metrics.status(500)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(502)
+      metrics.status(502)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
       val metrics = NRSMetrics
-      metrics.connectorStatus(504)
+      metrics.status(504)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       val metrics = NRSMetrics
-      for (i <- 1 to 5) yield metrics.connectorStatus(423)
+      for (i <- 1 to 5) yield metrics.status(423)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-423").getCount shouldBe 5
     }
 
@@ -142,54 +220,56 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
     "initialise" in {
       val metrics = GRONIMetrics
-      metrics shouldBe a [BRMMetrics]
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "gro-ni"
     }
 
     "have a timer for the gro-ni connection" in {
       val metrics = GRONIMetrics
-      metrics.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+      val time = metrics.startTimer()
+      metrics.endTimer(time)
       metrics.metrics.defaultRegistry.getTimers.get("gro-ni-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for gro-ni" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(200)
+      metrics.status(200)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for gro-ni" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(400)
+      metrics.status(400)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(404)
+      metrics.status(404)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for gro-ni" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(500)
+      metrics.status(500)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(502)
+      metrics.status(502)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
       val metrics = GRONIMetrics
-      metrics.connectorStatus(504)
+      metrics.status(504)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       val metrics = GRONIMetrics
-      for (i <- 1 to 5) yield metrics.connectorStatus(423)
+      for (i <- 1 to 5) yield metrics.status(423)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-423").getCount shouldBe 5
     }
 
@@ -198,21 +278,34 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
   "MatchMetrics" should {
 
     "initialise" in {
-      val metrics = MatchMetrics
-      metrics shouldBe a [BRMMetrics]
+      val metrics = MatchCountMetric
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "match"
     }
 
-
-    "have a match counter" in {
-      val metrics = MatchMetrics
-      metrics.matchCount()
+    "count" in {
+      val metrics = MatchCountMetric
+      metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount shouldBe 1
     }
 
-    "have a no match counter" in {
-      val metrics = MatchMetrics
-      metrics.noMatchCount()
+  }
+
+  "NoMatchMetrics" should {
+
+    "initialise" in {
+      val metrics = NoMatchCountMetric
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "no-match"
+    }
+
+    "count" in {
+      val metrics = NoMatchCountMetric
+      metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 1
+      metrics.count()
+      metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 2
+      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount should not be 2
     }
 
   }
@@ -220,25 +313,25 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
   "WhereBirthRegisteredMetrics" should {
 
     "increment for england and wales" in {
-      val metrics = EnglandAndWalesBirthRegisteredMetrics
+      val metrics = EnglandAndWalesBirthRegisteredCountMetrics
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("england-and-wales-count").getCount shouldBe 1
     }
 
     "increment for northern ireland" in {
-      val metrics = NorthernIrelandBirthRegisteredMetrics
+      val metrics = NorthernIrelandBirthRegisteredCountMetrics
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("northern-ireland-count").getCount shouldBe 1
     }
 
     "increment for scotland" in {
-      val metrics = ScotlandBirthRegisteredMetrics
+      val metrics = ScotlandBirthRegisteredCountMetrics
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("scotland-count").getCount shouldBe 1
     }
 
     "increment for invalid register" in {
-      val metrics = InvalidBirthRegisteredMetrics
+      val metrics = InvalidBirthRegisteredCountMetrics
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("invalid-birth-registered-count").getCount shouldBe 1
     }
@@ -248,19 +341,19 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
   "API version" should {
 
     "increment for version 1.0" in{
-      val metrics = ProxyMetrics
+      val metrics = GROReferenceMetrics
       APIVersionMetrics("1.0").count()
       metrics.metrics.defaultRegistry.getCounters.get("api-version-1.0").getCount shouldBe 1
     }
 
     "increment for version 5.0" in {
-      val metrics = ProxyMetrics
+      val metrics = GROReferenceMetrics
       APIVersionMetrics("5.0").count()
       metrics.metrics.defaultRegistry.getCounters.get("api-version-5.0").getCount shouldBe 1
     }
 
     "increment for version 3.0 older should be null" in {
-      val metrics = ProxyMetrics
+      val metrics = GROReferenceMetrics
       APIVersionMetrics("3.0").count()
       intercept[NullPointerException] {
         metrics.metrics.defaultRegistry.getCounters.get("api-version-3.0").getCount shouldBe 1
@@ -270,7 +363,7 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
     "Audit-Source" should {
       "increment for audit-source" in {
-        val metrics = ProxyMetrics
+        val metrics = GROReferenceMetrics
         AuditSourceMetrics("DFS").count()
         metrics.metrics.defaultRegistry.getCounters.get("audit-source-dfs").getCount shouldBe 1
       }

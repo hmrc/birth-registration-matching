@@ -24,7 +24,7 @@ case class Record(child: Child, status: Option[Status] = None)
 
 object Record {
 
-  implicit val implicitReads: Reads[Record] = (
+  implicit def readRecords : Reads[Record] = (
     JsPath.read[Child] and
       (JsPath \ "status").readNullable[Status]
     )(Record.apply _)

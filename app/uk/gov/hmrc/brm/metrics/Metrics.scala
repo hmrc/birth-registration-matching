@@ -22,16 +22,13 @@ import play.api.Logger
 
 import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
-trait BRMMetrics extends MicroserviceMetrics {
-  Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
+sealed protected trait Timer {
+  this: MicroserviceMetrics =>
 
   val prefix : String
 
-  def time(diff: Long, unit: TimeUnit) =
+  private def time(diff: Long, unit: TimeUnit) =
     metrics.defaultRegistry.timer(s"$prefix-timer").update(diff, unit)
-
-  def connectorStatus(code: Int) : Unit =
-    metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
 
   def startTimer() : Long = System.currentTimeMillis()
 
@@ -41,25 +38,76 @@ trait BRMMetrics extends MicroserviceMetrics {
   }
 }
 
-object ProxyMetrics extends BRMMetrics {
-  Logger.info(s"[ProxyMetrics][init]")
+sealed protected trait Connector {
+  this: MicroserviceMetrics =>
+
+  val prefix : String
+
+  def status(code: Int) : Unit = metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
+}
+
+sealed trait BRMMetrics extends MicroserviceMetrics with Timer with Connector {
+  Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
+
+  val prefix : String
+}
+
+/**
+  * GRODetailsMetrics
+  * Timer metric for GRO reference
+  */
+
+object GROReferenceMetrics extends BRMMetrics {
+  Logger.info(s"[GROReferenceMetrics][init]")
   override val prefix = "proxy"
 }
+
+/**
+  * GRODetailsMetrics
+  * Timer metric for GRO details
+  */
+
+object GRODetailsMetrics extends BRMMetrics {
+  override val prefix : String = "proxy-details"
+}
+
+/**
+  * NRSMetrics
+  * Timer metric for NRS
+  */
 
 object NRSMetrics extends BRMMetrics {
   Logger.info(s"[NRSMetrics][init]")
   override val prefix = "nrs"
 }
 
+/**
+  * GRONIMetrics
+  * Timer metric for GRO-NI
+  */
+
 object GRONIMetrics extends BRMMetrics {
   Logger.info(s"[GRONIMetrics][init]")
   override val prefix = "gro-ni"
 }
+
+/**
+  * APIVersionMetrics
+  * @param version api version used for this service
+  * TODO this should inherit off CountingMetric
+  */
+
 case class APIVersionMetrics(version :String) extends BRMMetrics {
   Logger.info(s"[APIVersionMetrics][init]")
   override val prefix = version
   def count() = metrics.defaultRegistry.counter(s"api-version-$prefix").inc()
 }
+
+/**
+  * AuditSourceMetrics
+  * @param auditSource name of the client making the request to this service
+  * TODO this should inherit off CountingMetric
+  */
 
 case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
   Logger.info(s"[AuditSourceMetrics][init]")
@@ -67,21 +115,23 @@ case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
   def count() = metrics.defaultRegistry.counter(s"audit-source-$prefix").inc()
 }
 
-abstract class WhereBirthRegisteredMetrics (location: String) extends BRMMetrics {
-  Logger.info(s"[WhereBirthRegisteredMetrics][init]")
-  override val prefix = location
+/**
+  * CountingMetrics
+  * @param name name of the counter
+  */
+
+sealed abstract class CountingMetric(name : String) extends BRMMetrics {
+
+  override val prefix = name
 
   def count() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
 }
 
-object EnglandAndWalesBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("england-and-wales")
-object ScotlandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("scotland")
-object NorthernIrelandBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("northern-ireland")
-object InvalidBirthRegisteredMetrics extends WhereBirthRegisteredMetrics("invalid-birth-registered")
 
-object MatchMetrics extends BRMMetrics {
-  Logger.info(s"[MatchMetrics][init]")
-  override val prefix = "match"
-  def matchCount() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
-  def noMatchCount() = metrics.defaultRegistry.counter(s"no-$prefix-count").inc()
-}
+object MatchCountMetric extends CountingMetric("match")
+object NoMatchCountMetric extends CountingMetric("no-match")
+
+object EnglandAndWalesBirthRegisteredCountMetrics extends CountingMetric("england-and-wales")
+object ScotlandBirthRegisteredCountMetrics extends CountingMetric("scotland")
+object NorthernIrelandBirthRegisteredCountMetrics extends CountingMetric("northern-ireland")
+object InvalidBirthRegisteredCountMetrics extends CountingMetric("invalid-birth-registered")

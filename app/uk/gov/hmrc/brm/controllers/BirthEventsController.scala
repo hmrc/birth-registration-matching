@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.implicits.Implicits._
+import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
@@ -54,7 +54,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
         },
         payload => {
           implicit val p : Payload = payload
-          implicit val metrics : BRMMetrics = getMetrics()
+          implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
 
           // Toggle switch for searching by child's name or whether we should validate date of birth
           if (restrictSearchByDateOfBirthBeforeGROStartDate(p.dateOfBirth) || payload.restrictSearchByDetails) {
@@ -65,7 +65,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
             info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")
             service.lookup() map {
               bm => {
-                getMetrics().connectorStatus(OK)
+                metrics.status(OK)
                 info(CLASS_NAME, "post()", s"BirthMatchResponse received")
                 info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
                 respond(Ok(Json.toJson(bm)))
