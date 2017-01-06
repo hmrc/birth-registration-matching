@@ -41,9 +41,9 @@ object Implicits {
     def getMetrics()(implicit payload : Payload) : BRMMetrics = {
       payload.birthReferenceNumber match {
         case Some(x) =>
-          referenceSet.getOrElse(payload.whereBirthRegistered, InvalidBirthRegisteredCountMetrics)
+          referenceSet(payload.whereBirthRegistered)
         case None =>
-          detailsSet.getOrElse(payload.whereBirthRegistered, InvalidBirthRegisteredCountMetrics)
+          detailsSet(payload.whereBirthRegistered)
       }
     }
 

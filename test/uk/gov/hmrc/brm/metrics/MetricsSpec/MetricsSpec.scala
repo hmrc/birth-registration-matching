@@ -18,11 +18,25 @@ package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import java.util.concurrent.TimeUnit
 
+import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+
+  "MetricsFactory" should {
+
+    "return England and Wales metrics for reference" in {
+      implicit val payload = Payload(Some("123456789"), "Adam", "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val factory = MetricsFactory.getMetrics()
+    }
+
+  }
+
 
   "GROReferenceMetrics" should {
 

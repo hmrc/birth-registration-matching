@@ -30,9 +30,8 @@ object BirthRegisterCountry extends Enumeration {
   def birthRegisterReads: Reads[BirthRegisterCountry] = new Reads[BirthRegisterCountry] {
     override def reads(json: JsValue): JsResult[BirthRegisterCountry.Value] =
       json match {
-        case JsString(s) => {
+        case JsString(s) =>
           try {
-
             // increase count metrics
             val enum = BirthRegisterCountry.withName(s.trim.toLowerCase)
             enum match {
@@ -50,7 +49,6 @@ object BirthRegisterCountry extends Enumeration {
               InvalidBirthRegisteredCountMetrics.count()
               JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value:$s")
           }
-        }
         case _ => JsError("String value expected")
       }
   }
