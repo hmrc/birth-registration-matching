@@ -29,6 +29,7 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
     "initialise" in {
       val metrics = GROReferenceMetrics
       metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "proxy"
     }
 
     "have a timer for the proxy connection" in {
@@ -82,11 +83,22 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   }
 
+  "GRODetailsMetrics" should {
+
+    "initialise" in {
+      val metrics = GRODetailsMetrics
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "proxy-details"
+    }
+
+  }
+
   "NRSMetrics" should {
 
     "initialise" in {
       val metrics = NRSMetrics
       metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "nrs"
     }
 
     "have a timer for the nrs connection" in {
@@ -145,6 +157,7 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
     "initialise" in {
       val metrics = GRONIMetrics
       metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "gro-ni"
     }
 
     "have a timer for the gro-ni connection" in {
@@ -203,18 +216,32 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
     "initialise" in {
       val metrics = MatchCountMetric
       metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "match"
     }
 
-    "have a match counter" in {
+    "count" in {
       val metrics = MatchCountMetric
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount shouldBe 1
     }
 
-    "have a no match counter" in {
+  }
+
+  "NoMatchMetrics" should {
+
+    "initialise" in {
+      val metrics = NoMatchCountMetric
+      metrics shouldBe a[BRMMetrics]
+      metrics.prefix shouldBe "no-match"
+    }
+
+    "count" in {
       val metrics = NoMatchCountMetric
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 1
+      metrics.count()
+      metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 2
+      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount should not be 2
     }
 
   }

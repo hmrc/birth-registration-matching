@@ -90,7 +90,7 @@ trait LookupService extends LookupServiceBinder {
           MatchCountMetric.count()
           BirthResponseBuilder.getResponse(isMatch)
         } else {
-          MatchCountMetric.count()
+          NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()
         }
     }
