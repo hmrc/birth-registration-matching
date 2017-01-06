@@ -41,14 +41,12 @@ sealed trait ResponseParser {
             List()
           },
           r => {
-            BRMAudit.logEventRecordFound(hc)
             info("RecordParser", "parse()", s"Successfully validated as[$name]")
             List(r)
           }
         )
       },
       success => {
-        BRMAudit.logEventRecordFound(hc)
         info("RecordParser", "parse()", s"Successfully validated as[List[$name]]")
         success
       }
