@@ -50,7 +50,7 @@ trait LookupServiceBinder {
 
 }
 
-sealed trait LookupService extends LookupServiceBinder {
+trait LookupService extends LookupServiceBinder {
 
   protected val groConnector: BirthConnector
   protected val nirsConnector: BirthConnector

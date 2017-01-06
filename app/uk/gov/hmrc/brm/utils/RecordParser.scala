@@ -18,23 +18,24 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.models.response.{Record, Response}
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 /**
   * Created by adamconder on 05/01/2017.
   */
 
-sealed trait ResponseParser[A <: Record] {
+// TODO Make generic, accept type C, S to model
+sealed trait ResponseParser {
 
   import uk.gov.hmrc.brm.utils.BrmLogger._
 
-  def parse(json: JsValue)(implicit hc : HeaderCarrier, manifest: reflect.Manifest[A]) : List[A] = {
+  def parse(json: JsValue)(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[Record] = {
     val name = manifest.toString()
-    val records = json.validate[List[A]].fold(
+    val records = json.validate[List[Record]].fold(
       error => {
         info("RecordParser", "parse()", s"Failed to validate as[List[$name]]")
-        json.validate[A].fold(
+        json.validate[Record].fold(
           e => {
             info("RecordParser", "parse()", s"Failed to validate as[$name]")
             List()
@@ -59,4 +60,4 @@ sealed trait ResponseParser[A <: Record] {
 
 }
 
-object RecordParser extends ResponseParser[Record]
+object RecordParser extends ResponseParser
