@@ -321,6 +321,14 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
+      "return response code 400 if request contains more than 250 characters in firstName" in {
+        val request = postRequest(firstNameWithMoreThan250Characters)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe BAD_REQUEST
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
     }
 
     "POST lastName" should {
@@ -343,6 +351,14 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains special character in lastname value" in {
         val request = postRequest(lastNameWithSpecialCharacters)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe BAD_REQUEST
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "return response code 400 if request contains more than 250 character in lastname value" in {
+        val request = postRequest(lastNameWithMoreThan250Characters)
         val result = MockController.post().apply(request)
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
