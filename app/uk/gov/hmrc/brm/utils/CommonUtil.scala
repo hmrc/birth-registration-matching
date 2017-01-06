@@ -41,7 +41,7 @@ object CommonUtil extends Controller {
     accept.flatMap(
       a =>
         matchHeader(a.toLowerCase) map (
-            res => res.group("version")
+          res => res.group("version")
           )
     ) getOrElse ""
   }
@@ -56,13 +56,13 @@ object CommonUtil extends Controller {
 
   }
 
- abstract class RequestType
+  abstract class RequestType
 
   case class ReferenceRequest() extends RequestType
 
   case class DetailsRequest() extends RequestType
 
-  def getOperationType(payload : Payload): RequestType = {
+  def getOperationType(payload: Payload): RequestType = {
     payload match {
       case input@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
         DetailsRequest()
@@ -70,19 +70,6 @@ object CommonUtil extends Controller {
       case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
         ReferenceRequest()
       }
-
     }
   }
-
-  def getAuditkey(payload: Payload): String = {
-    CommonUtil.getOperationType(payload) match {
-      case DetailsRequest() => {
-        "details"
-      }
-      case ReferenceRequest() => {
-        "match"
-      }
-    }
-  }
-
 }
