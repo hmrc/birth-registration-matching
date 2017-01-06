@@ -90,6 +90,56 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
       metrics shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "proxy-details"
     }
+    "have a timer for the proxy-details connection" in {
+      val metrics = GRODetailsMetrics
+      val time = metrics.startTimer()
+      metrics.endTimer(time)
+      metrics.metrics.defaultRegistry.getTimers.get("proxy-details-timer").getCount shouldBe 1
+    }
+    "have a 200 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(200)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-200").getCount shouldBe 1
+    }
+
+    "have a 400 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(400)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-400").getCount shouldBe 1
+    }
+
+    "have a 404 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(404)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-404").getCount shouldBe 1
+    }
+
+    "have a 500 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(500)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-500").getCount shouldBe 1
+    }
+
+    "have a 502 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(502)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-502").getCount shouldBe 1
+    }
+
+    "have a 504 status count for proxy-details" in {
+      val metrics = GRODetailsMetrics
+      metrics.status(504)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-504").getCount shouldBe 1
+    }
+
+    "accept a status code not registered" in {
+      val metrics = GRODetailsMetrics
+      for (i <- 1 to 5) yield metrics.status(423)
+      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
+    }
+
+
+
 
   }
 
