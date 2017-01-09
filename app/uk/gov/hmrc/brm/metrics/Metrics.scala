@@ -127,6 +127,7 @@ sealed abstract class CountingMetric(name : String) extends BRMMetrics {
   def count() = metrics.defaultRegistry.counter(s"$prefix-count").inc()
 }
 
+
 object MatchCountMetric extends CountingMetric("match")
 object NoMatchCountMetric extends CountingMetric("no-match")
 

@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.brm.audit
 
-import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger
-import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -45,7 +44,7 @@ sealed class NorthernIrelandAuditEvent(result : Map[String, String], path: Strin
 sealed class OtherAuditEvent(result : Map[String, String], path: String = "birth-registration-matching/match")(implicit hc: HeaderCarrier)
   extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match",path)
 
-sealed class EventRecordFound(result : Map[String, String], path: String = "GRO/match")(implicit hc: HeaderCarrier)
+sealed class EventRecordFound(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
   extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
 
 trait BRMAudit {
@@ -55,6 +54,7 @@ trait BRMAudit {
   protected val connector : AuditConnector
 
   def event(event: AuditEvent) : Future[AuditResult] = {
+
     connector.sendEvent(event) map {
       success =>
         BrmLogger.info("BRMAudit", s"event", "event successfully audited")
@@ -90,12 +90,16 @@ trait BRMAudit {
     logEvent(Payload.whereBirthRegistered, error)
   }
 
-  def logEventRecordFound(implicit hc: HeaderCarrier) = {
-    val result : Map[String, String] = Map("recordFound" -> "true")
-    val recordEvent = new EventRecordFound(result)(hc)
+  def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
+    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"${hasMultipleRecords}")
+    val recordEvent = new EventRecordFound(result, path)(hc)
     event(recordEvent)
   }
 
+  def auditRequest(auditEvent: AuditEvent, records: List[Record], multipleRecords: Boolean, path: String, hc: HeaderCarrier) = {
+    BRMAudit.event( auditEvent )
+    if (records.nonEmpty) BRMAudit.logEventRecordFound(hc, path, multipleRecords)
+  }
 }
 
 object BRMAudit extends BRMAudit {

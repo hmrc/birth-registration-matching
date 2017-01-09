@@ -67,7 +67,6 @@ trait LookupService extends LookupServiceBinder {
     * @param metrics
     * @return
     */
-
   def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
     getRecord(hc, payload, metrics).map {
       response =>

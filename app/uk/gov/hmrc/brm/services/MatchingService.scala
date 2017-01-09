@@ -22,7 +22,8 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.MatchingType
+import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
+import uk.gov.hmrc.brm.utils.{CommonUtil, MatchingType}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 trait MatchingService {
@@ -44,12 +45,22 @@ trait MatchingService {
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
 
-    info(CLASS_NAME, "performMatch", s"${result.audit}")
-    val event = new EnglandAndWalesAuditEvent(
-      result.audit
-    )
+    val multipleRecords = records.length > 1
 
-    BRMAudit.event(event)
+    info(CLASS_NAME, "performMatch", s"${result.audit}")
+    info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> $multipleRecords")
+
+    CommonUtil.getOperationType(input) match {
+      case DetailsRequest() => {
+        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details"),
+          records, multipleRecords, "GRO/details", hc)
+      }
+      case ReferenceRequest() => {
+        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit),
+          records, multipleRecords, "GRO/match", hc)
+      }
+    }
+
     result
   }
 }
