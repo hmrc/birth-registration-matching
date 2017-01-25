@@ -75,7 +75,7 @@ trait BrmException extends Controller {
     MetricsFactory.getMetrics().status(statusCode)
     statusCode match {
       case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case Exception4xx() => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception4xx() => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
       case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
     }
   }
