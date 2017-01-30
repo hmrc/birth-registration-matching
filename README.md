@@ -8,12 +8,6 @@ This microservice retrieves a child's birth record from GRO (General Registry Of
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs a [JRE to](http://www.oracle.com/technetwork/java/javase/overview/index.html) run.
 
-## API Documentation
-
-Full API documentation can be found below:
-
-- [**Version 1.0 Documentation**][2fba9783]
-
 ### Quickstart
 
 Base endpoint `/birth-registration-matching`
@@ -28,13 +22,13 @@ Accept       | `String` | application/vnd.hmrc.1.0+json   | API Version
 Audit-Source | `String` | dfs                             | Unique identifier of the service
 Content-Type | `String` | application/json; charset=utf-8 | Type of payload
 
-Parameters           | Type                                                   | Description
--------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------
-birthReferenceNumber | `Optional(String)`                                     | Birth reference number
-firstName            | `String`                                               | Child's first name
-lastName             | `String`                                               | Child's last name
-dateOfBirth          | `Date (yyyy-MM-dd)`                                    | Child's date of birth
-whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | Where the child was registered (England / Wales / Scotland / Northern Ireland)
+Parameters           | Type                                                   | Size      | Description
+-------------------- | ------------------------------------------------------ | --------- | -------------------------------------------------------------------------------
+birthReferenceNumber | `Optional(String)`                                     | 1+        | Birth reference number
+firstName            | `String`                                               | 1-250     | Child's first name
+lastName             | `String`                                               | 1-250     | Child's last name
+dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10        | Child's date of birth
+whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A       | Where the child was registered (England / Wales / Scotland / Northern Ireland)
 
 ### Example Request
 
