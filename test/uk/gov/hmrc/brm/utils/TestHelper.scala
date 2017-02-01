@@ -78,36 +78,100 @@ object TestHelper {
     """.stripMargin)
 
   def validRecord: Record ={
-    var birthDate = new LocalDate("2012-02-16")
-    val  child =  Child(123456789, "Chris", "Jones",Some(birthDate))
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jones",Some(birthDate))
     Record(child, None)
   }
 
+  def validRecordSpecialCharactersFirstName: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris-Jame's", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordMiddleNames: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Adam David", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordSpecialCharactersLastName: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jones--Smith",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordFirstNameSpace: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris James", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordLastNameSpace: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jones Smith",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordUTF8FirstName : Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chrîs", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordUTF8LastName : Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jonéş",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordUppercase: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "CHRIS", "JONES",Some(birthDate))
+    Record(child, None)
+  }
+
+  def wrongCaseFirstNameValidRecord : Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(1, "CHriS", "Jones", Some(birthDate))
+    Record(child, None)
+  }
+
+  def wrongCaseLastNameValidRecord : Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(1, "Chris", "JOnES", Some(birthDate))
+    Record(child, None)
+  }
+
+  def wrongCaseValidRecord : Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(1, "cHrIs", "JOnES", Some(birthDate))
+    Record(child, None)
+  }
 
   def invalidRecord: Record ={
-    var birthDate = new LocalDate("2012-02-16")
-    val  child =  Child(1, "invalidfirstName", "invalidLastName",None)
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(1, "invalidfirstName", "invalidLastName",None)
     Record(child, None)
   }
 
   def firstNameNotMatchedRecord: Record ={
-    var birthDate = new LocalDate("2012-02-16")
-    val  child =  Child(123456789, "Manish", "Jones",Some(birthDate))
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Manish", "Jones",Some(birthDate))
     Record(child, None)
   }
 
   def lastNameNotMatchRecord: Record ={
-    var birthDate = new LocalDate("2012-02-16")
-    val  child =  Child(123456789, "Chris", "lastName",Some(birthDate))
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "lastName",Some(birthDate))
     Record(child, None)
   }
 
   def dobNotMatchRecord: Record ={
-    var birthDate = new LocalDate("2012-02-16")
-    val  child =  Child(123456789, "Chris", "Jones",None)
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jones",None)
     Record(child, None)
   }
-
 
   val invalidResponse = Json.parse(
     """
