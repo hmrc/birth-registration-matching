@@ -95,6 +95,18 @@ object TestHelper {
     Record(child, None)
   }
 
+  def validRecordMiddleNamesWithSpaces: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "  Adam     David ", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordMiddleNamesWithSpacesAndPunctuation: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "   Jamie  Mary-Ann'é    Earl ", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
   def validRecordSpecialCharactersLastName: Record ={
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "Chris", "Jones--Smith",Some(birthDate))

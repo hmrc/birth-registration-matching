@@ -21,55 +21,61 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.services.parser.NameParser._
 
 import scala.annotation.tailrec
 
 trait MatchingAlgorithm {
 
+  private[MatchingAlgorithm] lazy val ignoreMiddleNames : Boolean = BrmConfig.ignoreMiddleNames
   private[MatchingAlgorithm] val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
-  protected[MatchingAlgorithm] val matchFunction: PartialFunction[(Payload, Record), ResultMatch]
+  protected[MatchingAlgorithm] def matchFunction: PartialFunction[(Payload, Record), ResultMatch]
 
-  def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean = false): ResultMatch = {
+  def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean): ResultMatch = {
     @tailrec
     def matchHelper(records: List[Record], result: ResultMatch, f: ((Payload, Record)) => ResultMatch): ResultMatch = {
       records match {
-        case Nil => noMatch
+        case Nil =>
+          // no records returned therefore no match was found
+          noMatch
         case head :: Nil =>
+          // 1 record returned therefore we will attempt to match
           f(payload, head)
         case head :: tail =>
+          // multiple records returned, iterate these until a match is found
           val r = f(payload, head)
           matchHelper(tail, r, f)
       }
     }
 
+    // do we enable matching on multiple records returned
     if (matchOnMultiple) {
       matchHelper(records, noMatch, matchFunction)
-    }
-    else {
+    } else {
       records.length match {
-        case 1 => matchHelper(records, noMatch, matchFunction)
-        case _ => noMatch
+        case 1 =>
+          // one record returned, attempt to match
+          matchHelper(records, noMatch, matchFunction)
+        case _ =>
+          // more than 1 record was returned therefore it's no match
+          noMatch
       }
     }
   }
 
-  protected[MatchingAlgorithm] def firstNamesMatch(brmsFirstname: Option[String], groFirstName: Option[String]): Match =
-    matching[String](brmsFirstname, groFirstName, _ equalsIgnoreCase _)
+  protected[MatchingAlgorithm] def nameMatch(input: Option[String], record: Option[String]): Match =
+    matching[String](input, record, _ equalsIgnoreCase _)
 
-  protected[MatchingAlgorithm] def lastNameMatch(brmsLastName: Option[String], groLastName: Option[String]): Match =
-    matching[String](brmsLastName, groLastName, _ equalsIgnoreCase _)
-
-  protected[MatchingAlgorithm] def dobMatch(brmsDob: Option[LocalDate], groDob: Option[LocalDate]): Match =
-    matching[LocalDate](brmsDob, groDob, _ isEqual _)
+  protected[MatchingAlgorithm] def dobMatch(input: Option[LocalDate], record: Option[LocalDate]): Match =
+    matching[LocalDate](input, record, _ isEqual _)
 
   protected[MatchingAlgorithm] def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
     (input, other) match {
       case (Some(x), Some(y)) =>
         if (matchFunction(x, y)) {
           Good()
-        }
-        else {
+        } else {
           Bad()
         }
       case _ => Bad()
@@ -81,10 +87,17 @@ trait MatchingAlgorithm {
 
 object FullMatching extends MatchingAlgorithm {
 
-  override val matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
+  override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
-      val firstNames = firstNamesMatch(Some(payload.firstName), Some(record.child.firstName))
-      val lastNames = lastNameMatch(Some(payload.lastName), Some(record.child.lastName))
+
+      //TODO CHRIS FOLLOW HERE
+//      val firstName = payload.firstName.names
+//      val firstNamesOnrRecord = record.child.firstName.names
+      // we need to drop names from the record that don't exist in the firstNameList input?
+      // make string again? then exact match?
+
+      val firstNames = nameMatch(Some(payload.firstName), Some(record.child.firstName))
+      val lastNames = nameMatch(Some(payload.lastName), Some(record.child.lastName))
       val dates = dobMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
       val resultMatch = firstNames and lastNames and dates
 
@@ -94,17 +107,17 @@ object FullMatching extends MatchingAlgorithm {
 
 object PartialMatching extends MatchingAlgorithm {
 
-  override val matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
+  override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
 
       val firstNames = if (BrmConfig.matchFirstName) {
-        firstNamesMatch(Some(payload.firstName), Some(record.child.firstName))
+        nameMatch(Some(payload.firstName), Some(record.child.firstName))
       } else {
         Good()
       }
 
       val lastNames = if (BrmConfig.matchLastName) {
-        lastNameMatch(Some(payload.lastName), Some(record.child.lastName))
+        nameMatch(Some(payload.lastName), Some(record.child.lastName))
       } else {
         Good()
       }

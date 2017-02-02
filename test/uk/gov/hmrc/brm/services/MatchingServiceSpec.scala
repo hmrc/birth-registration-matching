@@ -22,7 +22,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
+import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
@@ -63,7 +63,6 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
   val lastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configLastName).build()
   val dobApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configDob).build()
   val firstNameLastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstNameLastName).build()
-
 
   "Partial Matching (feature switch turned off)" when {
 
@@ -151,7 +150,17 @@ class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAn
 
 }
 
-class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
+class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+
+  val ignoreMiddleNamesEnabled: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> true
+  )
+
+  val ignoreMiddleNamesDisabled : Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
+  )
+
+  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
 
   implicit val hc = HeaderCarrier()
 
@@ -220,24 +229,116 @@ class MatchingServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
           val name = reference match { case Some(x) => "with reference" case None => "without reference" }
 
-          "when ignoring middle names" when {
+          "ignore middle names with feature toggle enabled" should {
 
             s"($name) match when firstName argument has all middle names on input that are on the record" in {
-              val payload = Payload(reference, "Adam David", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              running(getApp(ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, "Adam David", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
+            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
+              running(getApp(ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, " Adam    David   ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
+            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
+              running(getApp(ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, "Adam David", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
+            s"($name) match when firstName argument has middle names with punctuation, with additional names on record" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "   Jamie  Mary-Ann'é ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
               resultMatch.isMatch shouldBe true
             }
 
-            s"($name) match when firstName argument has no middle names on input that are on the record" in {
+            s"($name) match when firstName argument has no middle names on input that are on the record" in running(getApp(ignoreMiddleNamesEnabled)) {
               val payload = Payload(reference, "Adam", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
               val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
               resultMatch.isMatch shouldBe true
             }
 
-            s"($name) not match when firstName argument has too many names not on the record" in {
-              val payload = Payload(reference, "Adam David James", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            s"($name) match when firstName argument has no middle names on input that are on the record, with additional spaces" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "    Adam     ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
               val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
               resultMatch.isMatch shouldBe true
+            }
+
+            s"($name) not match when firstName argument has too many names not on the record" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "Adam David James", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+            s"($name) not match when firstName argument has too many names not on the record, with additional spaces" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "   Adam  David     James  ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+          }
+
+          "not ignore middle names with feature toggle disabled" should {
+
+            s"($name) match when firstName argument has all middle names on input that are on the record" in running(getApp(ignoreMiddleNamesDisabled)) {
+              val payload = Payload(reference, "Adam David", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.isMatch shouldBe true
+            }
+
+            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
+              running(getApp(ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, " Adam    David   ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
+            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
+              running(getApp(ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, "Adam David", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
+            s"($name) not match when firstName argument has middle names with punctuation, with additional names on record" in running(getApp(ignoreMiddleNamesDisabled)) {
+              val payload = Payload(reference, "   Jamie  Mary-Ann'é ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+            s"($name) not match when firstName argument has no middle names on input that are on the record" in running(getApp(ignoreMiddleNamesDisabled)) {
+              val payload = Payload(reference, "Adam", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+            s"($name) not match when firstName argument has no middle names on input that are on the record, with additional spaces on record" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "Adam", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+            s"($name) not match when firstName argument has too many names not on the record" in running(getApp(ignoreMiddleNamesDisabled)) {
+              val payload = Payload(reference, "Adam David James", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
+            }
+
+            s"($name) not match when firstName argument has too many names not on the record, with additional spaces on record" in running(getApp(ignoreMiddleNamesEnabled)) {
+              val payload = Payload(reference, "Adam David James", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+              resultMatch.isMatch shouldBe false
             }
 
           }

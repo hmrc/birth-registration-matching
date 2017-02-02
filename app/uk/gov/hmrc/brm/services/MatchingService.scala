@@ -41,6 +41,7 @@ trait MatchingService {
     val algorithm = matchingType match {
       case MatchingType.FULL => FullMatching
       case MatchingType.PARTIAL => PartialMatching
+      case _ => FullMatching
     }
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
@@ -51,14 +52,12 @@ trait MatchingService {
     info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> $multipleRecords")
 
     CommonUtil.getOperationType(input) match {
-      case DetailsRequest() => {
+      case DetailsRequest() =>
         BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details"),
           records, multipleRecords, "GRO/details", hc)
-      }
-      case ReferenceRequest() => {
+      case ReferenceRequest() =>
         BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit),
           records, multipleRecords, "GRO/match", hc)
-      }
     }
 
     result
