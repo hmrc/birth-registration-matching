@@ -30,7 +30,7 @@ object NameParser {
 
     def names: List[String] = {
       BrmLogger.debug("NameParser", "parser regex", regex)
-      val nameArray: Array[String] = s.split(regex)
+      val nameArray: Array[String] = s.trim.split(regex)
       BrmLogger.debug("NameParser", "parse", s"${nameArray.toList}")
 
       nameArray.toList
