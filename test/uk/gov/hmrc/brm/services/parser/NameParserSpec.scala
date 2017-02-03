@@ -32,10 +32,10 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
       val names : List[String] = input.names
 
       names.length shouldBe 4
-      names.head shouldBe "Adam"
-      names(1) shouldBe "David"
-      names(2) shouldBe "Charles"
-      names(3) shouldBe "Mary-Ann'é"
+      names.head shouldBe "adam"
+      names(1) shouldBe "david"
+      names(2) shouldBe "charles"
+      names(3) shouldBe "mary-ann'é"
     }
 
     "filter two list of names and remove additional names in the list not in the input" in {
@@ -44,7 +44,7 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
 
       // filter the list on the right (record) with the number of occurrances in the left
       val names = left filter right
-
+      names should not be Nil
     }
 
   }
