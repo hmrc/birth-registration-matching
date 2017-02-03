@@ -38,13 +38,79 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
       names(3) shouldBe "mary-ann'é"
     }
 
-    "filter two list of names and remove additional names in the list not in the input" in {
-      val left = List("Adam", "David", "charles")
+    /*
+      If left is less or equal then drop elements from right
+      If left is greater then don't drop elements from right
+     */
+
+    "filter right hand side list when left has less elements" in {
+      val left = List("Adam", "David", "Charles")
       val right = List("Adam", "David", "Charles", "Edward")
 
-      // filter the list on the right (record) with the number of occurrances in the left
+      // filter the list on the right (record) with the number of occurences in the left
       val names = left filter right
       names should not be Nil
+      names shouldBe List("Adam", "David", "Charles")
+    }
+
+    "filter right hand side list when left has equal elements" in {
+      val left = List("Adam", "David", "Charles", "Edward")
+      val right = List("Adam", "David", "Charles", "Edward")
+
+      // filter the list on the right (record) with the number of occurences in the left
+      val names = left filter right
+      names should not be Nil
+      names shouldBe List("Adam", "David", "Charles", "Edward")
+    }
+
+    "not filter right hand side list when left has more elements and return right" in {
+      val left = List("Adam", "David", "Charles", "Edward")
+      val right = List("Adam", "David", "Charles")
+
+      // filter the list on the right (record) with the number of occurences in the left
+      val names = left filter right
+      names should not be Nil
+      names shouldBe List("Adam", "David", "Charles")
+    }
+
+    "not filter when left and right have zero items" in {
+      val left = Nil
+      val right = Nil
+
+      // filter the list on the right (record) with the number of occurences in the left
+      val names = left filter right
+      names shouldBe Nil
+    }
+
+    "not filter when right has zero items" in {
+      val left = List("Adam", "David")
+      val right = Nil
+
+      val names = left filter right
+      names shouldBe Nil
+    }
+
+    "not filter when left has zero items" in {
+      val left = Nil
+      val right = List("Adam", "David")
+
+      val names = left filter right
+      names shouldBe List("Adam", "David")
+    }
+
+    "Nil should build up the names into a string" in {
+      val list = Nil
+      list.listToString shouldBe ""
+    }
+
+    "List(adam, david) should build up the names into a string" in {
+      val list = List("Adam", "David")
+      list.listToString shouldBe "Adam David"
+    }
+
+    "List(adam, david, smith, test) should build up the names into a string" in {
+      val list = List("Adam", "David", "Smith", "Test")
+      list.listToString shouldBe "Adam David Smith Test"
     }
 
   }

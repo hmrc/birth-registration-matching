@@ -29,9 +29,8 @@ object NameParser {
     lazy val regex = BrmConfig.ignoreMiddleNamesRegex
 
     def names: List[String] = {
-      BrmLogger.debug("NameParser", "parser regex", regex)
       val nameArray: Array[String] = s.toLowerCase.trim.split(regex)
-      BrmLogger.debug("NameParser", "parse", s"${nameArray.toList}")
+      BrmLogger.debug("NameParser", "parse", s"names: ${nameArray.toList}, regex: $regex")
 
       nameArray.toList
     }
@@ -40,9 +39,26 @@ object NameParser {
 
   implicit class FilterList[T](left : List[T]) {
 
-    def filter[T](right : List[T]) : List[T] = {
-      Nil
+    def filter(right : List[T]) : List[T] = {
+      BrmLogger.debug("NameParser", "filter", s"left: $left right: $right")
+
+      if (left.length > right.length || left.isEmpty || right.isEmpty) {
+        right
+      } else {
+        val difference = right.length - left.length
+        BrmLogger.debug("NameParser", "parser", s"dropping: $difference")
+        val dropped = right.dropRight(difference)
+        BrmLogger.debug("NameParser", "parser", s"dropped: $dropped")
+        dropped
+      }
     }
+
+  }
+
+  implicit class StringListToString(left: List[String]) {
+
+    def listToString : String =
+      left.foldLeft("")((x, acc) => s"$x $acc").trim
 
   }
 
