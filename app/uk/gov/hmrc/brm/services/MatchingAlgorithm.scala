@@ -64,6 +64,14 @@ trait MatchingAlgorithm {
     }
   }
 
+  protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
+    val recordNamesFiltered = filterMiddleNames(payload, record)
+    val firstNamePayload = payload.firstName.names.listToString
+
+    val firstNames = nameMatch(Some(firstNamePayload), Some(recordNamesFiltered))
+    firstNames
+  }
+
   protected[MatchingAlgorithm] def nameMatch(input: Option[String], record: Option[String]): Match =
     matching[String](input, record, _ equalsIgnoreCase _)
 
@@ -82,30 +90,31 @@ trait MatchingAlgorithm {
     }
   }
 
+  private[MatchingAlgorithm] def filterMiddleNames(payload: Payload, record: Record) = {
+    ignoreMiddleNames match {
+      case true =>
+        val right = record.child.firstName.names
+        val left = payload.firstName.names
+        val names = left filter right
+        names.listToString
+      case false =>
+        record.child.firstName
+    }
+  }
+
 }
 
 
 object FullMatching extends MatchingAlgorithm {
 
-  private def firstName(payload: Payload, record: Record): String = {
-
-    def concat(x: String, y: String): String = s"$x $y"
-
-    if(BrmConfig.ignoreMiddleNames)
-    {
-      record.child.firstName.names.slice(0, payload.firstName.names.length).reduceLeft(concat)
-    }
-    else
-    {
-      record.child.firstName
-    }
-  }
-
+  // TODO also call names() on lastName to strip out the spaces from the record
   override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
-      val firstNames = nameMatch(Some(payload.firstName), Some(firstName(payload, record)))
+
+      val firstNames = matchFirstNames(payload, record)
       val lastNames = nameMatch(Some(payload.lastName), Some(record.child.lastName))
       val dates = dobMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
+
       val resultMatch = firstNames and lastNames and dates
 
       ResultMatch(firstNames, lastNames, dates, resultMatch)
@@ -116,9 +125,8 @@ object PartialMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
-
       val firstNames = if (BrmConfig.matchFirstName) {
-        nameMatch(Some(payload.firstName), Some(record.child.firstName))
+        matchFirstNames(payload, record)
       } else {
         Good()
       }
