@@ -30,10 +30,18 @@ object NameParser {
 
     def names: List[String] = {
       BrmLogger.debug("NameParser", "parser regex", regex)
-      val nameArray: Array[String] = s.trim.split(regex)
+      val nameArray: Array[String] = s.toLowerCase.trim.split(regex)
       BrmLogger.debug("NameParser", "parse", s"${nameArray.toList}")
 
       nameArray.toList
+    }
+
+  }
+
+  implicit class FilterList[T](left : List[T]) {
+
+    def filter[T](right : List[T]) : List[T] = {
+      Nil
     }
 
   }

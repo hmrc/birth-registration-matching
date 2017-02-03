@@ -93,11 +93,11 @@ object FullMatching extends MatchingAlgorithm {
 
     if(BrmConfig.ignoreMiddleNames)
     {
-      record.child.firstName
+      record.child.firstName.names.slice(0, payload.firstName.names.length).reduceLeft(concat)
     }
     else
     {
-      record.child.firstName.names.slice(0, payload.firstName.names.length).reduceLeft(concat)
+      record.child.firstName
     }
   }
 

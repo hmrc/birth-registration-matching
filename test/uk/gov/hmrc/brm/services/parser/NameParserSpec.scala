@@ -28,7 +28,7 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
   "NameParser" should {
 
     "split a string into words removing trailing space" in {
-      val input = "Adam David      Charles       Mary-Ann'é"
+      val input = "    Adam David      Charles       Mary-Ann'é"
       val names : List[String] = input.names
 
       names.length shouldBe 4
@@ -36,6 +36,15 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
       names(1) shouldBe "David"
       names(2) shouldBe "Charles"
       names(3) shouldBe "Mary-Ann'é"
+    }
+
+    "filter two list of names and remove additional names in the list not in the input" in {
+      val left = List("Adam", "David", "charles")
+      val right = List("Adam", "David", "Charles", "Edward")
+
+      // filter the list on the right (record) with the number of occurrances in the left
+      val names = left filter right
+
     }
 
   }

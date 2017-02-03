@@ -44,7 +44,7 @@ trait BrmConfig extends ServicesConfig {
 
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
 
-  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNames.regex", throw BirthConfigurationException("ignoreMiddleNames"))
+  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex", throw BirthConfigurationException("ignoreMiddleNames"))
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames", throw BirthConfigurationException("ignoreMiddleNames"))
 
 }
