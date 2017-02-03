@@ -311,24 +311,6 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
               }
             }
 
-            s"($name) not match when firstName argument has middle names with punctuation, with additional names on record" in running(getApp(ignoreMiddleNamesDisabled)) {
-              val payload = Payload(reference, "   Jamie  Mary-Ann'é ", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
-              resultMatch.isMatch shouldBe false
-            }
-
-            s"($name) not match when firstName argument has no middle names on input that are on the record" in running(getApp(ignoreMiddleNamesDisabled)) {
-              val payload = Payload(reference, "Adam", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-              resultMatch.isMatch shouldBe false
-            }
-
-            s"($name) not match when firstName argument has no middle names on input that are on the record, with additional spaces on record" in running(getApp(ignoreMiddleNamesEnabled)) {
-              val payload = Payload(reference, "Adam", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-              val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
-              resultMatch.isMatch shouldBe false
-            }
-
             s"($name) not match when firstName argument has too many names not on the record" in running(getApp(ignoreMiddleNamesDisabled)) {
               val payload = Payload(reference, "Adam David James", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
               val resultMatch = MatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
