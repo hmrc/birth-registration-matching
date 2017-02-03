@@ -87,16 +87,23 @@ trait MatchingAlgorithm {
 
 object FullMatching extends MatchingAlgorithm {
 
+  private def firstName(payload: Payload, record: Record): String = {
+
+    def concat(x: String, y: String): String = s"$x $y"
+
+    if(BrmConfig.ignoreMiddleNames)
+    {
+      record.child.firstName
+    }
+    else
+    {
+      record.child.firstName.names.slice(0, payload.firstName.names.length).reduceLeft(concat)
+    }
+  }
+
   override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
-
-      //TODO CHRIS FOLLOW HERE
-//      val firstName = payload.firstName.names
-//      val firstNamesOnrRecord = record.child.firstName.names
-      // we need to drop names from the record that don't exist in the firstNameList input?
-      // make string again? then exact match?
-
-      val firstNames = nameMatch(Some(payload.firstName), Some(record.child.firstName))
+      val firstNames = nameMatch(Some(payload.firstName), Some(firstName(payload, record)))
       val lastNames = nameMatch(Some(payload.lastName), Some(record.child.lastName))
       val dates = dobMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
       val resultMatch = firstNames and lastNames and dates
