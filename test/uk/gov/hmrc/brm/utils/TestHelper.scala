@@ -125,6 +125,18 @@ object TestHelper {
     Record(child, None)
   }
 
+  def validRecordLastNameMultipleSpace: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "Jones  Smith",Some(birthDate))
+    Record(child, None)
+  }
+
+  def validRecordLastNameMultipleSpaceBeginningTrailing: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Chris", "  Jones  Smith ",Some(birthDate))
+    Record(child, None)
+  }
+
   def validRecordUTF8FirstName : Record = {
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "Chrîs", "Jones",Some(birthDate))

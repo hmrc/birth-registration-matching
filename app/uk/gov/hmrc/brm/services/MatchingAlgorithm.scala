@@ -110,11 +110,9 @@ object FullMatching extends MatchingAlgorithm {
   // TODO also call names() on lastName to strip out the spaces from the record
   override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
-
       val firstNames = matchFirstNames(payload, record)
-      val lastNames = nameMatch(Some(payload.lastName), Some(record.child.lastName))
+      val lastNames = nameMatch(Some(payload.lastName.names.listToString), Some(record.child.lastName.names.listToString))
       val dates = dobMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
-
       val resultMatch = firstNames and lastNames and dates
 
       ResultMatch(firstNames, lastNames, dates, resultMatch)

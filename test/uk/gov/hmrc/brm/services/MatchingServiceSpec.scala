@@ -19,17 +19,16 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.FakeApplication
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import play.api.test.FakeApplication
 
 
 
@@ -220,6 +219,8 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
       - Lower case matching
       - Upper case on input matching
       - Upper case on record matching
+      * Match surname if it contains multiple names
+      * Match surname if it contains multiple names with more than one space
      */
 
     "matching a single record" should {
@@ -297,6 +298,14 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
               }
             }
 
+            s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
+              running(FakeApplication(additionalConfiguration = ignoreMiddleNamesEnabled)) {
+                val payload = Payload(reference, "Chris", "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
           }
 
           "not ignore middle names with feature toggle disabled" should {
@@ -342,6 +351,14 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
               }
             }
 
+            s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
+              running(FakeApplication(additionalConfiguration = ignoreMiddleNamesDisabled)) {
+                val payload = Payload(reference, "Chris", "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
           }
 
           s"($name) match when firstName contains special characters" in {
@@ -372,6 +389,38 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
             running(FakeApplication()) {
               val payload = Payload(reference, "Chris", "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
               val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
+              resultMatch.isMatch shouldBe true
+            }
+          }
+
+          s"($name) match when lastName from record contains multiple spaces between names" in {
+            running(FakeApplication()) {
+              val payload = Payload(reference, "Chris", "Jones  Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
+              resultMatch.isMatch shouldBe true
+            }
+          }
+
+          s"($name) match when lastName from payload contains multiple spaces between names and includes space at beginning and end of string" in {
+            running(FakeApplication()) {
+              val payload = Payload(reference, "Chris", "  Jones  Smith  ", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
+              resultMatch.isMatch shouldBe true
+            }
+          }
+
+          s"($name) match when lastName from payload contains multiple spaces between names" in {
+            running(FakeApplication()) {
+              val payload = Payload(reference, "Chris", "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameMultipleSpace), MatchingType.FULL)
+              resultMatch.isMatch shouldBe true
+            }
+          }
+
+          s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
+            running(FakeApplication()) {
+              val payload = Payload(reference, "Chris", "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
               resultMatch.isMatch shouldBe true
             }
           }
