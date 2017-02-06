@@ -21,14 +21,24 @@ import org.scalatest.Suite
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.WithFakeApplication
 
+object BaseConfig {
+
+  val config: Map[String, _] = Map(
+    "auditing.enabled" -> false,
+    "auditing.traceRequests" -> false,
+    "metrics.enabled" -> false,
+    "microservice.metrics.graphite.enabled" -> false
+  )
+
+}
+
 trait BRMFakeApplication extends WithFakeApplication {
   this: Suite =>
 
   override def bindModules = Seq(new PlayModule)
 
-  val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.validateDobForGro" -> true
-  )
+  val config : Map[String, _] = BaseConfig.config
+    .++(Map("microservice.services.birth-registration-matching.validateDobForGro" -> true))
 
   override lazy val fakeApplication = GuiceApplicationBuilder(
     disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])

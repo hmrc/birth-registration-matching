@@ -18,8 +18,15 @@ package uk.gov.hmrc.brm.config
 
 import uk.gov.hmrc.play.config.ServicesConfig
 
-trait BrmConfig extends ServicesConfig
-{
+trait BrmConfig extends ServicesConfig {
+
+  case class BirthConfigurationException(switch: String) extends RuntimeException {
+    override def toString: String = {
+      val m = s"birth-registration-matching.matching.$switch configuration not found"
+      m
+    }
+  }
+
   def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", defBool = false)
   def minimumDateValueForGroValidation: String = getConfString("birth-registration-matching.validDateForGro", "1900-01-01")
 
@@ -34,7 +41,11 @@ trait BrmConfig extends ServicesConfig
   def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
 
   def disableSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.disableSearchByDetails", defBool = false)
+
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
+
+  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex", throw BirthConfigurationException("ignoreMiddleNames"))
+  def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames", throw BirthConfigurationException("ignoreMiddleNames"))
 
 }
 
