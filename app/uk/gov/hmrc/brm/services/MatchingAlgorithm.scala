@@ -27,7 +27,7 @@ import scala.annotation.tailrec
 
 trait MatchingAlgorithm {
 
-  private[MatchingAlgorithm] lazy val ignoreMiddleNames : Boolean = BrmConfig.ignoreMiddleNames
+  private[MatchingAlgorithm] def ignoreMiddleNames : Boolean = BrmConfig.ignoreMiddleNames
   private[MatchingAlgorithm] val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
   protected[MatchingAlgorithm] def matchFunction: PartialFunction[(Payload, Record), ResultMatch]
@@ -98,7 +98,7 @@ trait MatchingAlgorithm {
         val names = left filter right
         names.listToString
       case false =>
-        record.child.firstName
+        record.child.firstName.names.listToString
     }
   }
 
