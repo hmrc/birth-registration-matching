@@ -41,7 +41,8 @@ class BRMAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
       "firstNameMatch" -> "true",
       "lastNameMatch" -> "true",
       "dateOfBirthMatch" -> "false"
-    )
+    ),
+    ""
   )(hc)
 
   "BRMAudit" should {

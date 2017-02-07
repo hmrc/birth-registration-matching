@@ -28,59 +28,36 @@ import scala.concurrent.Future
 
 trait BirthConnector extends ServicesConfig {
 
+  private type BRMHeaders = Seq[(String, String)]
+
   val serviceUrl: String
   val httpPost: HttpPost
 
-  val baseUri: String
-  val detailsUri: String
-  val referenceUri: String
+  protected val headers : BRMHeaders
 
+  protected val referenceBody : PartialFunction[Payload, (String, JsValue)]
+  protected val detailsBody : PartialFunction[Payload, (String, JsValue)]
+
+  /**
+    * RequestType, reference or details
+    */
   abstract class RequestType
-
   case class ReferenceRequest() extends RequestType
-
   case class DetailsRequest() extends RequestType
 
-  case class RequestDetail(uri: String, jsonBody: Option[JsValue] = None){
-    val headers = Seq(
-                BrmLogger.BRM_KEY -> Keygenerator.geKey(),
-                "Content-Type" -> "application/json; charset=utf-8")
-  }
+  case class Request(uri: String, jsonBody: Option[JsValue] = None)
 
-  private val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _) =>
-      (referenceUri, Json.parse(
-        s"""
-           |{
-           |  "reference" : "$brn"
-           |}
-         """.stripMargin))
-  }
-
-  private val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, l, d, _) =>
-      (detailsUri, Json.parse(
-        s"""
-           |{
-           | "forenames" : "${NameFormat(f)}",
-           | "lastname" : "${NameFormat(l)}",
-           | "dateofbirth" : "$d"
-           |}
-        """.stripMargin))
-  }
-
-  private def buildRequest(payload: Payload, operation: RequestType): RequestDetail = {
-
+  private def buildRequest(payload: Payload, operation: RequestType): Request = {
     val f = operation match {
       case ReferenceRequest() => referenceBody
       case DetailsRequest() => detailsBody
     }
-    val requestDetail = f(payload)
-    RequestDetail(requestDetail._1, Some(requestDetail._2))
+    val request = f(payload)
+    Request(request._1, Some(request._2))
   }
 
-  private def sendRequest(requestDetail: RequestDetail)(implicit hc: HeaderCarrier) = {
-    httpPost.POST(requestDetail.uri, requestDetail.jsonBody, requestDetail.headers)
+  private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
+    httpPost.POST(request.uri, request.jsonBody, headers)
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
@@ -96,66 +73,3 @@ trait BirthConnector extends ServicesConfig {
   }
 }
 
-object GROEnglandConnector extends BirthConnector {
-  override val serviceUrl = baseUrl("birth-registration-matching")
-  override val httpPost: HttpPost = WSHttp
-  override val baseUri = "birth-registration-matching-proxy"
-  override val detailsUri = s"$serviceUrl/$baseUri/match/details"
-  override val referenceUri = s"$serviceUrl/$baseUri/match/reference"
-}
-
-object NirsConnector extends BirthConnector {
-  override val serviceUrl = ""
-  override val httpPost: HttpPost = WSHttp
-  override val baseUri = ""
-  override val detailsUri = s"$serviceUrl/$baseUri"
-  override val referenceUri = s"$serviceUrl/$baseUri"
-
-  override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
-
-    val result: Map[String, String] = Map("match" -> "false")
-    val event = new NorthernIrelandAuditEvent(result)
-    BRMAudit.event(event)
-
-    Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
-  }
-
-  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
-
-    val result: Map[String, String] = Map("match" -> "false")
-    val event = new ScotlandAuditEvent(result)
-    BRMAudit.event(event)
-
-    Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
-  }
-}
-
-object NrsConnector extends BirthConnector {
-  override val serviceUrl = ""
-  override val httpPost: HttpPost = WSHttp
-  override val baseUri = ""
-  override val detailsUri = s"$serviceUrl/$baseUri"
-  override val referenceUri = s"$serviceUrl/$baseUri"
-
-  override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-    val result: Map[String, String] = Map("match" -> "false")
-    val event = new ScotlandAuditEvent(result)
-    BRMAudit.event(event)
-
-    Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
-  }
-
-  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-    val result: Map[String, String] = Map("match" -> "false")
-    val event = new ScotlandAuditEvent(result)
-    BRMAudit.event(event)
-
-    Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
-  }
-}

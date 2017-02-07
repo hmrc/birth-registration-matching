@@ -20,7 +20,6 @@ import org.joda.time.LocalDate
 import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.{Controller, Request}
-import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 

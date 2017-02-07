@@ -140,8 +140,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "GROEnglandConnector" should {
 
       "initialise with correct properties" in {
-        GROEnglandConnector.httpPost shouldBe a[WSPost]
-        GROEnglandConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match/details"
+        GROConnector.httpPost shouldBe a[WSPost]
+        GROConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match/details"
       }
 
     }

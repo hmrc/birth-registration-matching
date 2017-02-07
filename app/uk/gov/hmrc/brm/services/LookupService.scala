@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
+import uk.gov.hmrc.brm.connectors.{BirthConnector, GROConnector, NirsConnector, NrsConnector}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger._
@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object LookupService extends LookupService {
-  override val groConnector = GROEnglandConnector
+  override val groConnector = GROConnector
   override val nirsConnector = NirsConnector
   override val nrsConnector = NrsConnector
   override val matchingService = MatchingService

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAuditEvent}
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
@@ -46,22 +46,16 @@ trait MatchingService {
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
 
-    val multipleRecords = records.length > 1
-
     info(CLASS_NAME, "performMatch", s"${result.audit}")
-    info(CLASS_NAME, "performMatch", s" hasMultipleRecords -> $multipleRecords")
+    info(CLASS_NAME, "performMatch", s"hasMultipleRecords -> ${records.length > 1}")
 
-    CommonUtil.getOperationType(input) match {
-      case DetailsRequest() =>
-        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit, "birth-registration-matching/match/details"),
-          records, multipleRecords, "GRO/details", hc)
-      case ReferenceRequest() =>
-        BRMAudit.auditRequest(new EnglandAndWalesAuditEvent(result.audit),
-          records, multipleRecords, "GRO/match", hc)
-    }
+    // Audit the match result
+//    BRMAudit.event(new MatchingEvent(result.audit, "birth-registration-matching/match"))
+    BRMAudit.auditMatchResult(input, result, records)
 
     result
   }
+
 }
 
 object MatchingService extends MatchingService {
