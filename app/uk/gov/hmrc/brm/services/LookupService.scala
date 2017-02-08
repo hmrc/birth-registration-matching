@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.brm.services
 
+import uk.gov.hmrc.brm.audit.{AuditEvent, BRMAudit, EnglandAndWalesAudit}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors._
+import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
 import uk.gov.hmrc.play.http._
@@ -67,7 +70,8 @@ trait LookupService extends LookupServiceBinder {
     * @param metrics
     * @return
     */
-  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
+
+  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics, auditor: BRMAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
 
@@ -84,10 +88,24 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-        val isMatch = matchingService.performMatch(payload, RecordParser.parse(response.json), getMatchingType).isMatch
-        if(isMatch) {
+
+        val records = RecordParser.parse(response.json)
+
+        val matchResult = matchingService.performMatch(payload, records, getMatchingType)
+
+        // Audit the result of the request, EnglandAndWales / Scotland / NorthernIreland
+        // Add in the full match result into the audit event for the records
+        val recordAudit = Map(
+          "recordFound" -> records.nonEmpty.toString,
+          "multipleRecords" -> {records.length > 1}.toString,
+          "birthsPerSearch" -> records.length.toString
+        ) ++ matchResult.audit
+
+        auditor.audit(recordAudit, payload)
+
+        if(matchResult.isMatch) {
           MatchCountMetric.count()
-          BirthResponseBuilder.getResponse(isMatch)
+          BirthResponseBuilder.getResponse(matchResult.isMatch)
         } else {
           NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()

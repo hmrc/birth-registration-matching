@@ -21,7 +21,6 @@ import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.brm.utils.{BrmLogger, CommonUtil}
 import uk.gov.hmrc.play.audit.AuditExtensions._
@@ -30,6 +29,8 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+
+
 
 /**
   * AuditEvent - Abstract class for auditing events
@@ -53,36 +54,6 @@ abstract class AuditEvent(
   )
 
 /**
-  * EnglandAndWalesAuditEvent
-  * Responsible for auditing when we find records on GRO
-  * @param result map of key value results
-  * @param path endpoint path
-  * @param hc implicit headerCarrier
-  */
-final class EnglandAndWalesAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result, transactionName = "brm-england-and-wales-match", path)
-
-/**
-  * ScotlandAuditEvent
-  * Responsible for auditing when we find records on NRS
-  * @param result map of key value results
-  * @param path endpoint path
-  * @param hc implicit headerCarrier
-  */
-final class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match", path)
-
-/**
-  * NorthernIrelandAuditEvent
-  * Responsible for auditing when we find records on GRO-NI
-  * @param result map of key value results
-  * @param path endpoint path
-  * @param hc implicit headerCarrier
-  */
-final class NorthernIrelandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results", detail = result, transactionName = "brm-northern-ireland-match", path)
-
-/**
   * OtherCountryAuditEvent
   * @param result map of key value results
   * @param hc implicit headerCarrier
@@ -90,26 +61,16 @@ final class NorthernIrelandAuditEvent(result : Map[String, String], path: String
 final class OtherCountryAuditEvent(result : Map[String, String])(implicit hc: HeaderCarrier)
   extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match", "birth-registration-matching/match")
 
-/**
-  * EventRecordFound
-  * Audit event for when a record is found on any of the downstream APIs
-  * @param result map of key value results
-  * @param path endpoint path
-  * @param hc implicit headerCarrier
-  */
-final class RecordFound(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
+///**
+//  * EventRecordFound
+//  * Audit event for when a record is found on any of the downstream APIs
+//  * @param result map of key value results
+//  * @param path endpoint path
+//  * @param hc implicit headerCarrier
+//  */
+//final class RecordFound(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
+//  extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
 
-
-// TODO NEW
-/**
-  * MatchingEvent
-  * Audit event for the result of MatchingService, how did the matching perform
-  * @param result map of key value results
-  * @param hc implicit headerCarrier
-  */
-final class MatchingEvent(result: Map[String, String], path : String)
-                          (implicit hc : HeaderCarrier) extends AuditEvent("BRM-Matching-Results", detail = result, transactionName = "brm-match", path)
 
 trait BRMAudit {
 
@@ -117,7 +78,9 @@ trait BRMAudit {
 
   protected val connector : AuditConnector
 
-  def event(event: AuditEvent) : Future[AuditResult] = {
+  def audit(result : Map[String, String], payload: Payload)(implicit hc : HeaderCarrier) : Future[AuditResult]
+
+  protected def event(event: AuditEvent) : Future[AuditResult] = {
     connector.sendEvent(event) map {
       success =>
         BrmLogger.info("BRMAudit", s"event", "event successfully audited")
@@ -129,7 +92,8 @@ trait BRMAudit {
     }
   }
 
-  def auditWhereBirthRegistered(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) = {
+  def auditInvalidCountryForWhereBirthRegistered(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) = {
+
     def logEvent(key: String, error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier)= {
       val validationError = error.filter(_._1.toString().contains(key))
       val errors = validationError.map(x => {
@@ -153,27 +117,30 @@ trait BRMAudit {
     logEvent(Payload.whereBirthRegistered, error)
   }
 
-  private def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
-    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"$hasMultipleRecords")
-    val audit = new RecordFound(result, path)(hc)
-    event(audit)
-  }
+//  private def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
+//    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"$hasMultipleRecords")
+//    val audit = new RecordFound(result, path)(hc)
+//    event(audit)
+//  }
 
 //  def auditRequest(auditEvent: AuditEvent, records: List[Record], path: String, hc: HeaderCarrier) = {
 //    BRMAudit.event(auditEvent)
 //    if (records.nonEmpty) BRMAudit.logEventRecordFound(hc, path, records.length > 1)
 //  }
 
-  def auditMatchResult(input : Payload, result : ResultMatch, records : List[Record])(implicit hc : HeaderCarrier) = {
-    CommonUtil.getOperationType(input) match {
-      case DetailsRequest() =>
-        event(new MatchingEvent(result.audit, "birth-registration-matching/match/details"))
-      case ReferenceRequest() =>
-        event(new MatchingEvent(result.audit, "birth-registration-matching/match/reference"))
-    }
-  }
+//  def auditMatchResult(input : Payload, result : ResultMatch)(implicit hc : HeaderCarrier) = {
+//    CommonUtil.getOperationType(input) match {
+//      case DetailsRequest() =>
+//        event(new MatchingEvent(result.audit, "birth-registration-matching/match/details"))
+//      case ReferenceRequest() =>
+//        event(new MatchingEvent(result.audit, "birth-registration-matching/match/reference"))
+//    }
+//  }
+
 }
 
 object BRMAudit extends BRMAudit {
   override val connector = MicroserviceGlobal.auditConnector
+
+  override def audit(result: Map[String, String]) = ???
 }

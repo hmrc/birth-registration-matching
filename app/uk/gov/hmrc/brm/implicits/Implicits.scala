@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.brm.implicits
 
+import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 
 object Implicits {
 
@@ -49,6 +51,19 @@ object Implicits {
 
   }
 
-
+  object AuditFactory {
+    def getAuditor()(implicit payload : Payload) : BRMAudit = {
+      payload.whereBirthRegistered match {
+        case ENGLAND | WALES =>
+          EnglandAndWalesAudit
+        case SCOTLAND =>
+          EnglandAndWalesAudit
+        case NORTHERN_IRELAND =>
+          EnglandAndWalesAudit
+        case _ =>
+          EnglandAndWalesAudit
+      }
+    }
+  }
 
 }

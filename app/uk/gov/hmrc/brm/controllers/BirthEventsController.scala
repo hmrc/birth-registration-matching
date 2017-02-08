@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
+import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
@@ -48,13 +48,14 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
       generateAndSetKey(request)
       request.body.validate[Payload].fold(
         error => {
-          BRMAudit.auditWhereBirthRegistered(error)
+          BRMAudit.auditInvalidCountryForWhereBirthRegistered(error)
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
           implicit val p : Payload = payload
           implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
+          implicit val auditor : BRMAudit = AuditFactory.getAuditor()
 
           // Toggle switch for searching by child's name or whether we should validate date of birth
           if (restrictSearchByDateOfBirthBeforeGROStartDate(p.dateOfBirth) || payload.restrictSearchByDetails) {

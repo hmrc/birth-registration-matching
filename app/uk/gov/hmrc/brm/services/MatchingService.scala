@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingEvent}
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, MatchingEvent}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
@@ -51,7 +51,7 @@ trait MatchingService {
 
     // Audit the match result
 //    BRMAudit.event(new MatchingEvent(result.audit, "birth-registration-matching/match"))
-    BRMAudit.auditMatchResult(input, result, records)
+    MatchingAudit.audit(result.audit, input)
 
     result
   }
