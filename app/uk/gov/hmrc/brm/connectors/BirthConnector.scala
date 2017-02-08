@@ -31,7 +31,7 @@ trait BirthConnector extends ServicesConfig {
   private type BRMHeaders = Seq[(String, String)]
 
   val serviceUrl: String
-  val httpPost: HttpPost
+  var httpPost: HttpPost
 
   protected val headers : BRMHeaders
 
