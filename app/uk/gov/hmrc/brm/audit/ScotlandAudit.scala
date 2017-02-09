@@ -16,7 +16,7 @@ object ScotlandAudit extends BRMAudit {
     * @param path endpoint path
     * @param hc implicit headerCarrier
     */
-  final class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  final private class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
     extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match", path)
 
   override val connector = MicroserviceGlobal.auditConnector

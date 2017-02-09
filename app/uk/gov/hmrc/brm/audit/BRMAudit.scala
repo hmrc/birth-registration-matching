@@ -18,11 +18,8 @@ package uk.gov.hmrc.brm.audit
 
 import play.api.data.validation.ValidationError
 import play.api.libs.json.JsPath
-import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.{BrmLogger, CommonUtil}
+import uk.gov.hmrc.brm.utils.BrmLogger
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -139,8 +136,8 @@ trait BRMAudit {
 
 }
 
-object BRMAudit extends BRMAudit {
-  override val connector = MicroserviceGlobal.auditConnector
-
-  override def audit(result: Map[String, String]) = ???
-}
+//object BRMAudit extends BRMAudit {
+//  override val connector = MicroserviceGlobal.auditConnector
+//
+//  override def audit(result: Map[String, String]) = ???
+//}

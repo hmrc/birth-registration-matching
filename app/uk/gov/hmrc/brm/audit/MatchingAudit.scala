@@ -6,8 +6,6 @@ import uk.gov.hmrc.brm.utils.CommonUtil
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.Future
-
 /**
   * Created by adamconder on 08/02/2017.
   */
@@ -19,7 +17,7 @@ object MatchingAudit extends BRMAudit {
     * @param result map of key value results
     * @param hc implicit headerCarrier
     */
-  final class MatchingEvent(result: Map[String, String], path : String)
+  final private class MatchingEvent(result: Map[String, String], path : String)
                            (implicit hc : HeaderCarrier)
     extends AuditEvent("BRM-Matching-Results", detail = result, transactionName = "brm-match", path)
 
