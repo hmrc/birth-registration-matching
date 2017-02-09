@@ -17,8 +17,6 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import play.api.data.validation.ValidationError
-import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -42,35 +40,6 @@ class WhereBirthRegisteredAudit(connector: AuditConnector = MicroserviceGlobal.a
 
   def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) : Future[AuditResult] = {
     event(new OtherCountryAuditEvent(result))
-  }
-
-  def audit(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) : Future[AuditResult] = {
-
-    val failure = Future.failed(AuditResult.Failure(""))
-
-    def logEvent(key: String, error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) = {
-      val validationError = error.filter(_._1.toString().contains(key))
-      val errors = validationError.map(x => {
-        x._2.headOption.map(_.message)
-      })
-
-      errors match {
-        case head :: tail =>
-          val message = head.getOrElse("")
-          if(message.contains("value:")){
-            val index = message.lastIndexOf(":") + 1
-            val input = message.slice(index, message.length)
-            val event: Map[String, String] = Map("match" -> "false", "country" -> input)
-            audit(event)
-          } else {
-            failure
-          }
-        case Nil =>
-          failure
-      }
-    }
-
-    logEvent(Payload.whereBirthRegistered, error)
   }
 
 }

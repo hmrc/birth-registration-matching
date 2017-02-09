@@ -52,17 +52,16 @@ object Implicits {
   }
 
   object AuditFactory {
+
+    private lazy val set : Map[BirthRegisterCountry.Value, BRMAudit] = Map(
+      BirthRegisterCountry.ENGLAND -> new EnglandAndWalesAudit(),
+      BirthRegisterCountry.WALES -> new EnglandAndWalesAudit(),
+      BirthRegisterCountry.SCOTLAND -> new ScotlandAudit(),
+      BirthRegisterCountry.NORTHERN_IRELAND -> new NorthernIrelandAudit()
+    )
+
     def getAuditor()(implicit payload : Payload) : BRMAudit = {
-      payload.whereBirthRegistered match {
-        case ENGLAND | WALES =>
-          new EnglandAndWalesAudit()
-        case SCOTLAND =>
-          new ScotlandAudit()
-        case NORTHERN_IRELAND =>
-          new NorthernIrelandAudit()
-        case _ =>
-          throw new IllegalArgumentException("payload is not of required type")
-      }
+      set(payload.whereBirthRegistered)
     }
   }
 

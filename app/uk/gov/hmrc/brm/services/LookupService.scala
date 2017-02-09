@@ -93,13 +93,13 @@ trait LookupService extends LookupServiceBinder {
 
         // Audit the result of the request, EnglandAndWales / Scotland / NorthernIreland
         // Add in the full match result into the audit event for the records
-        val recordAudit = Map(
+        val audit = Map(
           "recordFound" -> records.nonEmpty.toString,
           "multipleRecords" -> {records.length > 1}.toString,
           "birthsPerSearch" -> records.length.toString
         ) ++ matchResult.audit
 
-        auditor.audit(recordAudit, Some(payload))
+        auditor.audit(audit, Some(payload))
 
         if(matchResult.isMatch) {
           MatchCountMetric.count()

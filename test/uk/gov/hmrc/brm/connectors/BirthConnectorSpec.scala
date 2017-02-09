@@ -44,18 +44,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   GROConnector.httpPost = mockHttpPost
 
-//  object MockBirthConnector extends BirthConnector {
-//    override val httpPost = mockHttpPost
-//    override val serviceUrl = ""
-//
-//    override val referenceBody : PartialFunction[Payload, (String, JsValue)] = ???
-//    override val detailsBody : PartialFunction[Payload, (String, JsValue)] = ???
-//    override val headers = ???
-////    override val baseUri = ""
-////    override val detailsUri = ""
-////    override val referenceUri = ""
-//  }
-
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
 
   val childDetailPayload = Map(
@@ -146,7 +134,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "GROEnglandConnector" should {
 
       "initialise with correct properties" in {
-//        GROConnector.httpPost shouldBe a[WSPost]
         GROConnector.detailsUri shouldBe "http://localhost:9006/birth-registration-matching-proxy/match/details"
       }
     }
@@ -159,7 +146,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getReference returns http NotImplementedException" in {
-        val future = NRSConnector.getReference(payloadNoReferenceScotland)
+        val future = NRSConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getReference method available for NRS connector."
@@ -188,7 +175,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getReference returns http NotImplementedException" in {
-        val future = GRONIConnector.getReference(payloadNoReferenceNorthernIreland)
+        val future = GRONIConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
             e.getMessage shouldBe "No getReference method available for GRONI connector."

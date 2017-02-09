@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BrmLogger}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost, NotImplementedException}
 
 import scala.concurrent.Future
@@ -57,6 +58,8 @@ object GRONIConnector extends BirthConnector {
   override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
     BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
+    referenceBody.apply(payload)
+
     val result: Map[String, String] = Map("match" -> "false")
     new NorthernIrelandAudit().audit(result, Some(payload))
 
@@ -65,6 +68,8 @@ object GRONIConnector extends BirthConnector {
 
   override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
     BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
+
+    detailsBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
     new NorthernIrelandAudit().audit(result, Some(payload))

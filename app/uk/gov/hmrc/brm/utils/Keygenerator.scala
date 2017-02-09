@@ -28,7 +28,6 @@ object Keygenerator {
   private var keyForRequest: String = null
 
   def generateKey(request: Request[JsValue]) = {
-
     val formattedDate: String = getDateKey
     val apiVersion: String = getApiVersion(request)
     //format is date-requestid-audit source - api version number

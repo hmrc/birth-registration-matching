@@ -25,8 +25,6 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-
-
 /**
   * AuditEvent - Abstract class for auditing events
   * @param auditType type of audit event, given a unique identifier to search on
@@ -35,7 +33,7 @@ import scala.concurrent.Future
   * @param path endpoint path
   * @param hc implicit headerCarrier
   */
-abstract class AuditEvent(
+protected abstract class AuditEvent(
                            auditType : String,
                            detail : Map[String, String],
                            transactionName: String,
@@ -47,19 +45,6 @@ abstract class AuditEvent(
     detail = detail,
     tags = hc.toAuditTags(transactionName, path)
   )
-
-
-
-///**
-//  * EventRecordFound
-//  * Audit event for when a record is found on any of the downstream APIs
-//  * @param result map of key value results
-//  * @param path endpoint path
-//  * @param hc implicit headerCarrier
-//  */
-//final class RecordFound(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-//  extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
-
 
 abstract class BRMAudit(connector : AuditConnector) {
 
@@ -79,31 +64,4 @@ abstract class BRMAudit(connector : AuditConnector) {
     }
   }
 
-
-//  private def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
-//    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"$hasMultipleRecords")
-//    val audit = new RecordFound(result, path)(hc)
-//    event(audit)
-//  }
-
-//  def auditRequest(auditEvent: AuditEvent, records: List[Record], path: String, hc: HeaderCarrier) = {
-//    BRMAudit.event(auditEvent)
-//    if (records.nonEmpty) BRMAudit.logEventRecordFound(hc, path, records.length > 1)
-//  }
-
-//  def auditMatchResult(input : Payload, result : ResultMatch)(implicit hc : HeaderCarrier) = {
-//    CommonUtil.getOperationType(input) match {
-//      case DetailsRequest() =>
-//        event(new MatchingEvent(result.audit, "birth-registration-matching/match/details"))
-//      case ReferenceRequest() =>
-//        event(new MatchingEvent(result.audit, "birth-registration-matching/match/reference"))
-//    }
-//  }
-
 }
-
-//object BRMAudit extends BRMAudit {
-//  override val connector = MicroserviceGlobal.auditConnector
-//
-//  override def audit(result: Map[String, String]) = ???
-//}

@@ -28,6 +28,7 @@ import uk.gov.hmrc.brm.utils.Keygenerator._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
+import scala.util.Try
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
@@ -36,7 +37,6 @@ object BirthEventsController extends BirthEventsController {
 trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
-
   override val METHOD_NAME: String = "BirthEventsController::post"
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,17 +45,31 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
+
       generateAndSetKey(request)
+
       request.body.validate[Payload].fold(
         error => {
 
-          // audit incorrect country
-          new WhereBirthRegisteredAudit().audit(error)
+          // TODO move this out somewhere else
+          request.body.\(Payload.whereBirthRegistered) match {
+            case JsDefined(country) =>
+
+              Try(BirthRegisterCountry.withName(country.toString)) recover {
+                case e : Exception =>
+                  // audit incorrect country
+                  new WhereBirthRegisteredAudit().audit(Map("country" -> country.toString), None)
+              }
+            case _ =>
+              // does not exist on request
+              new WhereBirthRegisteredAudit().audit(Map("country" -> "no country specified"), None)
+          }
 
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
+
           implicit val p : Payload = payload
           implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
           implicit val auditor : BRMAudit = AuditFactory.getAuditor()

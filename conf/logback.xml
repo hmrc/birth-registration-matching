@@ -48,7 +48,7 @@
 
     <logger name="akka.event" level="INFO"/>
 
-    <logger name="io.netty" level="WARN"/>
+    <logger name="io.netty" level="OFF"/>
 
     <logger name="application" level="DEBUG"/>
 
@@ -56,7 +56,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ACCESS_LOG_FILE"/>

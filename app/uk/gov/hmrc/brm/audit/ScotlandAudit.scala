@@ -19,6 +19,8 @@ package uk.gov.hmrc.brm.audit
 import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.CommonUtil
+import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -39,7 +41,17 @@ class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnecto
     extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match", path)
 
   def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
-    event(new ScotlandAuditEvent(result, path = "nrs"))
+    payload match {
+      case Some(p) =>
+        CommonUtil.getOperationType(p) match {
+          case DetailsRequest() =>
+            event(new ScotlandAuditEvent(result, "nrs-details"))
+          case ReferenceRequest() =>
+            event(new ScotlandAuditEvent(result, "nrs-reference"))
+        }
+      case _ =>
+        throw new IllegalArgumentException("payload argument not specified")
+    }
   }
 
 }

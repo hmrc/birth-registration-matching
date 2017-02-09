@@ -22,6 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
+import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -42,6 +43,8 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     override val nirsConnector = mockConnector
     override val matchingService = MatchingService
   }
+
+  implicit val auditor = new EnglandAndWalesAudit()
 
   implicit val metrics = mock[BRMMetrics]
 

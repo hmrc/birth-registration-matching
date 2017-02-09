@@ -57,6 +57,8 @@ object NRSConnector extends BirthConnector {
   override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
     BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
+    referenceBody.apply(payload)
+
     val result: Map[String, String] = Map("match" -> "false")
     new ScotlandAudit().audit(result, Some(payload))
 
@@ -65,6 +67,8 @@ object NRSConnector extends BirthConnector {
 
   override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
     BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
+
+    detailsBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
     new ScotlandAudit().audit(result, Some(payload))
