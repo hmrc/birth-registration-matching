@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -48,7 +48,10 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
       generateAndSetKey(request)
       request.body.validate[Payload].fold(
         error => {
-          BRMAudit.auditInvalidCountryForWhereBirthRegistered(error)
+
+          // audit incorrect country
+          new WhereBirthRegisteredAudit().audit(error)
+
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },

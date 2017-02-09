@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.brm.audit
 
-import play.api.data.validation.ValidationError
-import play.api.libs.json.JsPath
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger
 import uk.gov.hmrc.play.audit.AuditExtensions._
@@ -50,13 +48,7 @@ abstract class AuditEvent(
     tags = hc.toAuditTags(transactionName, path)
   )
 
-/**
-  * OtherCountryAuditEvent
-  * @param result map of key value results
-  * @param hc implicit headerCarrier
-  */
-final class OtherCountryAuditEvent(result : Map[String, String])(implicit hc: HeaderCarrier)
-  extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match", "birth-registration-matching/match")
+
 
 ///**
 //  * EventRecordFound
@@ -69,50 +61,24 @@ final class OtherCountryAuditEvent(result : Map[String, String])(implicit hc: He
 //  extends AuditEvent(auditType = "BRM-EventRecord-Found", detail = result, transactionName = "brm-event-record-found", path)
 
 
-trait BRMAudit {
+abstract class BRMAudit(connector : AuditConnector) {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  protected val connector : AuditConnector
-
-  def audit(result : Map[String, String], payload: Payload)(implicit hc : HeaderCarrier) : Future[AuditResult]
+  def audit(result : Map[String, String], payload: Option[Payload] = None)(implicit hc : HeaderCarrier) : Future[AuditResult]
 
   protected def event(event: AuditEvent) : Future[AuditResult] = {
     connector.sendEvent(event) map {
       success =>
-        BrmLogger.info("BRMAudit", s"event", "event successfully audited")
+        BrmLogger.info(super.getClass.getCanonicalName, s"event", "event successfully audited")
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BrmLogger.warn(s"BRMAudit", s"event", s"event failed to audit")
+        BrmLogger.warn(super.getClass.getCanonicalName, s"event", s"event failed to audit")
         e
     }
   }
 
-  def auditInvalidCountryForWhereBirthRegistered(error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier) = {
-
-    def logEvent(key: String, error: Seq[(JsPath, Seq[ValidationError])])(implicit hc:HeaderCarrier)= {
-      val validationError = error.filter(_._1.toString().contains(key))
-      val errors = validationError.map(x => {
-        x._2.headOption.map(_.message)
-      })
-
-      errors match {
-        case head :: tail =>
-          val message = head.getOrElse("")
-          if(message.contains("value:")){
-              val index = message.lastIndexOf(":") + 1
-              val input = message.slice(index, message.length)
-              val result: Map[String, String] = Map("match" -> "false", "country" -> input)
-              val audit = new OtherCountryAuditEvent(result)
-              event(audit)
-          }
-        case Nil =>
-      }
-    }
-
-    logEvent(Payload.whereBirthRegistered, error)
-  }
 
 //  private def logEventRecordFound(implicit hc: HeaderCarrier,  path: String, hasMultipleRecords : Boolean) = {
 //    val result : Map[String, String] = Map("recordFound" -> "true", "multiple"-> s"$hasMultipleRecords")

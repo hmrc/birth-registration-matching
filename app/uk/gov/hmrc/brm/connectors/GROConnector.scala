@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.http.HttpPost
   */
 
 object GROConnector extends BirthConnector {
-
-  // TODO CURRENTLY THE ENGLANDANDWALESAUDITEVENT IS NOT USED
+  
   override val serviceUrl = baseUrl("birth-registration-matching")
   override var httpPost: HttpPost = WSHttp
 

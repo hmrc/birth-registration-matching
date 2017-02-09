@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{AuditEvent, BRMAudit, EnglandAndWalesAudit}
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors._
-import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
 import uk.gov.hmrc.play.http._
@@ -101,7 +99,7 @@ trait LookupService extends LookupServiceBinder {
           "birthsPerSearch" -> records.length.toString
         ) ++ matchResult.audit
 
-        auditor.audit(recordAudit, payload)
+        auditor.audit(recordAudit, Some(payload))
 
         if(matchResult.isMatch) {
           MatchCountMetric.count()

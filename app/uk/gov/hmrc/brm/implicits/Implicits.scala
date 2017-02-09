@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.implicits
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit}
+import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit, NorthernIrelandAudit, ScotlandAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -55,13 +55,13 @@ object Implicits {
     def getAuditor()(implicit payload : Payload) : BRMAudit = {
       payload.whereBirthRegistered match {
         case ENGLAND | WALES =>
-          EnglandAndWalesAudit
+          new EnglandAndWalesAudit()
         case SCOTLAND =>
-          EnglandAndWalesAudit
+          new ScotlandAudit()
         case NORTHERN_IRELAND =>
-          EnglandAndWalesAudit
+          new NorthernIrelandAudit()
         case _ =>
-          EnglandAndWalesAudit
+          throw new IllegalArgumentException("payload is not of required type")
       }
     }
   }

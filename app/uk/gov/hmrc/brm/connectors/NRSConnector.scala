@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.connectors
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.audit.{BRMAudit, ScotlandAuditEvent}
+import uk.gov.hmrc.brm.audit.ScotlandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger
@@ -58,8 +58,7 @@ object NRSConnector extends BirthConnector {
     BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     val result: Map[String, String] = Map("match" -> "false")
-    val event = new ScotlandAuditEvent(result, referenceUri)
-    BRMAudit.event(event)
+    new ScotlandAudit().audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
   }
@@ -68,8 +67,7 @@ object NRSConnector extends BirthConnector {
     BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     val result: Map[String, String] = Map("match" -> "false")
-    val event = new ScotlandAuditEvent(result, detailsUri)
-    BRMAudit.event(event)
+    new ScotlandAudit().audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
   }

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.connectors
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.audit.{BRMAudit, NorthernIrelandAuditEvent}
+import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger
@@ -58,8 +58,7 @@ object GRONIConnector extends BirthConnector {
     BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     val result: Map[String, String] = Map("match" -> "false")
-    val event = new NorthernIrelandAuditEvent(result, referenceUri)
-    BRMAudit.event(event)
+    new NorthernIrelandAudit().audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
   }
@@ -68,8 +67,7 @@ object GRONIConnector extends BirthConnector {
     BrmLogger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     val result: Map[String, String] = Map("match" -> "false")
-    val event = new NorthernIrelandAuditEvent(result, detailsUri)
-    BRMAudit.event(event)
+    new NorthernIrelandAudit().audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
   }

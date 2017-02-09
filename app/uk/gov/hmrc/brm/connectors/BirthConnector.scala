@@ -16,15 +16,11 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.audit.{BRMAudit, NorthernIrelandAuditEvent, ScotlandAuditEvent}
-import uk.gov.hmrc.brm.config.WSHttp
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BrmLogger, Keygenerator, NameFormat}
+import uk.gov.hmrc.brm.utils.BrmLogger
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
-
-import scala.concurrent.Future
 
 trait BirthConnector extends ServicesConfig {
 
