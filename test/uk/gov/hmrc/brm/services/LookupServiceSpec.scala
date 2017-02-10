@@ -40,7 +40,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
   object MockService extends LookupService {
     override val groConnector = mockConnector
     override val nrsConnector = mockConnector
-    override val nirsConnector = mockConnector
+    override val groniConnector = mockConnector
     override val matchingService = MatchingService
   }
 
@@ -57,7 +57,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
       "initialise with dependencies" in {
         LookupService.groConnector shouldBe a[BirthConnector]
         LookupService.nrsConnector shouldBe a[BirthConnector]
-        LookupService.nirsConnector shouldBe a[BirthConnector]
+        LookupService.groniConnector shouldBe a[BirthConnector]
       }
 
     }

@@ -30,8 +30,8 @@ import scala.concurrent.Future
 
 object LookupService extends LookupService {
   override val groConnector = GROConnector
-  override val nirsConnector = NRSConnector
-  override val nrsConnector = GRONIConnector
+  override val nrsConnector = NRSConnector
+  override val groniConnector = GRONIConnector
   override val matchingService = MatchingService
 }
 
@@ -43,7 +43,7 @@ trait LookupServiceBinder {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groConnector
       case BirthRegisterCountry.NORTHERN_IRELAND =>
-        nirsConnector
+        groniConnector
       case BirthRegisterCountry.SCOTLAND =>
         nrsConnector
     }
@@ -54,8 +54,8 @@ trait LookupServiceBinder {
 trait LookupService extends LookupServiceBinder {
 
   protected val groConnector: BirthConnector
-  protected val nirsConnector: BirthConnector
   protected val nrsConnector: BirthConnector
+  protected val groniConnector: BirthConnector
   protected val matchingService: MatchingService
 
   val CLASS_NAME: String = this.getClass.getCanonicalName

@@ -41,7 +41,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val nirsConnector = mockConnector
+    override val groniConnector = mockConnector
     override val nrsConnector = mockConnector
     override val matchingService = MatchingService
   }

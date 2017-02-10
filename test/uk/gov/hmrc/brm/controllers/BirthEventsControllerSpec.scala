@@ -57,7 +57,7 @@ class BirthEventsControllerSpec
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val nirsConnector = GRONIConnector
+    override val groniConnector = GRONIConnector
     override val nrsConnector = NRSConnector
     override val matchingService = MatchingService
   }
