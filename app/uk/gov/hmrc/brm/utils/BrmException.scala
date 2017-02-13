@@ -21,7 +21,8 @@ import play.api.mvc.{Controller, Result}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.MatchingService
+import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.services.{Bad, MatchingService}
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.play.http._
 
@@ -82,10 +83,23 @@ trait BrmException extends Controller {
     }
   }
 
+  private def auditNotFound()(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): Unit = {
+
+    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
+
+    val audit = Map(
+      "recordFound" -> "false",
+      "multipleRecords" -> "false",
+      "birthsPerSearch" -> "false"
+    ) ++ matchResult.audit
+
+    auditor.audit(audit, Some(payload))
+  }
+
   def notFoundExceptionPF(message: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier) : PartialFunction[Throwable, Result] = {
     case e: NotFoundException => {
       // Audit record not found
-      MatchingService.auditNotFound
+      auditNotFound
       logException(Some(message), Some(s"NotFound: ${e.getMessage}"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
     }

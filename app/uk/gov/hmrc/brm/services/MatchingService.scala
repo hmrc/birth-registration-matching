@@ -54,19 +54,6 @@ trait MatchingService {
     result
   }
 
-  def auditNotFound(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier)  {
-
-    val matchResult = MatchingService.performMatch(payload, List.empty, MatchingService.getMatchingType)
-
-    val audit = Map(
-      "recordFound" -> "false",
-      "multipleRecords" -> "false",
-      "birthsPerSearch" -> "false"
-    ) ++ matchResult.audit
-
-    auditor.audit(audit, Some(payload))
-  }
-
   def getMatchingType : MatchingType.Value = {
     val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
     info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
