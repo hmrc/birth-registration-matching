@@ -42,10 +42,9 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   val mockHttpGet = mock[HttpGet]
   val mockHttpPost = mock[HttpPost]
 
-  val groConnector : GROConnector = new GROConnector(mockHttpPost)
-
-  val nrsConnector = new NRSConnector(mockHttpPost)
-  val groniConnector = new GRONIConnector(mockHttpPost)
+  var groConnector: GROConnector = null
+  var nrsConnector: NRSConnector = null
+  var groniConnector: GRONIConnector = null
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
 
@@ -58,13 +57,16 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   before {
     reset(mockHttpGet)
     reset(mockHttpPost)
+    groConnector = new GROConnector(mockHttpPost)
+    nrsConnector = new NRSConnector()
+    groniConnector = new GRONIConnector()
   }
 
   "BirthConnector" should {
 
     "getReference returns json response" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
       val result = await(groConnector.getReference(payload))
       result shouldBe a[HttpResponse]
@@ -73,7 +75,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getReference returns http 500 when GRO is offline" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
       val result = await(groConnector.getReference(payload))
       result shouldBe a[HttpResponse]
@@ -82,7 +84,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getReference returns http 400 for BadRequest" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
       val result = await(groConnector.getReference(payload))
       result shouldBe a[HttpResponse]
@@ -91,7 +93,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getReference returns http 404 when GRO has not found data" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
       val result = await(groConnector.getReference(payload))
       result shouldBe a[HttpResponse]
@@ -100,7 +102,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getChildDetails returns json response" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
       val result = await(groConnector.getChildDetails(payloadNoReference))
       result shouldBe a[HttpResponse]
@@ -109,7 +111,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getChildDetails returns http 500 when GRO is offline" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
       val result = await(groConnector.getChildDetails(payloadNoReference))
       result shouldBe a[HttpResponse]
@@ -118,7 +120,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getChildDetails returns http 400 for BadRequest" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
       val result = await(groConnector.getChildDetails(payloadNoReference))
       result shouldBe a[HttpResponse]
@@ -127,7 +129,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "getChildDetails returns http 404 when GRO has not found data" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(),Matchers.any(),Matchers.any()))
+        (Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
       val result = await(groConnector.getChildDetails(payloadNoReference))
       result shouldBe a[HttpResponse]
