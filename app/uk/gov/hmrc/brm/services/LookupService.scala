@@ -17,11 +17,12 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
-import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit}
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
@@ -86,6 +86,8 @@ trait BrmException extends Controller {
   private def auditNotFound()(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): Unit = {
 
     val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
+
+    new MatchingAudit().audit(matchResult.audit, Some(payload))
 
     val audit = Map(
       "recordFound" -> "false",
