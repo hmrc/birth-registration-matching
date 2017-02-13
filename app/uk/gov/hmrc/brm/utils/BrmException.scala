@@ -31,6 +31,7 @@ trait BrmException extends Controller {
 
   def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
+      // TODO CHRIS add audit event to here to log to splunk
       logException(Some(message), Some("notFound"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
