@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import com.google.inject.Singleton
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
@@ -29,12 +30,12 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 07/02/2017.
   */
-object GRONIConnector extends BirthConnector {
+@Singleton
+class GRONIConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
   override val serviceUrl = ""
-  override var httpPost: HttpPost = WSHttp
   private val baseUri = ""
-  val detailsUri = s"$serviceUrl/$baseUri"
+  private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
   override val headers = Seq()

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
 import uk.gov.hmrc.brm.config.WSHttp
@@ -28,12 +29,12 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 07/02/2017.
   */
-object NRSConnector extends BirthConnector {
+@Singleton
+class NRSConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
   override val serviceUrl = ""
-  override var httpPost: HttpPost = WSHttp
   private val baseUri = ""
-  val detailsUri = s"$serviceUrl/$baseUri"
+  private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
   override val headers = Seq()

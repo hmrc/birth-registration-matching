@@ -29,9 +29,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object LookupService extends LookupService {
-  override val groConnector = GROConnector
-  override val nrsConnector = NRSConnector
-  override val groniConnector = GRONIConnector
+  override val groConnector = new GROConnector
+  override val nrsConnector = new NRSConnector
+  override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
 }
 

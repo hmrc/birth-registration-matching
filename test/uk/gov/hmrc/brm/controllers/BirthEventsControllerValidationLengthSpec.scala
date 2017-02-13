@@ -50,8 +50,8 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val groniConnector = GRONIConnector
-    override val nrsConnector = NRSConnector
+    override val groniConnector = new GRONIConnector
+    override val nrsConnector = new NRSConnector
     override val matchingService = MatchingService
   }
 

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -25,14 +26,14 @@ import uk.gov.hmrc.play.http.HttpPost
 /**
   * Created by adamconder on 07/02/2017.
   */
+@Singleton
+class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
-object GROConnector extends BirthConnector {
-  
   override val serviceUrl = baseUrl("birth-registration-matching")
-  override var httpPost: HttpPost = WSHttp
+//  override var httpPost: HttpPost = WSHttp
 
   private val baseUri = "birth-registration-matching-proxy"
-  val detailsUri = s"$serviceUrl/$baseUri/match/details"
+  private val detailsUri = s"$serviceUrl/$baseUri/match/details"
   private val referenceUri = s"$serviceUrl/$baseUri/match/reference"
 
   override val headers = Seq(
