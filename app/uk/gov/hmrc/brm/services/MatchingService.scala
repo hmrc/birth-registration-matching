@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.MatchingAudit
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
@@ -52,6 +52,25 @@ trait MatchingService {
     new MatchingAudit().audit(result.audit, Some(input))
 
     result
+  }
+
+  def auditNotFound(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier)  {
+
+    val matchResult = MatchingService.performMatch(payload, List.empty, MatchingService.getMatchingType)
+
+    val audit = Map(
+      "recordFound" -> "false",
+      "multipleRecords" -> "false",
+      "birthsPerSearch" -> "false"
+    ) ++ matchResult.audit
+
+    auditor.audit(audit, Some(payload))
+  }
+
+  def getMatchingType : MatchingType.Value = {
+    val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
+    info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
+    if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 
 }

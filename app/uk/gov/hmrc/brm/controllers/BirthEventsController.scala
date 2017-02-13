@@ -21,7 +21,7 @@ import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._

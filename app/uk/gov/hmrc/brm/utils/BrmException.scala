@@ -18,10 +18,12 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.brm.services.MatchingService
 import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.play.http._
 
 trait BrmException extends Controller {
 
@@ -31,7 +33,6 @@ trait BrmException extends Controller {
 
   def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
-      // TODO CHRIS add audit event to here to log to splunk
       logException(Some(message), Some("notFound"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
@@ -81,10 +82,13 @@ trait BrmException extends Controller {
     }
   }
 
-  def notFoundExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case e: NotFoundException =>
+  def notFoundExceptionPF(message: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier) : PartialFunction[Throwable, Result] = {
+    case e: NotFoundException => {
+      // Audit record not found
+      MatchingService.auditNotFound
       logException(Some(message), Some(s"NotFound: ${e.getMessage}"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
+    }
   }
 
   def exceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {

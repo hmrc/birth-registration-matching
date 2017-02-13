@@ -17,12 +17,11 @@
 package uk.gov.hmrc.brm.services
 
 import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -89,7 +88,7 @@ trait LookupService extends LookupServiceBinder {
 
         val records = RecordParser.parse(response.json)
 
-        val matchResult = matchingService.performMatch(payload, records, getMatchingType)
+        val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
         // Audit the result of the request, EnglandAndWales / Scotland / NorthernIreland
         // Add in the full match result into the audit event for the records
@@ -130,12 +129,6 @@ trait LookupService extends LookupServiceBinder {
     case payload@Payload(Some(birthReferenceNumber), _, _, _, _) =>
       info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
-  }
-
-  private[LookupService] def getMatchingType : MatchingType.Value = {
-    val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
-    info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
-    if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 
 }

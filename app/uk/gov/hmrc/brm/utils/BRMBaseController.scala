@@ -17,7 +17,9 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.mvc.Result
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 trait BRMBaseController extends BaseController with BrmException {
@@ -31,7 +33,7 @@ trait BRMBaseController extends BaseController with BrmException {
       .withHeaders(headers)
   }
 
-  def handleException(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def handleException(method: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
     case t =>
       val allPfs = Seq(
         notFoundPF(method),
