@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.connectors.{BirthConnector, NirsConnector, NrsConnector}
+import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.TestHelper._
@@ -52,8 +52,8 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val nirsConnector = NirsConnector
-    override val nrsConnector = NrsConnector
+    override val groniConnector = new GRONIConnector
+    override val nrsConnector = new NRSConnector
     override val matchingService = MatchingService
   }
 

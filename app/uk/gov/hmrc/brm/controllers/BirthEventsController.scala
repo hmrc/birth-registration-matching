@@ -17,17 +17,18 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
+import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
+import scala.util.Try
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
@@ -36,7 +37,6 @@ object BirthEventsController extends BirthEventsController {
 trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
-
   override val METHOD_NAME: String = "BirthEventsController::post"
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,16 +45,34 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
+
       generateAndSetKey(request)
+
       request.body.validate[Payload].fold(
         error => {
-          BRMAudit.auditWhereBirthRegistered(error)
+
+          // TODO move this out somewhere else
+          request.body.\(Payload.whereBirthRegistered) match {
+            case JsDefined(country) =>
+
+              Try(BirthRegisterCountry.withName(country.toString)) recover {
+                case e : Exception =>
+                  // audit incorrect country
+                  new WhereBirthRegisteredAudit().audit(Map("country" -> country.toString), None)
+              }
+            case _ =>
+              // does not exist on request
+              new WhereBirthRegisteredAudit().audit(Map("country" -> "no country specified"), None)
+          }
+
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         payload => {
+
           implicit val p : Payload = payload
           implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
+          implicit val auditor : BRMAudit = AuditFactory.getAuditor()
 
           // Toggle switch for searching by child's name or whether we should validate date of birth
           if (restrictSearchByDateOfBirthBeforeGROStartDate(p.dateOfBirth) || payload.restrictSearchByDetails) {

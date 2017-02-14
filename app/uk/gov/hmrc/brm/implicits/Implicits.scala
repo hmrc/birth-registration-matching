@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.brm.implicits
 
+import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit, NorthernIrelandAudit, ScotlandAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 
 object Implicits {
 
@@ -49,6 +51,18 @@ object Implicits {
 
   }
 
+  object AuditFactory {
 
+    private lazy val set : Map[BirthRegisterCountry.Value, BRMAudit] = Map(
+      BirthRegisterCountry.ENGLAND -> new EnglandAndWalesAudit(),
+      BirthRegisterCountry.WALES -> new EnglandAndWalesAudit(),
+      BirthRegisterCountry.SCOTLAND -> new ScotlandAudit(),
+      BirthRegisterCountry.NORTHERN_IRELAND -> new NorthernIrelandAudit()
+    )
+
+    def getAuditor()(implicit payload : Payload) : BRMAudit = {
+      set(payload.whereBirthRegistered)
+    }
+  }
 
 }

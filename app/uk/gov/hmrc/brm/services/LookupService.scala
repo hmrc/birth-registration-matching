@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.services
 
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.connectors.{BirthConnector, GROEnglandConnector, NirsConnector, NrsConnector}
+import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BrmLogger._
@@ -28,9 +29,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object LookupService extends LookupService {
-  override val groConnector = GROEnglandConnector
-  override val nirsConnector = NirsConnector
-  override val nrsConnector = NrsConnector
+  override val groConnector = new GROConnector
+  override val nrsConnector = new NRSConnector
+  override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
 }
 
@@ -42,7 +43,7 @@ trait LookupServiceBinder {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groConnector
       case BirthRegisterCountry.NORTHERN_IRELAND =>
-        nirsConnector
+        groniConnector
       case BirthRegisterCountry.SCOTLAND =>
         nrsConnector
     }
@@ -53,8 +54,8 @@ trait LookupServiceBinder {
 trait LookupService extends LookupServiceBinder {
 
   protected val groConnector: BirthConnector
-  protected val nirsConnector: BirthConnector
   protected val nrsConnector: BirthConnector
+  protected val groniConnector: BirthConnector
   protected val matchingService: MatchingService
 
   val CLASS_NAME: String = this.getClass.getCanonicalName
@@ -67,7 +68,8 @@ trait LookupService extends LookupServiceBinder {
     * @param metrics
     * @return
     */
-  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics) = {
+
+  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics, auditor: BRMAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
 
@@ -84,10 +86,24 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-        val isMatch = matchingService.performMatch(payload, RecordParser.parse(response.json), getMatchingType).isMatch
-        if(isMatch) {
+
+        val records = RecordParser.parse(response.json)
+
+        val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
+
+        // Audit the result of the request, EnglandAndWales / Scotland / NorthernIreland
+        // Add in the full match result into the audit event for the records
+        val audit = Map(
+          "recordFound" -> records.nonEmpty.toString,
+          "multipleRecords" -> {records.length > 1}.toString,
+          "birthsPerSearch" -> records.length.toString
+        ) ++ matchResult.audit
+
+        auditor.audit(audit, Some(payload))
+
+        if(matchResult.isMatch) {
           MatchCountMetric.count()
-          BirthResponseBuilder.getResponse(isMatch)
+          BirthResponseBuilder.getResponse(matchResult.isMatch)
         } else {
           NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()
@@ -114,12 +130,6 @@ trait LookupService extends LookupServiceBinder {
     case payload@Payload(Some(birthReferenceNumber), _, _, _, _) =>
       info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
-  }
-
-  private[LookupService] def getMatchingType : MatchingType.Value = {
-    val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
-    info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
-    if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 
 }
