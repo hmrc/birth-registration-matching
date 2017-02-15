@@ -99,6 +99,16 @@ trait LookupService extends LookupServiceBinder {
           "birthsPerSearch" -> records.length.toString
         ) ++ matchResult.audit
 
+        // TODO move this into RequestsAndResultsAudit and unit test
+//        import uk.gov.hmrc.brm.services.parser.NameParser._
+//        val recordsStats = for ((record, index) <- records.zipWithIndex) yield {
+//          s"records.record$index.numberOfForenames" ->   record.child.firstName.names.length
+//          s"records.record$index.numberOfLastnames" -> record.child.lastName.names.length
+//        }
+//
+//        val things = (recordsStats map ( t => t._1 -> t._2)).toMap
+//        things ++ audit
+
         auditor.audit(audit, Some(payload))
 
         if(matchResult.isMatch) {
