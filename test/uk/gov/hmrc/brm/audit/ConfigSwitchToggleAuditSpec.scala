@@ -16,22 +16,27 @@
 
 package uk.gov.hmrc.brm.audit
 
+
+import org.scalatest.BeforeAndAfterAll
 import org.joda.time.LocalDate
 import org.mockito.Matchers
-import org.mockito.Mockito.when
-import org.scalatest.BeforeAndAfterAll
+import org.mockito.Mockito._
+import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
-import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.brm.BaseConfig
+import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.AuditEvent
+
+import scala.collection.immutable.IndexedSeq
+import scala.concurrent.Future
 
 import scala.concurrent.Future
 
@@ -45,21 +50,21 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
   implicit val hc = HeaderCarrier()
 
   val auditSwitchesOnForSuccess: Map[String, _] = BaseConfig.config ++ Map(
-    "microservice.services.birth-registration-matching.firstName" -> true,
-    "microservice.services.birth-registration-matching.lastName" -> true,
-    "microservice.services.birth-registration-matching.dateOfBirth" -> true,
-    "microservice.services.birth-registration-matching.matchOnMultiple" -> false,
-    "microservice.services.birth-registration-matching.disableSearchByDetails" -> false,
-    "microservice.services.birth-registration-matching.ignoreMiddleNames" -> true
+    "microservice.services.birth-registration-matching.matching.firstName" -> true,
+    "microservice.services.birth-registration-matching.matching.lastName" -> true,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
+    "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> false,
+    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> false,
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> true
   )
 
   val auditSwitchesOnForFailure: Map[String, _] = BaseConfig.config ++ Map(
-    "microservice.services.birth-registration-matching.firstName" -> false,
-    "microservice.services.birth-registration-matching.lastName" -> false,
-    "microservice.services.birth-registration-matching.dateOfBirth" -> false,
-    "microservice.services.birth-registration-matching.matchOnMultiple" -> true,
-    "microservice.services.birth-registration-matching.disableSearchByDetails" -> true,
-    "microservice.services.birth-registration-matching.ignoreMiddleNames" -> false
+    "microservice.services.birth-registration-matching.matching.firstName" -> false,
+    "microservice.services.birth-registration-matching.matching.lastName" -> false,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
+    "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
+    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true,
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
   val auditSwitchOnAppForSuccess = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditSwitchesOnForSuccess).build()
   val auditSwitchOnAppForFailure = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditSwitchesOnForFailure).build()
