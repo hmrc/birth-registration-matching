@@ -49,7 +49,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
   val auditor = new RequestsAndResultsAudit(connector)
   implicit val hc = HeaderCarrier()
 
-  val auditSwitchesOnForSuccess: Map[String, _] = BaseConfig.config ++ Map(
+  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
@@ -58,7 +58,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> true
   )
 
-  val auditSwitchesOnForFailure: Map[String, _] = BaseConfig.config ++ Map(
+  val auditConfigOnForAlternate: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
@@ -66,14 +66,14 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
-  val auditSwitchOnAppForSuccess = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditSwitchesOnForSuccess).build()
-  val auditSwitchOnAppForFailure = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditSwitchesOnForFailure).build()
+  val auditConfigOnAppForDefault = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForDefault).build()
+  val auditConfigOnAppForAlternate = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForAlternate).build()
 
 
   "RequestsAndResultsAudit" should {
 
     "return true to set all config related values as expected to audit" in running(
-      auditSwitchOnAppForSuccess
+      auditConfigOnAppForDefault
     ) {
       val event = Map("match" -> "true")
       val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
@@ -93,7 +93,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
 
     "return false to set all config related values as unexpected to audit" in running(
-      auditSwitchOnAppForFailure
+      auditConfigOnAppForAlternate
     ) {
       val event = Map("match" -> "true")
       val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
