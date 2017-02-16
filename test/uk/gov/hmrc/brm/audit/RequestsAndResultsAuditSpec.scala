@@ -19,26 +19,34 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest._
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.brm.BRMFakeApplication
+import org.scalatestplus.play.OneAppPerSuite
+import org.specs2.mock.mockito.ArgumentCapture
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import play.api.test.Helpers._
+import uk.gov.hmrc.play.audit.model.AuditEvent
 
+import scala.collection.immutable.IndexedSeq
 import scala.concurrent.Future
 
 /**
   * Created by adamconder on 15/02/2017.
   */
-class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication  {
+class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   val connector = mock[AuditConnector]
   val auditor = new RequestsAndResultsAudit(connector)
   implicit val hc = HeaderCarrier()
 
-  "RequestsAndResultsAudit" should be {
+  "RequestsAndResultsAudit" should {
 
     // TODO We need to run a FakeApplication() to satisfy BrmConfig.audit()
     // FakeApplication needs to have all feature configs
@@ -50,15 +58,48 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with BRMFak
     //          s"records.record$index.numberOfLastnames" -> record.child.lastName.names.length
     //        }
      */
-    "audit request and result when child's details used" in {
-      val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+    "audit request and result when child's reference number used" in {
+        val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+        val event = Map("match" -> "true")
 
-      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditor.audit(event, Some(payload)))
-      result shouldBe AuditResult.Success
+        when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(auditor.audit(event, Some(payload)))
+        result shouldBe AuditResult.Success
     }
+    "audit request and result when child's details used" in {
+        val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+        val event = Map("match" -> "true")
 
+        when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(auditor.audit(event, Some(payload)))
+        result shouldBe AuditResult.Success
+    }
+    "throw Illegal argument exception when no payload is provided" in {
+        val event = Map("match" -> "true")
+        intercept[IllegalArgumentException] {
+          await(auditor.audit(event, None))
+        }
+    }
   }
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
