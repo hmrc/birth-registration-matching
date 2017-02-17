@@ -21,11 +21,13 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
+import org.specs2.mock.mockito.ArgumentCapture
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+
 import scala.concurrent.Future
 
 /**
@@ -50,20 +52,34 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
     //        }
      */
     "audit request and result when child's reference number used" in {
-        val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
         val event = Map("match" -> "true")
 
-        when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val result = await(auditor.audit(event, Some(payload)))
         result shouldBe AuditResult.Success
+
+        argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
+        argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
+        argumentCapture.value.detail("payload.lastName") shouldBe "Test"
+        argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
+        argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
     }
     "audit request and result when child's details used" in {
-        val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(None, "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
         val event = Map("match" -> "true")
 
-        when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val result = await(auditor.audit(event, Some(payload)))
         result shouldBe AuditResult.Success
+        argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
+        argumentCapture.value.detail("payload.lastName") shouldBe "Test"
+        argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
+        argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
     }
     "throw Illegal argument exception when no payload is provided" in {
         val event = Map("match" -> "true")
