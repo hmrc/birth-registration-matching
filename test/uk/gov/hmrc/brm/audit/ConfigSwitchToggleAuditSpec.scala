@@ -72,7 +72,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
   "RequestsAndResultsAudit" should {
 
-    "return true to set all config related values as expected to audit" in running(
+    "return true to set all config related values as default to audit" in running(
       auditConfigOnAppForDefault
     ) {
       val event = Map("match" -> "true")
@@ -82,7 +82,6 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
 
-      println("*****************" + argumentCapture.values)
       argumentCapture.value.detail("features.matchFirstName") shouldBe "true"
       argumentCapture.value.detail("features.matchLastName") shouldBe "true"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "true"
@@ -92,7 +91,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     }
 
 
-    "return false to set all config related values as unexpected to audit" in running(
+    "return false to set all config related values as alternate to audit" in running(
       auditConfigOnAppForAlternate
     ) {
       val event = Map("match" -> "true")
@@ -100,16 +99,14 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
-      println("*****************" + result.value)
       result shouldBe AuditResult.Success
 
-      println("*****************" + argumentCapture.values)
       argumentCapture.value.detail("features.matchFirstName") shouldBe "false"
       argumentCapture.value.detail("features.matchLastName") shouldBe "false"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "false"
-      //        argumentCapture.value.detail("features.matchOnMultiple") shouldBe "true"
-      //        argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "true"
-      //        argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "false"
+      argumentCapture.value.detail("features.matchOnMultiple") shouldBe "true"
+      argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "true"
+      argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "false"
     }
 
   }
