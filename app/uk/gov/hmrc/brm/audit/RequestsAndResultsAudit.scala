@@ -19,10 +19,14 @@ package uk.gov.hmrc.brm.audit
 import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BRMFormat, CommonUtil, Keygenerator}
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.brm.services.parser.NameParser._
+
+import scala.annotation.tailrec
 
 /**
   * Created by adamconder on 15/02/2017.
@@ -74,6 +78,44 @@ class RequestsAndResultsAudit(
       case _ =>
         throw new IllegalArgumentException("payload argument not specified")
     }
+  }
+
+  def responseWordCount(record: List[Record]): Map[String, Int] = {
+    responseDetail(record, length)
+  }
+
+  def responseCharacterCount(record: List[Record]): Map[String, Int] = {
+    responseDetail(record, characterCount)
+  }
+
+  private def length(r: Record, c: Int): Map[String, Int] = {
+    Map(
+      s"records.record$c.numberOfForenames" -> r.child.firstName.names.length,
+      s"records.record$c.numberOfLastnames" -> r.child.lastName.names.length
+    )
+  }
+
+  def characterCount(r: Record, c: Int): Map[String, Int] = {
+    Map(
+      s"records.record$c.numberOfCharactersInFirstName" -> r.child.firstName.names.listToString.size,
+      s"records.record$c.numberOfCharactersInLastName" -> r.child.lastName.names.listToString.size
+    )
+  }
+
+  private def responseDetail(record: List[Record], f: (Record, Int) => Map[String, Int]): Map[String, Int] = {
+
+    @tailrec
+    def build(c: Int, l: List[Record], m: List[Map[String, Int]], f: (Record, Int) => Map[String, Int]): List[Map[String, Int]] = l match {
+      case Nil => m
+      case _ => {
+        val newMap = f(l.head, c)
+        build(c + 1, l.tail,  newMap :: m, f)
+      }
+    }
+
+    val responseMap = build(1, record, Nil, f)
+
+    responseMap.reduceLeft((k, v) => k ++ v)
   }
 
 }

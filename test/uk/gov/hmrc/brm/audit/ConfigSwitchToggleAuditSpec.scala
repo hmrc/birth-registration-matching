@@ -60,7 +60,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
   "RequestsAndResultsAudit" should {
 
-    "return true to set all config related values as default to audit" in running(
+    "return correct default settings for audit config" in running(
       auditConfigOnAppForDefault
     ) {
       val event = Map("match" -> "true")
@@ -79,7 +79,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     }
 
 
-    "return false to set all config related values as alternate to audit" in running(
+    "return correct settings when audit config is overridden" in running(
       auditConfigOnAppForAlternate
     ) {
       val event = Map("match" -> "true")
