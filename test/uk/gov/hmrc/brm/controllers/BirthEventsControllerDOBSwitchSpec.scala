@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -80,6 +80,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val request = postRequest(userValidDOB)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
@@ -89,6 +90,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
 
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090701)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val request = postRequest(userValidDOB20090701)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
@@ -98,6 +100,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
 
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val request = postRequest(userInvalidDOB)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
@@ -107,6 +110,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
 
     "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090630)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val request = postRequest(userValidDOB20090630)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK

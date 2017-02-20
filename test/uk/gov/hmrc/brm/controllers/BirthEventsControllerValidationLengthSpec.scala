@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -76,6 +76,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
 
     "return matched value of true when the firstName length  is less than specified value and request is valid" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val request = postRequest(userValidDOB)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
@@ -84,7 +85,6 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD REQUEST 400 if request contains more than 100 characters in firstName " in {
-
       val request = postRequest(firstNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST
@@ -93,15 +93,12 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD REQUEST 400 if request contains more than 100 characters in lastname " in {
-
       val request = postRequest(lastNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
-
-
 
   }
 
