@@ -94,14 +94,16 @@ class RequestsAndResultsAudit(
 
   private def responseDetail(record: List[Record], f: (Record, Int) => Map[String, String]): Map[String, String] = {
     @tailrec
-    def build(c: Int, l: List[Record], m: List[Map[String, String]], f: (Record, Int) => Map[String, String]): List[Map[String, String]] = l match {
-      case Nil => m
-      case _ =>
-        val newMap = f(l.head, c)
-        build(c + 1, l.tail,  newMap :: m, f)
+    def build(c: Int, r: List[Record], m: Map[String, String]) : Map[String, String] = {
+      r match {
+        case Nil => m
+        case h :: tail =>
+          val newMap = f(h, c)
+          build(c + 1, tail, m ++ newMap)
+      }
     }
 
-    build(1, record, Nil, f).reduceLeft((k, v) => k ++ v)
+    build(1, record, Map.empty)
   }
 
 }
