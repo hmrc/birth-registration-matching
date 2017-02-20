@@ -22,12 +22,13 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
-import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
+import uk.gov.hmrc.brm.audit.{EnglandAndWalesAudit, RequestsAndResultsAudit}
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -37,11 +38,14 @@ import scala.concurrent.duration.Duration
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val mockConnector = mock[BirthConnector]
+  val mockAuditConnector = mock[AuditConnector]
+
   object MockService extends LookupService {
     override val groConnector = mockConnector
     override val nrsConnector = mockConnector
     override val groniConnector = mockConnector
     override val matchingService = MatchingService
+    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
   implicit val auditor = new EnglandAndWalesAudit()

@@ -25,10 +25,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -49,12 +51,14 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   val mockConnector = mock[BirthConnector]
+  val mockAuditConnector = mock[AuditConnector]
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector
     override val nrsConnector = new NRSConnector
     override val matchingService = MatchingService
+    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
   object MockController extends BirthEventsController {

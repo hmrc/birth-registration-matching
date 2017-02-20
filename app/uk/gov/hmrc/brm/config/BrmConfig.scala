@@ -50,8 +50,6 @@ trait BrmConfig extends ServicesConfig {
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
-
-  // TODO UNIT TEST THIS INDIVIDUALLY
   def audit : Map[String, String] = {
     val featuresPrefix = "features"
     val features : Map[String, String] = Map(

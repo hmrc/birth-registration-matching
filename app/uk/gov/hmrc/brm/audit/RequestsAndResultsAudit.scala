@@ -20,11 +20,11 @@ import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.{BRMFormat, CommonUtil, Keygenerator}
+import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
+import uk.gov.hmrc.brm.utils.{CommonUtil, Keygenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.brm.services.parser.NameParser._
 
 import scala.annotation.tailrec
 
@@ -53,21 +53,11 @@ class RequestsAndResultsAudit(
   def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
     payload match {
       case Some(p) =>
-
-        val features : Map[String, String] = BrmConfig.audit
-
-        // TODO UNIT TEST THIS INDIVIDUALLY
-        val input : Map[String, String] = Map(
-          "brmKey" -> Keygenerator.geKey(),
-          "payload.birthReferenceNumber" -> p.birthReferenceNumber.toString,
-          "payload.firstName" -> p.firstName,
-          "payload.lastName" -> p.lastName,
-          "payload.dateOfBirth" -> p.dateOfBirth.toString(BRMFormat.datePattern),
-          "payload.whereBirthRegistered" -> p.whereBirthRegistered.toString
-        )
-
-        // concat the match result
-        val data = input ++ result ++ features
+        // concat the map result
+        val uniqueKey = Map("brmKey" -> Keygenerator.geKey())
+        val features = BrmConfig.audit
+        val payloadAudit = p.audit
+        val data = result ++ features ++ payloadAudit ++ uniqueKey
 
         CommonUtil.getOperationType(p) match {
           case DetailsRequest() =>
@@ -80,42 +70,38 @@ class RequestsAndResultsAudit(
     }
   }
 
-  def responseWordCount(record: List[Record]): Map[String, Int] = {
+  def responseWordCount(record: List[Record]): Map[String, String] = {
     responseDetail(record, length)
   }
 
-  def responseCharacterCount(record: List[Record]): Map[String, Int] = {
+  def responseCharacterCount(record: List[Record]): Map[String, String] = {
     responseDetail(record, characterCount)
   }
 
-  private def length(r: Record, c: Int): Map[String, Int] = {
+  private def length(r: Record, c: Int): Map[String, String] = {
     Map(
-      s"records.record$c.numberOfForenames" -> r.child.firstName.names.length,
-      s"records.record$c.numberOfLastnames" -> r.child.lastName.names.length
+      s"records.record$c.numberOfForenames" -> s"${r.child.firstName.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"
     )
   }
 
-  def characterCount(r: Record, c: Int): Map[String, Int] = {
+  private def characterCount(r: Record, c: Int): Map[String, String] = {
     Map(
-      s"records.record$c.numberOfCharactersInFirstName" -> r.child.firstName.names.listToString.size,
-      s"records.record$c.numberOfCharactersInLastName" -> r.child.lastName.names.listToString.size
+      s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.firstName.names.filter(_.nonEmpty).listToString.length}",
+      s"records.record$c.numberOfCharactersInLastName" -> s"${r.child.lastName.names.filter(_.nonEmpty).listToString.length}"
     )
   }
 
-  private def responseDetail(record: List[Record], f: (Record, Int) => Map[String, Int]): Map[String, Int] = {
-
+  private def responseDetail(record: List[Record], f: (Record, Int) => Map[String, String]): Map[String, String] = {
     @tailrec
-    def build(c: Int, l: List[Record], m: List[Map[String, Int]], f: (Record, Int) => Map[String, Int]): List[Map[String, Int]] = l match {
+    def build(c: Int, l: List[Record], m: List[Map[String, String]], f: (Record, Int) => Map[String, String]): List[Map[String, String]] = l match {
       case Nil => m
-      case _ => {
+      case _ =>
         val newMap = f(l.head, c)
         build(c + 1, l.tail,  newMap :: m, f)
-      }
     }
 
-    val responseMap = build(1, record, Nil, f)
-
-    responseMap.reduceLeft((k, v) => k ++ v)
+    build(1, record, Nil, f).reduceLeft((k, v) => k ++ v)
   }
 
 }

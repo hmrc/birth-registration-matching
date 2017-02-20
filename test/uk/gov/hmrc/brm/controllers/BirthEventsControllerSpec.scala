@@ -28,9 +28,11 @@ import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.BRMBaseController
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -54,12 +56,14 @@ class BirthEventsControllerSpec
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
+  val mockAuditConnector = mock[AuditConnector]
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector
     override val nrsConnector = new NRSConnector
     override val matchingService = MatchingService
+    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
   object MockController extends BirthEventsController with BRMBaseController {
@@ -100,6 +104,8 @@ class BirthEventsControllerSpec
 
       "return JSON response on unsuccessful child detail match" in {
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val request = postRequest(userNoMatchExcludingReferenceKey)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
