@@ -30,7 +30,6 @@ import uk.gov.hmrc.play.http.HttpPost
 class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
   override val serviceUrl = baseUrl("birth-registration-matching")
-//  override var httpPost: HttpPost = WSHttp
 
   private val baseUri = "birth-registration-matching-proxy"
   private val detailsUri = s"$serviceUrl/$baseUri/match/details"

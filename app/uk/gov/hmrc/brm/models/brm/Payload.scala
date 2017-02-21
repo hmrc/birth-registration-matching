@@ -44,6 +44,16 @@ case class Payload(
     }
   }
 
+  def audit : Map[String, String] = {
+    Map(
+    "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),
+    "payload.firstName" -> firstName,
+    "payload.lastName" -> lastName,
+    "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
+    "payload.whereBirthRegistered" -> whereBirthRegistered.toString
+    )
+  }
+
 }
 
 object Payload extends BRMFormat {

@@ -38,6 +38,7 @@ class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with BRMF
   val auditor = new WhereBirthRegisteredAudit(connector)
   implicit val hc = HeaderCarrier()
 
+
   "WhereBirthRegisteredAudit" should {
 
     "audit country when an invalid birth country is used" in {

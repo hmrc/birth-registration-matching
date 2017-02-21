@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.BRMAudit
-import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.audit.{BRMAudit, RequestsAndResultsAudit}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BrmLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, MatchingType, RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,6 +34,7 @@ object LookupService extends LookupService {
   override val nrsConnector = new NRSConnector
   override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
+  override val requestAndResponseAuditor = new RequestsAndResultsAudit()
 }
 
 trait LookupServiceBinder {
@@ -57,6 +59,8 @@ trait LookupService extends LookupServiceBinder {
   protected val nrsConnector: BirthConnector
   protected val groniConnector: BirthConnector
   protected val matchingService: MatchingService
+
+  protected val requestAndResponseAuditor : RequestsAndResultsAudit
 
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
@@ -86,20 +90,10 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-
         val records = RecordParser.parse(response.json)
-
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
-        // Audit the result of the request, EnglandAndWales / Scotland / NorthernIreland
-        // Add in the full match result into the audit event for the records
-        val audit = Map(
-          "recordFound" -> records.nonEmpty.toString,
-          "multipleRecords" -> {records.length > 1}.toString,
-          "birthsPerSearch" -> records.length.toString
-        ) ++ matchResult.audit
-
-        auditor.audit(audit, Some(payload))
+        audit(records, matchResult)
 
         if(matchResult.isMatch) {
           MatchCountMetric.count()
@@ -109,6 +103,37 @@ trait LookupService extends LookupServiceBinder {
           BirthResponseBuilder.withNoMatch()
         }
     }
+  }
+
+  private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
+                                  (implicit payload : Payload, hc: HeaderCarrier, downstreamAPIAuditor: BRMAudit) = {
+    /**
+      * Audit the response from APIs:
+      * - if a record was found
+      * - if multiple records were found
+      * - how many records were found
+      * - match result
+      * - number of names for each record
+      * - number of characters in each name for each record
+      * - payload details
+      */
+    val recordFoundAndMatch = Map(
+      "recordFound" -> records.nonEmpty.toString,
+      "multipleRecords" -> {records.length > 1}.toString,
+      "birthsPerSearch" -> records.length.toString
+    ) ++ matchResult.audit
+
+    val auditWordsPerNameOnRecords = requestAndResponseAuditor.responseWordCount(records)
+    val auditCharactersPerNameOnRecords = requestAndResponseAuditor.responseCharacterCount(records)
+
+    requestAndResponseAuditor.audit(
+      recordFoundAndMatch ++
+      auditWordsPerNameOnRecords ++
+      auditCharactersPerNameOnRecords,
+      Some(payload)
+    )
+
+    downstreamAPIAuditor.audit(recordFoundAndMatch, Some(payload))
   }
 
   private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {

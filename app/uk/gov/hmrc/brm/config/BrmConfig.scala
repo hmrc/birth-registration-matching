@@ -44,8 +44,25 @@ trait BrmConfig extends ServicesConfig {
 
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
 
-  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex", throw BirthConfigurationException("ignoreMiddleNames"))
-  def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames", throw BirthConfigurationException("ignoreMiddleNames"))
+  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
+    throw BirthConfigurationException("ignoreMiddleNames"))
+
+  def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
+    throw BirthConfigurationException("ignoreMiddleNames"))
+
+  def audit : Map[String, String] = {
+    val featuresPrefix = "features"
+    val features : Map[String, String] = Map(
+      s"$featuresPrefix.matchFirstName" -> BrmConfig.matchFirstName.toString,
+      s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
+      s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
+      s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
+      s"$featuresPrefix.disableSearchByDetails" -> BrmConfig.disableSearchByDetails.toString,
+      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString
+    )
+
+    features
+  }
 
 }
 

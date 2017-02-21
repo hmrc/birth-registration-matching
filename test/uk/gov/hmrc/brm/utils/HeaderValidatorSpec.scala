@@ -25,9 +25,11 @@ import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -38,12 +40,14 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
   private val jsonResponse = """{"code":"145","status":"400","details":"The headers you supplied are invalid","title":"Headers invalid","about":"http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html"}"""
 
   val mockConnector = mock[BirthConnector]
+  val mockAuditConnector = mock[AuditConnector]
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = mockConnector
     override val nrsConnector = mockConnector
     override val matchingService = MatchingService
+    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
   implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
@@ -111,6 +115,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
           .withBody(payload)
         when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
       }
