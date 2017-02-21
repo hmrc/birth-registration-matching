@@ -105,7 +105,6 @@ class BirthEventsControllerSpec
       "return JSON response on unsuccessful child detail match" in {
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingReferenceKey)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK

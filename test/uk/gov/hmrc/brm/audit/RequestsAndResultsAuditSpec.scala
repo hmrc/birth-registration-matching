@@ -88,15 +88,10 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
   "responseWordCount" should {
 
-    "return instance of Map" in {
-
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-
-      auditor.responseWordCount(List(child)) shouldBe a[Map[_, _]]
+    "return empty Map when an empty list is sent" in {
+      val response = auditor.responseWordCount(List())
+      response shouldBe a[Map[_,_]]
+      response.isEmpty shouldBe true
     }
 
     "return correct values when a single record is passed with empty name values" in {
@@ -108,6 +103,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
       val response = auditor.responseWordCount(List(child))
 
+      response shouldBe a[Map[_, _]]
       response("records.record1.numberOfForenames") shouldBe "0"
       response("records.record1.numberOfLastnames") shouldBe "0"
     }
@@ -149,6 +145,12 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
 
   "responseCharacterCount" should {
 
+    "return empty Map when an empty list is sent" in {
+      val response = auditor.responseCharacterCount(List())
+      response shouldBe a[Map[_,_]]
+      response.isEmpty shouldBe true
+    }
+
     "return correct values when a single record is passed" in {
       val child = Record(Child(
         500035710: Int,
@@ -157,9 +159,31 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         Some(new LocalDate("2009-06-30"))))
 
       val response = auditor.responseCharacterCount(List(child))
-
+      response shouldBe a[Map[_, _]]
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
       response("records.record1.numberOfCharactersInLastName") shouldBe "5"
     }
+
+    "return correct values when a multiple records are passed" in {
+      val child1 = Record(Child(
+        500035710: Int,
+        "Adam TEST",
+        "SMITH",
+        Some(new LocalDate("2009-06-30"))))
+      val child2 = Record(Child(
+        599935710: Int,
+        "Christopher",
+        "Andrews",
+        Some(new LocalDate("2009-08-30"))))
+
+      val response = auditor.responseCharacterCount(List(child1, child2))
+
+      response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
+      response("records.record1.numberOfCharactersInLastName") shouldBe "5"
+      response("records.record2.numberOfCharactersInFirstName") shouldBe "11"
+      response("records.record2.numberOfCharactersInLastName") shouldBe "7"
+    }
+
   }
+
 }

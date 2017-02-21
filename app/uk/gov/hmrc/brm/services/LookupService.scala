@@ -110,10 +110,12 @@ trait LookupService extends LookupServiceBinder {
     /**
       * Audit the response from APIs:
       * - if a record was found
+      * - if multiple records were found
       * - how many records were found
       * - match result
       * - number of names for each record
       * - number of characters in each name for each record
+      * - payload details
       */
     val recordFoundAndMatch = Map(
       "recordFound" -> records.nonEmpty.toString,
