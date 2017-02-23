@@ -18,11 +18,9 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
-import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.play.http._
 
@@ -30,18 +28,6 @@ trait BrmException extends Controller {
 
   val CLASS_NAME: String = "BrmException"
   val METHOD_NAME: String = "handleException"
-
-  private def auditTransaction()(implicit payload: Payload,
-                              auditor: BRMAudit,
-                              hc: HeaderCarrier): Unit = {
-
-    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
-    new MatchingAudit().audit(matchResult.audit, Some(payload))
-
-    auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
-
-    new TransactionAuditor().transactionToMap(payload, Nil, matchResult)
-  }
 
   private def logException(message: Option[String] = None, status: Option[String] = None, statusCode: Int)(implicit payload: Payload) = {
     MetricsFactory.getMetrics().status(statusCode)
@@ -94,11 +80,8 @@ trait BrmException extends Controller {
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def notFoundExceptionPF(message: String)(implicit payload: Payload,
-                                           auditor: BRMAudit,
-                                           hc: HeaderCarrier) : PartialFunction[Throwable, Result] = {
+  def notFoundExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: NotFoundException =>
-      auditTransaction()
       logException(Some(message), Some(s"NotFound: ${e.getMessage}"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }

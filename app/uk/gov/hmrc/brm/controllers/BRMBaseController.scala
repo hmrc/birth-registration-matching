@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.utils
+package uk.gov.hmrc.brm.controllers
 
 import play.api.mvc.Result
-import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.services.Bad
+import uk.gov.hmrc.brm.utils.BrmException
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
@@ -46,7 +49,26 @@ trait BRMBaseController extends BaseController with BrmException {
         notFoundExceptionPF(method),
         exceptionPF(method)).reduce(_ orElse _)
 
+      // audit the transaction when there was an exception with default arguments
+      auditTransaction()
+
       respond(allPfs.apply(t))
+  }
+
+  private def auditTransaction()(implicit payload: Payload,
+                                   auditor: BRMAudit,
+                                   hc: HeaderCarrier): Unit = {
+
+    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
+
+    // audit matching result
+    new MatchingAudit().audit(matchResult.audit, Some(payload))
+
+    // MetricsFactory auditor
+    auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
+
+    // audit transaction
+    new TransactionAuditor().transactionToMap(payload, Nil, matchResult)
   }
 
 }

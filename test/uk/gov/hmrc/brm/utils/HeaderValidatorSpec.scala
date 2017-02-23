@@ -26,7 +26,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.controllers.BirthEventsController
+import uk.gov.hmrc.brm.controllers.{BRMBaseController, BirthEventsController}
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HttpResponse
