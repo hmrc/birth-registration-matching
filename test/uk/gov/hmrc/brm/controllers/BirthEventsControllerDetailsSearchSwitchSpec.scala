@@ -26,9 +26,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.audit.TransactionAuditor
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future

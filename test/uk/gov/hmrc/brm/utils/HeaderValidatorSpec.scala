@@ -25,7 +25,6 @@ import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
@@ -47,7 +46,6 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
     override val groniConnector = mockConnector
     override val nrsConnector = mockConnector
     override val matchingService = MatchingService
-    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
   implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]

@@ -17,11 +17,11 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
+import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BrmLogger._
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.Keygenerator._
@@ -45,16 +45,13 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
     implicit request =>
-
       generateAndSetKey(request)
 
       request.body.validate[Payload].fold(
         error => {
-
           // TODO move this out somewhere else
           request.body.\(Payload.whereBirthRegistered) match {
             case JsDefined(country) =>
-
               Try(BirthRegisterCountry.withName(country.toString)) recover {
                 case e : Exception =>
                   // audit incorrect country

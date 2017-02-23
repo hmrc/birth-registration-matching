@@ -28,11 +28,8 @@ import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
-import uk.gov.hmrc.brm.utils.BRMBaseController
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -41,9 +38,9 @@ import scala.concurrent.duration.Duration
 
 class BirthEventsControllerSpec
   extends UnitSpec
-  with MockitoSugar
-  with OneAppPerSuite
-  with BeforeAndAfter {
+    with MockitoSugar
+    with OneAppPerSuite
+    with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -56,21 +53,20 @@ class BirthEventsControllerSpec
     .withBody(v)
 
   val mockConnector = mock[BirthConnector]
-  val mockAuditConnector = mock[AuditConnector]
 
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector
     override val nrsConnector = new NRSConnector
     override val matchingService = MatchingService
-    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
   }
 
-  object MockController extends BirthEventsController with BRMBaseController {
+  object MockController extends BirthEventsController {
     override val service = MockLookupService
   }
 
   def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
+
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   "BirthEventsController" when {
@@ -91,7 +87,7 @@ class BirthEventsControllerSpec
         contentType(result.get).get shouldBe "application/json"
         header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
 
-        jsonBodyOf(result.get).map(x => x should have ('matched (false)))
+        jsonBodyOf(result.get).map(x => x should have('matched (false)))
       }
 
       "return JSON response on request for northern ireland" in {
@@ -99,12 +95,12 @@ class BirthEventsControllerSpec
         status(result.get) shouldBe OK
         contentType(result.get).get shouldBe "application/json"
         header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
-        jsonBodyOf(result.get).map(x => x should have ('matched (false)))
+        jsonBodyOf(result.get).map(x => x should have('matched (false)))
       }
 
       "return JSON response on unsuccessful child detail match" in {
         when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        //        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingReferenceKey)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
@@ -127,8 +123,8 @@ class BirthEventsControllerSpec
         val request = postRequest(userMatchExcludingReferenceNumberKey)
         val result = MockController.post().apply(request)
         status(result) shouldBe OK
-         contentType(result).get shouldBe "application/json"
-         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
       "return JSON response on successful child detail match when multiple records are returned" in {

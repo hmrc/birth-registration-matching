@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, RequestsAndResultsAudit}
+import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -34,7 +34,6 @@ object LookupService extends LookupService {
   override val nrsConnector = new NRSConnector
   override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
-  override val requestAndResponseAuditor = new RequestsAndResultsAudit()
 }
 
 trait LookupServiceBinder {
@@ -60,8 +59,6 @@ trait LookupService extends LookupServiceBinder {
   protected val groniConnector: BirthConnector
   protected val matchingService: MatchingService
 
-  protected val requestAndResponseAuditor : RequestsAndResultsAudit
-
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   /**
@@ -73,7 +70,10 @@ trait LookupService extends LookupServiceBinder {
     * @return
     */
 
-  def lookup()(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics, auditor: BRMAudit) = {
+  def lookup()(implicit hc: HeaderCarrier,
+               payload: Payload,
+               metrics: BRMMetrics,
+               auditor: BRMAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
 
@@ -106,7 +106,9 @@ trait LookupService extends LookupServiceBinder {
   }
 
   private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
-                                  (implicit payload : Payload, hc: HeaderCarrier, downstreamAPIAuditor: BRMAudit) = {
+                                  (implicit payload : Payload,
+                                   hc: HeaderCarrier,
+                                   downstreamAPIAuditor: BRMAudit) = {
     /**
       * Audit the response from APIs:
       * - if a record was found
@@ -117,23 +119,13 @@ trait LookupService extends LookupServiceBinder {
       * - number of characters in each name for each record
       * - payload details
       */
-    val recordFoundAndMatch = Map(
-      "recordFound" -> records.nonEmpty.toString,
-      "multipleRecords" -> {records.length > 1}.toString,
-      "birthsPerSearch" -> records.length.toString
-    ) ++ matchResult.audit
 
-    val auditWordsPerNameOnRecords = requestAndResponseAuditor.responseWordCount(records)
-    val auditCharactersPerNameOnRecords = requestAndResponseAuditor.responseCharacterCount(records)
+    val transactionAuditor : TransactionAuditor = new TransactionAuditor()
+    val matchAudit = downstreamAPIAuditor.recordFoundAndMatchToMap(records, matchResult)
+    val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)
 
-    requestAndResponseAuditor.audit(
-      recordFoundAndMatch ++
-      auditWordsPerNameOnRecords ++
-      auditCharactersPerNameOnRecords,
-      Some(payload)
-    )
-
-    downstreamAPIAuditor.audit(recordFoundAndMatch, Some(payload))
+    transactionAuditor.audit(transactionAudit, Some(payload))
+    downstreamAPIAuditor.audit(matchAudit, Some(payload))
   }
 
   private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
