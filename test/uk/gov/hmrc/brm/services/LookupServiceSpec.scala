@@ -36,7 +36,7 @@ import scala.concurrent.duration.Duration
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   import uk.gov.hmrc.brm.utils.Mocks._
-  
+
   implicit val hc = HeaderCarrier()
 
   "LookupService" when {
