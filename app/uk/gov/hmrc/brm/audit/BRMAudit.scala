@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.audit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -56,11 +56,11 @@ abstract class BRMAudit(connector : AuditConnector) {
   protected def event(event: AuditEvent) : Future[AuditResult] = {
     connector.sendEvent(event) map {
       success =>
-        BrmLogger.info(super.getClass.getCanonicalName, s"event", "event successfully audited")
+        BRMLogger.info(super.getClass.getCanonicalName, s"event", "event successfully audited")
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BrmLogger.warn(super.getClass.getCanonicalName, s"event", s"event failed to audit")
+        BRMLogger.warn(super.getClass.getCanonicalName, s"event", s"event failed to audit")
         e
     }
   }

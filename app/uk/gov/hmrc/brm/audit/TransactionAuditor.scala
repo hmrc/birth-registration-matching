@@ -23,7 +23,7 @@ import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.{CommonUtil, Keygenerator}
+import uk.gov.hmrc.brm.utils.{CommonUtil, KeyGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -68,7 +68,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
                    matchResult : ResultMatch): Map[String, String] = {
 
     // get unique key
-    val uniqueKey = Map("brmKey" -> Keygenerator.geKey())
+    val uniqueKey = Map("brmKey" -> KeyGenerator.getKey())
 
     // audit match result and if a record was found
     val matchAudit = recordFoundAndMatchToMap(records, matchResult)

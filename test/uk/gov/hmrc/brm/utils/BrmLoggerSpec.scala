@@ -24,9 +24,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with WithFakeApplication {
 
-  val mockLogger = mock[org.slf4j.Logger]
-
-  object MockBRMLogger extends BrmLogger(mockLogger)
+  import uk.gov.hmrc.brm.utils.Mocks._
 
   before {
     reset(mockLogger)
@@ -34,7 +32,7 @@ class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with 
 
   "BrmLogger" should {
     "info call Logger info" in {
-      Keygenerator.setKey("somekey")
+      KeyGenerator.setKey("somekey")
       MockBRMLogger.info(this, "methodName", "message")
       val argumentCapture = new ArgumentCapture[String]
       verify(mockLogger, times(1)).info(argumentCapture.capture)

@@ -20,7 +20,7 @@ import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BrmLogger, Keygenerator, NameFormat}
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.http.HttpPost
 
 /**
@@ -36,7 +36,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
   private val referenceUri = s"$serviceUrl/$baseUri/match/reference"
 
   override val headers = Seq(
-    BrmLogger.BRM_KEY -> Keygenerator.geKey(),
+    BRMLogger.BRM_KEY -> KeyGenerator.getKey(),
     "Content-Type" -> "application/json; charset=utf-8")
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {

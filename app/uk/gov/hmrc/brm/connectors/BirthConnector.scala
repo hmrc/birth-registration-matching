@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.connectors
 
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -57,13 +57,13 @@ trait BirthConnector extends ServicesConfig {
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.info(s"BirthConnector", "getReference", "calling request with reference number")
+    BRMLogger.info(s"BirthConnector", "getReference", "calling request with reference number")
     val requestData = buildRequest(payload, ReferenceRequest())
     sendRequest(requestData)
   }
 
   def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.info(s"BirthConnector", "getChildDetails", "calling request with child details")
+    BRMLogger.info(s"BirthConnector", "getChildDetails", "calling request with child details")
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
   }

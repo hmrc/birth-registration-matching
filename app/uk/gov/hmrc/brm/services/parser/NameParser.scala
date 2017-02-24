@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.services.parser
 
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.BRMLogger
 
 /**
   * Created by adamconder on 02/02/2017.
@@ -30,7 +30,7 @@ object NameParser {
 
     def names: List[String] = {
       val nameArray: Array[String] = s.toLowerCase.trim.split(regex)
-      BrmLogger.debug("NameParser", "parse", s"names: ${nameArray.toList}, regex: $regex")
+      BRMLogger.debug("NameParser", "parse", s"names: ${nameArray.toList}, regex: $regex")
 
       nameArray.toList
     }
@@ -40,15 +40,15 @@ object NameParser {
   implicit class FilterList[T](left : List[T]) {
 
     def filter(right : List[T]) : List[T] = {
-      BrmLogger.debug("NameParser", "filter", s"left: $left right: $right")
+      BRMLogger.debug("NameParser", "filter", s"left: $left right: $right")
 
       if (left.length > right.length || left.isEmpty || right.isEmpty) {
         right
       } else {
         val difference = right.length - left.length
-        BrmLogger.debug("NameParser", "parser", s"dropping: $difference")
+        BRMLogger.debug("NameParser", "parser", s"dropping: $difference")
         val dropped = right.dropRight(difference)
-        BrmLogger.debug("NameParser", "parser", s"dropped: $dropped")
+        BRMLogger.debug("NameParser", "parser", s"dropped: $dropped")
         dropped
       }
     }

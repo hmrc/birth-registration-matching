@@ -16,19 +16,14 @@
 
 package uk.gov.hmrc.brm.utils
 
-import akka.stream.Materializer
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.Play
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.controllers.{BRMBaseController, BirthEventsController}
-import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -36,23 +31,9 @@ import scala.concurrent.Future
 
 class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
+  import uk.gov.hmrc.brm.utils.Mocks._
+
   private val jsonResponse = """{"code":"145","status":"400","details":"The headers you supplied are invalid","title":"Headers invalid","about":"http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html"}"""
-
-  val mockConnector = mock[BirthConnector]
-  val mockAuditConnector = mock[AuditConnector]
-
-  object MockLookupService extends LookupService {
-    override val groConnector = mockConnector
-    override val groniConnector = mockConnector
-    override val nrsConnector = mockConnector
-    override val matchingService = MatchingService
-  }
-
-  implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
-
-  object MockController extends BirthEventsController with BRMBaseController {
-    override val service = MockLookupService
-  }
 
   object HeaderValidator extends HeaderValidator
 
@@ -112,8 +93,10 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
           .withBody(payload)
+
         when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
       }
@@ -124,6 +107,9 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
           .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         bodyOf(result) shouldBe jsonResponse
@@ -135,6 +121,9 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
           .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         bodyOf(result) shouldBe jsonResponse
@@ -146,6 +135,9 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders(("Audit-Source", "DFS"))
           .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         bodyOf(result) shouldBe jsonResponse
@@ -157,6 +149,9 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
           .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         bodyOf(result) shouldBe jsonResponse
@@ -168,6 +163,9 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
           .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
         val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         bodyOf(result) shouldBe jsonResponse

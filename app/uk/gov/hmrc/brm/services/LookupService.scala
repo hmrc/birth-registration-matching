@@ -22,7 +22,7 @@ import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
@@ -120,6 +120,7 @@ trait LookupService extends LookupServiceBinder {
       * - payload details
       */
 
+      // TODO pass this in as a dependency and mock in tests
     val transactionAuditor : TransactionAuditor = new TransactionAuditor()
     val matchAudit = downstreamAPIAuditor.recordFoundAndMatchToMap(records, matchResult)
     val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)

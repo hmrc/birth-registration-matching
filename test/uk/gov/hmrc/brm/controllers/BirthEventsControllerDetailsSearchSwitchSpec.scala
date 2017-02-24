@@ -18,19 +18,17 @@ package uk.gov.hmrc.brm.controllers
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.{Tag, TestData}
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{Tag, TestData}
 import org.scalatestplus.play.OneAppPerTest
-import play.api.Logger
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.audit.TransactionAuditor
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -58,10 +56,8 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure {
     if (testData.tags.contains("enabled")) {
-      Logger.debug(s"\n\n SWITCH ENABLED \n\n")
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
-      Logger.debug(s"\n\n SWITCH DISABLED \n\n")
       switchDisabled
     } else {
       Map("" -> "")
@@ -72,52 +68,53 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  object MockControllerMockLookup extends BirthEventsController {
-    override val service = mock[LookupService]
-  }
-
   "BirthEventsController" should {
 
    "not search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
+     when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
       val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-      val result = await(MockControllerMockLookup.post().apply(request))
+      val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      verify(MockControllerMockLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
 
     "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
-      when(MockControllerMockLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
       val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-      val result = await(MockControllerMockLookup.post().apply(request))
+      val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      verify(MockControllerMockLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
 
     "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
-      when(MockControllerMockLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
       val request = postRequest(userWhereBirthRegisteredScotland)
-      val result = await(MockControllerMockLookup.post().apply(request))
+      val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      verify(MockControllerMockLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
 
     "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
-      when(MockControllerMockLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
       val request = postRequest(userWhereBirthRegisteredScotland)
-      val result = await(MockControllerMockLookup.post().apply(request))
+      val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      verify(MockControllerMockLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
   }
 

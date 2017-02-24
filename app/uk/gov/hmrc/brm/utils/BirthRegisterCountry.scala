@@ -54,7 +54,6 @@ object BirthRegisterCountry extends Enumeration {
   }
 
   def birthRegisterWrites = new Writes[BirthRegisterCountry] {
-
     def writes(d: BirthRegisterCountry): JsValue = JsString(d.toString)
   }
 

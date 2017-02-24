@@ -21,7 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BrmLogger
+import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost, NotImplementedException}
 
 import scala.concurrent.Future
@@ -30,7 +30,7 @@ import scala.concurrent.Future
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class NRSConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
+class NRSConnector(var httpPost: HttpPost = WSHttp, auditor : ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
   override val serviceUrl = ""
   private val baseUri = ""
@@ -56,23 +56,23 @@ class NRSConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
   }
 
   override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
+    BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     referenceBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
-    new ScotlandAudit().audit(result, Some(payload))
+    auditor.audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
   }
 
   override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BrmLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
+    BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
 
     detailsBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
-    new ScotlandAudit().audit(result, Some(payload))
+    auditor.audit(result, Some(payload))
 
     Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
   }

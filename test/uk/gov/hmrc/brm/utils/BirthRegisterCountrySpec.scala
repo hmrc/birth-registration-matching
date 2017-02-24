@@ -21,12 +21,13 @@ import uk.gov.hmrc.play.test.UnitSpec
 class BirthRegisterCountrySpec extends UnitSpec {
 
   "BirthRegisterCountry" should {
+
     "return england for name england" in {
       BirthRegisterCountry.ENGLAND shouldBe BirthRegisterCountry.withName("england")
     }
 
     "return valid response for four countries" in {
-      val countryList = List("england", "wales", "scotland", "northern ireland");
+      val countryList = List("england", "wales", "scotland", "northern ireland")
 
       for (country <- countryList) {
         BirthRegisterCountry.withName(country)
