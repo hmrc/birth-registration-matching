@@ -22,13 +22,11 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
-import uk.gov.hmrc.brm.audit.{EnglandAndWalesAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -38,20 +36,8 @@ import scala.concurrent.duration.Duration
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   import uk.gov.hmrc.brm.utils.Mocks._
-
-//  val mockConnector = mock[BirthConnector]
-//  val mockAuditConnector = mock[AuditConnector]
-//  implicit val auditor = new EnglandAndWalesAudit(mockAuditConnector)
-//  implicit val metrics = mock[BRMMetrics]
+  
   implicit val hc = HeaderCarrier()
-
-//  object MockLookupService extends LookupService {
-//    override val groConnector = mockConnector
-//    override val nrsConnector = mockConnector
-//    override val groniConnector = mockConnector
-//    override val matchingService = MatchingService
-//    override val transactionAuditor: TransactionAuditor = new TransactionAuditor(mockAuditConnector)
-//  }
 
   "LookupService" when {
 
