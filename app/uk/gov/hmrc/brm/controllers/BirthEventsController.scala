@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
