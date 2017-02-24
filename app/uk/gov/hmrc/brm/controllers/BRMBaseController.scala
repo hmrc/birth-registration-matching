@@ -30,6 +30,9 @@ trait BRMBaseController extends BaseController with BrmException {
   lazy val contentType: String = "application/json; charset=utf-8"
   lazy val headers: (String, String)  = (ACCEPT, "application/vnd.hmrc.1.0+json")
 
+  protected val transactionAuditor : TransactionAuditor
+  protected val matchingAuditor : MatchingAudit
+
   def respond(response: Result): Result = {
     response
       .as(contentType)
@@ -61,15 +64,15 @@ trait BRMBaseController extends BaseController with BrmException {
 
     val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
-    // TODO stub out this or DI it
+    // TODO stub out this or D
     // audit matching result
-    new MatchingAudit().audit(matchResult.audit, Some(payload))
+    matchingAuditor.audit(matchResult.audit, Some(payload))
 
     // MetricsFactory auditor
     auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
 
     // audit transaction
-    new TransactionAuditor().transactionToMap(payload, Nil, matchResult)
+    transactionAuditor.transactionToMap(payload, Nil, matchResult)
   }
 
 }

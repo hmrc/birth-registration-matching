@@ -34,6 +34,7 @@ object LookupService extends LookupService {
   override val nrsConnector = new NRSConnector
   override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
+  override val transactionAuditor = new TransactionAuditor()
 }
 
 trait LookupServiceBinder {
@@ -58,6 +59,8 @@ trait LookupService extends LookupServiceBinder {
   protected val nrsConnector: BirthConnector
   protected val groniConnector: BirthConnector
   protected val matchingService: MatchingService
+
+  protected val transactionAuditor : TransactionAuditor
 
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
@@ -120,8 +123,6 @@ trait LookupService extends LookupServiceBinder {
       * - payload details
       */
 
-      // TODO pass this in as a dependency and mock in tests
-    val transactionAuditor : TransactionAuditor = new TransactionAuditor()
     val matchAudit = downstreamAPIAuditor.recordFoundAndMatchToMap(records, matchResult)
     val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)
 

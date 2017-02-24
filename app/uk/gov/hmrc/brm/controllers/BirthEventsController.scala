@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.audit.{BRMAudit, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -31,8 +31,10 @@ import scala.util.Try
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
-  override val auditor = new WhereBirthRegisteredAudit()
+  override val countryAuditor = new WhereBirthRegisteredAudit()
   override val auditFactory = new AuditFactory()
+  override val transactionAuditor = new TransactionAuditor()
+  override val matchingAuditor = new MatchingAudit()
 }
 
 trait BirthEventsController extends HeaderValidator with BRMBaseController {
@@ -43,7 +45,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   protected val service: LookupService
-  protected val auditor : WhereBirthRegisteredAudit
+  protected val countryAuditor : WhereBirthRegisteredAudit
   protected val auditFactory : AuditFactory
 
   def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
@@ -56,11 +58,11 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
               Try(BirthRegisterCountry.withName(country.toString)) recover {
                 case e : Exception =>
                   // audit incorrect country
-                  auditor.audit(Map("country" -> country.toString), None)
+                  countryAuditor.audit(Map("country" -> country.toString), None)
               }
             case _ =>
               // does not exist on request
-              auditor.audit(Map("country" -> "no country specified"), None)
+              countryAuditor.audit(Map("country" -> "no country specified"), None)
           }
 
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")

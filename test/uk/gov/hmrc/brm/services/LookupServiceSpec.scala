@@ -22,14 +22,14 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
-import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
+import uk.gov.hmrc.brm.audit.{EnglandAndWalesAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -37,18 +37,21 @@ import scala.concurrent.duration.Duration
 
 class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
-  val mockConnector = mock[BirthConnector]
-  val mockAuditConnector = mock[AuditConnector]
-  implicit val auditor = new EnglandAndWalesAudit(mockAuditConnector)
-  implicit val metrics = mock[BRMMetrics]
+  import uk.gov.hmrc.brm.utils.Mocks._
+
+//  val mockConnector = mock[BirthConnector]
+//  val mockAuditConnector = mock[AuditConnector]
+//  implicit val auditor = new EnglandAndWalesAudit(mockAuditConnector)
+//  implicit val metrics = mock[BRMMetrics]
   implicit val hc = HeaderCarrier()
 
-  object MockService extends LookupService {
-    override val groConnector = mockConnector
-    override val nrsConnector = mockConnector
-    override val groniConnector = mockConnector
-    override val matchingService = MatchingService
-  }
+//  object MockLookupService extends LookupService {
+//    override val groConnector = mockConnector
+//    override val nrsConnector = mockConnector
+//    override val groniConnector = mockConnector
+//    override val matchingService = MatchingService
+//    override val transactionAuditor: TransactionAuditor = new TransactionAuditor(mockAuditConnector)
+//  }
 
   "LookupService" when {
 
@@ -105,9 +108,11 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
             |
             |  }
           """.stripMargin)
-        when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+
+        when(MockLookupService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val service = MockService
+
+        val service = MockLookupService
         implicit val payload = Payload(Some("999999920"), "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)(Duration.create(5, "seconds"))
         result shouldBe BirthMatchResponse(false)
@@ -153,9 +158,11 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
             |
             |  }
           """.stripMargin)
-        when(MockService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+
+        when(MockLookupService.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val service = MockService
+
+        val service = MockLookupService
         implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)
         result shouldBe BirthMatchResponse(true)
@@ -202,9 +209,11 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
             |
             |  }
           """.stripMargin)
-        when(MockService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+
+        when(MockLookupService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val service = MockService
+
+        val service = MockLookupService
         implicit val payload = Payload(None, "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)(Duration.create(5, "seconds"))
         result shouldBe BirthMatchResponse(false)
@@ -250,9 +259,11 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
             |
             |  }
           """.stripMargin)
-        when(MockService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+
+        when(MockLookupService.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val service = MockService
+
+        val service = MockLookupService
         implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)
         result shouldBe BirthMatchResponse(true)
@@ -263,21 +274,25 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     "requesting Scotland" should {
 
       "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        intercept[NotImplementedException] {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service = MockService
-        implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
-        val result = await(service.lookup)
-        result should not be BirthMatchResponse(false)
+          val service = MockLookupService
+          implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+        }
       }
 
       "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        intercept[NotImplementedException] {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service = MockService
-        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
-        val result = await(service.lookup)
-        result should not be BirthMatchResponse(false)
+          val service = MockLookupService
+          implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.SCOTLAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+        }
       }
 
     }
@@ -285,21 +300,25 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     "requesting Northern Ireland" should {
 
       "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        intercept[NotImplementedException] {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service = MockService
-        implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-        val result = await(service.lookup)
-        result should not be BirthMatchResponse(false)
+          val service = MockLookupService
+          implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+        }
       }
 
       "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        intercept[NotImplementedException] {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service = MockService
-        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-        val result = await(service.lookup)
-        result should not be BirthMatchResponse(false)
+          val service = MockLookupService
+          implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          val result = await(service.lookup)
+          result should not be BirthMatchResponse(false)
+        }
       }
 
     }

@@ -25,6 +25,7 @@ import uk.gov.hmrc.brm.audit._
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROConnector, GRONIConnector, NRSConnector}
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
+import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -45,6 +46,9 @@ object Mocks extends MockitoSugar {
   val mockRequest = mock[Request[JsValue]]
   val headers = mock[Headers]
 
+  implicit val metrics = mock[BRMMetrics]
+  implicit val mockAuditor = mock[BRMAudit]
+
   object MockBRMLogger extends BRMLogger(mockLogger)
 
   object MockMatchingService extends MatchingService {
@@ -57,11 +61,13 @@ object Mocks extends MockitoSugar {
     override val auditor = auditorFixtures.matchingAudit
   }
 
+  // TODO Refactor to use mock connectors for GRONI and NRS
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val groniConnector = new GRONIConnector
-    override val nrsConnector = new NRSConnector
+    override val groniConnector = new GRONIConnector()
+    override val nrsConnector = new NRSConnector()
     override val matchingService = MockMatchingService
+    override val transactionAuditor = auditorFixtures.transactionAudit
   }
 
   object MockAuditFactory extends AuditFactory {
@@ -70,14 +76,18 @@ object Mocks extends MockitoSugar {
 
   object MockController extends BirthEventsController {
     override val service = MockLookupService
-    override val auditor = auditorFixtures.whereBirthRegisteredAudit
+    override val countryAuditor = auditorFixtures.whereBirthRegisteredAudit
     override val auditFactory = MockAuditFactory
+    override val transactionAuditor: TransactionAuditor = auditorFixtures.transactionAudit
+    override val matchingAuditor: MatchingAudit = auditorFixtures.matchingAudit
   }
 
   object MockControllerMockedLookup extends BirthEventsController {
     override val service = mockLookupService
-    override val auditor = auditorFixtures.whereBirthRegisteredAudit
+    override val countryAuditor = auditorFixtures.whereBirthRegisteredAudit
     override val auditFactory = MockAuditFactory
+    override val transactionAuditor: TransactionAuditor = auditorFixtures.transactionAudit
+    override val matchingAuditor: MatchingAudit = auditorFixtures.matchingAudit
   }
 
   def connectorFixtures = {

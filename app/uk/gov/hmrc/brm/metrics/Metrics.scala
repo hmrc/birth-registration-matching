@@ -94,7 +94,6 @@ object GRONIMetrics extends BRMMetrics {
 /**
   * APIVersionMetrics
   * @param version api version used for this service
-  * TODO this should inherit off CountingMetric
   */
 
 case class APIVersionMetrics(version :String) extends BRMMetrics {
@@ -106,7 +105,6 @@ case class APIVersionMetrics(version :String) extends BRMMetrics {
 /**
   * AuditSourceMetrics
   * @param auditSource name of the client making the request to this service
-  * TODO this should inherit off CountingMetric
   */
 
 case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
