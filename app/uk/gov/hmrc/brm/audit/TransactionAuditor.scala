@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.annotation.tailrec
+import scala.concurrent.Future
 
 /**
   * Created by adamconder on 15/02/2017.
@@ -59,7 +60,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
             event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/reference"))
         }
       case _ =>
-        throw new IllegalArgumentException("payload argument not specified")
+        Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
     }
   }
 

@@ -64,7 +64,6 @@ trait BRMBaseController extends BaseController with BrmException {
 
     val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
-    // TODO stub out this or D
     // audit matching result
     matchingAuditor.audit(matchResult.audit, Some(payload))
 
@@ -72,7 +71,7 @@ trait BRMBaseController extends BaseController with BrmException {
     auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
 
     // audit transaction
-    transactionAuditor.transactionToMap(payload, Nil, matchResult)
+    transactionAuditor.audit(transactionAuditor.transactionToMap(payload, Nil, matchResult), Some(payload))
   }
 
 }

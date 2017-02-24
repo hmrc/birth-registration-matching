@@ -18,11 +18,13 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
-import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.play.http._
+
+
+// TODO Add case _ to catch exceptions?
 
 trait BrmException extends Controller {
 
