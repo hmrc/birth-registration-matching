@@ -52,6 +52,11 @@ object Mocks extends MockitoSugar {
     override val auditor = auditorFixtures.matchingAudit
   }
 
+  object MockMatchingServiceMatchMultipleFalse extends MatchingService {
+    override val matchOnMultiple: Boolean = false
+    override val auditor = auditorFixtures.matchingAudit
+  }
+
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector

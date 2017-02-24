@@ -24,20 +24,19 @@ import org.scalatest.mock.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.audit.MatchingAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
 
-class MatchingServiceConfigSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
+class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -496,38 +495,78 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
       Currently always returning false as we don't iterate over multiple records
      */
 
-    "multiple records" should {
+    "multiple records" when {
 
-      "should return true if a minimum of one record matches" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      "matching on multiple is true" should {
 
-        val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
-        resultMatch.isMatch shouldBe true
+        "should return true if a minimum of one record matches" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe true
+        }
+
+        "return false if no records match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
+
+        "return false result match when List is empty" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
+
+        "return false result match when List contains duplicate matches" ignore {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingService.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
+
       }
 
-      "return false if no records match" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      "matching on multiple is false" should {
 
-        val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
-        resultMatch.isMatch shouldBe false
-      }
+        "return false for more than 1 record" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-      "return false result match when List is empty" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
 
-        val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
-        resultMatch.isMatch shouldBe false
-      }
+        "return true for a match on a single record" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-      "return false result match when List contains duplicate matches" ignore {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe true
+        }
 
-        val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val resultMatch = MockMatchingService.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
-        resultMatch.isMatch shouldBe false
+        "return false for a no match on a single record" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Christopher", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
+
+        "return false result match when List is empty" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(), MatchingType.FULL)
+          resultMatch.isMatch shouldBe false
+        }
+
       }
 
     }
