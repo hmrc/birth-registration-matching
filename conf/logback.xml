@@ -42,7 +42,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="org.asynchttpclient.netty.channel" level="OFF">
+    <logger name="org.asynchttpclient.netty" level="WARN">
         <appender-ref ref="STDOUT"/>
     </logger>
 
