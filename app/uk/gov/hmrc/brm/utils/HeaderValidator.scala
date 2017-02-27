@@ -72,10 +72,7 @@ trait HeaderValidator extends Results {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
 
       if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
-
-        // generate unique key
         KeyGenerator.generateAndSetKey(request)
-
         block(request)
       } else {
         val errorCode = 145
