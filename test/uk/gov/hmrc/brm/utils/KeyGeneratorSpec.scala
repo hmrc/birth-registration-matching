@@ -27,36 +27,33 @@ import play.api.mvc.{Headers, Request}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
-  val mockRequest = mock[Request[JsValue]]
-  val headers = mock[Headers]
 
+  import uk.gov.hmrc.brm.utils.Mocks._
 
   before {
     reset(mockRequest)
     reset(headers)
   }
 
-
   "KeyGenerator" should {
+
     "returns key" in {
       when(mockRequest.id).thenReturn(10)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(Matchers.any())).thenReturn(Some("dfs"))
       val date = new DateTime(2009, 10, 10, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      Keygenerator.generateKey(mockRequest).isEmpty shouldBe false
+      KeyGenerator.generateKey(mockRequest).isEmpty shouldBe false
     }
 
-
     "return key as 20160915:05101000-0-dfs-1.0 for audio source dfs and version 1.0" in {
-
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
 
-      val key = Keygenerator.generateKey(mockRequest)
+      val key = KeyGenerator.generateKey(mockRequest)
       key shouldBe "20160915:05101000-0-dfs-1.0"
       key.contains("dfs") shouldBe true
       key.contains("20160915:051010") shouldBe true
@@ -64,58 +61,53 @@ class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
     }
 
     "return key when audio source is empty" in {
-
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(None)
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = Keygenerator.generateKey(mockRequest)
+      val key = KeyGenerator.generateKey(mockRequest)
       key shouldBe "20160915:05101000-0--1.0"
       key.contains("dfs") shouldBe false
       key.contains("1.0") shouldBe true
     }
 
     "return key when request id is empty" in {
-
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = Keygenerator.generateKey(mockRequest)
+      val key = KeyGenerator.generateKey(mockRequest)
       key shouldBe "20160915:05101000-0-dfs-1.0"
 
     }
 
 
     "return key when version is empty" in {
-
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = Keygenerator.generateKey(mockRequest)
+      val key = KeyGenerator.generateKey(mockRequest)
       key shouldBe "20160915:05101000-0-dfs-"
 
     }
 
     "return key contains version 2.0 for version 2.0." in {
-
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.2.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = Keygenerator.generateKey(mockRequest)
+      val key = KeyGenerator.generateKey(mockRequest)
       key.contains("2.0") shouldBe true
 
     }
   }
 
-  after{
-
+  after {
     DateTimeUtils.setCurrentMillisSystem()
   }
 

@@ -24,6 +24,8 @@ import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
+import scala.concurrent.Future
+
 /**
   * Created by adamconder on 08/02/2017.
   */
@@ -50,7 +52,7 @@ class NorthernIrelandAudit(connector : AuditConnector = MicroserviceGlobal.audit
             event(new NorthernIrelandAuditEvent(result, "gro-ni-reference"))
         }
       case _ =>
-        throw new IllegalArgumentException("payload argument not specified")
+        Future.failed(new IllegalArgumentException("[NorthernIreland] payload argument not specified"))
     }
 
   }

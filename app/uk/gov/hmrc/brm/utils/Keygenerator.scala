@@ -18,16 +18,15 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import play.api.libs.json.JsValue
 import play.api.mvc.Request
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
-object Keygenerator {
+object KeyGenerator {
 
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
   private var keyForRequest: String = null
 
-  def generateKey(request: Request[JsValue]) = {
+  def generateKey[A](request: Request[A]) = {
     val formattedDate: String = getDateKey
     val apiVersion: String = getApiVersion(request)
     //format is date-requestid-audit source - api version number
@@ -42,7 +41,7 @@ object Keygenerator {
     formattedDate
   }
 
-  def geKey(): String = {
+  def getKey(): String = {
     keyForRequest
   }
 
@@ -50,11 +49,9 @@ object Keygenerator {
     keyForRequest = key
   }
 
-  def generateAndSetKey(request: Request[JsValue]): Unit = {
+  def generateAndSetKey[A](request: Request[A]): Unit = {
     val key = generateKey(request)
     setKey(key)
   }
-
-
 
 }

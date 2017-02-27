@@ -35,7 +35,7 @@ object CommonUtil extends Controller {
     regEx,
     groupNames: _*) findFirstMatchIn _
 
-  def getApiVersion(request: Request[JsValue]): String = {
+  def getApiVersion[A](request: Request[A]): String = {
     val accept = request.headers.get(HeaderNames.ACCEPT)
     accept.flatMap(
       a =>

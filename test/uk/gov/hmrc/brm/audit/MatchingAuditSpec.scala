@@ -23,6 +23,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
@@ -35,7 +36,7 @@ import scala.concurrent.Future
 class MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
   val connector = mock[AuditConnector]
-  val auditor = new MatchingAudit(connector)
+  val auditor = auditorFixtures.matchingAudit
 
   implicit val hc = HeaderCarrier()
 

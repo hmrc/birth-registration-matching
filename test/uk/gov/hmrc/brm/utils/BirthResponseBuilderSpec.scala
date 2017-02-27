@@ -21,6 +21,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 class BirthResponseBuilderSpec extends UnitSpec {
 
   "BirthResponseBuilder" should {
+
     "return matched true with Match" in {
       BirthResponseBuilder.withMatch().matched shouldBe true
     }
@@ -32,6 +33,7 @@ class BirthResponseBuilderSpec extends UnitSpec {
     "return matched true with input value as true" in {
       BirthResponseBuilder.getResponse(true).matched  shouldBe true
     }
+
   }
 
 }

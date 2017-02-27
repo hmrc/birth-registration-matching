@@ -18,24 +18,24 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.Logger
 
-class BrmLogger(logger: org.slf4j.Logger) extends Logger(logger) {
+class BRMLogger(logger: org.slf4j.Logger) extends Logger(logger) {
 
-  val BRM_KEY: String = "BRM-Key"
+  val BRM_KEY: String = s"BRM-Key"
 
   def info(className: String, methodName: String, message: String): Unit = {
-    logger.info(s"[$BRM_KEY:${Keygenerator.geKey()}], [$className][$methodName] : [$message]")
+    logger.info(s"[$BRM_KEY:${KeyGenerator.getKey()}], [$className][$methodName] : [$message]")
   }
 
   def warn(className: String, methodName: String, message: String): Unit = {
-    logger.warn(s"[$BRM_KEY:${Keygenerator.geKey()}],[$className][$methodName] : [$message]")
+    logger.warn(s"[$BRM_KEY:${KeyGenerator.getKey()}],[$className][$methodName] : [$message]")
   }
 
   def error(className: String, methodName: String, message: String): Unit = {
-    logger.error(s"[$BRM_KEY:${Keygenerator.geKey()}],[$className][$methodName] : [$message]")
+    logger.error(s"[$BRM_KEY:${KeyGenerator.getKey()}],[$className][$methodName] : [$message]")
   }
 
   def debug(className: String, methodName: String, message: String): Unit = {
-    logger.debug(s"[$BRM_KEY:${Keygenerator.geKey()}],[$className][$methodName] : [$message]")
+    logger.debug(s"[$BRM_KEY:${KeyGenerator.getKey()}],[$className][$methodName] : [$message]")
   }
 
   def info(objectName: Object, methodName: String, message: String): Unit = {
@@ -55,4 +55,4 @@ class BrmLogger(logger: org.slf4j.Logger) extends Logger(logger) {
   }
 }
 
-object BrmLogger extends BrmLogger(Logger.logger)
+object BRMLogger extends BRMLogger(Logger.logger)

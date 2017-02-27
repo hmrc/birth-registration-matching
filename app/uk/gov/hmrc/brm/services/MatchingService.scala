@@ -21,14 +21,20 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BrmLogger._
+import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
 import uk.gov.hmrc.play.http.HeaderCarrier
+
+object MatchingService extends MatchingService {
+  override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple
+  override val auditor = new MatchingAudit()
+}
 
 trait MatchingService {
   val CLASS_NAME: String = this.getClass.getCanonicalName
 
   protected val matchOnMultiple: Boolean
+  protected val auditor : MatchingAudit
 
   def performMatch(input: Payload,
                    records: List[Record],
@@ -49,7 +55,7 @@ trait MatchingService {
     info(CLASS_NAME, "performMatch", s"hasMultipleRecords -> ${records.length > 1}")
 
     // audit match result
-    new MatchingAudit().audit(result.audit, Some(input))
+    auditor.audit(result.audit, Some(input))
 
     result
   }
@@ -60,8 +66,4 @@ trait MatchingService {
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 
-}
-
-object MatchingService extends MatchingService {
-  override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple
 }

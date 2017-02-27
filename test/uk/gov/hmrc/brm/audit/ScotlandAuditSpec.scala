@@ -23,7 +23,7 @@ import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -34,8 +34,9 @@ import scala.concurrent.Future
   */
 class ScotlandAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
-  val connector = mock[AuditConnector]
-  val auditor = new ScotlandAudit(connector)
+  import uk.gov.hmrc.brm.utils.Mocks._
+
+  val auditor = auditorFixtures.scotlandAudit
 
   implicit val hc = HeaderCarrier()
 
@@ -45,7 +46,7 @@ class ScotlandAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplicati
       val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
-      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }
@@ -53,6 +54,8 @@ class ScotlandAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplicati
     "audit requests when using child's details" in {
       val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
+
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }

@@ -19,22 +19,22 @@ package uk.gov.hmrc.brm.audit
 import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.{CommonUtil, Keygenerator}
+import uk.gov.hmrc.brm.utils.{CommonUtil, KeyGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.annotation.tailrec
+import scala.concurrent.Future
 
 /**
   * Created by adamconder on 15/02/2017.
   */
 @Singleton
-class RequestsAndResultsAudit(
-                               connector : AuditConnector = MicroserviceGlobal.auditConnector
-                             ) extends BRMAudit(connector) {
+class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
 
   /**
     * Audit event for the result of MatchingService and data submitted to the API
@@ -53,21 +53,43 @@ class RequestsAndResultsAudit(
   def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
     payload match {
       case Some(p) =>
-        // concat the map result
-        val uniqueKey = Map("brmKey" -> Keygenerator.geKey())
-        val features = BrmConfig.audit
-        val payloadAudit = p.audit
-        val data = result ++ features ++ payloadAudit ++ uniqueKey
-
         CommonUtil.getOperationType(p) match {
           case DetailsRequest() =>
-            event(new RequestsAndResultsAuditEvent(data, "birth-registration-matching/match/details"))
+            event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/details"))
           case ReferenceRequest() =>
-            event(new RequestsAndResultsAuditEvent(data, "birth-registration-matching/match/reference"))
+            event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/reference"))
         }
       case _ =>
-        throw new IllegalArgumentException("payload argument not specified")
+        Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
     }
+  }
+
+  def transactionToMap(payload: Payload,
+                   records : List[Record],
+                   matchResult : ResultMatch): Map[String, String] = {
+
+    // get unique key
+    val uniqueKey = Map("brmKey" -> KeyGenerator.getKey())
+
+    // audit match result and if a record was found
+    val matchAudit = recordFoundAndMatchToMap(records, matchResult)
+
+    // audit status on the records
+    val auditWordsPerNameOnRecords = responseWordCount(records)
+    val auditCharactersPerNameOnRecords = responseCharacterCount(records)
+
+    // audit application feature switches
+    val features = BrmConfig.audit
+
+    // audit payload
+    val payloadAudit = payload.audit
+
+    features ++
+      payloadAudit ++
+      uniqueKey ++
+      auditWordsPerNameOnRecords ++
+      auditCharactersPerNameOnRecords ++
+      matchAudit
   }
 
   def responseWordCount(record: List[Record]): Map[String, String] = {

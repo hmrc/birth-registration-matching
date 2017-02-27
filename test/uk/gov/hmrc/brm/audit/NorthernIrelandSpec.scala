@@ -34,8 +34,10 @@ import scala.concurrent.Future
   */
 class NorthernIrelandSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
+  import uk.gov.hmrc.brm.utils.Mocks._
+
   val connector = mock[AuditConnector]
-  val auditor = new NorthernIrelandAudit(connector)
+  val auditor = auditorFixtures.northernIrelandAudit
 
   implicit val hc = HeaderCarrier()
 
@@ -53,6 +55,9 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
     "audit requests when using child's details" in {
       val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
+
+      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }

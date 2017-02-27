@@ -25,12 +25,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.audit.RequestsAndResultsAudit
-import uk.gov.hmrc.brm.connectors._
-import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
 import uk.gov.hmrc.brm.utils.JsonUtils
+import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -40,32 +38,16 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
 
-
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
   def httpResponse(js: JsValue) = HttpResponse.apply(200, Some(js))
+
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
-
-  val mockConnector = mock[BirthConnector]
-  val mockAuditConnector = mock[AuditConnector]
-
-  object MockLookupService extends LookupService {
-    override val groConnector = mockConnector
-    override val groniConnector = new GRONIConnector
-    override val nrsConnector = new NRSConnector
-    override val matchingService = MatchingService
-    override val requestAndResponseAuditor = new RequestsAndResultsAudit(mockAuditConnector)
-  }
-
-  object MockController extends BirthEventsController {
-    override val service = MockLookupService
-  }
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 100
-
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
@@ -77,6 +59,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     "return matched value of true when the firstName length  is less than specified value and request is valid" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
       val request = postRequest(userValidDOB)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe OK
@@ -85,6 +68,8 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD REQUEST 400 if request contains more than 100 characters in firstName " in {
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
       val request = postRequest(firstNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST
@@ -93,6 +78,8 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD REQUEST 400 if request contains more than 100 characters in lastname " in {
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
       val request = postRequest(lastNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST

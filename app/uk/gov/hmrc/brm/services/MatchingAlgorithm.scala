@@ -107,7 +107,6 @@ trait MatchingAlgorithm {
 
 object FullMatching extends MatchingAlgorithm {
 
-  // TODO also call names() on lastName to strip out the spaces from the record
   override def matchFunction: PartialFunction[(Payload, Record), ResultMatch] = {
     case (payload, record) =>
       val firstNames = matchFirstNames(payload, record)

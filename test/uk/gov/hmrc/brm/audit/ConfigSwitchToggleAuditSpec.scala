@@ -17,32 +17,33 @@
 package uk.gov.hmrc.brm.audit
 
 
-import org.scalatest.BeforeAndAfterAll
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
+import play.api.test.Helpers._
+import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import play.api.test.Helpers._
-import uk.gov.hmrc.brm.config.BrmConfig
 
 import scala.concurrent.Future
 
 /**
   * Created by anuja on 16/02/17.
   */
-class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll{
+class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
 
   val connector = mock[AuditConnector]
-  val auditor = new RequestsAndResultsAudit(connector)
+  val auditor = new TransactionAuditor(connector)
   implicit val hc = HeaderCarrier()
 
   val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map()
@@ -59,14 +60,15 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
   val auditConfigOnAppForDefault = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForDefault).build()
   val auditConfigOnAppForAlternate = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForAlternate).build()
 
-
   "RequestsAndResultsAudit" should {
 
     "return correct default settings for audit config" in running(
       auditConfigOnAppForDefault
     ) {
-      val event = Map("match" -> "true")
+
       val payload = Payload(Some("123456789"), "Adam", "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
@@ -84,8 +86,9 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     "return correct settings when audit config is overridden" in running(
       auditConfigOnAppForAlternate
     ) {
-      val event = Map("match" -> "true")
       val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))

@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.brm.implicits
 
+import com.google.inject.Singleton
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit, NorthernIrelandAudit, ScotlandAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 
 object Implicits {
 
@@ -51,7 +51,8 @@ object Implicits {
 
   }
 
-  object AuditFactory {
+  @Singleton
+  class AuditFactory() {
 
     private lazy val set : Map[BirthRegisterCountry.Value, BRMAudit] = Map(
       BirthRegisterCountry.ENGLAND -> new EnglandAndWalesAudit(),

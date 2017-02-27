@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 // TODO Make generic, accept type C, S to model
 sealed trait ResponseParser {
 
-  import uk.gov.hmrc.brm.utils.BrmLogger._
+  import uk.gov.hmrc.brm.utils.BRMLogger._
 
   def parse(json: JsValue)(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[Record] = {
     val name = manifest.toString()
