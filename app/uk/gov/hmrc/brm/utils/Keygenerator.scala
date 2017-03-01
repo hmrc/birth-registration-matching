@@ -24,7 +24,7 @@ import uk.gov.hmrc.brm.utils.CommonUtil._
 object KeyGenerator {
 
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
-  private var keyForRequest: String = null
+  private var keyForRequest: String = ""
 
   def generateKey[A](request: Request[A]) = {
     val formattedDate: String = getDateKey
@@ -42,6 +42,9 @@ object KeyGenerator {
   }
 
   def getKey(): String = {
+    println("keyforrequestvalue "+ keyForRequest)
+    /*if(keyForRequest.isEmpty)
+      throw new Exception("key is null")*/
     keyForRequest
   }
 

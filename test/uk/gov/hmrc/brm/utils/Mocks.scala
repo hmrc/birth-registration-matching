@@ -93,7 +93,7 @@ object Mocks extends MockitoSugar {
   def connectorFixtures = {
     new {
       val groConnector = new GROConnector(mockHttpPost)
-      val nrsConnector = new NRSConnector(auditor = new ScotlandAudit(mockAuditConnector))
+      val nrsConnector = new NRSConnector(mockHttpPost, auditor = new ScotlandAudit(mockAuditConnector))
       val groniConnector = new GRONIConnector(auditor = new NorthernIrelandAudit(mockAuditConnector))
     }
   }

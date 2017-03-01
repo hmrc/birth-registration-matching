@@ -36,10 +36,10 @@ import scala.concurrent.Future
 
 class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
-  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("2012-02-16")
-  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
-  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
+  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro","2012-02-16")
+  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro","2009-07-01")
+  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro","2009-06-30")
 
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))

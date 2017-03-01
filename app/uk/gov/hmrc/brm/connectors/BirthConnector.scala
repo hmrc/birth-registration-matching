@@ -18,7 +18,8 @@ package uk.gov.hmrc.brm.connectors
 
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -29,7 +30,8 @@ trait BirthConnector extends ServicesConfig {
   val serviceUrl: String
   var httpPost: HttpPost
 
-  protected val headers : BRMHeaders
+  protected def headers(brmKey: String) : BRMHeaders
+ // protected val headers : BRMHeaders
 
   protected val referenceBody : PartialFunction[Payload, (String, JsValue)]
   protected val detailsBody : PartialFunction[Payload, (String, JsValue)]
@@ -53,7 +55,12 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
-    httpPost.POST(request.uri, request.jsonBody, headers)
+    BRMLogger.debug(s"BirthConnector", "sendRequest", s"${request.uri}")
+    //BRMLogger.debug(s"BirthConnector", "sendRequest", s"${headers}")
+    BRMLogger.debug(s"BirthConnector", "KeyGenerator.getKey()", s"${KeyGenerator.getKey()}")
+
+    BRMLogger.debug(s"BirthConnector", "header1", s"${headers(KeyGenerator.getKey())}")
+    httpPost.POST(request.uri, request.jsonBody, headers(KeyGenerator.getKey()))
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
@@ -67,5 +74,6 @@ trait BirthConnector extends ServicesConfig {
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
   }
+
 }
 

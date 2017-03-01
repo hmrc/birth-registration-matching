@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost, NotImplementedException}
 
 import scala.concurrent.Future
@@ -37,7 +38,9 @@ class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandA
   private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
-  override val headers = Seq()
+  override def headers( brmKey: String) =
+    Seq(
+     )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
     case Payload(Some(brn), _, _, _, _) =>

@@ -47,11 +47,11 @@ class GroResponseSpec extends UnitSpec {
     * - should return an JsonMappingException from an invalid json object
     */
 
-  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("500035710")
+  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("gro","500035710")
 
-  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("500035710-array")
+  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("gro","500035710-array")
 
-  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("key-no-value")
+  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("gro","key-no-value")
 
   lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
 
