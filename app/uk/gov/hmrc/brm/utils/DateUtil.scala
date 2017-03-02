@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import java.util.Date
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 /**
   * Created by user on 02/03/17.
@@ -24,9 +25,12 @@ import java.util.Date
 object DateUtil {
 
 
-  def getCurrentDateString = {
-    val format = new java.text.SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS")
-    format.format(new Date())
+  def getCurrentDateString(DATE_FORMAT : String) = {
+
+    val dateTime = new DateTime()
+    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
+    val formattedDate: String = formatter.print(dateTime)
+    formattedDate
   }
 
 }

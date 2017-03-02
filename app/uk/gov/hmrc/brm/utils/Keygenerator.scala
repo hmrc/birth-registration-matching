@@ -35,10 +35,7 @@ object KeyGenerator {
   }
 
   private def getDateKey: String = {
-    val dateTime = new DateTime()
-    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
-    val formattedDate: String = formatter.print(dateTime)
-    formattedDate
+    DateUtil.getCurrentDateString(DATE_FORMAT)
   }
 
   def getKey(): String = {

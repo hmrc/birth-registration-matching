@@ -40,6 +40,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
 
   private val detailsUri = s"$serviceUrl"
   private val referenceUri = s"$serviceUrl"
+  private val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"
 
 
   override def headers =
@@ -48,7 +49,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       CONTENT_TYPE -> CONTENT_TYPE_JSON,
       ENVIRONMENT_HEADER -> BrmConfig.desEnv,
       TOKEN_HEADER -> BrmConfig.desToken,
-      DATETIME_HEADER -> getCurrentDateString
+      DATETIME_HEADER -> getCurrentDateString(DATE_FORMAT)
    )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
