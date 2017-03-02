@@ -55,7 +55,6 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
-    BRMLogger.info(s"BirthConnector", "headers", s"${headers}")
     httpPost.POST(request.uri, request.jsonBody, headers)
   }
 

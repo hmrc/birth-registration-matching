@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
 
-  override val serviceUrl: String = s"${BrmConfig.desHost}:${BrmConfig.desPort}/national-records/births"
+  override val serviceUrl: String = s"http://${BrmConfig.desHost}:${BrmConfig.desPort}/national-records/births"
 
   private val detailsUri = s"$serviceUrl"
   private val referenceUri = s"$serviceUrl"
