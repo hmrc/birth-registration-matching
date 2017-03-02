@@ -20,10 +20,10 @@ package uk.gov.hmrc.brm.connectors
 import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
-import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{KeyGenerator, NameFormat}
-import uk.gov.hmrc.play.http.{HttpPost}
+import uk.gov.hmrc.play.http.HttpPost
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil._
 
@@ -36,9 +36,7 @@ import scala.concurrent.Future
 class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
 
-  override val serviceUrl: String = "http://localhost:9007/national-records/births"
-  val envHeader = "dev"
-  val authToken = "Bearer aaa"
+  override val serviceUrl: String = s"${BrmConfig.desHost}:${BrmConfig.desPort}/national-records/births"
 
   private val detailsUri = s"$serviceUrl"
   private val referenceUri = s"$serviceUrl"
@@ -48,8 +46,8 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
     Seq(
       QUERY_ID_HEADER -> KeyGenerator.getKey(),
       CONTENT_TYPE -> CONTENT_TYPE_JSON,
-      ENVIRONMENT_HEADER -> envHeader,
-      TOKEN_HEADER -> authToken,
+      ENVIRONMENT_HEADER -> BrmConfig.desEnv,
+      TOKEN_HEADER -> BrmConfig.desToken,
       DATETIME_HEADER -> getCurrentDateString
    )
 
