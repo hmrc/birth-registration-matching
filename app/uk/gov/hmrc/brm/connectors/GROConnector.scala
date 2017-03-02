@@ -36,9 +36,9 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
   private val detailsUri = s"$serviceUrl/$baseUri/match/details"
   private val referenceUri = s"$serviceUrl/$baseUri/match/reference"
 
-  override def headers( brmKey: String) =
+  override def headers =
     Seq(
-      BRMLogger.BRM_KEY -> brmKey,
+      BRMLogger.BRM_KEY -> KeyGenerator.getKey(),
       "Content-Type" -> "application/json; charset=utf-8"
     )
 

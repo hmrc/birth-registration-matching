@@ -42,13 +42,10 @@ object KeyGenerator {
   }
 
   def getKey(): String = {
-    println("keyforrequestvalue "+ keyForRequest)
-    /*if(keyForRequest.isEmpty)
-      throw new Exception("key is null")*/
     keyForRequest
   }
 
-   def setKey(key: String): Unit = {
+  def setKey(key: String): Unit = {
     keyForRequest = key
   }
 

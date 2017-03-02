@@ -65,7 +65,7 @@ object Mocks extends MockitoSugar {
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector()
-    override val nrsConnector = new NRSConnector()
+    override val nrsConnector = mockConnector
     override val matchingService = MockMatchingService
     override val transactionAuditor = auditorFixtures.transactionAudit
   }

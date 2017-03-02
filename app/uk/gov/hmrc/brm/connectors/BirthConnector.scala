@@ -30,8 +30,8 @@ trait BirthConnector extends ServicesConfig {
   val serviceUrl: String
   var httpPost: HttpPost
 
-  protected def headers(brmKey: String) : BRMHeaders
- // protected val headers : BRMHeaders
+  protected def headers  : BRMHeaders
+
 
   protected val referenceBody : PartialFunction[Payload, (String, JsValue)]
   protected val detailsBody : PartialFunction[Payload, (String, JsValue)]
@@ -55,12 +55,7 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
-    BRMLogger.debug(s"BirthConnector", "sendRequest", s"${request.uri}")
-    //BRMLogger.debug(s"BirthConnector", "sendRequest", s"${headers}")
-    BRMLogger.debug(s"BirthConnector", "KeyGenerator.getKey()", s"${KeyGenerator.getKey()}")
-
-    BRMLogger.debug(s"BirthConnector", "header1", s"${headers(KeyGenerator.getKey())}")
-    httpPost.POST(request.uri, request.jsonBody, headers(KeyGenerator.getKey()))
+    httpPost.POST(request.uri, request.jsonBody, headers)
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {

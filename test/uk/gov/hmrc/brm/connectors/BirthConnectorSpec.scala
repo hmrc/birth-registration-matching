@@ -178,6 +178,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val future = connectorFixtures.groniConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
+            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
             e.getMessage shouldBe "No getReference method available for GRONI connector."
           case Success(_) =>
             throw new Exception
@@ -189,6 +190,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
+            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
             e.getMessage shouldBe "No getChildDetails method available for GRONI connector."
           case Success(_) =>
             throw new Exception

@@ -34,31 +34,24 @@ import scala.concurrent.Future
 @Singleton
 class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
-  //override val desBaseUrl = getConfString("birth-registration-matching")
+
   override val serviceUrl: String = "http://localhost:9007/national-records/births"
-  val envHeader = "envHeader"
-  val authToken = "authToken"
-  //private val  = ""
+  val envHeader = "dev"
+  val authToken = "Bearer aaa"
+
   private val detailsUri = s"$serviceUrl"
   private val referenceUri = s"$serviceUrl"
-  //private val keyValue = KeyGenerator.getKey()
 
- /* override val headers = Seq(
-    BRMLogger.BRM_KEY -> KeyGenerator.getKey(),
-    "Content-Type" -> "application/json; charset=utf-8")*/
-
-  override def headers( brmKey: String) =
+  override def headers =
     Seq(
     QUERY_ID_HEADER -> KeyGenerator.getKey(),
     "Content-Type" -> "application/json; charset=utf-8",
     ENVIRONMENT_HEADER -> envHeader,
     TOKEN_HEADER -> authToken,
     DATETIME_HEADER -> "2017-02-16T10:55:32.001"
-
   )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-
     case Payload(Some(brn), fName, lName, dob, _) =>
 
       (referenceUri, Json.parse(
@@ -83,29 +76,5 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
            |}
          """.stripMargin))
   }
-
-
-
-  /* override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-     BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-     referenceBody.apply(payload)
-
-     val result: Map[String, String] = Map("match" -> "false")
-     auditor.audit(result, Some(payload))
-
-     Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
-   }*/
-
-  /*override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-    detailsBody.apply(payload)
-
-    val result: Map[String, String] = Map("match" -> "false")
-    auditor.audit(result, Some(payload))
-
-    Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
-  }*/
 
 }

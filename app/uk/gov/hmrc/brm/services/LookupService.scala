@@ -23,7 +23,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, KeyGenerator, RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder,  RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 object LookupService extends LookupService {
   override val groConnector = new GROConnector
-  override val nrsConnector = new NRSConnector()
+  override val nrsConnector = new NRSConnector
   override val groniConnector = new GRONIConnector
   override val matchingService = MatchingService
   override val transactionAuditor = new TransactionAuditor()
@@ -81,7 +81,6 @@ trait LookupService extends LookupServiceBinder {
       response =>
 
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-        info(CLASS_NAME, "lookup()", s"response received ${response}")
         /**
           * Should be:
           * response.validate[T]

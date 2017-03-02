@@ -38,10 +38,8 @@ class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandA
   private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
-  override def headers( brmKey: String) =
-    Seq(
-     )
 
+  override def headers = Seq()
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
     case Payload(Some(brn), _, _, _, _) =>
       (referenceUri, Json.parse(
@@ -79,5 +77,6 @@ class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandA
 
     Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
   }
+
 
 }

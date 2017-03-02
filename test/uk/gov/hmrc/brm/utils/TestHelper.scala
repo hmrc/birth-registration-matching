@@ -32,6 +32,8 @@ object TestHelper {
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
 
   val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  val validNrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
   val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
 
@@ -385,6 +387,27 @@ object TestHelper {
        | "lastName" : "SMITH",
        | "dateOfBirth" : "2006-11-12",
        | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userMatchExcludingReferenceNumberKeyForScotland = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+    """.stripMargin)
+
+  val userMatchIncludingReferenceNumberKeyForScotland = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber" : "2017734003",
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
        |}
     """.stripMargin)
 
