@@ -16,24 +16,17 @@
 
 package uk.gov.hmrc.brm.utils
 
+import java.util.Date
+
 /**
-  * Created by user on 01/03/17.
+  * Created by user on 02/03/17.
   */
-object CommonConstant {
+object DateUtil {
 
 
-  val JSON_ID_PATH : String = "id"
-  val JSON_FIRSTNAME_PATH : String = "firstName"
-  val JSON_LASTNAME_PATH : String = "lastName"
-  val JSON_DATEOFBIRTH_PATH : String = "dateOfBirth"
-
-  val ENVIRONMENT_HEADER = "Environment"
-  val TOKEN_HEADER = "Authorization"
-  val QUERY_ID_HEADER =  "QueryID"
-  val DATETIME_HEADER =  "DateTime"
-  val CONTENT_TYPE = "Content-Type"
-  val CONTENT_TYPE_JSON = "application/json; charset=utf-8"
-
-
+  def getCurrentDateString = {
+    val format = new java.text.SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS")
+    format.format(new Date())
+  }
 
 }
