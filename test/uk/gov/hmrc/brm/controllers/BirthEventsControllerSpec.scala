@@ -69,7 +69,6 @@ class BirthEventsControllerSpec
       "return JSON response on request for scotland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-        //val result = await(route(app, postRequest(userMatchExcludingReferenceNumberKeyForScotland)))(Duration.apply(10, TimeUnit.SECONDS))
 
         val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
         val result = MockController.post().apply(request)

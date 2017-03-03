@@ -35,11 +35,10 @@ import scala.concurrent.Future
 @Singleton
 class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
-
-  override val serviceUrl: String = s"http://${BrmConfig.desHost}:${BrmConfig.desPort}/national-records/births"
-
-  private val detailsUri = s"$serviceUrl"
-  private val referenceUri = s"$serviceUrl"
+  override val serviceUrl = baseUrl("des")
+  private val baseUri = "national-records/births"
+  private val detailsUri = s"$serviceUrl/$baseUri"
+  private val referenceUri = s"$serviceUrl/$baseUri"
   private val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"
 
 
