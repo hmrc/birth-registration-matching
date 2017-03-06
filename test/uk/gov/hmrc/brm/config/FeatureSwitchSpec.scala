@@ -95,14 +95,6 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
         }
       }
 
-      // "not implemented" should {
-      //
-      //   "throw a BirthConfigurationException for gro.enabled" in {
-      //     GROFeature().enabled shouldBe a[BirthConfigurationException]
-      //   }
-      //
-      // }
-
     }
 
     "NRS" when {
