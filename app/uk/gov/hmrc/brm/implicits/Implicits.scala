@@ -17,10 +17,12 @@
 package uk.gov.hmrc.brm.implicits
 
 import com.google.inject.Singleton
+import play.api.libs.json.Reads
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit, NorthernIrelandAudit, ScotlandAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, ReadsUtil}
 
 object Implicits {
 
@@ -65,5 +67,23 @@ object Implicits {
       set(payload.whereBirthRegistered)
     }
   }
+
+
+
+    object ReadsFactory {
+      private lazy val set: Map[BirthRegisterCountry.Value, Reads[Record]] = Map(
+        BirthRegisterCountry.ENGLAND -> ReadsUtil.groReadRecords,
+        BirthRegisterCountry.WALES -> ReadsUtil.groReadRecords,
+        BirthRegisterCountry.SCOTLAND -> ReadsUtil.nrsRecordsRead
+
+      )
+
+      def getReads()(implicit payload: Payload): Reads[Record] = {
+        set(payload.whereBirthRegistered)
+      }
+
+  }
+
+
 
 }
