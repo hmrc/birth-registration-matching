@@ -64,6 +64,11 @@ trait BrmConfig extends ServicesConfig {
     features
   }
 
+  /*
+    abstract class Feature(enabled:Boolean)
+    case class GROReferenceFeature(enabled) extends Feature(enabled)
+  */
+
 }
 
 object BrmConfig extends BrmConfig
