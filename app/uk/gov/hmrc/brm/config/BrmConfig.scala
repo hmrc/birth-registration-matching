@@ -66,7 +66,7 @@ trait BrmConfig extends ServicesConfig {
 
   abstract class Feature(key : String) {
     final def enabled() : Boolean = getConfBool(s"birth-registration-matching.features.$key.enabled",
-      throw BirthConfigurationException(s"birth-registration-matching.features.$key.enabled")
+      throw BirthConfigurationException(s"features.$key.enabled")
     )
   }
 
@@ -83,37 +83,6 @@ trait BrmConfig extends ServicesConfig {
   case class NRSFeature() extends Feature("nrs")
   case class NRSReferenceFeature() extends Feature("nrs.reference")
   case class NRSDetailsFeature() extends Feature("nrs.details")
-
-  /*
-
-    new FeatureFactory(payload)
-
-// return case class ?
-// call .enabled to ensure its
-    payload.whereBirthRegistered match {
-    case England | Wales => BRMConfig.GROReferenceFeature
-  }
-
-    case class GROReferenceFeature(enabled) extends Feature(enabled)
-
-    app.config
-
-    birth-registration-matching {
-      features {
-        gro {
-          enabled = true
-          reference.enabled = true
-          details.enabled = true
-        }
-        nrs {
-          enabled = true
-          reference.enabled = true
-          details.enabled = false
-        }
-      }
-    }
-
-  */
 
 }
 
