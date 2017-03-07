@@ -276,7 +276,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         implicit val payload = nrsRequestPayload
         val result = await(service.lookup)
         //TODO once response mapping was done, need to change it.
-        result shouldBe BirthMatchResponse(false)
+        result shouldBe BirthMatchResponse(true)
       }
 
       "accept payload without reference number as argument" in {
@@ -287,7 +287,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         implicit val payload = nrsRequestPayloadWithoutBrn
         val result = await(service.lookup)
         //TODO once response mapping was done, need to change it.
-        result shouldBe BirthMatchResponse(false)
+        result shouldBe BirthMatchResponse(true)
 
       }
 

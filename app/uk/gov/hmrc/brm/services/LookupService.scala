@@ -93,7 +93,7 @@ trait LookupService extends LookupServiceBinder {
           * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
           */
 
-        val records = RecordParser.parse(response.json,ReadsFactory.getReads)
+        val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
         audit(records, matchResult)

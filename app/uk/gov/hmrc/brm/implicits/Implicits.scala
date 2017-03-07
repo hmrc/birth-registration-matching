@@ -71,14 +71,14 @@ object Implicits {
 
 
     object ReadsFactory {
-      private lazy val set: Map[BirthRegisterCountry.Value, Reads[Record]] = Map(
-        BirthRegisterCountry.ENGLAND -> ReadsUtil.groReadRecords,
-        BirthRegisterCountry.WALES -> ReadsUtil.groReadRecords,
-        BirthRegisterCountry.SCOTLAND -> ReadsUtil.nrsRecordsRead
+      private lazy val set: Map[BirthRegisterCountry.Value, (Reads[List[Record]], Reads[Record])] = Map(
+        BirthRegisterCountry.ENGLAND -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
+        BirthRegisterCountry.WALES -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
+        BirthRegisterCountry.SCOTLAND -> (ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead)
 
       )
 
-      def getReads()(implicit payload: Payload): Reads[Record] = {
+      def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) = {
         set(payload.whereBirthRegistered)
       }
 

@@ -41,24 +41,38 @@ object ReadsUtil {
 
   val nrsChildReads : Reads[Child] = (
     (JsPath  \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
-      (JsPath \ "subjects" \ "child" \ "givenName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "surname").read[String].orElse(Reads.pure("")) and
+      (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
+      (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
 
-  val groReadRecords : Reads[Record] = (
+  val groReadRecord : Reads[Record] = (
     JsPath.read[Child](groChildReads) and
       (JsPath \ "status").readNullable[Status]
     )(Record.apply _)
 
   val nrsRecordsRead : Reads[Record] = (
     JsPath.read[Child](nrsChildReads) and
-      (JsPath \ "status").readNullable[Status]
+      (JsPath \ "NoPath").readNullable[Status]
     )(Record.apply _)
 
 
+//  val nrsRecordsListRead : Reads[List[Record]] = (
+//      (__ \ "births").read[List[Record]](Reads.list(nrsRecordsRead))
+//    )((records : List[Record]) => records)
 
+  val nrsRecordsListRead : Reads[List[Record]] = {
+    (JsPath \ "births").read[JsArray].map(
+      (births: JsArray) => births.value.map(v => v.as[Record](nrsRecordsRead)).toList
+    )
+  }
+
+  val groRecordsListRead : Reads[List[Record]] = {
+    (JsPath).read[JsArray].map(
+      (births: JsArray) => births.value.map(v => v.as[Record](groReadRecord)).toList
+    )
+  }
 
 
 }

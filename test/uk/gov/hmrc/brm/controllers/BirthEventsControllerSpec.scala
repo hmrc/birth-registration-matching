@@ -77,7 +77,7 @@ class BirthEventsControllerSpec
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         //TODO need to change once response mapping done.
-        jsonBodyOf(result).map(x => x should have('matched (false)))
+        jsonBodyOf(result).map(x => x should have('matched (true)))
       }
 
       "return JSON response on request for northern ireland" in {
@@ -264,13 +264,13 @@ class BirthEventsControllerSpec
         when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
 
         val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
 
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         //TODO need to change once response mapping done.
-        jsonBodyOf(result).map(x => x should have('matched (false)))
+        jsonBodyOf(result).toString().contains("true") shouldBe true
 
       }
 

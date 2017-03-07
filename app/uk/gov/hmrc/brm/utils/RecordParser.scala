@@ -30,16 +30,13 @@ sealed trait ResponseParser {
 
   import uk.gov.hmrc.brm.utils.BRMLogger._
 
-  def parse(json: JsValue, reads : Reads[Record])(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[Record] = {
+  def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[T] = {
     val name = manifest.toString()
 
-
-    var json1 = json
-
-    val records = json1.validate[List[Record]](Reads.list(reads)).fold(
+    val records = json.validate[List[T]](reads._1).fold(
       error => {
         info("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
-        json1.validate[Record](reads).fold(
+        json.validate[T](reads._2).fold(
           e => {
             info("RecordParser", "parse()", s"Failed to validate as[$name] $e")
             List()
