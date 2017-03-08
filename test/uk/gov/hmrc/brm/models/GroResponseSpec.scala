@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.brm.utils.ReadsUtil
 
 /**
   * Created by chrisianson on 09/08/16.
@@ -463,7 +464,7 @@ class GroResponseSpec extends UnitSpec {
 
     "return Record object with all Child attributes when json is a full record within an array" in {
 
-      val listOfRecords = jsonFullRecordCollection.as[List[Record]]
+      val listOfRecords = jsonFullRecordCollection.as[List[Record]](ReadsUtil.groRecordsListRead)
 
       val record = listOfRecords.head
 
@@ -485,7 +486,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with all Child attributes when json is valid and complete (ASCII)" in {
-      val result = jsonValid.validate[Record]
+      val result = jsonValid.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[Record]
@@ -503,7 +504,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with all Child attributes when json is valid and complete with ASCII-Extended characters" in {
-      val result = jsonValidWithASCIIExtended.validate[Record]
+      val result = jsonValidWithASCIIExtended.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[Record]
@@ -521,7 +522,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with all Child attributes when json is valid and complete with UTF-8 characters" in {
-      val result = jsonValidWithUTF8.validate[Record]
+      val result = jsonValidWithUTF8.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[Record]
@@ -539,7 +540,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with all Child attributes when json is valid and complete max length" in {
-      val result = jsonValidMaxLength.validate[Record]
+      val result = jsonValidMaxLength.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[Record]
@@ -557,7 +558,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with null Child attributes when json is empty" in {
-      val result = jsonMissingEmptyObject.validate[Record]
+      val result = jsonMissingEmptyObject.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           throw new Exception
@@ -571,7 +572,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child and Status objects when json contains subjects and status keys but no values exist" in {
-      val result = jsonRecordKeysNoValues.validate[Record]
+      val result = jsonRecordKeysNoValues.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           x shouldBe a[Record]
@@ -595,7 +596,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when systemNumber is a string" in {
-      val result = jsonInvalidSystemNumberType.validate[Record]
+      val result = jsonInvalidSystemNumberType.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) => {
           throw new Exception
@@ -609,7 +610,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when systemNumber key is missing" in {
-      val result = jsonMissingSystemNumberKey.validate[Record]
+      val result = jsonMissingSystemNumberKey.validate[Record](ReadsUtil.groReadRecord)
       result should not be a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -624,7 +625,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with missing properties in all objects" in {
-      val result = jsonMissingObjectsProperties.validate[Record]
+      val result = jsonMissingObjectsProperties.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
@@ -641,7 +642,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when givenName key is missing" in {
-      val result = jsonMissingGivenNameKey.validate[Record]
+      val result = jsonMissingGivenNameKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -661,7 +662,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when surname key is missing" in {
-      val result = jsonMissingSurnameKey.validate[Record]
+      val result = jsonMissingSurnameKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -681,7 +682,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when dateOfBirth key is missing" in {
-      val result = jsonMissingDateOfBirthKey.validate[Record]
+      val result = jsonMissingDateOfBirthKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -700,7 +701,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when name key is missing" in {
-      val result = jsonMissingSubjectsKey.validate[Record]
+      val result = jsonMissingSubjectsKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -719,7 +720,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Child object when dateOfBirth value is invalid format" in {
-      val result = jsonInavlidDateOfBirthFormat.validate[Record]
+      val result = jsonInavlidDateOfBirthFormat.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -738,7 +739,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when all status flags exist" in {
-      val result = jsonAllStatusFlags.validate[Record]
+      val result = jsonAllStatusFlags.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -764,7 +765,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when potentiallyFictitiousBirth key is excluded" in {
-      val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[Record]
+      val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -790,7 +791,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when correction key is excluded" in {
-      val result = jsonStatusFlagsExcludingCorrection.validate[Record]
+      val result = jsonStatusFlagsExcludingCorrection.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -816,7 +817,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when cancelled key is excluded" in {
-      val result = jsonStatusFlagsExcludingCancelled.validate[Record]
+      val result = jsonStatusFlagsExcludingCancelled.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -842,7 +843,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when blockedRegistration key is excluded" in {
-      val result = jsonStatusFlagsExcludingBlockedRegistration.validate[Record]
+      val result = jsonStatusFlagsExcludingBlockedRegistration.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -868,7 +869,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when marginalNote key is excluded" in {
-      val result = jsonStatusFlagsExcludingMarginalNote.validate[Record]
+      val result = jsonStatusFlagsExcludingMarginalNote.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -894,7 +895,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return Record object with Status object when reRegistered key is excluded" in {
-      val result = jsonStatusFlagsExcludingReRegistered.validate[Record]
+      val result = jsonStatusFlagsExcludingReRegistered.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) => {
@@ -921,13 +922,13 @@ class GroResponseSpec extends UnitSpec {
 
     "return a JsonParseException from a broken json object" in {
       intercept[com.fasterxml.jackson.core.JsonParseException] {
-        jsonBrokenObject.validate[Record]
+        jsonBrokenObject.validate[Record](ReadsUtil.groReadRecord)
       }
     }
 
     "return a JsonMappingException from an invalid json object" in {
       intercept[com.fasterxml.jackson.databind.JsonMappingException] {
-        jsonNoObject.validate[Record]
+        jsonNoObject.validate[Record](ReadsUtil.groReadRecord)
       }
 
     }
