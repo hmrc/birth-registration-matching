@@ -87,6 +87,42 @@ class NrsResponseSpec extends UnitSpec {
 
     }
 
+
+
+
+    "return two Record object with all Child attributes when json has two records" in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      listOfRecords.length shouldBe 2
+
+      val record = listOfRecords.head
+
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status shouldBe None
+
+
+      val recordTwo = listOfRecords(1)
+
+      recordTwo shouldBe a[Record]
+      recordTwo.child shouldBe a[Child]
+      recordTwo.child.birthReferenceNumber shouldBe 2017734004
+      recordTwo.child.firstName shouldBe "Adam TEST"
+      recordTwo.child.lastName shouldBe "SMITH"
+      recordTwo.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      recordTwo.child.dateOfBirth.get shouldBe a[LocalDate]
+      recordTwo.status shouldBe None
+
+    }
+
     "return error when json is empty" in {
       var response = emptyJson.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isError shouldBe true

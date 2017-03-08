@@ -275,7 +275,6 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         val service = MockLookupService
         implicit val payload = nrsRequestPayload
         val result = await(service.lookup)
-        //TODO once response mapping was done, need to change it.
         result shouldBe BirthMatchResponse(true)
       }
 
@@ -286,8 +285,44 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         val service = MockLookupService
         implicit val payload = nrsRequestPayloadWithoutBrn
         val result = await(service.lookup)
-        //TODO once response mapping was done, need to change it.
         result shouldBe BirthMatchResponse(true)
+
+      }
+
+
+      "accept payload with reference number as argument and returns true as matched." in {
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+        val service = MockLookupService
+        implicit val payload = nrsRequestPayload
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(true)
+
+      }
+
+
+
+      "accept payload with special character and returns match true as matched." in {
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
+        val service = MockLookupService
+        implicit val payload = nrsRequestPayloadWithSpecialChar
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(true)
+
+      }
+
+      "accept payload with special character and returns match false as first name don't match." in {
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
+        val service = MockLookupService
+
+        implicit val payload = nrsRequestPayloadWithFirstNameWrong
+        val result = await(service.lookup)
+        result shouldBe BirthMatchResponse(false)
 
       }
 

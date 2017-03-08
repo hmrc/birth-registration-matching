@@ -53,14 +53,9 @@ object ReadsUtil {
     )(Record.apply _)
 
   val nrsRecordsRead : Reads[Record] = (
-    JsPath.read[Child](nrsChildReads) and
-      (JsPath \ "NoPath").readNullable[Status]
-    )(Record.apply _)
+    (JsPath.read[Child](nrsChildReads)).map(child => Record(child,None))
+    )
 
-
-//  val nrsRecordsListRead : Reads[List[Record]] = (
-//      (__ \ "births").read[List[Record]](Reads.list(nrsRecordsRead))
-//    )((records : List[Record]) => records)
 
   val nrsRecordsListRead : Reads[List[Record]] = {
     (JsPath \ "births").read[JsArray].map(

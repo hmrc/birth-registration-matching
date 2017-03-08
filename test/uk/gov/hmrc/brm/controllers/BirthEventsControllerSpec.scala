@@ -269,7 +269,6 @@ class BirthEventsControllerSpec
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        //TODO need to change once response mapping done.
         jsonBodyOf(result).toString().contains("true") shouldBe true
 
       }

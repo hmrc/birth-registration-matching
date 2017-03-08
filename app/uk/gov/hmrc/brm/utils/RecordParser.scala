@@ -33,6 +33,7 @@ sealed trait ResponseParser {
   def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[T] = {
     val name = manifest.toString()
 
+    //read-1 is list reads and reads_2 is single record read.
     val records = json.validate[List[T]](reads._1).fold(
       error => {
         info("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
