@@ -242,25 +242,25 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
   }
 
   "FeatureFactory" should {
-//    "return GROConcreteFeature for birth registered in england" taggedAs Tag("enabled") in {
-//      val feature = FeatureFactory(buildPayload(Some("123456789"), BirthRegisterCountry.ENGLAND))
-//      feature.isInstanceOf[GROConcreteFeature] shouldBe true
-//      feature.payload.isInstanceOf[Payload] shouldBe true
-//      feature.dateOfBirthValidation shouldBe true
-//      feature.feature shouldBe true
-//      feature.referenceFeature shouldBe true
-//      feature.detailsFeature shouldBe true
-//    }
+    "return GROConcreteFeature for birth registered in england" taggedAs Tag("enabled") in {
+      implicit val payload: Payload = buildPayload(Some("123456789"), BirthRegisterCountry.ENGLAND)
+      val feature = FeatureFactory()
+      feature.isInstanceOf[FeatureFactory] shouldBe true
+      feature.feature shouldBe true
+      feature.referenceFeature shouldBe true
+      feature.detailsFeature shouldBe true
+    }
 
     "return GROConcreteFeature for birth registered in wales" taggedAs Tag("enabled") in {
       implicit val payload: Payload  = buildPayload(Some("123456789"), BirthRegisterCountry.WALES)
       FeatureFactory().isInstanceOf[FeatureFactory] shouldBe true
     }
 
-//    "return NRSConcreteFeature for birth registered in scotland" taggedAs Tag("enabled") in {
-//      FeatureFactory(buildPayload(Some("123456789"), BirthRegisterCountry.SCOTLAND)).isInstanceOf[NRSConcreteFeature] shouldBe true
-//    }
-//
+    "return NRSConcreteFeature for birth registered in scotland" taggedAs Tag("enabled") in {
+      implicit val payload: Payload  = buildPayload(Some("123456789"), BirthRegisterCountry.SCOTLAND)
+      FeatureFactory().isInstanceOf[FeatureFactory] shouldBe true
+    }
+
     "validate request" when {
 
       "reference number is provided" should {
@@ -281,12 +281,12 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
         }
 
         "return false when date of birth is invalid" taggedAs Tag("enabled") in {
-          implicit val payload: Payload = buildPayload(Some("123456789"), BirthRegisterCountry.ENGLAND, "2005-02-03")
+          implicit val payload: Payload = buildPayload(Some("123456789"), BirthRegisterCountry.SCOTLAND, "2005-02-03")
           FeatureFactory().validate() shouldBe false
         }
 
         "return true when date of birth is invalid but switch is off" taggedAs Tag("referencefeatureenabled") in {
-          implicit val payload: Payload = buildPayload(Some("123456789"), BirthRegisterCountry.ENGLAND, "2005-02-03")
+          implicit val payload: Payload = buildPayload(Some("123456789"), BirthRegisterCountry.SCOTLAND, "2005-02-03")
           FeatureFactory().validate() shouldBe true
         }
 
@@ -294,17 +294,17 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
 
       "reference number NOT provided" should {
         "return false when parent feature is disabled" taggedAs Tag("disabled") in {
-          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.ENGLAND)
+          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.SCOTLAND)
           FeatureFactory().validate() shouldBe false
         }
 
         "return false when parent feature is enabled but detail feature is disabled" taggedAs Tag("detailfeaturedisabled") in {
-          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.ENGLAND)
+          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.SCOTLAND)
           FeatureFactory().validate() shouldBe false
         }
 
         "return true when parent feature is enabled and detail feature is enabled" taggedAs Tag("detailfeatureenabled") in {
-          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.ENGLAND)
+          implicit val payload: Payload = buildPayload(None, BirthRegisterCountry.SCOTLAND)
           FeatureFactory().validate() shouldBe true
         }
 

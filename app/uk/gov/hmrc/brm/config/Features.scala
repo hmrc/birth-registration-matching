@@ -78,7 +78,7 @@ trait FeatureFactory {
 
   def isDetailsMatchingEnabled(implicit p: Payload) : Boolean
 
-  def validateDateOfBirth(implicit p: Payload) : Boolean = p match {
+  def validDateOfBirth(implicit p: Payload) : Boolean = p match {
     case Payload(_, _, _, dob, _) =>
       val feature = DateOfBirthValidationFeature()
       if(feature.enabled()) {
@@ -87,8 +87,8 @@ trait FeatureFactory {
       } else { true }
   }
 
-  def referenceFeatures(implicit p: Payload) = validateDateOfBirth && isReferenceMatchingEnabled
-  def detailsFeatures(implicit p: Payload) = validateDateOfBirth && isDetailsMatchingEnabled
+  def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+  def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 
   def validate()(implicit p :Payload) : Boolean = p match {
     case Payload(Some(_), _, _, _, _) =>
@@ -113,8 +113,15 @@ object NRSConcreteFeature extends FeatureFactory {
     referenceFeature
   }
 
-  override def referenceFeatures(implicit p: Payload) = validateDateOfBirth && isReferenceMatchingEnabled
-  override def detailsFeatures(implicit p: Payload) = validateDateOfBirth && isDetailsMatchingEnabled
+  override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+  override def detailsFeatures(implicit p: Payload) = {
+
+    println(s"VALIDATE DOB - $validDateOfBirth")
+    println(s"IS DETAILS MATCH ENABLED - $isDetailsMatchingEnabled")
+    println(validDateOfBirth && isDetailsMatchingEnabled)
+
+    validDateOfBirth && isDetailsMatchingEnabled
+  }
 }
 
 object GROConcreteFeature extends FeatureFactory {
@@ -131,8 +138,25 @@ object GROConcreteFeature extends FeatureFactory {
     referenceFeature
   }
 
-  override def referenceFeatures(implicit p: Payload) = validateDateOfBirth && isReferenceMatchingEnabled
-  override def detailsFeatures(implicit p: Payload) = validateDateOfBirth && isDetailsMatchingEnabled
+  override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+  override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
+}
+
+object GRONIConcreteFeature extends FeatureFactory {
+  def feature: Boolean = false
+  def referenceFeature: Boolean = false
+  def detailsFeature: Boolean = false
+
+  override def isDetailsMatchingEnabled(implicit p: Payload) : Boolean = {
+    false
+  }
+
+  override def isReferenceMatchingEnabled(implicit p: Payload) : Boolean = {
+    false
+  }
+
+  override def referenceFeatures(implicit p: Payload) = isReferenceMatchingEnabled
+  override def detailsFeatures(implicit p: Payload) = isDetailsMatchingEnabled
 }
 
 object FeatureFactory {
@@ -142,6 +166,8 @@ object FeatureFactory {
       GROConcreteFeature
     case BirthRegisterCountry.SCOTLAND =>
       NRSConcreteFeature
+    case BirthRegisterCountry.NORTHERN_IRELAND =>
+      GRONIConcreteFeature
   }
 
 }

@@ -78,7 +78,6 @@ class BirthEventsControllerSpec
 
       "return JSON response on request for northern ireland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
         status(result.get) shouldBe OK
         contentType(result.get).get shouldBe "application/json"

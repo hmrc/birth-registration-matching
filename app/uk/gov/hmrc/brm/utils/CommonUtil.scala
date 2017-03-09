@@ -45,15 +45,6 @@ object CommonUtil extends Controller {
     ) getOrElse ""
   }
 
-  def restrictSearchByDateOfBirthBeforeGROStartDate(d: LocalDate): Boolean = {
-    BrmConfig.validateDobForGro match {
-      case true =>
-        val validDate = new LocalDate(BrmConfig.minimumDateValueForGroValidation)
-        d.isBefore(validDate)
-      case _ => false
-    }
-  }
-
   abstract class RequestType
 
   case class ReferenceRequest() extends RequestType

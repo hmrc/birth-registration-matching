@@ -78,8 +78,8 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
           // TODO: Need to still log what's restricted
           // 1. Logger.debug(s"[Payload][restrictSearchByDetails][${BrmConfig.disableSearchByDetails}")
 
-          if (restrictSearchByDateOfBirthBeforeGROStartDate(payload.dateOfBirth) || payload.restrictSearchByDetails) {
-          //if(features().validate) {
+          //if (restrictSearchByDateOfBirthBeforeGROStartDate(payload.dateOfBirth) || payload.restrictSearchByDetails) {
+          if(!features().validate) {
             info(CLASS_NAME, "post()", s"date of birth is before valid date or search by child's details is switched off")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           }
