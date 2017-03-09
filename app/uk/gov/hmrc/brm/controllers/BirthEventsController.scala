@@ -75,12 +75,13 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
           implicit val auditor : BRMAudit = auditFactory.getAuditor()
           implicit val features = FeatureFactory
 
-          // TODO: Need to still log what's restricted
-          // 1. Logger.debug(s"[Payload][restrictSearchByDetails][${BrmConfig.disableSearchByDetails}")
-
-          //if (restrictSearchByDateOfBirthBeforeGROStartDate(payload.dateOfBirth) || payload.restrictSearchByDetails) {
           if(!features().validate) {
-            info(CLASS_NAME, "post()", s"date of birth is before valid date or search by child's details is switched off")
+            //TODO: Need to work out
+            //TODO: 1. What We're going to log
+            //TODO: 2. Do we want to do any auditing within the FeatureFactory
+            //TODO: 3. Re-insert auditTransaction (see method below)
+            // auditTransaction()
+            info(CLASS_NAME, "post()", s"date of birth is before valid date / search is witched off (all/reference/details)")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
           }
           else
