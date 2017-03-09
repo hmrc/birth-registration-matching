@@ -24,14 +24,18 @@ import uk.gov.hmrc.brm.models.response.gro.Child
 
 object TestHelper {
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
-  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("500035710-array")
-  val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("400000004-multiple-match")
-  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("2012-02-16")
-  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("2009-07-01")
-  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("2009-06-30")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
+  val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
+  val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
+  val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
+  val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
+  val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
 
   val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  val validNrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
 
   val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
   val payloadNoReferenceScotland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
@@ -383,6 +387,27 @@ object TestHelper {
        | "lastName" : "SMITH",
        | "dateOfBirth" : "2006-11-12",
        | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userMatchExcludingReferenceNumberKeyForScotland = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+    """.stripMargin)
+
+  val userMatchIncludingReferenceNumberKeyForScotland = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber" : "2017734003",
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
        |}
     """.stripMargin)
 

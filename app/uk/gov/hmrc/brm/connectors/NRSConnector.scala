@@ -16,13 +16,16 @@
 
 package uk.gov.hmrc.brm.connectors
 
+
 import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
-import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost, NotImplementedException}
+import uk.gov.hmrc.brm.utils.{KeyGenerator, NameFormat}
+import uk.gov.hmrc.play.http.HttpPost
+import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.DateUtil._
 
 import scala.concurrent.Future
 
@@ -30,51 +33,48 @@ import scala.concurrent.Future
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class NRSConnector(var httpPost: HttpPost = WSHttp, auditor : ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
+class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
 
-  override val serviceUrl = ""
-  private val baseUri = ""
+  override val serviceUrl = baseUrl("des")
+  private val baseUri = "national-records/births"
   private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
+  private val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS"
 
-  override val headers = Seq()
+
+  override def headers =
+    Seq(
+      QUERY_ID_HEADER -> KeyGenerator.getKey(),
+      CONTENT_TYPE -> CONTENT_TYPE_JSON,
+      ENVIRONMENT_HEADER -> BrmConfig.desEnv,
+      TOKEN_HEADER -> BrmConfig.desToken,
+      DATETIME_HEADER -> getCurrentDateString(DATE_FORMAT)
+   )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _) =>
+    case Payload(Some(brn), fName, lName, dob, _) =>
+
       (referenceUri, Json.parse(
         s"""
-           |{}
+           |{
+           | "$JSON_ID_PATH" : "$brn",
+           | "$JSON_FIRSTNAME_PATH" : "${NameFormat(fName)}",
+           | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
+           | "$JSON_DATEOFBIRTH_PATH" : "$dob"
+           |}
          """.stripMargin))
   }
 
   override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, l, d, _) =>
+    case Payload(None, fName, lName, dob, _) =>
       (detailsUri, Json.parse(
         s"""
-           |{}
+           |{
+           | "$JSON_FIRSTNAME_PATH" : "${NameFormat(fName)}",
+           | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
+           | "$JSON_DATEOFBIRTH_PATH" : "$dob"
+           |}
          """.stripMargin))
-  }
-
-  override def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-    referenceBody.apply(payload)
-
-    val result: Map[String, String] = Map("match" -> "false")
-    auditor.audit(result, Some(payload))
-
-    Future.failed(new NotImplementedException("No getReference method available for NRS connector."))
-  }
-
-  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BRMLogger.debug(s"NRSConnector", "getReference", s"requesting child's record from NRS")
-
-    detailsBody.apply(payload)
-
-    val result: Map[String, String] = Map("match" -> "false")
-    auditor.audit(result, Some(payload))
-
-    Future.failed(new NotImplementedException("No getChildDetails method available for NRS connector."))
   }
 
 }

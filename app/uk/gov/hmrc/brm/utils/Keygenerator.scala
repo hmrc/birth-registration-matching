@@ -24,34 +24,44 @@ import uk.gov.hmrc.brm.utils.CommonUtil._
 object KeyGenerator {
 
   val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
-  private var keyForRequest: String = null
+  private var keyForRequest: String = ""
+  private val AUDITSOURCE_LENGTH = 20
+
+
 
   def generateKey[A](request: Request[A]) = {
     val formattedDate: String = getDateKey
     val apiVersion: String = getApiVersion(request)
     //format is date-requestid-audit source - api version number
-    val key = s"$formattedDate-${request.id}-${request.headers.get("Audit-Source").getOrElse("")}-$apiVersion"
+    var auditSource = request.headers.get("Audit-Source").getOrElse("")
+    val key = s"$formattedDate-${request.id}-${getSubString (auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
     key
   }
 
   private def getDateKey: String = {
-    val dateTime = new DateTime()
-    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
-    val formattedDate: String = formatter.print(dateTime)
-    formattedDate
+    DateUtil.getCurrentDateString(DATE_FORMAT)
   }
 
   def getKey(): String = {
     keyForRequest
   }
 
-   def setKey(key: String): Unit = {
+  def setKey(key: String): Unit = {
     keyForRequest = key
   }
 
   def generateAndSetKey[A](request: Request[A]): Unit = {
     val key = generateKey(request)
     setKey(key)
+  }
+
+  def getSubString(originalString: String, maxLength : Int) = {
+    var  formattedString = originalString
+    if(originalString.length > maxLength ) {
+       formattedString = originalString.substring(0, maxLength)
+    }
+
+    formattedString
   }
 
 }

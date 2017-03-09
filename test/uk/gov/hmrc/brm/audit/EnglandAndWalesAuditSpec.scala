@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -33,12 +34,16 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class EnglandAndWalesAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class EnglandAndWalesAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BeforeAndAfter {
 
-  val connector = mock[AuditConnector]
+  val connector = mockAuditConnector
   val auditor = auditorFixtures.englandAndWalesAudit
 
   implicit val hc = HeaderCarrier()
+
+  before {
+    reset(connector)
+  }
 
   "EnglandAndWalesAudit" should {
 
@@ -52,8 +57,10 @@ class EnglandAndWalesAuditSpec extends UnitSpec with MockitoSugar with BRMFakeAp
     }
 
     "audit requests when using child's details" in {
+      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
+
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }

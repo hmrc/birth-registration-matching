@@ -37,7 +37,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   object HeaderValidator extends HeaderValidator
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
 
   val payload = Json.parse(
     s"""

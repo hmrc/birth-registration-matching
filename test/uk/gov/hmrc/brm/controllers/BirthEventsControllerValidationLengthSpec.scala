@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
 
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))

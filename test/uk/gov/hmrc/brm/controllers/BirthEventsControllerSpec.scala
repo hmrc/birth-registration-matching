@@ -23,6 +23,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -67,13 +68,16 @@ class BirthEventsControllerSpec
 
       "return JSON response on request for scotland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
 
-        val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyScotland)))(Duration.apply(10, TimeUnit.SECONDS))
-        status(result.get) shouldBe OK
-        contentType(result.get).get shouldBe "application/json"
-        header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
+        val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+        val result = MockController.post().apply(request)
 
-        jsonBodyOf(result.get).map(x => x should have('matched (false)))
+        status(result) shouldBe OK
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        //TODO need to change once response mapping done.
+        jsonBodyOf(result).map(x => x should have('matched (false)))
       }
 
       "return JSON response on request for northern ireland" in {
@@ -255,6 +259,21 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
+      "return response code 200 for valid request for country scotland" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+
+        val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
+        val result = MockController.post().apply(request)
+
+        status(result) shouldBe OK
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        //TODO need to change once response mapping done.
+        jsonBodyOf(result).map(x => x should have('matched (false)))
+
+      }
+
       "return JSON response on unsuccessful birthReferenceNumber match" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
@@ -302,6 +321,8 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       }
+
+
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))

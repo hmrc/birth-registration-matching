@@ -23,7 +23,7 @@ import scala.io.Source
 
 object JsonUtils {
 
-  def getJsonFromFile[A](filename : A) = loadResource(s"/resources/gro/$filename.json")
+  def getJsonFromFile[A](path:String, filename : A) = loadResource(s"/resources/$path/$filename.json")
 
   def loadResource(path : String) = {
 
