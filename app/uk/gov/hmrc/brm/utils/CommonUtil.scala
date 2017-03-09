@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import play.api.http.HeaderNames
 import play.api.libs.json.JsValue
 import play.api.mvc.{Controller, Request}
-import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.config.{BrmConfig, FeatureFactory}
 import uk.gov.hmrc.brm.models.brm.Payload
 
 import scala.util.matching.Regex
@@ -52,7 +52,6 @@ object CommonUtil extends Controller {
         d.isBefore(validDate)
       case _ => false
     }
-
   }
 
   abstract class RequestType
