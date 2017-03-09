@@ -17,30 +17,32 @@
 package uk.gov.hmrc.brm.implicits
 
 import com.google.inject.Singleton
+import play.api.libs.json.Reads
 import uk.gov.hmrc.brm.audit.{BRMAudit, EnglandAndWalesAudit, NorthernIrelandAudit, ScotlandAudit}
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, ReadsUtil}
 
 object Implicits {
 
   object MetricsFactory {
 
-    private lazy val referenceSet : Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
+    private lazy val referenceSet: Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
       BirthRegisterCountry.ENGLAND -> GROReferenceMetrics,
       BirthRegisterCountry.WALES -> GROReferenceMetrics,
       BirthRegisterCountry.SCOTLAND -> NRSMetrics,
       BirthRegisterCountry.NORTHERN_IRELAND -> GRONIMetrics
     )
 
-    private lazy val detailsSet : Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
+    private lazy val detailsSet: Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
       BirthRegisterCountry.ENGLAND -> GRODetailsMetrics,
       BirthRegisterCountry.WALES -> GRODetailsMetrics,
       BirthRegisterCountry.SCOTLAND -> NRSMetrics,
       BirthRegisterCountry.NORTHERN_IRELAND -> GRONIMetrics
     )
 
-    def getMetrics()(implicit payload : Payload) : BRMMetrics = {
+    def getMetrics()(implicit payload: Payload): BRMMetrics = {
       payload.birthReferenceNumber match {
         case Some(x) =>
           referenceSet(payload.whereBirthRegistered)
@@ -54,14 +56,27 @@ object Implicits {
   @Singleton
   class AuditFactory() {
 
-    private lazy val set : Map[BirthRegisterCountry.Value, BRMAudit] = Map(
+    private lazy val set: Map[BirthRegisterCountry.Value, BRMAudit] = Map(
       BirthRegisterCountry.ENGLAND -> new EnglandAndWalesAudit(),
       BirthRegisterCountry.WALES -> new EnglandAndWalesAudit(),
       BirthRegisterCountry.SCOTLAND -> new ScotlandAudit(),
       BirthRegisterCountry.NORTHERN_IRELAND -> new NorthernIrelandAudit()
     )
 
-    def getAuditor()(implicit payload : Payload) : BRMAudit = {
+    def getAuditor()(implicit payload: Payload): BRMAudit = {
+      set(payload.whereBirthRegistered)
+    }
+  }
+
+
+  object ReadsFactory {
+    private lazy val set: Map[BirthRegisterCountry.Value, (Reads[List[Record]], Reads[Record])] = Map(
+      BirthRegisterCountry.ENGLAND -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
+      BirthRegisterCountry.WALES -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
+      BirthRegisterCountry.SCOTLAND -> (ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead)
+    )
+
+    def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) = {
       set(payload.whereBirthRegistered)
     }
   }
