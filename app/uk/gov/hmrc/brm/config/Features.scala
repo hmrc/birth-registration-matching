@@ -96,7 +96,6 @@ trait FeatureFactory {
     case Payload(None, _, _, _, _) =>
       detailsFeatures
   }
-
 }
 
 object NRSConcreteFeature extends FeatureFactory {
@@ -114,14 +113,7 @@ object NRSConcreteFeature extends FeatureFactory {
   }
 
   override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
-  override def detailsFeatures(implicit p: Payload) = {
-
-    println(s"VALIDATE DOB - $validDateOfBirth")
-    println(s"IS DETAILS MATCH ENABLED - $isDetailsMatchingEnabled")
-    println(validDateOfBirth && isDetailsMatchingEnabled)
-
-    validDateOfBirth && isDetailsMatchingEnabled
-  }
+  override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 }
 
 object GROConcreteFeature extends FeatureFactory {
