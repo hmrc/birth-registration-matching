@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.config
 import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.BirthRegisterCountry
 
 abstract class Feature(key : String) {
   final def enabled() : Boolean = {
@@ -153,13 +154,14 @@ object GRONIConcreteFeature extends FeatureFactory {
 
 object FeatureFactory {
 
-  def apply()(implicit payload: Payload) = payload.whereBirthRegistered match {
-    case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-      GROConcreteFeature
-    case BirthRegisterCountry.SCOTLAND =>
-      NRSConcreteFeature
-    case BirthRegisterCountry.NORTHERN_IRELAND =>
-      GRONIConcreteFeature
-  }
+  private lazy val set : Map[BirthRegisterCountry, FeatureFactory] = Map(
+    BirthRegisterCountry.ENGLAND -> GROConcreteFeature,
+    BirthRegisterCountry.WALES -> GROConcreteFeature,
+    BirthRegisterCountry.SCOTLAND -> NRSConcreteFeature,
+    BirthRegisterCountry.NORTHERN_IRELAND -> GRONIConcreteFeature
+  )
 
+  def apply()(implicit payload: Payload) = {
+    set(payload.whereBirthRegistered)
+  }
 }
