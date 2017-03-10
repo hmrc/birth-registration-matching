@@ -256,6 +256,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        jsonBodyOf(result).toString().contains("true") shouldBe true
       }
 
       "return response code 200 for valid request for country scotland" in {
