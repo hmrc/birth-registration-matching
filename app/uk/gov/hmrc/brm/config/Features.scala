@@ -141,11 +141,11 @@ object GRONIConcreteFeature extends FeatureFactory {
   def detailsFeature: Boolean = false
 
   override def isDetailsMatchingEnabled(implicit p: Payload) : Boolean = {
-    false
+    true
   }
 
   override def isReferenceMatchingEnabled(implicit p: Payload) : Boolean = {
-    false
+    true
   }
 
   override def referenceFeatures(implicit p: Payload) = isReferenceMatchingEnabled
