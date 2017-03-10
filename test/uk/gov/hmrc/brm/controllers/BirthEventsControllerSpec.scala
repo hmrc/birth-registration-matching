@@ -82,7 +82,6 @@ class BirthEventsControllerSpec
 
       "return JSON response on request for northern ireland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
         status(result.get) shouldBe OK
         contentType(result.get).get shouldBe "application/json"
@@ -251,26 +250,23 @@ class BirthEventsControllerSpec
       "return JSON response on successful reference match" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
         val request = postRequest(userMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return response code 200 for valid request for country scotland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-
-        val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
-
         val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         jsonBodyOf(result).toString().contains("true") shouldBe true
+      }
 
+      "return response code 200 for valid request for country scotland" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+        val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe OK
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        jsonBodyOf(result).toString().contains("true") shouldBe true
       }
 
       "return JSON response on unsuccessful birthReferenceNumber match" in {
@@ -286,7 +282,6 @@ class BirthEventsControllerSpec
 
       "return response code 200 if request contains missing birthReferenceNumber value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingReferenceValue)
         val result = MockController.post().apply(request)
         status(result) shouldBe BAD_REQUEST

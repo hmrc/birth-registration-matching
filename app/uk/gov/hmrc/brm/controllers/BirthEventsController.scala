@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.config.FeatureFactory
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -72,13 +73,19 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
 
           implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
           implicit val auditor : BRMAudit = auditFactory.getAuditor()
+          implicit val features = FeatureFactory
 
-          // Toggle switch for searching by child's name or whether we should validate date of birth
-          if (restrictSearchByDateOfBirthBeforeGROStartDate(payload.dateOfBirth) || payload.restrictSearchByDetails) {
-            // date of birth is before acceptable date
-            info(CLASS_NAME, "post()", s"date of birth is before date accepted by GRO, or restricting search by child's details")
+          if(!features().validate) {
+            //TODO: Need to work out
+            //TODO: 1. What We're going to log
+            //TODO: 2. Do we want to do any auditing within the FeatureFactory
+            //TODO: 3. Re-insert auditTransaction (see method below)
+            // auditTransaction()
+            info(CLASS_NAME, "post()", s"date of birth is before valid date / search is witched off (all/reference/details)")
             Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
-          } else {
+          }
+          else
+          {
             info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")
             service.lookup() map {
               bm => {

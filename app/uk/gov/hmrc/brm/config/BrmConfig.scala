@@ -34,9 +34,6 @@ trait BrmConfig extends ServicesConfig {
     }
   }
 
-  def validateDobForGro: Boolean = getConfBool("birth-registration-matching.validateDobForGro", defBool = false)
-  def minimumDateValueForGroValidation: String = getConfString("birth-registration-matching.validDateForGro", "1900-01-01")
-
   val defaultDate: Int = 1900
 
   def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)

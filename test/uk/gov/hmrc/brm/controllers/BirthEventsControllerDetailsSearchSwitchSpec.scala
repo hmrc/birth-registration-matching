@@ -38,20 +38,50 @@ import scala.concurrent.Future
   */
 class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
 
+//  lazy val switchEnabled: Map[String, _] = Map(
+//    "microservice.services.birth-registration-matching.validateDobForGro" -> false,
+//    "microservice.services.birth-registration-matching.matching.firstName" -> true,
+//    "microservice.services.birth-registration-matching.matching.lastName" -> true,
+//    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
+//    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true
+//  )
+//
+//  lazy val switchDisabled: Map[String, _] = Map(
+//    "microservice.services.birth-registration-matching.validateDobForGro" -> false,
+//    "microservice.services.birth-registration-matching.matching.firstName" -> true,
+//    "microservice.services.birth-registration-matching.matching.lastName" -> true,
+//    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
+//    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> false
+//  )
+
   lazy val switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> false,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.dobValidation.value" -> "2009-07-01",
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
-    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true
+    "microservice.services.birth-registration-matching.features.gro.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> true
   )
 
   lazy val switchDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> false,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.dobValidation.value" -> "2009-07-01",
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
-    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> false
+    "microservice.services.birth-registration-matching.features.gro.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.nrs.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> false
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure {
@@ -71,24 +101,22 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
   "BirthEventsController" should {
 
    "not search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
+     when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(false)))
      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
       val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
       val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
       (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
 
     "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
-      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(false)))
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
       val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
       val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+      (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
@@ -96,7 +124,6 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
     "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
       when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
       val request = postRequest(userWhereBirthRegisteredScotland)
       val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK
@@ -108,7 +135,6 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
     "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
       when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
       val request = postRequest(userWhereBirthRegisteredScotland)
       val result = await(MockControllerMockedLookup.post().apply(request))
       status(result) shouldBe OK

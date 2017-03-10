@@ -34,16 +34,6 @@ case class Payload(
                     whereBirthRegistered : BirthRegisterCountry
                   ){
 
-  def restrictSearchByDetails : Boolean = {
-    if (birthReferenceNumber.isDefined) {
-      false
-    } else {
-      // if switch is false then stop and return no match
-      Logger.debug(s"[Payload][restrictSearchByDetails][${BrmConfig.disableSearchByDetails}")
-      BrmConfig.disableSearchByDetails
-    }
-  }
-
   def audit : Map[String, String] = {
     Map(
     "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),

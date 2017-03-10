@@ -50,7 +50,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.validateDobForGro" -> true,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true,
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
@@ -60,7 +60,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     config
   ).build()
 
-  "validating date of birth with GRO switch" should {
+  "validating date of birth with dobValidation feature" should {
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
       when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
