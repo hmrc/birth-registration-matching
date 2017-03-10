@@ -27,6 +27,13 @@ trait BrmConfig extends ServicesConfig {
     }
   }
 
+  case class DesException(switch: String) extends RuntimeException {
+    override def toString: String = {
+      val m = s"des.$switch configuration not found"
+      m
+    }
+  }
+
   val defaultDate: Int = 1900
 
   def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
@@ -60,6 +67,11 @@ trait BrmConfig extends ServicesConfig {
 
     features
   }
+
+  def desHost: String = getConfString("des.host", throw DesException("host"))
+  def desPort: String = getConfString("des.port", throw DesException("port"))
+  def desEnv: String = getConfString("des.env", throw DesException("env"))
+  def desToken: String = getConfString("des.auth-token", throw DesException("auth-token"))
 
 }
 

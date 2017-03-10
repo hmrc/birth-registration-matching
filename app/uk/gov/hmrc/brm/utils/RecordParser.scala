@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Reads}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -30,14 +30,16 @@ sealed trait ResponseParser {
 
   import uk.gov.hmrc.brm.utils.BRMLogger._
 
-  def parse(json: JsValue)(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[Record] = {
+  def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[T] = {
     val name = manifest.toString()
-    val records = json.validate[List[Record]].fold(
+
+    //read-1 is list reads and reads_2 is single record read.
+    val records = json.validate[List[T]](reads._1).fold(
       error => {
-        info("RecordParser", "parse()", s"Failed to validate as[List[$name]]")
-        json.validate[Record].fold(
+        info("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
+        json.validate[T](reads._2).fold(
           e => {
-            info("RecordParser", "parse()", s"Failed to validate as[$name]")
+            info("RecordParser", "parse()", s"Failed to validate as[$name] $e")
             List()
           },
           r => {

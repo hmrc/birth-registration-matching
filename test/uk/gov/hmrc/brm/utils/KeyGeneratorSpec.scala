@@ -95,6 +95,21 @@ class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter {
 
     }
 
+
+    "return key when audit source length is more than 20" in {
+      when(mockRequest.headers).thenReturn(headers)
+      when(mockRequest.id).thenReturn(123456)
+      when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
+      when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
+      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
+      val key = KeyGenerator.generateKey(mockRequest)
+      key.contains("this--is--30--charac") shouldBe true
+      key.contains("this--is--30--charact") shouldBe false
+      key.length <= 50 shouldBe true
+
+    }
+
     "return key contains version 2.0 for version 2.0." in {
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))

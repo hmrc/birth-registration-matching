@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response.gro
+package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json._
-import uk.gov.hmrc.brm.utils.BRMFormat
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
-case class Child(
-                  birthReferenceNumber: Int,
-                  firstName: String,
-                  lastName: String,
-                  dateOfBirth: Option[LocalDate]
-                )
+/**
+  * Created by user on 02/03/17.
+  */
+object DateUtil {
 
-object Child extends BRMFormat {
 
- }
+  def getCurrentDateString(DATE_FORMAT : String) = {
+
+    val dateTime = new DateTime()
+    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
+    val formattedDate: String = formatter.print(dateTime)
+    formattedDate
+  }
+
+}

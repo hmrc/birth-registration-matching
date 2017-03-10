@@ -65,7 +65,7 @@ object Mocks extends MockitoSugar {
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
     override val groniConnector = new GRONIConnector()
-    override val nrsConnector = new NRSConnector()
+    override val nrsConnector = mockConnector
     override val matchingService = MockMatchingService
     override val transactionAuditor = auditorFixtures.transactionAudit
   }
@@ -93,7 +93,7 @@ object Mocks extends MockitoSugar {
   def connectorFixtures = {
     new {
       val groConnector = new GROConnector(mockHttpPost)
-      val nrsConnector = new NRSConnector(auditor = new ScotlandAudit(mockAuditConnector))
+      val nrsConnector = new NRSConnector(mockHttpPost, auditor = new ScotlandAudit(mockAuditConnector))
       val groniConnector = new GRONIConnector(auditor = new NorthernIrelandAudit(mockAuditConnector))
     }
   }

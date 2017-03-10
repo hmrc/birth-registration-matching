@@ -41,7 +41,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   implicit val hc = HeaderCarrier()
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("500035710")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
+  val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
 
   val childDetailPayload = Map(
     "firstName" -> "Adam",
@@ -125,30 +126,43 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "NRSConnector" should {
 
-      "initialise with correct properties" in {
-        connectorFixtures.nrsConnector.httpPost shouldBe a[WSPost]
+      "getReference returns json response" in {
+
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsJsonResponseObject))))
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 200
       }
 
-      "getReference returns http NotImplementedException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val future = connectorFixtures.nrsConnector.getReference(payload)
-        future.onComplete {
-          case Failure(e) =>
-            e.getMessage shouldBe "No getReference method available for NRS connector."
-          case Success(_) =>
-            throw new Exception
-        }
+      "getReference returns http 500 when DES is offline" in {
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 500
       }
 
-      "getChildDetails returns http NotImplementedException" in {
+      "getChildDetails returns json response" in {
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsJsonResponseObject))))
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val future = connectorFixtures.nrsConnector.getChildDetails(payloadNoReferenceScotland)
-        future.onComplete {
-          case Failure(e) =>
-            e.getMessage shouldBe "No getChildDetails method available for NRS connector."
-          case Success(_) =>
-            throw new Exception
-        }
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 200
+      }
+
+      "getChildDetails returns http 500 when DES is offline" in {
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 500
       }
 
     }
@@ -164,6 +178,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val future = connectorFixtures.groniConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
+            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
             e.getMessage shouldBe "No getReference method available for GRONI connector."
           case Success(_) =>
             throw new Exception
@@ -175,6 +190,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
+            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
             e.getMessage shouldBe "No getChildDetails method available for GRONI connector."
           case Success(_) =>
             throw new Exception
