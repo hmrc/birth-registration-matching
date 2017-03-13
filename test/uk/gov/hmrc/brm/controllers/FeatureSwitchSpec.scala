@@ -36,23 +36,7 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 02/12/2016.
   */
-class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
-
-//  lazy val switchEnabled: Map[String, _] = Map(
-//    "microservice.services.birth-registration-matching.validateDobForGro" -> false,
-//    "microservice.services.birth-registration-matching.matching.firstName" -> true,
-//    "microservice.services.birth-registration-matching.matching.lastName" -> true,
-//    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
-//    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true
-//  )
-//
-//  lazy val switchDisabled: Map[String, _] = Map(
-//    "microservice.services.birth-registration-matching.validateDobForGro" -> false,
-//    "microservice.services.birth-registration-matching.matching.firstName" -> true,
-//    "microservice.services.birth-registration-matching.matching.lastName" -> true,
-//    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
-//    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> false
-//  )
+class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
 
   lazy val switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validateDobForGro" -> false,
@@ -98,7 +82,9 @@ class BirthEventsControllerDetailsSearchSwitchSpec extends UnitSpec with OneAppP
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  "BirthEventsController" should {
+  "Feature switches" should {
+
+    // TODO add unit tests for GRO feature switch
 
    "not search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
      when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(false)))

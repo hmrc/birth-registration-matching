@@ -67,6 +67,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
     }
 
+    // TODO is this correct?
     "return BAD REQUEST 400 if request contains more than 100 characters in firstName " in {
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
