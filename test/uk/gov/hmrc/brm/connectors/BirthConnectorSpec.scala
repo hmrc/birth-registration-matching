@@ -126,6 +126,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "NRSConnector" should {
 
+      // TODO add unit tests for NRS
+
       "getReference returns json response" in {
 
         when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
