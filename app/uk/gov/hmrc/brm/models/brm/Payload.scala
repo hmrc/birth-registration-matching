@@ -55,19 +55,19 @@ object Payload extends BRMFormat {
   val whereBirthRegistered = "whereBirthRegistered"
 
   implicit val PayloadWrites: Writes[Payload] = (
-    (JsPath \ birthReferenceNumber).write[Option[String]] and
+      (JsPath \ birthReferenceNumber).write[Option[String]] and
       (JsPath \ firstName).write[String] and
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate](jodaLocalDateWrites(datePattern)) and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry](birthRegisterWrites)
-
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-    (JsPath \ birthReferenceNumber).readNullable[String](birthReferenceNumberValidate) and
+      (JsPath \ birthReferenceNumber).readNullable[String](birthReferenceNumberValidate) and
       (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1)  keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
       (JsPath \ lastName).read[String](nameValidation  keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
     )(Payload.apply _)
 }
+
