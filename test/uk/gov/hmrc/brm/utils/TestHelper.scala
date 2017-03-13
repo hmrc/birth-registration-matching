@@ -43,7 +43,10 @@ object TestHelper {
     */
 
   val validNrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val validNrsJsonResponseObjectRCE = JsonUtils.getJsonFromFile("nrs", "2017350003")
   val validNrsJsonResponse2017350007 = JsonUtils.getJsonFromFile("nrs", "2017350007")
+  val nrsResponseWithMultiple = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
+
   val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithSpecialChar = Payload(Some("2017350007"), "Gab'iœ-Äæy", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
@@ -278,6 +281,40 @@ object TestHelper {
        | "whereBirthRegistered" : "scotland"
        |}
     """.stripMargin)
+
+  val nrsRequestWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Gab'iœ-Äæy",
+       | "lastName" : "HaÐ0ÄœÄæes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
+
+  val nrsReferenceRequestWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber": "2017350007",
+       | "firstName" : "Gab'iœ-Äæy",
+       | "lastName" : "HaÐ0ÄœÄæes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
+
+  val nrsDetailsRequestWithSingleMatch = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
 
   val userNoMatchExcludingReferenceKeyNorthernIreland = Json.parse(
     s"""
@@ -647,6 +684,37 @@ object TestHelper {
        |}
     """.stripMargin)
 
+  val nrsNoRecordResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "BIRTH_REGISTRATION_NOT_FOUND",
+       |  "reason": "No birth registration found that matched the search keys"
+       |}
+     """.stripMargin)
+
+  val nrsInvalidHeaderResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_HEADER",
+       |  "reason": "The HTTP header is invalid."
+       |}
+     """.stripMargin)
+
+  val nrsServerErrorResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "SERVER_ERROR",
+       |  "reason": "DES is currently experiencing problems that require live service intervention"
+       |}
+     """.stripMargin)
+
+  val nrsServiceUnavailableResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "SERVICE_UNAVAILABLE",
+       |  "reason": "Dependent systems are currently not responding"
+       |}
+     """.stripMargin)
 
 
 }

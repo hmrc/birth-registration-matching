@@ -26,7 +26,7 @@ import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.{contentAsJson, _}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.services.LookupService
@@ -52,8 +52,8 @@ class BirthEventsControllerSpec
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
+  def httpResponse(responseCode : Int, js : JsValue) = HttpResponse.apply(responseCode, Some(js))
   def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
-
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   "BirthEventsController" when {
@@ -71,7 +71,6 @@ class BirthEventsControllerSpec
     }
 
     "validate birth reference number" should {
-
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -291,43 +290,10 @@ class BirthEventsControllerSpec
 
       "POST with reference number" should {
 
-        "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
-          val request = postRequest(userNoMatchIncludingReferenceCharacters)
-          val result = MockController.post().apply(request)
-          status(result) shouldBe OK
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        }
-
-        "return 200 JSON response of true on successful reference match with country in mix case" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
-          val request = postRequest(userMatchCountryNameInMixCase)
-          val result = MockController.post().apply(request)
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        }
-
         "return JSON response on successful reference match" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
           val request = postRequest(userMatchIncludingReferenceNumber)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe OK
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          jsonBodyOf(result).toString().contains("true") shouldBe true
-        }
-
-        "return response code 200 for valid request for country scotland" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-          val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
           val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
@@ -344,6 +310,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return response code 200 if request contains missing birthReferenceNumber value" in {
@@ -364,26 +331,12 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
       }
 
       "POST by child's details" should {
-
-        // TODO move?
-        "return JSON response on request for scotland" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-
-          val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = await(MockController.post().apply(request))
-
-          status(result) shouldBe OK
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          jsonBodyOf(result).toString().contains("true") shouldBe true
-
-        }
 
         "return JSON response on successful child detail match when multiple records are returned" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -394,16 +347,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        }
-
-        // TODO move?
-        "return JSON response on request for northern ireland" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
-          status(result.get) shouldBe OK
-          contentType(result.get).get shouldBe "application/json"
-          header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
-          jsonBodyOf(result.get).map(x => x should have('matched (false)))
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return JSON response on unsuccessful child detail match" in {
@@ -415,6 +359,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return JSON response on when details contain valid UTF-8 special characters" in {
@@ -426,6 +371,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return JSON response on successful child detail match" in {
@@ -438,6 +384,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         }
 
       }
@@ -652,6 +599,129 @@ class BirthEventsControllerSpec
     }
 
     "NRS" when {
+
+      "POST with reference number" should {
+
+        "return JSON response on successful reference match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(validNrsJsonResponseObject)))
+          val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+        "return 200 when RCE is present" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObjectRCE))))
+
+          val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 response for UTF-8 reference request" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(200, validNrsJsonResponse2017350007)))
+
+          val request = postRequest(nrsReferenceRequestWithSpecialCharacters)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+        "return JSON response on unsuccessful birthReferenceNumber match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(FORBIDDEN, nrsNoRecordResponse)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+      }
+
+      "POST with child's details" should {
+
+        "return 200 when RCE is present" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObjectRCE))))
+
+          val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 response on successful child detail match when multiple records are returned" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, nrsResponseWithMultiple)))
+
+          val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 response when child details are not found" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(FORBIDDEN, nrsNoRecordResponse)))
+
+          val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 response on when details contain valid UTF-8 special characters" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, validNrsJsonResponse2017350007)))
+
+          val request = postRequest(nrsRequestWithSpecialCharacters)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+        "return 200 response on details match when single record is returned" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, validNrsJsonResponseObject)))
+
+          val request = postRequest(nrsDetailsRequestWithSingleMatch)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+      }
+
+      "receiving error response from NRS" should {
+
+        // TODO WHAT RESPONSE CODES DO WE NEED TO MAP?
+
+      }
 
     }
 

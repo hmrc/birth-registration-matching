@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
@@ -24,7 +25,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder,  RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,6 +82,8 @@ trait LookupService extends LookupServiceBinder {
     getRecord(hc, payload, metrics).map {
       response =>
 
+        debug(CLASS_NAME, "lookup()", s"response received: ${Json.prettyPrint(response.json)}")
+
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
         /**
           * Should be:
@@ -94,6 +97,9 @@ trait LookupService extends LookupServiceBinder {
           */
 
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
+
+        debug(CLASS_NAME, "lookup()", s"records received: ${records.toString()}")
+
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
         audit(records, matchResult)

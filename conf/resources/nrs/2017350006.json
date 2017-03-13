@@ -1,0 +1,34 @@
+{
+  "births": [
+    {
+      "registrationDistrict": "Dundee",
+      "subjects": {
+        "mother": {
+          "firstName": "",
+          "lastName": "",
+          "address": "",
+          "maidenSurname": ""
+        },
+        "father": {
+          "firstName": "",
+          "lastName": "",
+          "address": "Dundee"
+        },
+        "child": {
+          "firstName": "ANTHONY",
+          "lastName": "ANDREWS",
+          "birthPlace": "Ninewells Hospital, Dundee, DD3 4TH",
+          "sex": "M",
+          "dateOfBirth": "2016-11-08"
+        },
+        "informant": {
+          "qualification": "Mother",
+          "fullName": "Mary Haynes"
+        }
+      },
+      "id": "2017350006",
+      "deathCode": 0,
+      "status": 1
+    }
+  ]
+}
