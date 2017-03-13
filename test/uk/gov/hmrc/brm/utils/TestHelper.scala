@@ -692,11 +692,35 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val nrsInvalidPayload = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_PAYLOAD",
+       |  "reason": "Submission has not passed validation. Invalid PAYLOAD"
+       |}
+     """.stripMargin)
+
   val nrsInvalidHeaderResponse = Json.parse(
     s"""
        |{
        |  "code": "INVALID_HEADER",
        |  "reason": "The HTTP header is invalid."
+       |}
+     """.stripMargin)
+
+  val nrsInvalidDistrict = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_DISTRICT_NUMBER",
+       |  "reason": "The Registration District number does not represent a number for the informed year."
+       |}
+     """.stripMargin)
+
+  val nrsQueryLengthExcessive = Json.parse(
+    s"""
+       |{
+       |  "code": "QUERY_LENGTH_EXCESSIVE",
+       |  "reason": "Query message length is excessive."
        |}
      """.stripMargin)
 

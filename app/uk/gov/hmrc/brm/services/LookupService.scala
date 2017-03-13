@@ -81,25 +81,9 @@ trait LookupService extends LookupServiceBinder {
                auditor: BRMAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
-
-        debug(CLASS_NAME, "lookup()", s"response received: ${Json.prettyPrint(response.json)}")
-
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-        /**
-          * Should be:
-          * response.validate[T]
-          * response.validate[List[Record]] so this is going to be a List[Record]
-          * then in matching service this takes in Payload and List[Record] and @tailrec these records to match
-          *
-          * Future:
-          * Later on we can make it validate[List[Record[C, S]] where C is the Child Type and S is the Status Type
-          * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
-          */
 
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
-
-        debug(CLASS_NAME, "lookup()", s"records received: ${records.toString()}")
-
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
         audit(records, matchResult)
@@ -113,9 +97,6 @@ trait LookupService extends LookupServiceBinder {
         }
     }
   }
-
-
-
 
   private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
                                   (implicit payload : Payload,

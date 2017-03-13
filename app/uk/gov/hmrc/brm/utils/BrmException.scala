@@ -42,7 +42,7 @@ trait BrmException extends Controller {
 
   def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
-      logException(Some(message), Some("notFound"), NOT_FOUND)
+      logException(Some(message), Some("NotFound"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
@@ -57,6 +57,8 @@ trait BrmException extends Controller {
       logException(Some(message), Some("BadGateway"), BAD_GATEWAY)
       BadGateway(message)
   }
+
+  // TODO catch Upstream4xx with BadGatewayException
 
   def gatewayTimeoutPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(m, GATEWAY_TIMEOUT, _) =>
