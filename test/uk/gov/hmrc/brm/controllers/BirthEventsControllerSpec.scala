@@ -27,6 +27,8 @@ import play.api.http.Status
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.audit.BRMAudit
+import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -60,262 +62,15 @@ class BirthEventsControllerSpec
 
       "wire up dependencies correctly" in {
         BirthEventsController.service shouldBe a[LookupService]
+        BirthEventsController.countryAuditor shouldBe a[BRMAudit]
+        BirthEventsController.auditFactory shouldBe a[AuditFactory]
+        BirthEventsController.transactionAuditor shouldBe a[BRMAudit]
+        BirthEventsController.matchingAuditor shouldBe a[BRMAudit]
       }
 
     }
 
-    "POST /birth-registration-matching-proxy/match NOT INCLUDING reference number" should {
-
-      "return JSON response on request for scotland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-
-        val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-        val result = await(MockController.post().apply(request))
-
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        jsonBodyOf(result).toString().contains("true") shouldBe true
-
-      }
-
-      "return JSON response on request for northern ireland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
-        status(result.get) shouldBe OK
-        contentType(result.get).get shouldBe "application/json"
-        header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
-        jsonBodyOf(result.get).map(x => x should have('matched (false)))
-      }
-
-      "return JSON response on unsuccessful child detail match" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return JSON response on when details contain valid UTF-8 special characters" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
-
-        val request = postRequest(userNoMatchUTF8SpecialCharacters)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return JSON response on successful child detail match" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).
-          thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection)))
-
-        val request = postRequest(userMatchExcludingReferenceNumberKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return JSON response on successful child detail match when multiple records are returned" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObjectMultipleWithMatch)))
-
-        val request = postRequest(userMultipleMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe BAD_GATEWAY
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return BadRequest when GRO returns upstream 4xx BadRequest" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe GATEWAY_TIMEOUT
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return BadRequest when GRO returns BadRequestException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe BAD_REQUEST
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return InternalServerError when GRO returns upstream InternalServerError" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return 200 false when GRO returns upstream NOT_FOUND" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return 200 false when GRO returns NotFoundException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return InternalServerError when GRO throws Exception" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
-
-        val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-    }
-
-    "POST /birth-registration-matching-proxy/match INCLUDING reference number" should {
-
-      "return 200 JSON response of true on successful reference match with country in mix case" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
-        val request = postRequest(userMatchCountryNameInMixCase)
-        val result = MockController.post().apply(request)
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return JSON response on successful reference match" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-        val request = postRequest(userMatchIncludingReferenceNumber)
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        jsonBodyOf(result).toString().contains("true") shouldBe true
-      }
-
-      "return response code 200 for valid request for country scotland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
-        val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        jsonBodyOf(result).toString().contains("true") shouldBe true
-      }
-
-      "return JSON response on unsuccessful birthReferenceNumber match" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
-
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return response code 200 if request contains missing birthReferenceNumber value" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val request = postRequest(userNoMatchExcludingReferenceValue)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe BAD_REQUEST
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return match false when GRO returns invalid json" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(invalidResponse)))
-
-        val request = postRequest(userMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-    }
-
-    "POST valid/invalid reference number" should {
-
-      "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
-        val request = postRequest(userNoMatchIncludingReferenceCharacters)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-      }
-
+    "validate birth reference number" should {
 
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
@@ -340,7 +95,7 @@ class BirthEventsControllerSpec
 
     }
 
-    "POST firstName" should {
+    "validate firstName" should {
 
       "return response code 400 if request contains missing firstname key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -384,7 +139,7 @@ class BirthEventsControllerSpec
 
     }
 
-    "POST lastName" should {
+    "validate lastName" should {
 
       "return response code 400 if request contains missing lastName key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -428,7 +183,7 @@ class BirthEventsControllerSpec
 
     }
 
-    "POST invalid dateOfBirth" should {
+    "validate invalid dateOfBirth" should {
 
       "return response code 400 if request contains missing dateOfBirth key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -462,18 +217,19 @@ class BirthEventsControllerSpec
 
     }
 
-    "POST whereBirthRegistered" should {
+    "validate whereBirthRegistered" should {
 
-      "return 200 false if request contains Northern Ireland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-        val request = postRequest(userWhereBirthRegisteredNI)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
+      //      TODO feature toggle test?
+      //      "return 200 false if request contains Northern Ireland" in {
+      //        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      //
+      //        val request = postRequest(userWhereBirthRegisteredNI)
+      //        val result = MockController.post().apply(request)
+      //        status(result) shouldBe OK
+      //        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+      //        contentType(result).get shouldBe "application/json"
+      //        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      //      }
 
       "return 200 if request contains camel case where birth registered" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -487,16 +243,17 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
-      "return 200 false if request contains Scotland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-        val request = postRequest(userWhereBirthRegisteredScotland)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
+      //      TODO feature toggle test?
+      //      "return 200 false if request contains Scotland" in {
+      //        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      //
+      //        val request = postRequest(userWhereBirthRegisteredScotland)
+      //        val result = MockController.post().apply(request)
+      //        status(result) shouldBe OK
+      //        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+      //        contentType(result).get shouldBe "application/json"
+      //        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      //      }
 
       "return response code 400 if request contains missing whereBirthRegistered key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -530,108 +287,375 @@ class BirthEventsControllerSpec
 
     }
 
-    "receiving error response from GRO" should {
+    "GRO" when {
 
-      "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
+      "POST with reference number" should {
 
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe BAD_GATEWAY
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+
+          val request = postRequest(userNoMatchIncludingReferenceCharacters)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 JSON response of true on successful reference match with country in mix case" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+
+          val request = postRequest(userMatchCountryNameInMixCase)
+          val result = MockController.post().apply(request)
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return JSON response on successful reference match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+          val request = postRequest(userMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result).toString().contains("true") shouldBe true
+        }
+
+        "return response code 200 for valid request for country scotland" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+          val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result).toString().contains("true") shouldBe true
+        }
+
+        "return JSON response on unsuccessful birthReferenceNumber match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return response code 200 if request contains missing birthReferenceNumber value" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val request = postRequest(userNoMatchExcludingReferenceValue)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe BAD_REQUEST
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return match false when GRO returns invalid json" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(invalidResponse)))
+
+          val request = postRequest(userMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
       }
 
-      "return BadRequest when GRO returns upstream 4xx BadRequest" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+      "POST by child's details" should {
 
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        // TODO move?
+        "return JSON response on request for scotland" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+
+          val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result).toString().contains("true") shouldBe true
+
+        }
+
+        "return JSON response on successful child detail match when multiple records are returned" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObjectMultipleWithMatch)))
+
+          val request = postRequest(userMultipleMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        // TODO move?
+        "return JSON response on request for northern ireland" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val result = await(route(app, postRequest(userNoMatchExcludingReferenceKeyNorthernIreland)))(Duration.apply(10, TimeUnit.SECONDS))
+          status(result.get) shouldBe OK
+          contentType(result.get).get shouldBe "application/json"
+          header(ACCEPT, result.get).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result.get).map(x => x should have('matched (false)))
+        }
+
+        "return JSON response on unsuccessful child detail match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return JSON response on when details contain valid UTF-8 special characters" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
+
+          val request = postRequest(userNoMatchUTF8SpecialCharacters)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return JSON response on successful child detail match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).
+            thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection)))
+
+          val request = postRequest(userMatchExcludingReferenceNumberKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
       }
 
-      "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+      "receiving error response from Proxy for reference number" should {
 
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe GATEWAY_TIMEOUT
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe BAD_GATEWAY
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return BadRequest when GRO returns upstream 4xx BadRequest" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe BAD_REQUEST
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe GATEWAY_TIMEOUT
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return BadRequest when GRO returns BadRequestException" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe BAD_REQUEST
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO returns upstream InternalServerError" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return 200 false when GRO returns upstream NOT_FOUND" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return 200 false when GRO returns NotFoundException" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO throws Exception" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
       }
 
-      "return BadRequest when GRO returns BadRequestException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
+      "receiving error response from Proxy for details request" should {
 
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe BAD_REQUEST
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe BAD_GATEWAY
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return BadRequest when GRO returns upstream 4xx BadRequest" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe BAD_REQUEST
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe GATEWAY_TIMEOUT
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return BadRequest when GRO returns BadRequestException" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe BAD_REQUEST
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO returns upstream InternalServerError" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return 200 false when GRO returns upstream NOT_FOUND" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return 200 false when GRO returns NotFoundException" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
+        "return InternalServerError when GRO throws Exception" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
+
       }
+    }
 
-      "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
+    "NRS" when {
 
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
+    }
 
-      "return InternalServerError when GRO returns upstream InternalServerError" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return 200 false when GRO returns upstream NOT_FOUND" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
-
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return 200 false when GRO returns NotFoundException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
-
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      "return InternalServerError when GRO throws Exception" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
-
-        val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
+    "GRO-NI" when {
 
     }
 
