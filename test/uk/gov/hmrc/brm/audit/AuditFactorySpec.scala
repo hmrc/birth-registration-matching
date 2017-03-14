@@ -36,8 +36,6 @@ import scala.concurrent.Future
   */
 class AuditFactorySpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
-  //val connector = mockAuditConnector
-
   implicit val hc = HeaderCarrier()
 
   "AuditFactory" should {
@@ -58,14 +56,12 @@ class AuditFactorySpec extends UnitSpec with MockitoSugar with WithFakeApplicati
       implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.SCOTLAND)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[ScotlandAudit] shouldBe true
-
     }
 
     "return NorthernIrelandAudit for NORTHERN IRELAND birth registered request." in {
       implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.NORTHERN_IRELAND)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[NorthernIrelandAudit] shouldBe true
-
     }
 
 
