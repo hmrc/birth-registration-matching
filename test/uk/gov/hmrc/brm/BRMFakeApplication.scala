@@ -38,7 +38,7 @@ trait BRMFakeApplication extends WithFakeApplication {
   override def bindModules = Seq(new PlayModule)
 
   val config : Map[String, _] = BaseConfig.config
-    .++(Map("microservice.services.birth-registration-matching.validateDobForGro" -> true))
+    .++(Map())
 
   override lazy val fakeApplication = GuiceApplicationBuilder(
     disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])

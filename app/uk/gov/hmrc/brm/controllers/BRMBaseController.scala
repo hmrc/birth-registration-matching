@@ -21,11 +21,11 @@ import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.services.Bad
-import uk.gov.hmrc.brm.utils.BrmException
+import uk.gov.hmrc.brm.utils.BRMException
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
-trait BRMBaseController extends BaseController with BrmException {
+trait BRMBaseController extends BaseController with BRMException {
 
   lazy val contentType: String = "application/json; charset=utf-8"
   lazy val headers: (String, String)  = (ACCEPT, "application/vnd.hmrc.1.0+json")

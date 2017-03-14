@@ -23,10 +23,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.play.http._
 
-
-// TODO Add case _ to catch exceptions?
-
-trait BrmException extends Controller {
+trait BRMException extends Controller {
 
   val CLASS_NAME: String = "BrmException"
   val METHOD_NAME: String = "handleException"
@@ -34,9 +31,12 @@ trait BrmException extends Controller {
   private def logException(message: Option[String] = None, status: Option[String] = None, statusCode: Int)(implicit payload: Payload) = {
     MetricsFactory.getMetrics().status(statusCode)
     statusCode match {
-      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case Exception4xx() => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception5xx() =>
+        error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception4xx() =>
+        info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case _ =>
+        info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
     }
   }
 
@@ -47,10 +47,10 @@ trait BrmException extends Controller {
   }
 
   def forbiddenPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if(m.contains("INVALID_DISTRICT_NUMBER")) =>
+    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("INVALID_DISTRICT_NUMBER") =>
       logException(Some(message), Some(s"Forbidden returned from NRS message"), BAD_REQUEST)
-      BadRequest(message)
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if(m.contains("BIRTH_REGISTRATION_NOT_FOUND")) =>
+      BadRequest
+    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("BIRTH_REGISTRATION_NOT_FOUND") =>
       logException(Some(message), Some("Forbidden returned from NRS for not found"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
@@ -58,21 +58,19 @@ trait BrmException extends Controller {
   def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, BAD_REQUEST, _, _) =>
       logException(Some(message), Some("BadRequest"), BAD_REQUEST)
-      BadRequest(message)
+      BadRequest
   }
 
   def badGatewayPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(m, BAD_GATEWAY, _) =>
       logException(Some(message), Some("BadGateway"), BAD_GATEWAY)
-      BadGateway(message)
+      BadGateway
   }
-
-  // TODO catch Upstream4xx with BadGatewayException
 
   def gatewayTimeoutPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(m, GATEWAY_TIMEOUT, _) =>
       logException(Some(message), Some("GatewayTimeout"), GATEWAY_TIMEOUT)
-      GatewayTimeout(message)
+      GatewayTimeout
   }
 
   def upstreamErrorPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
@@ -82,12 +80,12 @@ trait BrmException extends Controller {
   }
 
   def badRequestExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case e: BadRequestException if(e.message.contains("INVALID_HEADER")) =>
+    case e: BadRequestException if e.message.contains("INVALID_HEADER") =>
       logException(Some(message), Some(s"BadRequestException from INVALID_HEADER converted into InternalServerError: ${e.getMessage}"), INTERNAL_SERVER_ERROR)
       InternalServerError
     case e: BadRequestException =>
       logException(Some(message), Some(s"BadRequestException: ${e.getMessage}"), BAD_REQUEST)
-      BadRequest(e.getMessage)
+      BadRequest
   }
 
   def notImplementedExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
@@ -103,7 +101,7 @@ trait BrmException extends Controller {
   }
 
   def exceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case e: Exception =>
+    case e: Throwable =>
       logException(Some(message), Some(s"InternalServerError: message: $e"), INTERNAL_SERVER_ERROR)
       InternalServerError
   }
