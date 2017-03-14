@@ -24,7 +24,6 @@ import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
@@ -65,40 +64,39 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
               // does not exist on request
               countryAuditor.audit(Map("country" -> "no country specified"), None)
           }
-
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },
         implicit payload => {
-
-          implicit val metrics : BRMMetrics = MetricsFactory.getMetrics()
-          implicit val auditor : BRMAudit = auditFactory.getAuditor()
-          implicit val features = FeatureFactory
-
-          if(!features().validate) {
-            //TODO: Need to work out
-            //TODO: 1. What We're going to log
-            //TODO: 2. Do we want to do any auditing within the FeatureFactory
-            //TODO: 3. Re-insert auditTransaction (see method below)
-            // auditTransaction()
-            info(CLASS_NAME, "post()", s"date of birth is before valid date / search is witched off (all/reference/details)")
-            Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
+          if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
+            Future.successful(respond(BadRequest(CommonConstant.INVALID_BIRTH_REFERENCE_NUMBER)))
           }
-          else
-          {
-            info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")
-            service.lookup() map {
-              bm => {
-                metrics.status(OK)
-                info(CLASS_NAME, "post()", s"BirthMatchResponse received")
-                info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
-                respond(Ok(Json.toJson(bm)))
-              }
-            } recover handleException(if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails")
+          else {
+            implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
+            implicit val auditor: BRMAudit = auditFactory.getAuditor()
+            implicit val features = FeatureFactory
+            if (!features().validate) {
+              //TODO: Need to work out
+              //TODO: 1. What We're going to log
+              //TODO: 2. Do we want to do any auditing within the FeatureFactory
+              //TODO: 3. Re-insert auditTransaction (see method below)
+              // auditTransaction()
+              info(CLASS_NAME, "post()", s"date of birth is before valid date / search is switched off (all/reference/details)")
+              Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
+            }
+            else {
+              info(CLASS_NAME, "post()", s"payload and date of birth is valid attempting lookup")
+              service.lookup() map {
+                bm => {
+                  metrics.status(OK)
+                  info(CLASS_NAME, "post()", s"BirthMatchResponse received")
+                  info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
+                  respond(Ok(Json.toJson(bm)))
+                }
+              } recover handleException(if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails")
+            }
           }
         }
       )
-
   }
-
 }

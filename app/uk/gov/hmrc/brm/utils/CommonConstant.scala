@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
+import play.api.libs.json.Json
+
 /**
   * Created by user on 01/03/17.
   */
@@ -34,6 +36,12 @@ object CommonConstant {
   val CONTENT_TYPE = "Content-Type"
   val CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
-
+  val INVALID_BIRTH_REFERENCE_NUMBER = Json.parse(
+    s"""
+       |{
+       |"code": "INVALID_BIRTH_REFERENCE_NUMBER",
+       |"reason": "The birth reference number does not meet the required length"
+       |}
+      """.stripMargin)
 
 }
