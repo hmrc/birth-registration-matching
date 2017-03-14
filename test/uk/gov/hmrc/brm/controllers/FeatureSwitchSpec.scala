@@ -81,15 +81,8 @@ class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar wi
 
   implicit override def newAppForTest(testData: TestData) : Application = {
     val config = if (testData.tags.contains("enabled")) {
-
-      println(s"\n\nENABLED\n\n")
-
-
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
-
-      println(s"\n\nDISABLED\n\n")
-
       switchDisabled
     } else { Map("" -> "") }
     new GuiceApplicationBuilder().configure(config).build()
