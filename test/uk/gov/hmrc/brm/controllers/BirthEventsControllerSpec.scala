@@ -277,16 +277,27 @@ class BirthEventsControllerSpec
 
       "POST with reference number" should {
 
-        "return JSON response on successful reference match" in {
+        "return JSON response true on successful reference match" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-          val request = postRequest(userMatchIncludingReferenceNumber)
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject400000001)))
+          val request = postRequest(user400000001)
           val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           jsonBodyOf(result).toString().contains("true") shouldBe true
         }
+
+        "return JSON response false when date of birth is before 2009-07-01" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val request = postRequest(userMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result).toString().contains("true") shouldBe false
+        }
+
 
         "return JSON response on unsuccessful birthReferenceNumber match" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -361,7 +372,21 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
-        "return JSON response on successful child detail match" in {
+
+        "return JSON response true on successful child detail match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).
+            thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection400000001)))
+
+          val request = postRequest(user400000001WithoutReferenceNumber)
+          val result = MockController.post().apply(request)
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+        "return JSON response false when birth date is before 2009-07-01" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).
             thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection)))
@@ -371,7 +396,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
       }
@@ -598,6 +623,17 @@ class BirthEventsControllerSpec
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
+        }
+
+        "return JSON response false when date of birth is before 2009-07-01" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(nrsRecord20090630)))
+          val request = postRequest(userDob20090630)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return 200 when RCE is present" in {

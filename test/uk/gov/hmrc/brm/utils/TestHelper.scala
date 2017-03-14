@@ -29,7 +29,9 @@ object TestHelper {
    */
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
+  val groJsonResponseObject400000001 = JsonUtils.getJsonFromFile("gro","400000001")
   val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
+  val groJsonResponseObjectCollection400000001 = JsonUtils.getJsonFromFile("gro", "400000001-array")
   val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
@@ -46,6 +48,7 @@ object TestHelper {
   val validNrsJsonResponseObjectRCE = JsonUtils.getJsonFromFile("nrs", "2017350003")
   val validNrsJsonResponse2017350007 = JsonUtils.getJsonFromFile("nrs", "2017350007")
   val nrsResponseWithMultiple = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
+  val nrsRecord20090630 = JsonUtils.getJsonFromFile("nrs", "2017734100")
 
   val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
@@ -329,6 +332,29 @@ object TestHelper {
   val userMultipleMatchExcludingReferenceKey = Json.parse(
     s"""
        |{
+       |
+       | "firstName" : "Gibby",
+       | "lastName" : "Haynes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+
+  val user400000001 = Json.parse(
+    s"""
+       |{
+       |  "birthReferenceNumber": "400000001",
+       | "firstName" : "Gibby",
+       | "lastName" : "Haynes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val user400000001WithoutReferenceNumber = Json.parse(
+    s"""
+       |{
        | "firstName" : "Gibby",
        | "lastName" : "Haynes",
        | "dateOfBirth" : "2011-10-01",
@@ -460,6 +486,17 @@ object TestHelper {
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
        | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+    """.stripMargin)
+
+  val userDob20090630 = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber" : "2017734100",
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-06-30",
        | "whereBirthRegistered" : "scotland"
        |}
     """.stripMargin)
