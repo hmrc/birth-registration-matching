@@ -320,9 +320,11 @@ class BirthEventsControllerSpec
         s"${scenario("description")}" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           val request = postRequest(userInvalidReference(scenario("country").toString, scenario("referenceNumber").toString))
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe scenario("responseCode")
           contentType(result).get shouldBe "application/json"
+          jsonBodyOf(result).toString().contains("INVALID_BIRTH_REFERENCE_NUMBER") shouldBe true
+          jsonBodyOf(result).toString().contains("The birth reference number does not meet the required length") shouldBe true
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
       }

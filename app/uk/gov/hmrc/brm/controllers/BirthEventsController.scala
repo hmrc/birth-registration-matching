@@ -24,7 +24,6 @@ import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
@@ -70,7 +69,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
         },
         implicit payload => {
           if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
-            Future.successful(respond(BadRequest("")))
+            Future.successful(respond(BadRequest(CommonConstant.INVALID_BIRTH_REFERENCE_NUMBER)))
           }
           else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
