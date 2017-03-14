@@ -287,17 +287,6 @@ class BirthEventsControllerSpec
 
     "POST valid/invalid reference number" should {
 
-      "return response code 200 if request contains birthReferenceNumber with valid characters that aren't numbers" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-        val request = postRequest(userNoMatchIncludingReferenceCharacters)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-      }
-
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingReferenceValue)

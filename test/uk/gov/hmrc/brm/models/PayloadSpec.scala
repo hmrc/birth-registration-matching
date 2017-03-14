@@ -300,6 +300,21 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         jsonObject.validate[Payload].isError shouldBe true
       }
 
+      "return error when birthReferenceNumber value contains characters" in {
+        val jsonObject: JsValue = Json.parse(
+          """
+            |{
+            |"birthReferenceNumber": "12345678a",
+            |"firstName" : "John",
+            |"lastName" : "Smith",
+            |"dateOfBirth" : "2009-03-12",
+            |"whereBirthRegistered": "england"
+            |}
+          """.stripMargin)
+
+        jsonObject.validate[Payload].isError shouldBe true
+      }
+
       "return success when birthReferenceNumber key doesn't exist" in {
         val jsonObject: JsValue = Json.parse(
           """
@@ -314,7 +329,7 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         jsonObject.validate[Payload].isSuccess shouldBe true
       }
 
-      "return success when birthReferenceNumber value exists and is alphanumeric" in {
+      "return error when birthReferenceNumber value exists and is alphanumeric" in {
         val jsonObject: JsValue = Json.parse(
           """
             |{
@@ -326,10 +341,10 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
             | }
           """.stripMargin)
 
-        jsonObject.validate[Payload].isSuccess shouldBe true
+        jsonObject.validate[Payload].isError shouldBe true
       }
 
-      "return success when birthReferenceNumber value exists and contains a hyphen and underscore" in {
+      "return error when birthReferenceNumber value exists and contains a hyphen and underscore" in {
         val jsonObject: JsValue = Json.parse(
           """
             |{
@@ -341,7 +356,7 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
             | }
           """.stripMargin)
 
-        jsonObject.validate[Payload].isSuccess shouldBe true
+        jsonObject.validate[Payload].isError shouldBe true
       }
 
       "return error when dateOfBirth has 0000 for year" in {
