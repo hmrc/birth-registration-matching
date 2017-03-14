@@ -41,18 +41,21 @@ trait BrmException extends Controller {
   }
 
   def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if(m.contains("BIRTH_REGISTRATION_NOT_FOUND")) =>
-      logException(Some(message), Some("Forbidden returned from NRS for not found"), NOT_FOUND)
-      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
     case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
       logException(Some(message), Some("NotFound"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def forbiddenPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, FORBIDDEN, _, _) if(m.contains("INVALID_DISTRICT_NUMBER")) =>
       logException(Some(message), Some(s"Forbidden returned from NRS message"), BAD_REQUEST)
       BadRequest(message)
+    case Upstream4xxResponse(m, FORBIDDEN, _, _) if(m.contains("BIRTH_REGISTRATION_NOT_FOUND")) =>
+      logException(Some(message), Some("Forbidden returned from NRS for not found"), NOT_FOUND)
+      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
+  }
+
+  def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, BAD_REQUEST, _, _) =>
       logException(Some(message), Some("BadRequest"), BAD_REQUEST)
       BadRequest(message)

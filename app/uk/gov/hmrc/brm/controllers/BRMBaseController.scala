@@ -50,6 +50,7 @@ trait BRMBaseController extends BaseController with BrmException {
         badRequestExceptionPF(method),
         notImplementedExceptionPF(method),
         notFoundExceptionPF(method),
+        forbiddenPF(method),
         exceptionPF(method)).reduce(_ orElse _)
 
       // audit the transaction when there was an exception with default arguments

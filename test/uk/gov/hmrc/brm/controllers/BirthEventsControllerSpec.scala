@@ -230,17 +230,16 @@ class BirthEventsControllerSpec
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
 
-      //      TODO feature toggle test?
-      //      "return 200 false if request contains Scotland" in {
-      //        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      //
-      //        val request = postRequest(userWhereBirthRegisteredScotland)
-      //        val result = MockController.post().apply(request)
-      //        status(result) shouldBe OK
-      //        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-      //        contentType(result).get shouldBe "application/json"
-      //        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      //      }
+      // TODO feature toggle test?
+      "return 200 false if request contains Scotland" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val request = postRequest(userWhereBirthRegisteredScotland)
+        val result = MockController.post().apply(request)
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
 
       "return response code 400 if request contains missing whereBirthRegistered key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -301,7 +300,7 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
-        "return response code 200 if request contains missing birthReferenceNumber value" in {
+        "return response code 400 if request contains missing birthReferenceNumber value" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           val request = postRequest(userNoMatchExcludingReferenceValue)
           val result = MockController.post().apply(request)
