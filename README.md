@@ -2,7 +2,10 @@
 
 [![Build Status](https://travis-ci.org/hmrc/birth-registration-matching.svg)](https://travis-ci.org/hmrc/birth-registration-matching) [![Download](https://api.bintray.com/packages/hmrc/releases/birth-registration-matching/images/download.svg)](https://bintray.com/hmrc/releases/birth-registration-matching/_latestVersion)
 
-This microservice retrieves a child's birth record from GRO (General Registry Office) - England and Wales.
+This microservice retrieves a child's birth record from one of the following services:
+
+* GRO (General Registry Office) - England and Wales
+* NRS (National Records Scotland) - Scotland
 
 ## Requirements
 
@@ -10,27 +13,30 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 ### Quickstart
 
-Base endpoint `/birth-registration-matching`
+The API takes a post request of child details (see parameters below), and returns a json response. If the submissions passes validation and contains no client errors, the response returned will be 200 OK with a JSON body of _"matched": true_ or _"matched": false_
 
-PATH     | Method | Description
+Path     | Supported Methods | Description
 -------- | ------ | --------------------------------------------------------------
-`/match` | `POST` | Returns whether there is match against the childs birth record
+`/birth-registration-matching/match` | `POST` | Returns whether there is match against the childs birth record
 
-Headers      | Type     | Example                         | Description
------------- | -------- | -----------------------------   | --------------------------------
-Accept       | `String` | application/vnd.hmrc.1.0+json   | API Version
-Audit-Source | `String` | dfs                             | Unique identifier of the service
-Content-Type | `String` | application/json; charset=utf-8 | Type of payload
+Headers      | Type     | Example                         | Size | Description
+------------ | -------- | -----------------------------   | ---- | --------------------------
+Accept       | `String` | application/vnd.hmrc.1.0+json   | N/A  | API Version
+Audit-Source | `String` | dfs                             | 20   | Unique identifier of the service
+Content-Type | `String` | application/json; charset=utf-8 | N/A  | Type of payload
 
 Parameters           | Type                                                   | Size      | Description
 -------------------- | ------------------------------------------------------ | --------- | -------------------------------------------------------------------------------
-birthReferenceNumber | `Optional(String)`                                     | 1+        | Birth reference number
+birthReferenceNumber | `Optional(String)`                                     | 9         | Birth reference number for England or Wales
+    <br/>            | <br/>                                                  | 10        | Birth reference number for Scotland
 firstName            | `String`                                               | 1-250     | Child's first name
 lastName             | `String`                                               | 1-250     | Child's last name
 dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10        | Child's date of birth
 whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A       | Where the child was registered (England / Wales / Scotland / Northern Ireland)
 
-### Example Request
+### POST /birth-registration-matching/match
+
+Example Request
 
 ```bash
 curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -H "Postman-Token: fa8722cf-cf61-163a-e301-2132ce21b344" -d '{
@@ -42,13 +48,17 @@ curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -
 }' "https://localhost:8098/birth-registration-matching/match"
 ```
 
-### Example response
+Example responses
+
+Record not found
 
 ```json
 {
   "matched": false
 }
 ```
+
+Record found
 
 ```json
 {

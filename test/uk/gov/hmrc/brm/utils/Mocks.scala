@@ -77,7 +77,7 @@ object Mocks extends MockitoSugar {
   object MockController extends BirthEventsController {
     override val service = MockLookupService
     override val countryAuditor = auditorFixtures.whereBirthRegisteredAudit
-    override val auditFactory = MockAuditFactory
+    override val auditFactory = new AuditFactory()
     override val transactionAuditor: TransactionAuditor = auditorFixtures.transactionAudit
     override val matchingAuditor: MatchingAudit = auditorFixtures.matchingAudit
   }

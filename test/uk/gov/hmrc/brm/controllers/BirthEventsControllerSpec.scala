@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import java.util.concurrent.TimeUnit
-
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
@@ -36,7 +34,6 @@ import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 
 class BirthEventsControllerSpec
   extends UnitSpec
@@ -46,14 +43,14 @@ class BirthEventsControllerSpec
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  def httpResponse(responseCode : Int, js : JsValue) = HttpResponse.apply(responseCode, Some(js))
+  def httpResponse(responseCode: Int, js: JsValue) = HttpResponse.apply(responseCode, Some(js))
+
   def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
+
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   "BirthEventsController" when {
@@ -74,22 +71,35 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingReferenceValue)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchIncludingInvalidData)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
+      }
+
+      for (scenario <- referenceNumberScenario) {
+        s"${scenario("description")}" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          val request = postRequest(userInvalidReference(scenario("country").toString, scenario("referenceNumber").toString))
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe scenario("responseCode")
+          contentType(result).get shouldBe "application/json"
+          jsonBodyOf(result).toString().contains("INVALID_BIRTH_REFERENCE_NUMBER") shouldBe true
+          jsonBodyOf(result).toString().contains("The birth reference number does not meet the required length") shouldBe true
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        }
       }
 
     }
@@ -98,42 +108,42 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing firstname key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingFirstNameKey)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains missing firstname value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingfirstNameValue)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains special characters in firstName" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(firstNameWithSpecialCharacters)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains more than 250 characters in firstName" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(firstNameWithMoreThan250Characters)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
     }
@@ -142,42 +152,42 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing lastName key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludinglastNameKey)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains missing lastName value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludinglastNameValue)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains special character in lastname value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(lastNameWithSpecialCharacters)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains more than 250 character in lastname value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(lastNameWithMoreThan250Characters)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
     }
@@ -186,32 +196,32 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing dateOfBirth key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingDateOfBirthKey)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains missing dateOfBirth value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingDateOfBirthValue)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains invalid dateOfBirth format" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userInvalidDOBFormat)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
     }
@@ -221,20 +231,8 @@ class BirthEventsControllerSpec
       "return 200 if request contains camel case where birth registered" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-
         val request = postRequest(userNoMatchIncludingReferenceNumberCamelCase)
-        val result = MockController.post().apply(request)
-        status(result) shouldBe OK
-        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-        contentType(result).get shouldBe "application/json"
-        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      }
-
-      // TODO feature toggle test?
-      "return 200 false if request contains Scotland" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        val request = postRequest(userWhereBirthRegisteredScotland)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
@@ -243,32 +241,32 @@ class BirthEventsControllerSpec
 
       "return response code 400 if request contains missing whereBirthRegistered key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredKey)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains missing whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
       "return response code 400 if request contains invalid whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userInvalidWhereBirthRegistered)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+        bodyOf(result) shouldBe empty
       }
 
     }
@@ -298,13 +296,12 @@ class BirthEventsControllerSpec
           jsonBodyOf(result).toString().contains("true") shouldBe false
         }
 
-
         "return JSON response on unsuccessful birthReferenceNumber match" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(noJson)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -314,10 +311,11 @@ class BirthEventsControllerSpec
         "return response code 400 if request contains missing birthReferenceNumber value" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           val request = postRequest(userNoMatchExcludingReferenceValue)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return match false when GRO returns invalid json" in {
@@ -325,7 +323,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(invalidResponse)))
 
           val request = postRequest(userMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -341,7 +339,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObjectMultipleWithMatch)))
 
           val request = postRequest(userMultipleMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -353,7 +351,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -365,7 +363,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(Json.parse("[]"))))
 
           val request = postRequest(userNoMatchUTF8SpecialCharacters)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -379,7 +377,7 @@ class BirthEventsControllerSpec
             thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection400000001)))
 
           val request = postRequest(user400000001WithoutReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -392,7 +390,7 @@ class BirthEventsControllerSpec
             thenReturn(Future.successful(httpResponse(groJsonResponseObjectCollection)))
 
           val request = postRequest(userMatchExcludingReferenceNumberKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -408,10 +406,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_GATEWAY
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return BadRequest when GRO returns upstream 4xx BadRequest" in {
@@ -423,6 +422,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
@@ -430,10 +430,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe GATEWAY_TIMEOUT
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return BadRequest when GRO returns BadRequestException" in {
@@ -441,10 +442,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
@@ -452,10 +454,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return InternalServerError when GRO returns upstream InternalServerError" in {
@@ -463,10 +466,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 200 false when GRO returns upstream NOT_FOUND" in {
@@ -474,7 +478,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
           contentType(result).get shouldBe "application/json"
@@ -486,7 +490,7 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
           contentType(result).get shouldBe "application/json"
@@ -498,10 +502,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
       }
@@ -513,10 +518,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_GATEWAY
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return BadRequest when GRO returns upstream 4xx BadRequest" in {
@@ -528,6 +534,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
@@ -535,10 +542,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe GATEWAY_TIMEOUT
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return BadRequest when GRO returns BadRequestException" in {
@@ -546,10 +554,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
@@ -557,10 +566,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return InternalServerError when GRO returns upstream InternalServerError" in {
@@ -568,10 +578,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 200 false when GRO returns upstream NOT_FOUND" in {
@@ -579,10 +590,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return 200 false when GRO returns NotFoundException" in {
@@ -590,10 +602,11 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotFoundException("")))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return InternalServerError when GRO throws Exception" in {
@@ -601,13 +614,15 @@ class BirthEventsControllerSpec
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
       }
+
     }
 
     "NRS" when {
@@ -654,7 +669,7 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(200, validNrsJsonResponse2017350007)))
 
           val request = postRequest(nrsReferenceRequestWithSpecialCharacters)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -666,7 +681,7 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -695,7 +710,7 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, nrsResponseWithMultiple)))
 
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -704,10 +719,10 @@ class BirthEventsControllerSpec
 
         "return 200 response when child details are not found" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(FORBIDDEN, nrsNoRecordResponse)))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))))
 
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -719,7 +734,7 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, validNrsJsonResponse2017350007)))
 
           val request = postRequest(nrsRequestWithSpecialCharacters)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -731,7 +746,7 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(OK, validNrsJsonResponseObject)))
 
           val request = postRequest(nrsDetailsRequestWithSingleMatch)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
@@ -747,10 +762,11 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_GATEWAY
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
@@ -758,53 +774,56 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe GATEWAY_TIMEOUT
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 400 BadRequest when NRS returns 400 INVALID_PAYLOAD" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("INVALID_PAYLOAD")))
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 500 InternalServerError when NRS returns 400 INVALID_HEADER" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("INVALID_HEADER")))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
-        // TODO what should we respond?
-        "return 400 BadRequest when NRS returns 403 INVALID_DISTRICT_NUMBER" ignore {
+        "return 400 BadRequest when NRS returns 403 INVALID_DISTRICT_NUMBER" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("INVALID_DISTRICT_NUMBER", FORBIDDEN, FORBIDDEN)))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe BAD_REQUEST
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
-        // TODO what should we respond?
-        "return 400 Bad_Request when NRS returns 403 QUERY_LENGTH_EXCESSIVE" ignore {
+        "return 500 InternalServerError when NRS returns 403 QUERY_LENGTH_EXCESSIVE" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("", FORBIDDEN, FORBIDDEN))))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("QUERY_LENGTH_EXCESSIVE", FORBIDDEN, FORBIDDEN))))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
-          status(result) shouldBe BAD_REQUEST
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 500 InternalServerError when NRS returns 500" in {
@@ -812,10 +831,11 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
 
         "return 500 InternalServerError when NRS returns 503 Service unavailable" in {
@@ -823,31 +843,30 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = MockController.post().apply(request)
+          val result = await(MockController.post().apply(request))
           status(result) shouldBe INTERNAL_SERVER_ERROR
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
         }
-
 
       }
 
     }
 
-    "GRO-NI" when {
+    "GRO-NI" should {
 
       "return 200 false if request contains Northern Ireland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
         val request = postRequest(userWhereBirthRegisteredNI)
-        val result = MockController.post().apply(request)
+        val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       }
+
     }
 
   }
-
 }

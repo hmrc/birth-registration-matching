@@ -21,6 +21,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.Child
+import play.api.test.Helpers._
 
 object TestHelper {
 
@@ -247,7 +248,7 @@ object TestHelper {
   val userWhereBirthRegisteredScotland = Json.parse(
     s"""
        |{
-       | "birthReferenceNumber" : "123456789",
+       | "birthReferenceNumber" : "1234567891",
        | "firstName" : "Chris",
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-02-16",
@@ -421,7 +422,7 @@ object TestHelper {
        | "firstName" : "Chris",
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-08-03",
-       | "birthReferenceNumber" : "ab1_-CD263",
+       | "birthReferenceNumber" : "ab1_-CD26",
        | "whereBirthRegistered" : "wales"
        |}
     """.stripMargin)
@@ -434,6 +435,17 @@ object TestHelper {
        | "dateOfBirth" : "2012-08-03",
        | "birthReferenceNumber" : "123*34)",
        | "whereBirthRegistered" : "wales"
+       |}
+    """.stripMargin)
+
+  def userInvalidReference(country: String, referenceNumber: String) = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Chris",
+       | "lastName" : "Jones",
+       | "dateOfBirth" : "2012-08-03",
+       | "birthReferenceNumber" : "$referenceNumber",
+       | "whereBirthRegistered" : "$country"
        |}
     """.stripMargin)
 
@@ -777,5 +789,31 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val referenceNumberScenario = List(
+    Map(
+      "description" -> "return response code 400 if request contains birthReferenceNumber below minimum length for england",
+      "responseCode" -> BAD_REQUEST,
+      "country" -> "england",
+      "referenceNumber" -> "12345678"
+    ),
+    Map(
+      "description" -> "return response code 400 if request contains birthReferenceNumber above maximum length for england",
+      "responseCode" -> BAD_REQUEST,
+      "country" -> "england",
+      "referenceNumber" -> "1234567891"
+    ),
+    Map(
+      "description" -> "return response code 400 if request contains birthReferenceNumber below minimum length for scotland",
+      "responseCode" -> BAD_REQUEST,
+      "country" -> "scotland",
+      "referenceNumber" -> "123456789"
+    ),
+    Map(
+      "description" -> "return response code 400 if request contains birthReferenceNumber above maximum length for scotland",
+      "responseCode" -> BAD_REQUEST,
+      "country" -> "scotland",
+      "referenceNumber" -> "12345678912"
+    )
+  )
 
 }
