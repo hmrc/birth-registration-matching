@@ -47,7 +47,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.validation.maxNameLength" -> 100
+    "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
@@ -56,18 +56,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
 
   "validating max length change" should {
 
-    "return matched value of true when the firstName length  is less than specified value and request is valid" in {
-      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(userValidDOB)
-      val result = await(MockController.post().apply(request))
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-    }
-
-    "return BAD REQUEST 400 if request contains more than 100 characters in firstName " in {
+    "return BAD REQUEST 400 if request contains more than 250 characters in firstName " in {
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
       val request = postRequest(firstNameWithMoreThan100Characters)
@@ -75,9 +64,10 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      bodyOf(result).toString() shouldBe(empty)
     }
 
-    "return BAD REQUEST 400 if request contains more than 100 characters in lastname " in {
+    "return BAD REQUEST 400 if request contains more than 250 characters in lastname " in {
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
       val request = postRequest(lastNameWithMoreThan100Characters)
@@ -85,6 +75,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      bodyOf(result).toString() shouldBe(empty)
     }
 
   }

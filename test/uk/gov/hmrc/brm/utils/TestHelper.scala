@@ -25,26 +25,43 @@ import play.api.test.Helpers._
 
 object TestHelper {
 
+  /**
+    GRO
+   */
+
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
+  val groJsonResponseObject400000001 = JsonUtils.getJsonFromFile("gro","400000001")
   val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
+  val groJsonResponseObjectCollection400000001 = JsonUtils.getJsonFromFile("gro", "400000001-array")
   val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
 
   val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  /**
+    * NRS
+    */
 
   val validNrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
-
+  val validNrsJsonResponseObjectRCE = JsonUtils.getJsonFromFile("nrs", "2017350003")
   val validNrsJsonResponse2017350007 = JsonUtils.getJsonFromFile("nrs", "2017350007")
+  val nrsResponseWithMultiple = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
+  val nrsRecord20090630 = JsonUtils.getJsonFromFile("nrs", "2017734100")
+
   val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithSpecialChar = Payload(Some("2017350007"), "Gab'iœ-Äæy", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithFirstNameWrong = Payload(Some("2017350007"), "firstNameWrong", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
 
-
-  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
   val payloadNoReferenceScotland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
+
+  /**
+    * GRO-NI
+    */
+
   val payloadNoReferenceNorthernIreland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
 
   val groResponseValidJson = Json.parse(
@@ -269,6 +286,40 @@ object TestHelper {
        |}
     """.stripMargin)
 
+  val nrsRequestWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Gab'iœ-Äæy",
+       | "lastName" : "HaÐ0ÄœÄæes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
+
+  val nrsReferenceRequestWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber": "2017350007",
+       | "firstName" : "Gab'iœ-Äæy",
+       | "lastName" : "HaÐ0ÄœÄæes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
+
+  val nrsDetailsRequestWithSingleMatch = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+     """.stripMargin
+  )
+
   val userNoMatchExcludingReferenceKeyNorthernIreland = Json.parse(
     s"""
        |{
@@ -280,6 +331,29 @@ object TestHelper {
     """.stripMargin)
 
   val userMultipleMatchExcludingReferenceKey = Json.parse(
+    s"""
+       |{
+       |
+       | "firstName" : "Gibby",
+       | "lastName" : "Haynes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+
+  val user400000001 = Json.parse(
+    s"""
+       |{
+       |  "birthReferenceNumber": "400000001",
+       | "firstName" : "Gibby",
+       | "lastName" : "Haynes",
+       | "dateOfBirth" : "2011-10-01",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val user400000001WithoutReferenceNumber = Json.parse(
     s"""
        |{
        | "firstName" : "Gibby",
@@ -424,6 +498,17 @@ object TestHelper {
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
        | "dateOfBirth" : "2009-11-12",
+       | "whereBirthRegistered" : "scotland"
+       |}
+    """.stripMargin)
+
+  val userDob20090630 = Json.parse(
+    s"""
+       |{
+       | "birthReferenceNumber" : "2017734100",
+       | "firstName" : "Adam TEST",
+       | "lastName" : "SMITH",
+       | "dateOfBirth" : "2009-06-30",
        | "whereBirthRegistered" : "scotland"
        |}
     """.stripMargin)
@@ -647,6 +732,62 @@ object TestHelper {
        | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
+
+  val nrsNoRecordResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "BIRTH_REGISTRATION_NOT_FOUND",
+       |  "reason": "No birth registration found that matched the search keys"
+       |}
+     """.stripMargin)
+
+  val nrsInvalidPayload = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_PAYLOAD",
+       |  "reason": "Submission has not passed validation. Invalid PAYLOAD"
+       |}
+     """.stripMargin)
+
+  val nrsInvalidHeaderResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_HEADER",
+       |  "reason": "The HTTP header is invalid."
+       |}
+     """.stripMargin)
+
+  val nrsInvalidDistrict = Json.parse(
+    s"""
+       |{
+       |  "code": "INVALID_DISTRICT_NUMBER",
+       |  "reason": "The Registration District number does not represent a number for the informed year."
+       |}
+     """.stripMargin)
+
+  val nrsQueryLengthExcessive = Json.parse(
+    s"""
+       |{
+       |  "code": "QUERY_LENGTH_EXCESSIVE",
+       |  "reason": "Query message length is excessive."
+       |}
+     """.stripMargin)
+
+  val nrsServerErrorResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "SERVER_ERROR",
+       |  "reason": "DES is currently experiencing problems that require live service intervention"
+       |}
+     """.stripMargin)
+
+  val nrsServiceUnavailableResponse = Json.parse(
+    s"""
+       |{
+       |  "code": "SERVICE_UNAVAILABLE",
+       |  "reason": "Dependent systems are currently not responding"
+       |}
+     """.stripMargin)
 
   val referenceNumberScenario = List(
     Map(

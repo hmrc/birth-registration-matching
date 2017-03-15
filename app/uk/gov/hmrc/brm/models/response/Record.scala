@@ -22,5 +22,4 @@ import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 
 case class Record(child: Child, status: Option[Status] = None)
 
-object Record {
-}
+object Record {}

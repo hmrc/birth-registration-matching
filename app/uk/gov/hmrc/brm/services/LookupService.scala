@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
@@ -24,7 +25,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder,  RecordParser}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -80,18 +81,7 @@ trait LookupService extends LookupServiceBinder {
                auditor: BRMAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
-
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-        /**
-          * Should be:
-          * response.validate[T]
-          * response.validate[List[Record]] so this is going to be a List[Record]
-          * then in matching service this takes in Payload and List[Record] and @tailrec these records to match
-          *
-          * Future:
-          * Later on we can make it validate[List[Record[C, S]] where C is the Child Type and S is the Status Type
-          * i.e. the implicit reads from GROChild and GROStatus / NRSChild NRSStatus
-          */
 
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
@@ -107,9 +97,6 @@ trait LookupService extends LookupServiceBinder {
         }
     }
   }
-
-
-
 
   private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
                                   (implicit payload : Payload,
