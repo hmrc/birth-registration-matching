@@ -47,7 +47,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       QUERY_ID_HEADER -> KeyGenerator.getKey(),
       CONTENT_TYPE -> CONTENT_TYPE_JSON,
       ENVIRONMENT_HEADER -> BrmConfig.desEnv,
-      TOKEN_HEADER -> BrmConfig.desToken,
+      TOKEN_HEADER -> s"Bearer ${BrmConfig.desToken}",
       DATETIME_HEADER -> getCurrentDateString(DATE_FORMAT)
    )
 
