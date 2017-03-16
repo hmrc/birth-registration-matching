@@ -19,14 +19,10 @@ private object AppDependencies {
 
   private val microserviceBootstrapVersion = "5.13.0"
   private val playHealthVersion = "2.1.0"
- // private val playJsonLoggerVersion = "3.0.0" (as per docs for this mention this new library name)
   private val logbackJsonLoggerVersion = "3.1.0"
-
   private val playUrlBindersVersion = "2.1.0"
   private val playConfigVersion = "4.3.0"
   private val hmrcTestVersion = "2.3.0"
-
-  //no mockito and specs2 library in doc list
   private val mockito = "1.9.5"
   private val specs2 = "2.3.13"
 
@@ -37,7 +33,6 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-   // "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
     "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "play-filters" % playFilter
   )
