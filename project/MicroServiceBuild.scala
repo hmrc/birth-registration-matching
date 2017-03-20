@@ -17,7 +17,7 @@ object MicroServiceBuild extends Build with MicroService {
 private object AppDependencies {
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "5.13.0"
+  private val microserviceBootstrapVersion = "5.14.0"
   private val playHealthVersion = "2.1.0"
   private val logbackJsonLoggerVersion = "3.1.0"
   private val playUrlBindersVersion = "2.1.0"
@@ -26,15 +26,12 @@ private object AppDependencies {
   private val mockito = "1.9.5"
   private val specs2 = "2.3.13"
 
-  private val playFilter = "5.10.0"
-
   val compile = Seq(
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
-    "uk.gov.hmrc" %% "play-filters" % playFilter
+    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion
   )
 
   trait TestDependencies {
