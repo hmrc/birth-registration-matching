@@ -18,8 +18,9 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.json.{Json, Reads}
-import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.models.response.{Record, StatusInterface}
 import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -69,8 +70,9 @@ class NrsResponseSpec extends UnitSpec {
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status shouldBe None
-
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
     }
 
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
@@ -83,12 +85,10 @@ class NrsResponseSpec extends UnitSpec {
       record.child.birthReferenceNumber shouldBe 2017350003
       record.child.firstName shouldBe ""
       record.child.lastName shouldBe ""
-      record.child.dateOfBirth shouldBe None
-
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe -4
+      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
     }
-
-
-
 
     "return two Record object with all Child attributes when json has two records" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
@@ -107,8 +107,9 @@ class NrsResponseSpec extends UnitSpec {
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status shouldBe None
-
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
 
       val recordTwo = listOfRecords(1)
 
@@ -119,8 +120,9 @@ class NrsResponseSpec extends UnitSpec {
       recordTwo.child.lastName shouldBe "SMITH"
       recordTwo.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       recordTwo.child.dateOfBirth.get shouldBe a[LocalDate]
-      recordTwo.status shouldBe None
-
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
     }
 
     "return error when json is empty" in {
@@ -131,7 +133,6 @@ class NrsResponseSpec extends UnitSpec {
     }
 
     "return Record object with all Child attributes when json is a full record and with UTF ASCII extendted characters." in {
-
 
       var response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
@@ -146,9 +147,11 @@ class NrsResponseSpec extends UnitSpec {
       record.child.lastName shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--"
       record.child.dateOfBirth.get.toString shouldBe "2007-02-18"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status shouldBe None
-
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe None
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe None
     }
+
   }
 
 }

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response
+package uk.gov.hmrc.brm.models.response.nrs
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.StatusInterface
 
-case class Record(child: Child, status: Option[StatusInterface] = None)
-
-object Record {}
+case class NRSStatus (
+                       status : Option[Int] = None,
+                       deathCode : Option[Int] = None
+                     ) extends StatusInterface

@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.brm.models.response
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+/**
+  * Created by chrisianson on 17/03/2017.
+  */
+trait StatusInterface {
 
-case class Record(child: Child, status: Option[StatusInterface] = None)
-
-object Record {}
+}

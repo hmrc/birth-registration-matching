@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
@@ -82,7 +81,6 @@ trait LookupService extends LookupServiceBinder {
     getRecord(hc, payload, metrics).map {
       response =>
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
-
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 

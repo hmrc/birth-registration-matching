@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.models.response.{Record, StatusInterface}
 import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.play.test.UnitSpec
@@ -477,12 +477,12 @@ class GroResponseSpec extends UnitSpec {
       record.child.dateOfBirth.get.toString shouldBe "2006-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
       record.status.get shouldBe a[Status]
-      record.status.get.potentiallyFictitiousBirth shouldBe false
-      record.status.get.correction.get shouldBe "None"
-      record.status.get.cancelled shouldBe false
-      record.status.get.blockedRegistration shouldBe false
-      record.status.get.marginalNote.get shouldBe "None"
-      record.status.get.reRegistered.get shouldBe "None"
+      record.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+      record.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+      record.status.get.asInstanceOf[Status].cancelled shouldBe false
+      record.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+      record.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+      record.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
     }
 
     "return Record object with all Child attributes when json is valid and complete (ASCII)" in {
@@ -582,12 +582,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction shouldBe None
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote shouldBe None
-          x.status.get.reRegistered shouldBe None
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction shouldBe None
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote shouldBe None
+          x.status.get.asInstanceOf[Status].reRegistered shouldBe None
         }
         case JsError(x) => {
           throw new Exception
@@ -751,12 +751,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -777,12 +777,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -803,12 +803,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction shouldBe None
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction shouldBe None
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -829,12 +829,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -855,12 +855,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -881,12 +881,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote shouldBe None
-          x.status.get.reRegistered.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote shouldBe None
+          x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
         }
         case JsError(x) => {
           throw new Exception
@@ -907,12 +907,12 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status.get shouldBe a[Status]
-          x.status.get.potentiallyFictitiousBirth shouldBe false
-          x.status.get.correction.get shouldBe "None"
-          x.status.get.cancelled shouldBe false
-          x.status.get.blockedRegistration shouldBe false
-          x.status.get.marginalNote.get shouldBe "None"
-          x.status.get.reRegistered shouldBe None
+          x.status.get.asInstanceOf[Status].potentiallyFictitiousBirth shouldBe false
+          x.status.get.asInstanceOf[Status].correction.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].cancelled shouldBe false
+          x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
+          x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
+          x.status.get.asInstanceOf[Status].reRegistered shouldBe None
         }
         case JsError(x) => {
           throw new Exception
