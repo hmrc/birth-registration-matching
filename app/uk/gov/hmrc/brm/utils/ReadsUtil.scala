@@ -17,19 +17,18 @@
 package uk.gov.hmrc.brm.utils
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{JsPath, Reads}
-import play.api.libs.json.Reads._
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
-import uk.gov.hmrc.brm.models.response.gro.Child._
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.json.{JsPath, Reads, _}
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.models.response.gro.Child._
+import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 
 /**
   * Created by user on 06/03/17.
   */
 object ReadsUtil {
-
 
   val groChildReads : Reads[Child] = (
     (JsPath  \ "systemNumber").read[Int] and
@@ -46,16 +45,19 @@ object ReadsUtil {
       (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
-
   val groReadRecord : Reads[Record] = (
     JsPath.read[Child](groChildReads) and
       (JsPath \ "status").readNullable[Status]
     )(Record.apply _)
 
   val nrsRecordsRead : Reads[Record] = (
-    (JsPath.read[Child](nrsChildReads)).map(child => Record(child,None))
-    )
-
+    JsPath.read[Child](nrsChildReads) and
+        (JsPath).read(
+          (JsPath \ "status").read[Int] and
+            (JsPath \ "deathCode").read[Int]
+           tupled
+        ).map(status => Some(NRSStatus(status._1, status._2)))
+    )(Record.apply _)
 
   val nrsRecordsListRead : Reads[List[Record]] = {
     (JsPath \ "births").read[JsArray].map(
@@ -68,6 +70,5 @@ object ReadsUtil {
       (births: JsArray) => births.value.map(v => v.as[Record](groReadRecord)).toList
     )
   }
-
 
 }

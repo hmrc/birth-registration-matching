@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.models.response.gro
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, Reads}
+import uk.gov.hmrc.brm.models.response.StatusInterface
 
 case class Status (
                     potentiallyFictitiousBirth : Boolean = false,
@@ -27,9 +28,9 @@ case class Status (
                     blockedRegistration : Boolean = false,
                     marginalNote : Option[String] = None,
                     reRegistered : Option[String] = None
-                  )
+                  ) extends StatusInterface
 
-object Status  {
+object Status {
 
   implicit val childReads : Reads[Status] = (
     (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
