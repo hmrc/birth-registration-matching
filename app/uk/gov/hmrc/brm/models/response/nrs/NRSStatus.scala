@@ -19,6 +19,6 @@ package uk.gov.hmrc.brm.models.response.nrs
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
 case class NRSStatus (
-                       status : Option[Int] = None,
-                       deathCode : Option[Int] = None
+                       status : Int = 1,
+                       deathCode : Int = 0
                      ) extends StatusInterface

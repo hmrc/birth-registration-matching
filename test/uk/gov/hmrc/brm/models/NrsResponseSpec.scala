@@ -46,7 +46,9 @@ class NrsResponseSpec extends UnitSpec {
       |    "dateOfBirth" : "2007-02-18"
       |  }
       | },
-      | "id" : "2017734003"
+      | "id" : "2017734003",
+      | "status": 1,
+      | "deathCode": 0
       |}   ]
       |}
     """.stripMargin)
@@ -71,8 +73,8 @@ class NrsResponseSpec extends UnitSpec {
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
       record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
-      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
@@ -86,8 +88,8 @@ class NrsResponseSpec extends UnitSpec {
       record.child.firstName shouldBe ""
       record.child.lastName shouldBe ""
       record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe -4
-      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe -4
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
     "return two Record object with all Child attributes when json has two records" in {
@@ -108,8 +110,8 @@ class NrsResponseSpec extends UnitSpec {
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
       record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
-      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
 
       val recordTwo = listOfRecords(1)
 
@@ -121,8 +123,8 @@ class NrsResponseSpec extends UnitSpec {
       recordTwo.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       recordTwo.child.dateOfBirth.get shouldBe a[LocalDate]
       record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status.get shouldBe 1
-      record.status.get.asInstanceOf[NRSStatus].deathCode.get shouldBe 0
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
     "return error when json is empty" in {
@@ -148,8 +150,8 @@ class NrsResponseSpec extends UnitSpec {
       record.child.dateOfBirth.get.toString shouldBe "2007-02-18"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
       record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe None
-      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe None
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
   }

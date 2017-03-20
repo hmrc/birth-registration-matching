@@ -51,10 +51,10 @@ object ReadsUtil {
     )(Record.apply _)
 
   val nrsRecordsRead : Reads[Record] = (
-    (JsPath.read[Child](nrsChildReads)).map(child => child) and
+    JsPath.read[Child](nrsChildReads) and
         (JsPath).read(
-          (JsPath \ "status").readNullable[Int] and
-            (JsPath \ "deathCode").readNullable[Int]
+          (JsPath \ "status").read[Int] and
+            (JsPath \ "deathCode").read[Int]
            tupled
         ).map(status => Some(NRSStatus(status._1, status._2)))
     )(Record.apply _)
