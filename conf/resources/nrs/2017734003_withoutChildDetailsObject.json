@@ -14,13 +14,7 @@
           "lastName": "ASDF",
           "address": "23 High Street, Perth, PA3 4TG"
         },
-        "child": {
-          "firstName": "",
-          "lastName": "",
-          "birthPlace": "",
-          "sex": "M",
-          "dateOfBirth": ""
-        },
+
         "informant": {
           "qualification": "Mother",
           "fullName": "J Smith"

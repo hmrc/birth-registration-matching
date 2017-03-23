@@ -323,6 +323,27 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
+    "return Record object with all Child attributes when record does not have informant's qualification." in {
+      val nrsJsonResponseObject = getNrsResponse(qualification = "")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
 
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017350003")
