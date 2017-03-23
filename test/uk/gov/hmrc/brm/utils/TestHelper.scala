@@ -18,10 +18,12 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.Child
-import play.api.test.Helpers._
+import uk.gov.hmrc.play.http.HttpResponse
 
 object TestHelper {
 
@@ -103,6 +105,16 @@ object TestHelper {
       |
       |  }
     """.stripMargin)
+
+  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
+    .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
+    .withBody(v)
+
+  def httpResponse(responseCode: Int, js: JsValue) = HttpResponse.apply(responseCode, Some(js))
+
+  def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
+
+  def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
   def validRecord: Record ={
     val birthDate = new LocalDate("2012-02-16")
@@ -550,7 +562,8 @@ object TestHelper {
        |{
        |"lastName" : "Smith",
        |"dateOrBirth" : "2012-12-17",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
@@ -558,7 +571,7 @@ object TestHelper {
   val userInvalidWhereBirthRegistered = Json.parse(
     s"""
        |{
-       |"firstname" : "Adam TEST",
+       |"firstName" : "Adam TEST",
        |"lastName" : "SMITH",
        |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "500035710",
@@ -569,60 +582,66 @@ object TestHelper {
   val userNoMatchExcludingfirstNameValue = Json.parse(
     s"""
        |{
-       |"firstname" : "",
+       |"firstName" : "",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
   val firstNameWithSpecialCharacters = Json.parse(
     s"""
        |{
-       |"firstname" : "../WEB-INF/web.xml",
+       |"firstName" : "../WEB-INF/web.xml",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
   val firstNameWithMoreThan250Characters = Json.parse(
     s"""
        |{
-       |"firstname" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
+       |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
   val firstNameWithMoreThan100Characters = Json.parse(
     s"""
        |{
-       |"firstname" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
+       |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
   val lastNameWithMoreThan100Characters = Json.parse(
     s"""
        |{
-       |"firstname" : "Adam",
+       |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
   val lastNameWithMoreThan250Characters = Json.parse(
     s"""
        |{
-       |"firstname" : "Adam",
+       |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
@@ -632,7 +651,8 @@ object TestHelper {
        |"firstname" : "Adam TEST",
        |"lastName" : "Gibby&cat /etc/passwd&",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
@@ -641,7 +661,8 @@ object TestHelper {
        |{
        |"firstname" : "John",
        |"dateOrBirth" : "2012-12-17",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
@@ -651,7 +672,8 @@ object TestHelper {
        |"firstname" : "John",
        |"lastName" : "",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 
@@ -662,8 +684,8 @@ object TestHelper {
        |"firstname" : "Manish",
        |"lastName" : "Varma",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
-       |
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
 

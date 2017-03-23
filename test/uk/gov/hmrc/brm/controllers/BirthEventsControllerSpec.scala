@@ -19,12 +19,12 @@ package uk.gov.hmrc.brm.controllers
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatest.{BeforeAndAfter, TestData}
+import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
-import play.api.libs.json.{JsValue, Json}
-import play.api.test.FakeRequest
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.test.Helpers.{contentAsJson, _}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
@@ -39,22 +39,20 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 
 class BirthEventsControllerSpec
-  extends UnitSpec
+    extends UnitSpec
     with MockitoSugar
-    with OneAppPerSuite
+    with OneAppPerTest
     with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
-  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
-    .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
-    .withBody(v)
-
-  def httpResponse(responseCode: Int, js: JsValue) = HttpResponse.apply(responseCode, Some(js))
-
-  def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
-
-  def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    Map(
+      "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
+      "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
+      "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true
+    )
+  ).build()
 
   "BirthEventsController" when {
 
@@ -109,7 +107,7 @@ class BirthEventsControllerSpec
 
     "validate firstName" should {
 
-      "return response code 400 if request contains missing firstname key" in {
+      "return response code 400 if request contains missing firstName key" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingFirstNameKey)
         val result = await(MockController.post().apply(request))
@@ -119,7 +117,7 @@ class BirthEventsControllerSpec
         bodyOf(result) shouldBe empty
       }
 
-      "return response code 400 if request contains missing firstname value" in {
+      "return response code 400 if request contains missing firstName value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingfirstNameValue)
         val result = await(MockController.post().apply(request))
@@ -173,7 +171,7 @@ class BirthEventsControllerSpec
         bodyOf(result) shouldBe empty
       }
 
-      "return response code 400 if request contains special character in lastname value" in {
+      "return response code 400 if request contains special character in lastName value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(lastNameWithSpecialCharacters)
         val result = await(MockController.post().apply(request))
@@ -183,7 +181,7 @@ class BirthEventsControllerSpec
         bodyOf(result) shouldBe empty
       }
 
-      "return response code 400 if request contains more than 250 character in lastname value" in {
+      "return response code 400 if request contains more than 250 character in lastName value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(lastNameWithMoreThan250Characters)
         val result = await(MockController.post().apply(request))
@@ -311,16 +309,6 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
-        "return response code 400 if request contains missing birthReferenceNumber value" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          val request = postRequest(userNoMatchExcludingReferenceValue)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe BAD_REQUEST
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
-        }
-
         "return match false when GRO returns invalid json" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(invalidResponse)))
@@ -372,7 +360,6 @@ class BirthEventsControllerSpec
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
-
 
         "return JSON response true on successful child detail match" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -888,6 +875,29 @@ class BirthEventsControllerSpec
 
       "return 200 false if request contains Northern Ireland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
+        val request = postRequest(userWhereBirthRegisteredNI)
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "calls getReference when GRONIFeature is enabled" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
+        val request = postRequest(userWhereBirthRegisteredNI)
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "calls getDetails when GRONIFeature is enabled" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
         val request = postRequest(userWhereBirthRegisteredNI)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
@@ -899,4 +909,5 @@ class BirthEventsControllerSpec
     }
 
   }
+
 }

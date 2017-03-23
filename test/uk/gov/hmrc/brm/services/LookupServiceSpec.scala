@@ -44,7 +44,8 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
 
   before {
     reset(MockLookupService.groConnector)
-    reset(MockLookupService.groConnector)
+    reset(MockLookupService.nrsConnector)
+    reset(MockLookupService.groniConnector)
     reset(mockAuditConnector)
   }
 
@@ -335,22 +336,20 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
       "accept Payload as an argument" in {
         intercept[NotImplementedException] {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
+          when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("No getReference method available for GRONI connector.")))
           val service = MockLookupService
           implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-          val result = await(service.lookup)
-          result should not be BirthMatchResponse(false)
+          await(service.lookup)
         }
       }
 
       "accept payload without reference number as argument" in {
         intercept[NotImplementedException] {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
+          when(MockLookupService.groniConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector.")))
           val service = MockLookupService
           implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-          val result = await(service.lookup)
-          result should not be BirthMatchResponse(false)
+          await(service.lookup)
         }
       }
 

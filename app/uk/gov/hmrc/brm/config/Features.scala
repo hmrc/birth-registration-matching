@@ -21,31 +21,26 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.BirthRegisterCountry
 
-abstract class Feature(key : String) {
-  final def enabled() : Boolean = {
+abstract class Feature(key: String) {
+  final def enabled(): Boolean = {
     try {
-      if(!key.split("\\.").headOption.fold(false) {
-        case a => BrmConfig.getConfBool(s"birth-registration-matching.features.$a.enabled",
-          throw BrmConfig.BirthConfigurationException(s"features.$a.enabled"))
-      }) {
-        // If parent feature is false, all nested features are false
-        false
+      if (!key.split("\\.").headOption.fold(false)(getConfig(_, "enabled", BrmConfig.getConfBool))) {
+        false // If parent feature is false, all nested features are false
       }
-      else
-      {
-        BrmConfig.getConfBool(s"birth-registration-matching.features.$key.enabled",
-          throw BrmConfig.BirthConfigurationException(s"features.$key.enabled")
-        )
+      else {
+        getConfig(key, "enabled", BrmConfig.getConfBool)
       }
     } catch {
-      case _ : Throwable =>
+      case _: Throwable =>
         throw new RuntimeException(s"problem obtaining valid config value")
     }
   }
 
-  final def value : String = {
-    BrmConfig.getConfString(s"birth-registration-matching.features.$key.value",
-      throw BrmConfig.BirthConfigurationException(s"features.$key.value")
+  final def value: String = getConfig(key, "value", BrmConfig.getConfString)
+
+  private def getConfig[A](key: String, attribute: String, f: (String, => A) => A) = {
+    f(s"birth-registration-matching.features.$key.$attribute",
+      throw BrmConfig.BirthConfigurationException(s"features.$key.$attribute")
     )
   }
 }
@@ -59,39 +54,44 @@ case class DateOfBirthValidationFeature() extends Feature("dobValidation")
   GRO feature switches
 */
 case class GROFeature() extends Feature("gro")
+
 case class GROReferenceFeature() extends Feature("gro.reference")
+
 case class GRODetailsFeature() extends Feature("gro.details")
 
 /*
   NRS feature switches
 */
 case class NRSFeature() extends Feature("nrs")
+
 case class NRSReferenceFeature() extends Feature("nrs.reference")
+
 case class NRSDetailsFeature() extends Feature("nrs.details")
 
 trait FeatureFactory {
 
-  def feature : Boolean
-  def referenceFeature : Boolean
-  def detailsFeature: Boolean
+  def feature: Boolean
 
-  def isReferenceMatchingEnabled(implicit p: Payload) : Boolean
+  def isReferenceMatchingEnabled(implicit p: Payload): Boolean
 
-  def isDetailsMatchingEnabled(implicit p: Payload) : Boolean
+  def isDetailsMatchingEnabled(implicit p: Payload): Boolean
 
-  def validDateOfBirth(implicit p: Payload) : Boolean = p match {
+  def validDateOfBirth(implicit p: Payload): Boolean = p match {
     case Payload(_, _, _, dob, _) =>
       val feature = DateOfBirthValidationFeature()
-      if(feature.enabled()) {
+      if (feature.enabled()) {
         val configDate = LocalDate.parse(feature.value).toDate
         !dob.toDate.before(configDate)
-      } else { true }
+      } else {
+        true
+      }
   }
 
   def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+
   def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 
-  def validate()(implicit p :Payload) : Boolean = p match {
+  def validate()(implicit p: Payload): Boolean = p match {
     case Payload(Some(_), _, _, _, _) =>
       referenceFeatures
     case Payload(None, _, _, _, _) =>
@@ -102,59 +102,62 @@ trait FeatureFactory {
 object NRSConcreteFeature extends FeatureFactory {
 
   def feature: Boolean = NRSFeature().enabled()
-  def referenceFeature: Boolean = NRSReferenceFeature().enabled()
-  def detailsFeature: Boolean = NRSDetailsFeature().enabled()
 
-  override def isDetailsMatchingEnabled(implicit p: Payload) : Boolean = {
-    detailsFeature
+  override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
+    NRSDetailsFeature().enabled()
   }
 
-  override def isReferenceMatchingEnabled(implicit p: Payload) : Boolean = {
-    referenceFeature
+  override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
+    NRSReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+
   override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 }
 
 object GROConcreteFeature extends FeatureFactory {
 
   def feature: Boolean = GROFeature().enabled()
-  def referenceFeature: Boolean = GROReferenceFeature().enabled()
-  def detailsFeature: Boolean = GRODetailsFeature().enabled()
 
-  override def isDetailsMatchingEnabled(implicit p: Payload) : Boolean = {
-    detailsFeature
+  override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
+    GRODetailsFeature().enabled()
   }
 
-  override def isReferenceMatchingEnabled(implicit p: Payload) : Boolean = {
-    referenceFeature
+  override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
+    GROReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
+
   override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 }
 
-object GRONIConcreteFeature extends FeatureFactory {
-  def feature: Boolean = false
-  def referenceFeature: Boolean = false
-  def detailsFeature: Boolean = false
+case class GRONIFeature() extends Feature("groni")
 
-  override def isDetailsMatchingEnabled(implicit p: Payload) : Boolean = {
-    true
+case class GRONIReferenceFeature() extends Feature("groni.reference")
+
+case class GRONIDetailsFeature() extends Feature("groni.details")
+
+object GRONIConcreteFeature extends FeatureFactory {
+  def feature: Boolean = GRONIFeature().enabled()
+
+  override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
+    GRONIDetailsFeature().enabled()
   }
 
-  override def isReferenceMatchingEnabled(implicit p: Payload) : Boolean = {
-    true
+  override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
+    GRONIReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = isReferenceMatchingEnabled
+
   override def detailsFeatures(implicit p: Payload) = isDetailsMatchingEnabled
 }
 
 object FeatureFactory {
 
-  private lazy val set : Map[BirthRegisterCountry, FeatureFactory] = Map(
+  private lazy val set: Map[BirthRegisterCountry, FeatureFactory] = Map(
     BirthRegisterCountry.ENGLAND -> GROConcreteFeature,
     BirthRegisterCountry.WALES -> GROConcreteFeature,
     BirthRegisterCountry.SCOTLAND -> NRSConcreteFeature,
