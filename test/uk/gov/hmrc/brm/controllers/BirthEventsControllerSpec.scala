@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
@@ -27,7 +28,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, _}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http._
@@ -688,6 +691,20 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
+
+        "return 200 false response when first name has special characters for unsuccessful BRN match." in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))))
+
+          var payload = Payload(Some("1234567890"), "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø", "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+          val request = postRequest(Json.toJson(payload))
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
       }
 
       "POST with child's details" should {
@@ -722,6 +739,19 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))))
 
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 false response when child details are not found when first name has special characters." in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Future.failed(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))))
+
+          var payload = Payload(None, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø", "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+          val request = postRequest(Json.toJson(payload))
           val result = await(MockController.post().apply(request))
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
