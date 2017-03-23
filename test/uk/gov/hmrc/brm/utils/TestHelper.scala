@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.utils
 
 import org.joda.time.LocalDate
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.Child
@@ -815,5 +815,47 @@ object TestHelper {
       "referenceNumber" -> "12345678912"
     )
   )
+
+
+  def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
+                     fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
+                     informantName:String="Mother",qualification:String="J Smith") : JsValue = {
+    val nrsResponse = Json.parse(
+    s"""
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |    "father": {
+      |          "firstName": "${fatherName}",
+      |          "lastName": "${fatherLastName}",
+      |          "address":  "${fatherBirthPlace}"
+      |       },
+      |    "mother": {
+      |          "firstName": "Joan",
+      |          "lastName": "SMITH",
+      |          "address": "24 Church Road Edinburgh",
+      |          "maidenSurname": ""
+      |       },
+      |   "child" : {
+      |          "firstName": "Adam TEST",
+      |          "lastName": "SMITH",
+      |          "birthPlace": "Edinburgh",
+      |          "sex": "M",
+      |          "dateOfBirth": "2009-11-12"
+      |    },
+      |   "informant": {
+      |          "qualification": "${informantName}",
+      |          "fullName": "${qualification}"
+      |        }
+      | },
+      | "id" : "2017734003",
+      | "status": 1,
+      | "deathCode": 0
+      |}   ]
+      |}
+    """.stripMargin)
+
+    nrsResponse
+  }
 
 }
