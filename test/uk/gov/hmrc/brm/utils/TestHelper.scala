@@ -834,7 +834,7 @@ object TestHelper {
       |          "firstName": "Joan",
       |          "lastName": "SMITH",
       |          "address": "24 Church Road Edinburgh",
-      |          "maidenSurname": ""
+      |          "maidenSurname": "SMITH"
       |       },
       |   "child" : {
       |          "firstName": "Adam TEST",
@@ -844,8 +844,8 @@ object TestHelper {
       |          "dateOfBirth": "2009-11-12"
       |    },
       |   "informant": {
-      |          "qualification": "${informantName}",
-      |          "fullName": "${qualification}"
+      |          "qualification": "${qualification}",
+      |          "fullName": "${informantName}"
       |        }
       | },
       | "id" : "2017734003",
