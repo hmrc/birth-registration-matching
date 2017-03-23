@@ -247,8 +247,6 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
       val feature = FeatureFactory()
       feature.isInstanceOf[FeatureFactory] shouldBe true
       feature.feature shouldBe true
-      feature.referenceFeature shouldBe true
-      feature.detailsFeature shouldBe true
     }
 
     "return GROConcreteFeature for birth registered in wales" taggedAs Tag("enabled") in {

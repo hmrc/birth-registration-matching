@@ -72,10 +72,6 @@ trait FeatureFactory {
 
   def feature: Boolean
 
-  def referenceFeature: Boolean
-
-  def detailsFeature: Boolean
-
   def isReferenceMatchingEnabled(implicit p: Payload): Boolean
 
   def isDetailsMatchingEnabled(implicit p: Payload): Boolean
@@ -107,16 +103,12 @@ object NRSConcreteFeature extends FeatureFactory {
 
   def feature: Boolean = NRSFeature().enabled()
 
-  def referenceFeature: Boolean = NRSReferenceFeature().enabled()
-
-  def detailsFeature: Boolean = NRSDetailsFeature().enabled()
-
   override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
-    detailsFeature
+    NRSDetailsFeature().enabled()
   }
 
   override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
-    referenceFeature
+    NRSReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
@@ -128,16 +120,12 @@ object GROConcreteFeature extends FeatureFactory {
 
   def feature: Boolean = GROFeature().enabled()
 
-  def referenceFeature: Boolean = GROReferenceFeature().enabled()
-
-  def detailsFeature: Boolean = GRODetailsFeature().enabled()
-
   override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
-    detailsFeature
+    GRODetailsFeature().enabled()
   }
 
   override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
-    referenceFeature
+    GROReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = validDateOfBirth && isReferenceMatchingEnabled
@@ -154,16 +142,12 @@ case class GRONIDetailsFeature() extends Feature("groni.details")
 object GRONIConcreteFeature extends FeatureFactory {
   def feature: Boolean = GRONIFeature().enabled()
 
-  def referenceFeature: Boolean = GRONIReferenceFeature().enabled()
-
-  def detailsFeature: Boolean = GRONIDetailsFeature().enabled()
-
   override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
-    detailsFeature
+    GRONIDetailsFeature().enabled()
   }
 
   override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
-    referenceFeature
+    GRONIReferenceFeature().enabled()
   }
 
   override def referenceFeatures(implicit p: Payload) = isReferenceMatchingEnabled
