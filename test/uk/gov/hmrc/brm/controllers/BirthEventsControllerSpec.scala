@@ -18,10 +18,11 @@ package uk.gov.hmrc.brm.controllers
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatest.{BeforeAndAfter, TestData}
+import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.{contentAsJson, _}
 import uk.gov.hmrc.brm.audit.BRMAudit
@@ -35,12 +36,20 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 
 class BirthEventsControllerSpec
-  extends UnitSpec
+    extends UnitSpec
     with MockitoSugar
-    with OneAppPerSuite
+    with OneAppPerTest
     with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
+
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    Map(
+      "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
+      "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
+      "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true
+    )
+  ).build()
 
   "BirthEventsController" when {
 
@@ -824,6 +833,29 @@ class BirthEventsControllerSpec
 
       "return 200 false if request contains Northern Ireland" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
+        val request = postRequest(userWhereBirthRegisteredNI)
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "calls getReference when GRONIFeature is enabled" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
+        val request = postRequest(userWhereBirthRegisteredNI)
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe OK
+        (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        contentType(result).get shouldBe "application/json"
+        header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      }
+
+      "calls getDetails when GRONIFeature is enabled" in {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockLookupService.groniConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("")))
         val request = postRequest(userWhereBirthRegisteredNI)
         val result = await(MockController.post().apply(request))
         status(result) shouldBe OK
@@ -835,4 +867,5 @@ class BirthEventsControllerSpec
     }
 
   }
+
 }

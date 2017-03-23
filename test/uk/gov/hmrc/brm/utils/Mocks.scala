@@ -61,10 +61,9 @@ object Mocks extends MockitoSugar {
     override val auditor = auditorFixtures.matchingAudit
   }
 
-  // TODO Refactor to use mock connectors for GRONI and NRS
   object MockLookupService extends LookupService {
     override val groConnector = mockConnector
-    override val groniConnector = new GRONIConnector()
+    override val groniConnector = mockConnector
     override val nrsConnector = mockConnector
     override val matchingService = MockMatchingServiceMatchMultipleFalse
     override val transactionAuditor = auditorFixtures.transactionAudit

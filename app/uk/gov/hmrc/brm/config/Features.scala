@@ -145,19 +145,25 @@ object GROConcreteFeature extends FeatureFactory {
   override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 }
 
+case class GRONIFeature() extends Feature("groni")
+
+case class GRONIReferenceFeature() extends Feature("groni.reference")
+
+case class GRONIDetailsFeature() extends Feature("groni.details")
+
 object GRONIConcreteFeature extends FeatureFactory {
-  def feature: Boolean = false
+  def feature: Boolean = GRONIFeature().enabled()
 
-  def referenceFeature: Boolean = false
+  def referenceFeature: Boolean = GRONIReferenceFeature().enabled()
 
-  def detailsFeature: Boolean = false
+  def detailsFeature: Boolean = GRONIDetailsFeature().enabled()
 
   override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
-    true
+    detailsFeature
   }
 
   override def isReferenceMatchingEnabled(implicit p: Payload): Boolean = {
-    true
+    referenceFeature
   }
 
   override def referenceFeatures(implicit p: Payload) = isReferenceMatchingEnabled
