@@ -18,33 +18,20 @@ package uk.gov.hmrc.brm.controllers
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
+class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter {
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
-
-  def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/api/v0/events/birth")
-    .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
-    .withBody(v)
-
-  def httpResponse(js: JsValue) = HttpResponse.apply(200, Some(js))
-
-  def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
+  import uk.gov.hmrc.brm.utils.TestHelper._
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
@@ -54,28 +41,43 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     config
   ).build()
 
+  before {
+    reset(MockController.service.groConnector)
+  }
+
   "validating max length change" should {
 
-    "return BAD REQUEST 400 if request contains more than 250 characters in firstName " in {
+    "return OK if firstName < 250 characters" in {
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
+      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       val request = postRequest(firstNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
-      status(result) shouldBe BAD_REQUEST
+      status(result) shouldBe OK
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      bodyOf(result).toString() shouldBe(empty)
+      (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
     }
 
-    "return BAD REQUEST 400 if request contains more than 250 characters in lastname " in {
+    "return BAD_REQUEST if firstName > 250 characters" in {
       when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(lastNameWithMoreThan100Characters)
+      val request = postRequest(firstNameWithMoreThan250Characters)
       val result = await(MockController.post().apply(request))
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
       bodyOf(result).toString() shouldBe(empty)
+      verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
+    }
+
+    "return BAD_REQUEST if lastName > 250 characters" in {
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      val request = postRequest(lastNameWithMoreThan250Characters)
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe BAD_REQUEST
+      contentType(result).get shouldBe "application/json"
+      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      bodyOf(result).toString() shouldBe(empty)
+      verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
     }
 
   }
