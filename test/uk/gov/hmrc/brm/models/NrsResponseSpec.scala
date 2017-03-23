@@ -355,6 +355,7 @@ class NrsResponseSpec extends UnitSpec {
       record.child.birthReferenceNumber shouldBe 2017350003
       record.child.firstName shouldBe ""
       record.child.lastName shouldBe ""
+      record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
       record.status.get.asInstanceOf[NRSStatus].status shouldBe -4
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
