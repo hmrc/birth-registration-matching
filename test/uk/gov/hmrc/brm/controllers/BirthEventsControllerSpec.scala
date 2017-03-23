@@ -484,6 +484,18 @@ class BirthEventsControllerSpec
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         }
 
+        "return InternalServerError when GRO throws Exception" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
+        }
+
       }
 
       "receiving error response from Proxy for details request" should {
