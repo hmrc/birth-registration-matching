@@ -842,11 +842,11 @@ object TestHelper {
 
   def getNrsResponse(fatherName:String="Asdf", fatherFirstName: Boolean = false, fatherLastName:String="ASDF",
                      fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
-                     informantName:String="Mother",qualification:String="J Smith", blackList: List[String] = List("fatherFirstName")) : JsValue = {
+                     informantName:String="Mother",qualification:String="J Smith", blackList: List[String] = List.empty) : JsValue = {
 
     def buildKey(keyValue: String, key: String, value: String): String = {
       if(!blackList.contains(keyValue))
-        s"""| "$key": "${value}","""
+        s""" "$key": "${value}","""
       else
         """"""
     }
@@ -886,8 +886,7 @@ object TestHelper {
       |}
     """.stripMargin)
 
-    println(s"TEST HERE - $nrsResponse")
-
+  
     nrsResponse
   }
 
