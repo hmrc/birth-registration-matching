@@ -839,16 +839,25 @@ object TestHelper {
   )
 
 
-  def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
+
+  def getNrsResponse(fatherName:String="Asdf", fatherFirstName: Boolean = false, fatherLastName:String="ASDF",
                      fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
                      informantName:String="Mother",qualification:String="J Smith") : JsValue = {
+
+    def buildKey(keyValue: Boolean, key: String, value: String): String = {
+      if(keyValue)
+        s"""| "$key": "${value}","""
+      else
+        """"""
+    }
+
     val nrsResponse = Json.parse(
     s"""
       |{  "births": [
       |    {
       | "subjects" : {
       |    "father": {
-      |          "firstName": "${fatherName}",
+      |          ${buildKey(fatherFirstName, "firstName", fatherName)}
       |          "lastName": "${fatherLastName}",
       |          "address":  "${fatherBirthPlace}"
       |       },
@@ -876,6 +885,8 @@ object TestHelper {
       |}   ]
       |}
     """.stripMargin)
+
+    println(s"TEST HERE - $nrsResponse")
 
     nrsResponse
   }
