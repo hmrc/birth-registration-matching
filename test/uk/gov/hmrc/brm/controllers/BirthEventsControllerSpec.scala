@@ -654,6 +654,19 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
+        "return 200 matched false when record status is cancelled ie RCE -6" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsRecord2017350001))))
+
+          val request = postRequest(Json.toJson(nrsRequestPayload2017350001))
+          val result = await(MockController.post().apply(request))
+
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
         "return 200 response for UTF-8 reference request" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(200, validNrsJsonResponse2017350007)))
@@ -715,6 +728,20 @@ class BirthEventsControllerSpec
 
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
           val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+
+        "return 200 matched false when record status is cancelled ie RCE -6" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsRecord2017350001))))
+
+          val request = postRequest(Json.toJson(nrsRequestPayloadWithoutBrn))
+          val result = await(MockController.post().apply(request))
+
           status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"

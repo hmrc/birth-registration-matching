@@ -23,6 +23,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.JsValue
+import play.api.test.Helpers._
 import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -126,7 +127,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
     "NRSConnector" should {
 
-      "getReference returns json response" in {
+      "getReference returns 200 status with json response when record was found. " in {
 
         when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
           (Matchers.any(), Matchers.any(), Matchers.any()))
@@ -135,6 +136,29 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
         result shouldBe a[HttpResponse]
         result.status shouldBe 200
+      }
+
+
+      "getReference returns 403 forbidden response when record was not found." in {
+
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.FORBIDDEN, None)))
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 403
+      }
+
+      "getReference returns 503 when NRS is down." in {
+
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, None)))
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 503
       }
 
       "getReference returns http 500 when DES is offline" in {
@@ -154,6 +178,30 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
         result shouldBe a[HttpResponse]
         result.status shouldBe 200
+      }
+
+      "getChildDetails returns 403 forbidden response when record was not found." in {
+
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.FORBIDDEN, None)))
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 403
+      }
+
+      "getChildDetails returns 503 (SERVICE_UNAVAILABLE) when NRS is down." in {
+
+        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+          (Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, None)))
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        result shouldBe a[HttpResponse]
+        result.status shouldBe 503
       }
 
       "getChildDetails returns http 500 when DES is offline" in {
