@@ -4,10 +4,10 @@
       "registrationDistrict": "Edinburgh",
       "subjects": {
         "mother": {
-          "firstName": "",
+
           "lastName": "SMITH",
           "address": "24 Church Road Edinburgh",
-          "maidenSurname": ""
+          "maidenSurname": "SMITH"
         },
         "father": {
           "firstName": "Asdf",

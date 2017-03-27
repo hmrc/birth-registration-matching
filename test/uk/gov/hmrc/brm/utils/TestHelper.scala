@@ -842,10 +842,10 @@ object TestHelper {
 
   def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
                      fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
-                     informantName:String="Mother",qualification:String="J Smith", blackList: List[String] = List.empty) : JsValue = {
+                     informantName:String="Mother",qualification:String="J Smith") : JsValue = {
 
-    def buildKey(keyValue: String, key: String, value: String, append: Option[String] = Some(",")): String = {
-      if(!blackList.contains(keyValue) || value.isEmpty)
+    def buildKey(key: String, value: String, append: Option[String] = Some(",")): String = {
+      if(!value.isEmpty)
         s""" "$key": "${value}"${append.getOrElse("")}"""
       else
         """"""
@@ -857,9 +857,9 @@ object TestHelper {
       |    {
       | "subjects" : {
       |    "father": {
-      |          ${buildKey("fatherFirstName", "firstName", fatherName)}
-      |          ${buildKey("fatherLastName", "lastName", fatherLastName)}
-      |          ${buildKey("fatherBirthPlace", "address", fatherBirthPlace, None)}
+      |          ${buildKey("firstName", fatherName)}
+      |          ${buildKey("lastName", fatherLastName, if(fatherBirthPlace.isEmpty) None else Some(","))}
+      |          ${buildKey("address", fatherBirthPlace, None)}
       |       },
       |    "mother": {
       |          "firstName": "Joan",
@@ -875,7 +875,7 @@ object TestHelper {
       |          "dateOfBirth": "2009-11-12"
       |    },
       |   "informant": {
-      |          "qualification": "${qualification}",
+      |          ${buildKey("qualification", qualification)}
       |          "fullName": "${informantName}"
       |        }
       | },

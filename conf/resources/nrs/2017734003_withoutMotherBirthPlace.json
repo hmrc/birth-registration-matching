@@ -5,8 +5,8 @@
       "subjects": {
         "mother": {
           "firstName": "Joan",
-          "lastName": "SMITH",
-          "maidenSurname": ""
+          "lastName": "SMITH"
+
         },
         "father": {
           "firstName": "Asdf",

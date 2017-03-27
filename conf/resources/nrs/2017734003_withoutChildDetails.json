@@ -15,11 +15,10 @@
           "address": "23 High Street, Perth, PA3 4TG"
         },
         "child": {
-          "firstName": "",
-          "lastName": "",
-          "birthPlace": "",
-          "sex": "M",
-          "dateOfBirth": ""
+
+          "birthPlace": "Edinburgh",
+          "sex": "M"
+
         },
         "informant": {
           "qualification": "Mother",
