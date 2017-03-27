@@ -258,7 +258,7 @@ class NrsResponseSpec extends UnitSpec {
     }
 
 
-    "return Record object with all Child attributes when record does not have father First Name only." in {
+    "return Record object with all Child attributes when record does not have father value firstName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherName = "")
 
       var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
@@ -280,7 +280,7 @@ class NrsResponseSpec extends UnitSpec {
     }
 
 
-    "return Record object with all Child attributes when record does not have father Last Name only." in {
+    "return Record object with all Child attributes when record does not have father value lastName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherLastName = "")
 
       var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)

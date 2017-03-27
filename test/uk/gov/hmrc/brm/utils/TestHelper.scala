@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.http.HttpResponse
 object TestHelper {
 
   /**
-    GRO
+    * GRO
    */
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
@@ -840,13 +840,13 @@ object TestHelper {
 
 
 
-  def getNrsResponse(fatherName:String="Asdf", fatherFirstName: Boolean = false, fatherLastName:String="ASDF",
+  def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
                      fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
                      informantName:String="Mother",qualification:String="J Smith", blackList: List[String] = List.empty) : JsValue = {
 
-    def buildKey(keyValue: String, key: String, value: String): String = {
-      if(!blackList.contains(keyValue))
-        s""" "$key": "${value}","""
+    def buildKey(keyValue: String, key: String, value: String, append: Option[String] = Some(",")): String = {
+      if(!blackList.contains(keyValue) || value.isEmpty)
+        s""" "$key": "${value}"${append.getOrElse("")}"""
       else
         """"""
     }
@@ -858,8 +858,8 @@ object TestHelper {
       | "subjects" : {
       |    "father": {
       |          ${buildKey("fatherFirstName", "firstName", fatherName)}
-      |          "lastName": "${fatherLastName}",
-      |          "address":  "${fatherBirthPlace}"
+      |          ${buildKey("fatherLastName", "lastName", fatherLastName)}
+      |          ${buildKey("fatherBirthPlace", "address", fatherBirthPlace, None)}
       |       },
       |    "mother": {
       |          "firstName": "Joan",
