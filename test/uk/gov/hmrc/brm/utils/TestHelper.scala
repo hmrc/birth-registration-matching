@@ -19,16 +19,16 @@ package uk.gov.hmrc.brm.utils
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.models.response.gro.Child
-import play.api.test.Helpers._
 import uk.gov.hmrc.play.http.HttpResponse
 
 object TestHelper {
 
   /**
-    GRO
+    * GRO
    */
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
@@ -837,5 +837,57 @@ object TestHelper {
       "referenceNumber" -> "12345678912"
     )
   )
+
+
+
+  def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
+                     fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
+                     informantName:String="Mother",qualification:String="J Smith") : JsValue = {
+
+    def buildKey(key: String, value: String, append: Option[String] = Some(",")): String = {
+      if(!value.isEmpty)
+        s""" "$key": "${value}"${append.getOrElse("")}"""
+      else
+        """"""
+    }
+
+    val nrsResponse = Json.parse(
+    s"""
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |    "father": {
+      |          ${buildKey("firstName", fatherName)}
+      |          ${buildKey("lastName", fatherLastName, if(fatherBirthPlace.isEmpty) None else Some(","))}
+      |          ${buildKey("address", fatherBirthPlace, None)}
+      |       },
+      |    "mother": {
+      |          "firstName": "Joan",
+      |          "lastName": "SMITH",
+      |          "address": "24 Church Road Edinburgh",
+      |          "maidenSurname": "SMITH"
+      |       },
+      |   "child" : {
+      |          "firstName": "Adam TEST",
+      |          "lastName": "SMITH",
+      |          "birthPlace": "Edinburgh",
+      |          "sex": "M",
+      |          "dateOfBirth": "2009-11-12"
+      |    },
+      |   "informant": {
+      |          ${buildKey("qualification", qualification)}
+      |          "fullName": "${informantName}"
+      |        }
+      | },
+      | "id" : "2017734003",
+      | "status": 1,
+      | "deathCode": 0
+      |}   ]
+      |}
+    """.stripMargin)
+
+  
+    nrsResponse
+  }
 
 }

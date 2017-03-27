@@ -1,0 +1,28 @@
+{
+  "births": [
+    {
+      "registrationDistrict": "Edinburgh",
+      "subjects": {
+        "mother": {
+          "firstName": "Joan",
+          "lastName": "SMITH",
+          "address": "24 Church Road Edinburgh",
+          "maidenSurname": ""
+        },
+        "father": {
+          "firstName": "Asdf",
+          "lastName": "ASDF",
+          "address": "23 High Street, Perth, PA3 4TG"
+        },
+
+        "informant": {
+          "qualification": "Mother",
+          "fullName": "J Smith"
+        }
+      },
+      "id": "2017734003",
+      "deathCode": 0,
+      "status": 1
+    }
+  ]
+}

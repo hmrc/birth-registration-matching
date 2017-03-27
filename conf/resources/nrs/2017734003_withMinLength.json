@@ -1,0 +1,34 @@
+{
+  "births": [
+    {
+      "registrationDistrict": "E",
+      "subjects": {
+        "mother": {
+          "firstName": "A",
+          "lastName": "B",
+          "address": "C",
+          "maidenSurname": "D"
+        },
+        "father": {
+          "firstName": "A",
+          "lastName": "B",
+          "address": "C"
+        },
+        "child": {
+          "firstName": "A",
+          "lastName": "S",
+          "birthPlace": "E",
+          "sex": "M",
+          "dateOfBirth": "2009-11-12"
+        },
+        "informant": {
+          "qualification": "M",
+          "fullName": "J"
+        }
+      },
+      "id": "2017734003",
+      "deathCode": 0,
+      "status": 1
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
-
+import uk.gov.hmrc.brm.utils.TestHelper._
 /**
   * Created by user on 07/03/17.
   */
@@ -54,6 +54,9 @@ class NrsResponseSpec extends UnitSpec {
     """.stripMargin)
 
 
+
+
+
   "Record" should {
 
     "return Record object with all Child attributes when json is a full record as NRS record" in {
@@ -77,6 +80,271 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
+
+
+    "return Record object with all Child attributes when json is does not have father details" in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutFatherDetails")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+
+
+    "return Record object with all Child attributes when json is does not have mother details" in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherDetails")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when json is does not have only informant details" in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutInformant")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when record does not have mother First Name only." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherFirstName")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+
+    "return Record object with all Child attributes when record does not have mother Last Name only." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherLastName")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when record does not have mothers birth place." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherBirthPlace")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes as empty when there are not child details value." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutChildDetails")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe ""
+      record.child.lastName shouldBe ""
+      record.child.dateOfBirth shouldBe None
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+    "return Record object with all Child attributes as empty when there are not child details object." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutChildDetailsObject")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe ""
+      record.child.lastName shouldBe ""
+      record.child.dateOfBirth shouldBe None
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when record does not have father value firstName only." in {
+      val nrsJsonResponseObject = getNrsResponse(fatherName = "")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when record does not have father value lastName only." in {
+      val nrsJsonResponseObject = getNrsResponse(fatherLastName = "")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+    "return Record object with all Child attributes when record does not have father's birth place." in {
+      val nrsJsonResponseObject = getNrsResponse(fatherBirthPlace = "")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+    "return Record object with all Child attributes when record does not have informant's qualification." in {
+      val nrsJsonResponseObject = getNrsResponse(qualification = "")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe "Adam TEST"
+      record.child.lastName shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017350003")
       var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
@@ -87,10 +355,14 @@ class NrsResponseSpec extends UnitSpec {
       record.child.birthReferenceNumber shouldBe 2017350003
       record.child.firstName shouldBe ""
       record.child.lastName shouldBe ""
+      record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
       record.status.get.asInstanceOf[NRSStatus].status shouldBe -4
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
+
+
+
 
     "return two Record object with all Child attributes when json has two records" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
@@ -149,6 +421,72 @@ class NrsResponseSpec extends UnitSpec {
       record.child.lastName shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--"
       record.child.dateOfBirth.get.toString shouldBe "2007-02-18"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+
+
+    "return Record object with all Child attributes when json is a full record with maximum length value." in {
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMaxLength")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName.length shouldBe 250
+      record.child.lastName.length shouldBe 250
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+   "return Record object with all Child attributes when json is a full record with minimum length value." in {
+
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMinLength")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName.length shouldBe 1
+      record.child.lastName.length shouldBe 1
+      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
+      record.child.dateOfBirth.get shouldBe a[LocalDate]
+      record.status.get shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+    }
+
+    "return Record object with all Child attributes when json is a full record with minimum required fields." in {
+
+      val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMinRequiredField")
+
+      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      response.isSuccess shouldBe true
+      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+
+      val record = listOfRecords.head
+      listOfRecords.length shouldBe 1
+      record shouldBe a[Record]
+      record.child shouldBe a[Child]
+      record.child.birthReferenceNumber shouldBe 2017734003
+      record.child.firstName shouldBe ""
+      record.child.lastName shouldBe ""
+      record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
       record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
