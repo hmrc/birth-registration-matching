@@ -51,7 +51,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
     "dateOfBirth" -> "2006-11-12"
   )
 
-  "BirthConnector" should {
+  "GROConnector" should {
 
     "getReference returns json response" in {
       when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())

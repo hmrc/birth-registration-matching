@@ -270,7 +270,6 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
     "requesting Scotland" should {
 
       "accept Payload as an argument" in {
-
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
         val service = MockLookupService
@@ -278,11 +277,9 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         val result = await(service.lookup)
 
         result shouldBe BirthMatchResponse(true)
-
       }
 
       "accept payload without reference number as argument" in {
-
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
         val service = MockLookupService
@@ -294,7 +291,6 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
 
 
       "accept payload with reference number as argument and returns true as matched." in {
-
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
         val service = MockLookupService
@@ -304,10 +300,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
 
       }
 
-
-
       "accept payload with special character and returns match true as matched." in {
-
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
         val service = MockLookupService
@@ -318,7 +311,6 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
       }
 
       "accept payload with special character and returns match false as first name don't match." in {
-
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         when(MockLookupService.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
         val service = MockLookupService
