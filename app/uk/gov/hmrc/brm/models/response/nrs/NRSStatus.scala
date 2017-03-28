@@ -16,9 +16,20 @@
 
 package uk.gov.hmrc.brm.models.response.nrs
 
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
 case class NRSStatus (
                        status : Int = 1,
                        deathCode : Int = 0
-                     ) extends StatusInterface
+                     ) extends StatusInterface {
+
+  override def toJson: JsValue = {
+    Json.parse(s"""
+      |{
+      | "status": "$status",
+      | "deathCode": "$deathCode"
+      |}
+    """.stripMargin)
+  }
+}
