@@ -78,6 +78,13 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get shouldBe a[StatusInterface]
       record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
+      record.status.get.toJson shouldBe
+        Json.parse(s"""
+           |{
+           |  "status" : "1",
+           |  "deathCode": "0"
+           |}
+         """.stripMargin)
     }
 
 

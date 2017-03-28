@@ -27,7 +27,6 @@ import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 
 import scala.concurrent.Future
-import scala.util.Try
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
@@ -52,18 +51,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
-          // TODO move this out somewhere else
-          request.body.\(Payload.whereBirthRegistered) match {
-            case JsDefined(country) =>
-              Try(BirthRegisterCountry.withName(country.toString)) recover {
-                case e : Exception =>
-                  // audit incorrect country
-                  countryAuditor.audit(Map("country" -> country.toString), None)
-              }
-            case _ =>
-              // does not exist on request
-              countryAuditor.audit(Map("country" -> "no country specified"), None)
-          }
+          countryAuditor.auditCountryInRequest(request.body)
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
           Future.successful(respond(BadRequest("")))
         },

@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.models.response.gro
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
-import play.api.libs.json.{JsPath, Reads}
+import play.api.libs.json.{JsPath, JsValue, Json, Reads}
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
 case class Status (
@@ -28,7 +28,22 @@ case class Status (
                     blockedRegistration : Boolean = false,
                     marginalNote : Option[String] = None,
                     reRegistered : Option[String] = None
-                  ) extends StatusInterface
+                  ) extends StatusInterface {
+
+  override def toJson: JsValue = {
+    Json.parse(s"""
+       |{
+       |  "potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
+       |  "correction": "${correction.getOrElse("")}",
+       |  "cancelled": "$cancelled",
+       |  "blockedRegistration": "$blockedRegistration",
+       |  "marginalNote": "${marginalNote.getOrElse("")}",
+       |  "reRegistered": "${reRegistered.getOrElse("")}"
+       |}
+     """.stripMargin)
+  }
+
+}
 
 object Status {
 

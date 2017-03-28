@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
+import play.api.libs.json.{JsNull, JsString, JsValue}
 import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
@@ -29,6 +30,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
 object LookupService extends LookupService {
   override val groConnector = new GROConnector
@@ -83,6 +85,8 @@ trait LookupService extends LookupServiceBinder {
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
+
+//        records.foreach(r => Try(info(CLASS_NAME, "lookup()", s"Record status: ${r.status.fold[JsValue](JsNull)(_.toJson)}")))
 
         audit(records, matchResult)
 

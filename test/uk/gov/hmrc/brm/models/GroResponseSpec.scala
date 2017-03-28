@@ -757,6 +757,17 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[Status].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[Status].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[Status].reRegistered.get shouldBe "None"
+          x.status.get.toJson shouldBe
+            Json.parse(s"""
+               |{
+               |  "potentiallyFictitiousBirth": "false",
+               |  "correction": "None",
+               |  "cancelled": "false",
+               |  "blockedRegistration": "false",
+               |  "marginalNote": "None",
+               |  "reRegistered": "None"
+               |}
+             """.stripMargin)
         }
         case JsError(x) => {
           throw new Exception

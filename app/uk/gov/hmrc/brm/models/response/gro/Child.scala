@@ -29,6 +29,4 @@ case class Child(
                   dateOfBirth: Option[LocalDate]
                 )
 
-object Child extends BRMFormat {
-
- }
+object Child extends BRMFormat

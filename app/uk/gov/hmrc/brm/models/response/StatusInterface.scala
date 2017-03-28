@@ -16,9 +16,13 @@
 
 package uk.gov.hmrc.brm.models.response
 
+import play.api.libs.json.JsValue
+
 /**
   * Created by chrisianson on 17/03/2017.
   */
 trait StatusInterface {
+
+  def toJson : JsValue
 
 }
