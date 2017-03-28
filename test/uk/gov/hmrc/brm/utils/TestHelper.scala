@@ -52,8 +52,11 @@ object TestHelper {
   val validNrsJsonResponse2017350007 = JsonUtils.getJsonFromFile("nrs", "2017350007")
   val nrsResponseWithMultiple = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
   val nrsRecord20090630 = JsonUtils.getJsonFromFile("nrs", "2017734100")
+  val nrsRecord2017350001 = JsonUtils.getJsonFromFile("nrs", "2017350001")
 
   val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayload2017350001 = Payload(Some("2017350001"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+
   val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithSpecialChar = Payload(Some("2017350007"), "Gab'iœ-Äæy", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithFirstNameWrong = Payload(Some("2017350007"), "firstNameWrong", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
