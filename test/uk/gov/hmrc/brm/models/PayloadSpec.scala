@@ -164,6 +164,36 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         jsonObject.validate[Payload].isSuccess shouldBe true
       }
 
+      "return success when firstName contains & character" in {
+        val jsonObject: JsValue = Json.parse(
+          """
+            |{
+            | "birthReferenceNumber": "123456789",
+            | "firstName" : "John&",
+            | "lastName" : "Smith",
+            | "dateOfBirth" : "1997-01-13",
+            | "whereBirthRegistered" : "england"
+            |}
+          """.stripMargin)
+
+        jsonObject.validate[Payload].isSuccess shouldBe true
+      }
+
+      "return success when firstName contains valid special characters" in {
+        val jsonObject: JsValue = Json.parse(
+          """
+            |{
+            | "birthReferenceNumber": "123456789",
+            | "firstName" : "&`-'^",
+            | "lastName" : "Smith",
+            | "dateOfBirth" : "2010-01-13",
+            | "whereBirthRegistered" : "england"
+            |}
+          """.stripMargin)
+
+        jsonObject.validate[Payload].isSuccess shouldBe true
+      }
+
       "return error when firstName contains special character" in {
         val jsonObject: JsValue = Json.parse(
           """
