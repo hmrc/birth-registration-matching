@@ -278,6 +278,17 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
+      "validate return false when firstName contains * characters." in {
+        var payload = Payload(None, "*", "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+      }
+
+      "validate return false when lastname contains * characters." in {
+        var payload = Payload(None, "test", "*", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+      }
+
+
 
       "return error when lastName contains newline character" in {
         val jsonObject: JsValue = Json.parse(
