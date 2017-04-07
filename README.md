@@ -25,45 +25,133 @@ Accept       | `String` | application/vnd.hmrc.1.0+json   | N/A  | API Version
 Audit-Source | `String` | dfs                             | 20   | Unique identifier of the service
 Content-Type | `String` | application/json; charset=utf-8 | N/A  | Type of payload
 
-Parameters           | Type                                                   | Size      | Description
--------------------- | ------------------------------------------------------ | --------- | -------------------------------------------------------------------------------
-birthReferenceNumber | `Optional(String)`                                     | 9         | Birth reference number for England or Wales
-    <br/>            | <br/>                                                  | 10        | Birth reference number for Scotland
-firstName            | `String`                                               | 1-250     | Child's first name
-lastName             | `String`                                               | 1-250     | Child's last name
-dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10        | Child's date of birth
-whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A       | Where the child was registered (England / Wales / Scotland / Northern Ireland)
+Parameters           | Type                                                   | Size                         | Description
+---------------------|--------------------------------------------------------|------------------------------|-------------------------------------------------------------------------------
+birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) | Birth reference number for England or Wales / Scotland
+firstName            | `String`                                               | 1-250                        | Child's first name
+lastName             | `String`                                               | 1-250                        | Child's last name
+dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10                           | Child's date of birth
+whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A                          | Where the child was registered (England / Wales / Scotland / Northern Ireland)
 
 ### POST /birth-registration-matching/match
 
-Example Request
+#### Example Request
 
+##### cURL
 ```bash
-curl -X POST -H "Accept: application/vnd.hmrc.1.0+json" -H "Audit-Source: dfs" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -H "Postman-Token: fa8722cf-cf61-163a-e301-2132ce21b344" -d '{
-    "birthReferenceNumber" : "400000000",
-    "firstName": "Gibby",
-    "lastName" : "Haynes",
-    "dateOfBirth": "2011-10-01",
+curl --request POST \
+  --url http://localhost:8098/birth-registration-matching/match \
+  --header 'accept: application/vnd.hmrc.1.0+json' \
+  --header 'audit-source: test' \
+  --header 'cache-control: no-cache' \
+  --header 'content-type: application/json' \
+  --data '{
+    "birthReferenceNumber": "123456789",
+    "firstName": "Adam Test",
+    "lastName": "Smith",
+    "dateOfBirth": "2010-01-01",
     "whereBirthRegistered": "england"
-}' "https://localhost:8098/birth-registration-matching/match"
+  }'
 ```
 
-Example responses
+##### HTTP
 
-Record not found
+```http
+POST /birth-registration-matching/match HTTP/1.1
+Host: localhost:8098
+Content-Type: application/json
+Audit-Source: test
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache
 
-```json
 {
-  "matched": false
+	"birthReferenceNumber": "123456789",
+	"firstName": "Adam Test",
+	"lastName": "Smith",
+	"dateOfBirth": "2010-01-01",
+	"whereBirthRegistered": "england"
 }
 ```
 
-Record found
+#### 2xx responses:
 
-```json
+##### Payload did not match record
+
+```http
+HTTP/1.1 200 OK
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{"matched":false}
+```
+
+##### Payload matched record
+
+```http
+HTTP/1.1 200 OK
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{"matched":true}
+```
+
+#### 4xx responses:
+
+##### BadRequest (coming soon)
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+```
+
+##### BadRequest - BirthReferenceNumber is incorrect for supplied whereBirthRegistered value
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
 {
-  "matched": true
+  "code":"INVALID_BIRTH_REFERENCE_NUMBER",
+  "reason":"The birth reference number does not meet the required length"
 }
+```
+
+#### 5xx responses:
+
+##### InternalServerError
+```http
+HTTP/1.1 500 Internal Server Error
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+```
+
+##### GatewayTimeout
+```http
+HTTP/1.1 504 Gateway Timeout
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+```
+
+
+##### BadGateway
+
+```http
+HTTP/1.1 502 Bad Gateway
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
 ```
 
 ### License
