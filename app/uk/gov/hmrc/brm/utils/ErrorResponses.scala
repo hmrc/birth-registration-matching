@@ -28,7 +28,7 @@ object ErrorResponses {
       s"""
          |{
          |  "code": "$code",
-         |  "description": "$message"
+         |  "messagei": "$message"
          |}
      """.stripMargin).toString()
   }
