@@ -48,10 +48,10 @@ trait BRMException extends Controller {
 
   def forbiddenPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("INVALID_DISTRICT_NUMBER") =>
-      logException(Some(message), Some(s"Forbidden returned from NRS message"), BAD_REQUEST)
+      logException(Some(message), Some(m), BAD_REQUEST)
       BadRequest
     case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("BIRTH_REGISTRATION_NOT_FOUND") =>
-      logException(Some(message), Some("Forbidden returned from NRS for not found"), NOT_FOUND)
+      logException(Some(message), Some(m), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
     case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains(ErrorResponses.TEAPOT.code) =>
       logException(Some(message), Some(ErrorResponses.TEAPOT.json), FORBIDDEN)
