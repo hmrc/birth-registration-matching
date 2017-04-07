@@ -53,6 +53,12 @@ trait BRMException extends Controller {
     case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("BIRTH_REGISTRATION_NOT_FOUND") =>
       logException(Some(message), Some("Forbidden returned from NRS for not found"), NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
+    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains(ErrorResponses.TEAPOT.code) =>
+      logException(Some(message), Some(ErrorResponses.TEAPOT.json), FORBIDDEN)
+      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
+    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains(ErrorResponses.CERTIFICATE_INVALID.code) =>
+      logException(Some(message), Some(ErrorResponses.CERTIFICATE_INVALID.json), FORBIDDEN)
+      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
   def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
@@ -73,6 +79,7 @@ trait BRMException extends Controller {
       GatewayTimeout
   }
 
+  // TODO implement connection down for GRO
   def upstreamErrorPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(m, upstreamCode, _) =>
       logException(Some(message), Some(s"InternalServerError: code: $upstreamCode"), INTERNAL_SERVER_ERROR)

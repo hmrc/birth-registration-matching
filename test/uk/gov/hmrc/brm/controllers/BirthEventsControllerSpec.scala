@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, ErrorResponses}
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http._
@@ -393,7 +393,8 @@ class BirthEventsControllerSpec
 
         "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(ErrorResponses.BAD_REQUEST.json, BAD_GATEWAY, BAD_GATEWAY)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -405,7 +406,8 @@ class BirthEventsControllerSpec
 
         "return BadRequest when GRO returns upstream 4xx BadRequest" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", BAD_REQUEST, BAD_REQUEST)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream4xxResponse(ErrorResponses.BAD_REQUEST.json, BAD_REQUEST, BAD_REQUEST)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -417,7 +419,8 @@ class BirthEventsControllerSpec
 
         "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(ErrorResponses.GATEWAY_TIMEOUT.json, GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -429,7 +432,8 @@ class BirthEventsControllerSpec
 
         "return BadRequest when GRO returns BadRequestException" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadRequestException("")))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(new BadRequestException("")))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -441,7 +445,8 @@ class BirthEventsControllerSpec
 
         "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(ErrorResponses.UNKNOWN_ERROR.json, NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -453,7 +458,8 @@ class BirthEventsControllerSpec
 
         "return InternalServerError when GRO returns upstream InternalServerError" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(ErrorResponses.UNKNOWN_ERROR.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -465,7 +471,8 @@ class BirthEventsControllerSpec
 
         "return 200 false when GRO returns upstream NOT_FOUND" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream4xxResponse("", NOT_FOUND, NOT_FOUND)))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream4xxResponse(ErrorResponses.NOT_FOUND.json, NOT_FOUND, NOT_FOUND)))
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
@@ -497,6 +504,45 @@ class BirthEventsControllerSpec
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           bodyOf(result) shouldBe empty
+        }
+
+        "return InternalServerError when GRO returns CONNECTION_DOWN" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(ErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
+        }
+
+        "return 200 match false when GRO returns Forbidden 418 Teapot body" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream4xxResponse(ErrorResponses.TEAPOT.json, FORBIDDEN, FORBIDDEN)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
+        }
+
+        "return 200 match false when GRO returns Forbidden 'Certificate invalid'" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream4xxResponse(ErrorResponses.CERTIFICATE_INVALID.json, FORBIDDEN, FORBIDDEN)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe OK
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
       }
