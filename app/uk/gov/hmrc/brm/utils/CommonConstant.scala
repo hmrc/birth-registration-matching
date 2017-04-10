@@ -40,7 +40,7 @@ object CommonConstant {
     s"""
        |{
        |"code": "INVALID_BIRTH_REFERENCE_NUMBER",
-       |"reason": "The birth reference number does not meet the required length"
+       |"message": "The birth reference number does not meet the required length"
        |}
       """.stripMargin)
 
