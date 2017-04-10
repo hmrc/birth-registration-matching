@@ -119,7 +119,7 @@ Content-Type: application/json; charset=utf-8
 
 {
   "code":"INVALID_BIRTH_REFERENCE_NUMBER",
-  "reason":"The birth reference number does not meet the required length"
+  "message":"The birth reference number does not meet the required length"
 }
 ```
 

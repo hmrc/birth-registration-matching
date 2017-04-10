@@ -97,9 +97,14 @@ class BirthEventsControllerSpec
           val result = await(MockController.post().apply(request))
           status(result) shouldBe scenario("responseCode")
           contentType(result).get shouldBe "application/json"
-          jsonBodyOf(result).toString().contains("INVALID_BIRTH_REFERENCE_NUMBER") shouldBe true
-          jsonBodyOf(result).toString().contains("The birth reference number does not meet the required length") shouldBe true
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          jsonBodyOf(result).toString shouldBe Json.parse(
+            s"""
+               |{
+               |  "code": "INVALID_BIRTH_REFERENCE_NUMBER",
+               |  "message": "The birth reference number does not meet the required length"
+               |}
+             """.stripMargin).toString
         }
       }
 
