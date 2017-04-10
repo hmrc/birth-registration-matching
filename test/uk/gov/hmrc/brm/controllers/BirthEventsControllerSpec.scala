@@ -904,10 +904,10 @@ class BirthEventsControllerSpec
           when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream4xxResponse("INVALID_DISTRICT_NUMBER", FORBIDDEN, FORBIDDEN)))
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
-          status(result) shouldBe BAD_REQUEST
+          status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return 500 InternalServerError when NRS returns 403 QUERY_LENGTH_EXCESSIVE" in {
@@ -916,10 +916,10 @@ class BirthEventsControllerSpec
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
+          status(result) shouldBe OK
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
+          (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
         "return 500 InternalServerError when NRS returns 500" in {

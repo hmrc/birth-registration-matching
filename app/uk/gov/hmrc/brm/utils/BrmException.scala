@@ -28,88 +28,76 @@ trait BRMException extends Controller {
   val CLASS_NAME: String = "BrmException"
   val METHOD_NAME: String = "handleException"
 
-  private def logException(message: Option[String] = None, status: Option[String] = None, statusCode: Int)(implicit payload: Payload) = {
+  private def logException(method: String, body: String, statusCode: Int)(implicit payload: Payload) = {
     MetricsFactory.getMetrics().status(statusCode)
     statusCode match {
-      case Exception5xx() =>
-        error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case Exception4xx() =>
-        info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
-      case _ =>
-        info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(message, status, statusCode))
+      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
+      case Exception4xx() => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
+      case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
     }
   }
 
-  def notFoundPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(m, NOT_FOUND, _, _) =>
-      logException(Some(message), Some("NotFound"), NOT_FOUND)
+  def notFoundPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream4xxResponse(body, NOT_FOUND, _, _) =>
+      logException(method, body, NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def forbiddenPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("INVALID_DISTRICT_NUMBER") =>
-      logException(Some(message), Some(m), BAD_REQUEST)
-      BadRequest
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains("BIRTH_REGISTRATION_NOT_FOUND") =>
-      logException(Some(message), Some(m), NOT_FOUND)
-      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains(ErrorResponses.TEAPOT.code) =>
-      logException(Some(message), Some(ErrorResponses.TEAPOT.json), FORBIDDEN)
-      Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
-    case Upstream4xxResponse(m, FORBIDDEN, _, _) if m.contains(ErrorResponses.CERTIFICATE_INVALID.code) =>
-      logException(Some(message), Some(ErrorResponses.CERTIFICATE_INVALID.json), FORBIDDEN)
+  def forbiddenPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream4xxResponse(body, FORBIDDEN, _, _) =>
+      logException(method, body, FORBIDDEN)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def badRequestPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(m, BAD_REQUEST, _, _) =>
-      logException(Some(message), Some("BadRequest"), BAD_REQUEST)
+  def badRequestPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream4xxResponse(body, BAD_REQUEST, _, _) =>
+      logException(method, body, BAD_REQUEST)
       BadRequest
   }
 
-  def badGatewayPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(m, BAD_GATEWAY, _) =>
-      logException(Some(message), Some("BadGateway"), BAD_GATEWAY)
+  def badGatewayPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream5xxResponse(body, BAD_GATEWAY, _) =>
+      logException(method, body, BAD_GATEWAY)
       BadGateway
   }
 
-  def gatewayTimeoutPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(m, GATEWAY_TIMEOUT, _) =>
-      logException(Some(message), Some("GatewayTimeout"), GATEWAY_TIMEOUT)
+  def gatewayTimeoutPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream5xxResponse(body, GATEWAY_TIMEOUT, _) =>
+      logException(method, body, GATEWAY_TIMEOUT)
       GatewayTimeout
   }
 
   // TODO implement connection down for GRO
-  def upstreamErrorPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(m, upstreamCode, _) =>
-      logException(Some(message), Some(s"InternalServerError: code: $upstreamCode"), INTERNAL_SERVER_ERROR)
+  def upstreamErrorPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case Upstream5xxResponse(body, upstreamCode, _) =>
+      logException(method, s"$body, upstream: $upstreamCode", INTERNAL_SERVER_ERROR)
       InternalServerError
   }
 
-  def badRequestExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def badRequestExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: BadRequestException if e.message.contains("INVALID_HEADER") =>
-      logException(Some(message), Some(s"BadRequestException from INVALID_HEADER converted into InternalServerError: ${e.getMessage}"), INTERNAL_SERVER_ERROR)
+      logException(method, s"BadRequestException from INVALID_HEADER converted into InternalServerError: ${e.getMessage}", INTERNAL_SERVER_ERROR)
       InternalServerError
     case e: BadRequestException =>
-      logException(Some(message), Some(s"BadRequestException: ${e.getMessage}"), BAD_REQUEST)
+      logException(method, s"BadRequestException: ${e.getMessage}", BAD_REQUEST)
       BadRequest
   }
 
-  def notImplementedExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def notImplementedExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: NotImplementedException =>
-      logException(Some(message), Some(s"NotImplementedException: ${e.getMessage}"), OK)
+      logException(method, s"NotImplementedException: ${e.getMessage}", OK)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def notFoundExceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def notFoundExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: NotFoundException =>
-      logException(Some(message), Some(s"NotFound: ${e.getMessage}"), NOT_FOUND)
+      logException(method, s"NotFound: ${e.getMessage}", NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def exceptionPF(message: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def exceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: Throwable =>
-      logException(Some(message), Some(s"InternalServerError: message: $e"), INTERNAL_SERVER_ERROR)
+      logException(method, s"InternalServerError: $e", INTERNAL_SERVER_ERROR)
       InternalServerError
   }
 }
@@ -127,11 +115,11 @@ private object Exception4xx {
 }
 
 trait ExceptionMessage {
-  def message(message: Option[String] = None, status: Option[String] = None, statusCode: Int): String
+  def message(message: String, status: String, statusCode: Int): String
 }
 
 object BrmExceptionMessage extends ExceptionMessage {
-  def message(message: Option[String] = None, status: Option[String] = None, statusCode: Int): String = {
-    s"[respond] ${status.get}: ${message.get}"
+  def message(method: String, body: String, statusCode: Int): String = {
+    s"[respond] [method]: $method, [body]: $body, [status]: $statusCode"
   }
 }
