@@ -68,9 +68,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
                    records : List[Record],
                    matchResult : ResultMatch): Map[String, String] = {
 
-    // get unique key
-    val uniqueKey = Map("brmKey" -> KeyGenerator.getKey())
-
     // audit match result and if a record was found
     val matchAudit = recordFoundAndMatchToMap(records, matchResult)
 
@@ -86,7 +83,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
     features ++
       payloadAudit ++
-      uniqueKey ++
       auditWordsPerNameOnRecords ++
       auditCharactersPerNameOnRecords ++
       matchAudit

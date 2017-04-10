@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.audit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -54,7 +54,11 @@ abstract class BRMAudit(connector : AuditConnector) {
   def audit(result : Map[String, String], payload: Option[Payload] = None)(implicit hc : HeaderCarrier) : Future[AuditResult]
 
   protected def event(event: AuditEvent) : Future[AuditResult] = {
-    connector.sendEvent(event) map {
+    // get unique key
+    val uniqueKey = Map("brmKey" -> KeyGenerator.getKey())
+    val eventWithKey = event.copy(detail = event.detail ++ uniqueKey)
+
+    connector.sendEvent(eventWithKey) map {
       success =>
         BRMLogger.info(super.getClass.getCanonicalName, s"event", "event successfully audited")
         success
