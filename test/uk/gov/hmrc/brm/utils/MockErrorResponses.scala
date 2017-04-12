@@ -42,4 +42,6 @@ object MockErrorResponses {
     val CERTIFICATE_INVALID = ErrorResponse("INVALID_CERTIFICATE", "TLS certificate was either not provided or was invalid")
     val UNKNOWN_ERROR = ErrorResponse("UNKNOWN_ERROR", "An unknown exception has been thrown")
 
+    val SERVICE_UNAVAILABLE = ErrorResponse("SERVICE_UNAVAILABLE", "The upstream service is unavailable")
+
 }

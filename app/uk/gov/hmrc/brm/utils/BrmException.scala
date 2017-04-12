@@ -69,6 +69,9 @@ trait BRMException extends Controller {
 
   // TODO implement connection down for GRO
   def upstreamErrorPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case e: Upstream5xxResponse if e.message.contains("GRO_CONNECTION_DOWN") =>
+      logException(method, s"ServiceUnavailable: ${e.getMessage}", SERVICE_UNAVAILABLE)
+      ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
     case Upstream5xxResponse(body, upstreamCode, _) =>
       logException(method, s"$body, upstream: $upstreamCode", INTERNAL_SERVER_ERROR)
       InternalServerError
