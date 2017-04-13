@@ -946,28 +946,30 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
-        "return 500 InternalServerError when NRS returns 500" in {
+        "return 503 when NRS returns 503 Service unavailable" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse(MockErrorResponses.NRS_CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
+          status(result) shouldBe SERVICE_UNAVAILABLE
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
+          (contentAsJson(result) \ "code").as[String] shouldBe "NRS_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "National Records Scotland: Scotland is unavailable"
         }
 
-        "return 500 InternalServerError when NRS returns 503 Service unavailable" in {
+        "return 503 when DES returns 502 BAD_GATEWAY" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Upstream5xxResponse("", SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)))
+          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new BadGatewayException("")))
 
-          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
           val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
+          status(result) shouldBe SERVICE_UNAVAILABLE
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
+          (contentAsJson(result) \ "code").as[String] shouldBe "DES_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "DES is unavailable"
         }
 
       }
