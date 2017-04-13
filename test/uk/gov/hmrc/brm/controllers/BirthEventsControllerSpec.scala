@@ -461,19 +461,6 @@ class BirthEventsControllerSpec
           bodyOf(result) shouldBe empty
         }
 
-        "return InternalServerError when GRO returns upstream InternalServerError" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
-            .thenReturn(Future.failed(Upstream5xxResponse(MockErrorResponses.UNKNOWN_ERROR.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
-        }
-
         "return 200 false when GRO returns upstream NOT_FOUND" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
@@ -497,18 +484,6 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        }
-
-        "return InternalServerError when GRO throws Exception" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
         }
 
         "return 200 match false when GRO returns Forbidden 418 Teapot body" in {
@@ -537,6 +512,33 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
+        "return 500 when proxy returns InternalServerError" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(new Exception()))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          bodyOf(result) shouldBe empty
+        }
+
+        "return 503 when GRO throws UpstreamInternalServerError" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(new Upstream5xxResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe SERVICE_UNAVAILABLE
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
+        }
+
         "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
@@ -548,7 +550,7 @@ class BirthEventsControllerSpec
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
-          (contentAsJson(result) \ "message").as[String] shouldBe "Connection to GRO is down"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
 
       }
@@ -619,19 +621,6 @@ class BirthEventsControllerSpec
           bodyOf(result) shouldBe empty
         }
 
-        "return InternalServerError when GRO returns upstream InternalServerError" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
-            .thenReturn(Future.failed(Upstream5xxResponse(MockErrorResponses.UNKNOWN_ERROR.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe INTERNAL_SERVER_ERROR
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
-        }
-
         "return 200 false when GRO returns upstream NOT_FOUND" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
@@ -657,9 +646,10 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         }
 
-        "return InternalServerError when GRO throws Exception" in {
+        "return 500 when proxy returns InternalServerError" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new Exception("")))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(new Exception()))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
@@ -667,6 +657,20 @@ class BirthEventsControllerSpec
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           bodyOf(result) shouldBe empty
+        }
+
+        "return 503 when GRO returns upstream InternalServerError" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(Upstream5xxResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe SERVICE_UNAVAILABLE
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
 
         "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
@@ -680,7 +684,7 @@ class BirthEventsControllerSpec
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
           (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
-          (contentAsJson(result) \ "message").as[String] shouldBe "Connection to GRO is down"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
 
       }

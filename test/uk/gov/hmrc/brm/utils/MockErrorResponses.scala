@@ -23,7 +23,6 @@ import play.api.libs.json.Json
   */
 object MockErrorResponses {
 
-
     case class ErrorResponse(code: String, message: String) {
       def json = Json.parse(
         s"""
