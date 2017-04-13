@@ -56,6 +56,9 @@ trait BRMException extends Controller {
   }
 
   def badGatewayPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+    case e: BadGatewayException if payload.whereBirthRegistered == BirthRegisterCountry.SCOTLAND  =>
+      logException(method, s"BadGatewayException: ${e.getMessage}", BAD_GATEWAY)
+      ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)
     case Upstream5xxResponse(body, BAD_GATEWAY, _) =>
       logException(method, body, BAD_GATEWAY)
       BadGateway
@@ -67,11 +70,13 @@ trait BRMException extends Controller {
       GatewayTimeout
   }
 
-  // TODO implement connection down for GRO
   def upstreamErrorPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case e: Upstream5xxResponse if e.message.contains("GRO_CONNECTION_DOWN") =>
       logException(method, s"ServiceUnavailable: ${e.getMessage}", SERVICE_UNAVAILABLE)
       ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
+    case e: Upstream5xxResponse if e.message.contains("SERVICE_UNAVAILABLE") =>
+      logException(method, s"ServiceUnavailable: ${e.getMessage}", SERVICE_UNAVAILABLE)
+      ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN)
     case Upstream5xxResponse(body, upstreamCode, _) =>
       logException(method, s"$body, upstream: $upstreamCode", INTERNAL_SERVER_ERROR)
       InternalServerError

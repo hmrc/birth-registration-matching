@@ -34,6 +34,7 @@ object MockErrorResponses {
     }
 
     val CONNECTION_DOWN = ErrorResponse("GRO_CONNECTION_DOWN", "Connection to GRO is down")
+    val NRS_CONNECTION_DOWN = ErrorResponse("SERVICE_UNAVAILABLE", "Dependent systems are currently not responding")
     val BAD_REQUEST = ErrorResponse("BAD_REQUEST", "Invalid payload provided")
     val TEAPOT = ErrorResponse("TEAPOT", "Invalid argument sent to GRO")
     val NOT_FOUND = ErrorResponse("NOT_FOUND", "Resource not found")
