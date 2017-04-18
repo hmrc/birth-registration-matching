@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 
 trait BRMException extends Controller {
 
@@ -55,14 +56,15 @@ trait BRMException extends Controller {
       BadRequest
   }
 
- def badGatewayPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case Upstream5xxResponse(body, BAD_GATEWAY, _) =>
-      logException(method, body, BAD_GATEWAY)
-      BadGateway
+  def groProxyDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+    case e: BadGatewayException if (payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES)  =>
+      logException(method, s"groProxyDownPF - BadGatewayException: ${e.getMessage}", BAD_GATEWAY)
+      logException(method, s"Response body: ${ErrorResponse.GRO_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
+      ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def desConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case e: BadGatewayException if payload.whereBirthRegistered == BirthRegisterCountry.SCOTLAND =>
+    case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND =>
       logException(method, s"BadGatewayException: ${e.getMessage}", BAD_GATEWAY)
       logException(method, s"Response body: ${ErrorResponse.DES_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
       ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)

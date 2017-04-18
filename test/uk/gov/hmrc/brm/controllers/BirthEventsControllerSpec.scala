@@ -396,18 +396,6 @@ class BirthEventsControllerSpec
 
       "receiving error response from Proxy for reference number" should {
 
-        "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
-            .thenReturn(Future.failed(Upstream5xxResponse(MockErrorResponses.BAD_REQUEST.json, BAD_GATEWAY, BAD_GATEWAY)))
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe BAD_GATEWAY
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
-        }
 
         "return BadRequest when GRO returns upstream 4xx BadRequest" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -553,21 +541,37 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
 
+
+        "return 503 with code GRO_CONNECTION_DOWN when BRMS GRO proxy is down." in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+            .thenReturn(Future.failed(new BadGatewayException("")))
+
+          val request = postRequest(userNoMatchIncludingReferenceNumber)
+          val result = await(MockController.post().apply(request))
+          status(result) shouldBe SERVICE_UNAVAILABLE
+          contentType(result).get shouldBe "application/json"
+          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+          (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
+        }
+
       }
 
       "receiving error response from Proxy for details request" should {
 
-        "return BadGateway when GRO returns upstream BAD_GATEWAY" in {
+        "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway." in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
-            .thenReturn(Future.failed(Upstream5xxResponse(MockErrorResponses.BAD_REQUEST.json, BAD_GATEWAY, BAD_GATEWAY)))
+            .thenReturn(Future.failed(new BadGatewayException("")))
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
-          status(result) shouldBe BAD_GATEWAY
+          status(result) shouldBe SERVICE_UNAVAILABLE
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
+          (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
+          (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
 
         "return BadRequest when GRO returns upstream 4xx BadRequest" in {
@@ -877,17 +881,6 @@ class BirthEventsControllerSpec
 
       "receiving error response from NRS" should {
 
-        "return BadGateway when NRS returns upstream BAD_GATEWAY" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-          when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY)))
-
-          val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = await(MockController.post().apply(request))
-          status(result) shouldBe BAD_GATEWAY
-          contentType(result).get shouldBe "application/json"
-          header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          bodyOf(result) shouldBe empty
-        }
 
         "return GatewayTimeout when GRO returns 5xx when GatewayTimeout" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
