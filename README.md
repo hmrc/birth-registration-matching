@@ -132,6 +132,7 @@ Accept: application/vnd.hmrc.1.0+json
 Cache-Control: no-cache,no-store,max-age=0
 Content-Type: application/json; charset=utf-8
 
+
 ```
 
 ##### GatewayTimeout
@@ -151,6 +152,33 @@ HTTP/1.1 502 Bad Gateway
 Accept: application/vnd.hmrc.1.0+json
 Cache-Control: no-cache,no-store,max-age=0
 Content-Type: application/json; charset=utf-8
+
+```
+
+
+##### ServiceUnavailable
+
+```http
+HTTP/1.1 503 Service Unavailable
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code":"GRO_CONNECTION_DOWN",
+  "message":"General Registry Office: England and Wales is unavailable"
+}
+
+{
+  "code":"DES_CONNECTION_DOWN",
+  "message":"DES is unavailable"
+}
+
+{
+  "code":"NRS_CONNECTION_DOWN",
+  "message":"National Records Scotland: Scotland is unavailable"
+}
+
 
 ```
 
