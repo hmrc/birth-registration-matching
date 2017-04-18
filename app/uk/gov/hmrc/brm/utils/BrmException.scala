@@ -37,52 +37,64 @@ trait BRMException extends Controller {
     }
   }
 
-  def notFoundPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def notFoundPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(body, NOT_FOUND, _, _) =>
       logException(method, body, NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def forbiddenPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def forbiddenPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(body, FORBIDDEN, _, _) =>
       logException(method, body, FORBIDDEN)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def badRequestPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def badRequestPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(body, BAD_REQUEST, _, _) =>
       logException(method, body, BAD_REQUEST)
       BadRequest
   }
 
-  def badGatewayPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
-    case e: BadGatewayException if payload.whereBirthRegistered == BirthRegisterCountry.SCOTLAND  =>
-      logException(method, s"BadGatewayException: ${e.getMessage}", BAD_GATEWAY)
-      ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)
+ def badGatewayPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(body, BAD_GATEWAY, _) =>
       logException(method, body, BAD_GATEWAY)
       BadGateway
   }
 
-  def gatewayTimeoutPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def desConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+    case e: BadGatewayException if payload.whereBirthRegistered == BirthRegisterCountry.SCOTLAND =>
+      logException(method, s"BadGatewayException: ${e.getMessage}", BAD_GATEWAY)
+      logException(method, s"Response body: ${ErrorResponse.DES_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
+      ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)
+  }
+
+  def gatewayTimeoutPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(body, GATEWAY_TIMEOUT, _) =>
       logException(method, body, GATEWAY_TIMEOUT)
       GatewayTimeout
   }
 
-  def upstreamErrorPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def groConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: Upstream5xxResponse if e.message.contains("GRO_CONNECTION_DOWN") =>
       logException(method, s"ServiceUnavailable: ${e.getMessage}", SERVICE_UNAVAILABLE)
+      logException(method, s"Response body: ${ErrorResponse.GRO_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
       ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
+  }
+
+  def nrsConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: Upstream5xxResponse if e.message.contains("SERVICE_UNAVAILABLE") =>
       logException(method, s"ServiceUnavailable: ${e.getMessage}", SERVICE_UNAVAILABLE)
+      logException(method, s"Response body: ${ErrorResponse.NRS_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
       ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN)
+  }
+
+  def upstreamErrorPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case Upstream5xxResponse(body, upstreamCode, _) =>
       logException(method, s"$body, upstream: $upstreamCode", INTERNAL_SERVER_ERROR)
       InternalServerError
   }
 
-  def badRequestExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def badRequestExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: BadRequestException if e.message.contains("INVALID_HEADER") =>
       logException(method, s"BadRequestException from INVALID_HEADER converted into InternalServerError: ${e.getMessage}", INTERNAL_SERVER_ERROR)
       InternalServerError
@@ -91,19 +103,19 @@ trait BRMException extends Controller {
       BadRequest
   }
 
-  def notImplementedExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def notImplementedExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: NotImplementedException =>
       logException(method, s"NotImplementedException: ${e.getMessage}", OK)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def notFoundExceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def notFoundExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: NotFoundException =>
       logException(method, s"NotFound: ${e.getMessage}", NOT_FOUND)
       Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
 
-  def exceptionPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
+  def exceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: Throwable =>
       logException(method, s"InternalServerError: $e", INTERNAL_SERVER_ERROR)
       InternalServerError

@@ -44,8 +44,11 @@ trait BRMBaseController extends BaseController with BRMException {
       val allPfs = Seq(
         notFoundPF(method),
         badRequestPF(method),
+        desConnctionDownPF(method),
         badGatewayPF(method),
         gatewayTimeoutPF(method),
+        groConnctionDownPF(method),
+        nrsConnctionDownPF(method),
         upstreamErrorPF(method),
         badRequestExceptionPF(method),
         notImplementedExceptionPF(method),
