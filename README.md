@@ -135,27 +135,6 @@ Content-Type: application/json; charset=utf-8
 
 ```
 
-##### GatewayTimeout
-```http
-HTTP/1.1 504 Gateway Timeout
-Accept: application/vnd.hmrc.1.0+json
-Cache-Control: no-cache,no-store,max-age=0
-Content-Type: application/json; charset=utf-8
-
-```
-
-
-##### BadGateway
-
-```http
-HTTP/1.1 502 Bad Gateway
-Accept: application/vnd.hmrc.1.0+json
-Cache-Control: no-cache,no-store,max-age=0
-Content-Type: application/json; charset=utf-8
-
-```
-
-
 ##### ServiceUnavailable
 
 ```http
