@@ -132,6 +132,7 @@ trait BRMException extends Controller {
 
   def upstreamErrorPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, upstream, _) =>
+      logException(method, s"upstreamErrorPF - Upstream5xxResponse: $body", upstream)
       InternalServerErrorException(method, e, upstream)
   }
 
