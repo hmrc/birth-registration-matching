@@ -43,5 +43,4 @@ object CommonConstant {
        |"message": "The birth reference number does not meet the required length"
        |}
       """.stripMargin)
-
 }
