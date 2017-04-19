@@ -37,6 +37,10 @@ trait BRMException extends Controller {
     }
   }
 
+  /**
+    * TODO: Map on e : Exceptions NOT Upstream4xx as HttpVerbs converts these into Exceptions that are thrown instead of returning the Upstream4xx / Upstream5xx exceptions
+    */
+
   def notFoundPF(method: String)(implicit payload: Payload) : PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(body, NOT_FOUND, _, _) =>
       logException(method, body, NOT_FOUND)
