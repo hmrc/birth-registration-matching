@@ -42,18 +42,17 @@ trait BRMBaseController extends BaseController with BRMException {
   def handleException(method: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
     case t =>
       val allPfs = Seq(
-        notFoundPF(method),
-        badRequestPF(method),
         groProxyDownPF(method),
-        desConnctionDownPF(method),
         gatewayTimeoutPF(method),
+        desConnctionDownPF(method),
+        desInvalidHeadersBadRequestPF(method),
         groConnctionDownPF(method),
         nrsConnctionDownPF(method),
         upstreamErrorPF(method),
         badRequestExceptionPF(method),
         notImplementedExceptionPF(method),
         notFoundExceptionPF(method),
-        forbiddenPF(method),
+        forbiddenUpstreamPF(method),
         exceptionPF(method)).reduce(_ orElse _)
 
       // audit the transaction when there was an exception with default arguments
