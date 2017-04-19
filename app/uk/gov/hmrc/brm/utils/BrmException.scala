@@ -43,6 +43,11 @@ trait BRMException extends Controller {
     InternalServerError
   }
 
+  private def serviceUnavailable(method : String, cause: String, e : Exception, body: String)(implicit payload: Payload) = {
+    logException(method, s"serviceUnavailable - BadGateway $cause: ${e.getMessage}", SERVICE_UNAVAILABLE)
+    ServiceUnavailable(body)
+  }
+
   private def respondNoMatch() = {
     Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
   }
@@ -64,14 +69,16 @@ trait BRMException extends Controller {
 
   def groProxyDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
-      logException(method, s"groProxyDownPF - BadGatewayException: ${e.getMessage}", SERVICE_UNAVAILABLE)
-      ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
+      serviceUnavailable(method, "groProxyDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
+    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
+      serviceUnavailable(method, "groProxyDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def desConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND =>
-      logException(method, s"desConnctionDownPF - BadGatewayException: ${e.getMessage}, Response body: ${ErrorResponse.DES_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
-      ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)
+      serviceUnavailable(method, "desConnctionDownPF", e, ErrorResponse.DES_CONNECTION_DOWN)
+    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == SCOTLAND =>
+      serviceUnavailable(method, "desConnctionDownPF", e, ErrorResponse.DES_CONNECTION_DOWN)
   }
 
   def desInvalidHeadersBadRequestPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
@@ -120,14 +127,12 @@ trait BRMException extends Controller {
 
   def groConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: Upstream5xxResponse if e.message.contains("GRO_CONNECTION_DOWN") =>
-      logException(method, s"groConnctionDownPF - Upstream5xxResponse: ${e.getMessage}", SERVICE_UNAVAILABLE)
-      ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
+      serviceUnavailable(method, "groConnctionDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def nrsConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: Upstream5xxResponse if e.message.contains("SERVICE_UNAVAILABLE") =>
-      logException(method, s"ServiceUnavailable: ${e.getMessage}, Response body: ${ErrorResponse.NRS_CONNECTION_DOWN}", SERVICE_UNAVAILABLE)
-      ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN)
+      serviceUnavailable(method, "nrsConnctionDownPF", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }
 
   def upstreamErrorPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
