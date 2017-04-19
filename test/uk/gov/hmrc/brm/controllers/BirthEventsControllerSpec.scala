@@ -580,6 +580,7 @@ class BirthEventsControllerSpec
         }
 
 
+
         "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway Upstream5xxResponse." in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
@@ -593,6 +594,7 @@ class BirthEventsControllerSpec
           (contentAsJson(result) \ "code").as[String] shouldBe "GRO_CONNECTION_DOWN"
           (contentAsJson(result) \ "message").as[String] shouldBe "General Registry Office: England and Wales is unavailable"
         }
+
 
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
