@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.config
 
 import org.joda.time.LocalDate
+import uk.gov.hmrc.brm.metrics.DateofBirthFeature
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.BirthRegisterCountry
@@ -81,7 +82,11 @@ trait FeatureFactory {
       val feature = DateOfBirthValidationFeature()
       if (feature.enabled()) {
         val configDate = LocalDate.parse(feature.value).toDate
-        !dob.toDate.before(configDate)
+        val isValid =  !dob.toDate.before(configDate)
+        if(!isValid){
+          DateofBirthFeature.count()
+        }
+        isValid
       } else {
         true
       }
