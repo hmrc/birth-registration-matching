@@ -133,3 +133,4 @@ object EnglandAndWalesBirthRegisteredCountMetrics extends CountingMetric("englan
 object ScotlandBirthRegisteredCountMetrics extends CountingMetric("scotland")
 object NorthernIrelandBirthRegisteredCountMetrics extends CountingMetric("northern-ireland")
 object InvalidBirthRegisteredCountMetrics extends CountingMetric("invalid-birth-registered")
+object DateofBirthFeature extends CountingMetric("feature-date-of-birth")
