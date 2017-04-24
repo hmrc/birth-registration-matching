@@ -78,11 +78,11 @@ trait HeaderValidator extends Results {
       (acceptHeaderValidation(request.headers.get(HeaderNames.ACCEPT)),
         auditSourceValidation(request.headers.get("Audit-Source"))) match {
         case (false, true) =>
-          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAcceptHeader()))
+          Future.successful(InvalidAcceptHeader.status)
         case (true, false) =>
-          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAuditSource()))
+          Future.successful(InvalidAuditSource.status)
         case (false, false) =>
-          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAcceptHeader()))
+          Future.successful(InvalidAcceptHeader.status)
         case (_, _) =>
           KeyGenerator.generateAndSetKey(request)
           block(request)

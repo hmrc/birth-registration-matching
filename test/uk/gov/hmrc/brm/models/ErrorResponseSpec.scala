@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.brm.models
 
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import uk.gov.hmrc.brm.models.brm.ErrorResponse
+import akka.stream.Materializer
+import play.api.Play
+import play.api.http.Status._
+import uk.gov.hmrc.brm.models.brm.ErrorResponses
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
@@ -30,53 +32,15 @@ class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
     * Return a default JSON error response when an invalid error code is given
     */
 
-  "ErrorResponse" should {
-    "get the correct error when sent error code 5" in {
+  "ErrorResponses" should {
 
-      val code = 5
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
+    implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
 
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("5")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("ID invalid")
-      (response \ "details").as[JsString].value should be("The id you supplied is invalid")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
-    }
+    "return BadRequest with empty body when key doesn't exist" in {
 
-    "get the correct error when sent error code 6" in {
-
-      val code = 6
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("6")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("ID value empty")
-      (response \ "details").as[JsString].value should be("You must supply an id")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
-    }
-
-    "get the correct error when sent error code 145" in {
-
-      val code = 145
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("145")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("Headers invalid")
-      (response \ "details").as[JsString].value should be("The headers you supplied are invalid")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
-    }
-
-    "get default JSON error response when an invalid error code is given" in {
-
-      val code = 123456789
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "details").as[JsString].value should be("something is wrong")
+      val response = await(ErrorResponses.handle("firstNameInvalid", ""))
+      bodyOf(response) shouldBe empty
+      response.header.status shouldBe BAD_REQUEST
     }
 
   }

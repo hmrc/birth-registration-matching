@@ -57,7 +57,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
         },
         implicit payload => {
           if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
-            Future.successful(respond(CustomErrorResponse.getHttpResponse(InvalidBirthReferenceNumber())))
+            Future.successful(respond(InvalidBirthReferenceNumber.status))
           }
           else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
