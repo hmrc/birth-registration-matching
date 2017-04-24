@@ -95,7 +95,7 @@ object InvalidWhereBirthRegistered extends HttpResponseBody {
 }
 
 object InvalidAuditSource extends HttpResponseBody {
-  override val httpCode: Int = Status.NOT_ACCEPTABLE
+  override val httpCode: Int = Status.UNAUTHORIZED
   override val code: String = "INVALID_AUDITSOURCE"
   override val message: String = "Provided Audit-Source is invalid."
 }
@@ -103,6 +103,12 @@ object InvalidAuditSource extends HttpResponseBody {
 object InvalidAcceptHeader extends HttpResponseBody {
   override val httpCode: Int = Status.NOT_ACCEPTABLE
   override val code: String = "INVALID_ACCEPT_HEADER"
+  override val message: String = "Accept header is invalid."
+}
+
+object InvalidContentType extends HttpResponseBody {
+  override val httpCode: Int = Status.NOT_ACCEPTABLE
+  override val code: String = "INVALID_CONTENT_TYPE"
   override val message: String = "Accept header is invalid."
 }
 

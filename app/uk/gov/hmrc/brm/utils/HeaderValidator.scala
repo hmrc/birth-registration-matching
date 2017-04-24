@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
-import uk.gov.hmrc.brm.models.brm.{ErrorResponse, CustomErrorResponse, InvalidAcceptHeader, InvalidAuditSource}
+import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.concurrent.Future
@@ -38,52 +38,62 @@ trait HeaderValidator extends Results {
 
   val matchAuditSource: String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  def acceptHeaderValidation(accept: Option[String] = None): Boolean = {
+  private def versionValidation(accept: Option[String] = None): Boolean = {
 
-    val acceptStatus = accept.flatMap(
+    accept.flatMap(
       a => {
         matchHeader(a.toLowerCase) map (
-          res => {
-            val version = res.group("version")
-            APIVersionMetrics(version).count()
+            res => {
+              val version = res.group("version")
+              APIVersionMetrics(version).count()
 
-            validateContentType(res.group("contenttype")) && validateVersion(version)
-          }
+              validateVersion(version)
+            }
           )
       }
     ) getOrElse false
-
-    acceptStatus
   }
 
-  def auditSourceValidation(auditSource: Option[String] = None): Boolean = {
+  private def contentTypeValidation(accept: Option[String] = None): Boolean = {
 
-    val auditSourceStatus = auditSource.flatMap(
+    accept.flatMap(
+      a => {
+        matchHeader(a.toLowerCase) map (
+            res => {
+              validateContentType(res.group("contenttype"))
+            }
+          )
+      }
+    ) getOrElse false
+  }
+
+  private def auditSourceValidation(auditSource: Option[String] = None): Boolean = {
+
+    auditSource.flatMap(
       a =>
         matchAuditSource(a) map (
-          res => {
-            val source = res.group("auditsource")
-            AuditSourceMetrics(source).count()
-            validateAuditSource(source)
-          }
+            res => {
+              val source = res.group("auditsource")
+              AuditSourceMetrics(source).count()
+              validateAuditSource(source)
+            }
           )
     ) getOrElse false
-
-    auditSourceStatus
   }
 
   def validateAccept() = new ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-
-      (acceptHeaderValidation(request.headers.get(HeaderNames.ACCEPT)),
-        auditSourceValidation(request.headers.get("Audit-Source"))) match {
-        case (false, true) =>
+      (
+        versionValidation(request.headers.get(HeaderNames.ACCEPT)),
+        auditSourceValidation(request.headers.get("Audit-Source")),
+        contentTypeValidation(request.headers.get(HeaderNames.ACCEPT))) match {
+        case (false, _, _) =>
           Future.successful(InvalidAcceptHeader.status)
-        case (true, false) =>
+        case (_, false, _) =>
           Future.successful(InvalidAuditSource.status)
-        case (false, false) =>
-          Future.successful(InvalidAcceptHeader.status)
-        case (_, _) =>
+        case (_, _, false) =>
+          Future.successful(InvalidContentType.status)
+        case (_, _, _) =>
           KeyGenerator.generateAndSetKey(request)
           block(request)
       }
