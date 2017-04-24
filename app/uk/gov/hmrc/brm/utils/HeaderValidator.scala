@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
-import uk.gov.hmrc.brm.models.brm.{ErrorResponse, ErrorResponseBody, InvalidAcceptHeader, InvalidAuditSource}
+import uk.gov.hmrc.brm.models.brm.{ErrorResponse, CustomErrorResponse, InvalidAcceptHeader, InvalidAuditSource}
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.concurrent.Future
@@ -78,11 +78,11 @@ trait HeaderValidator extends Results {
       (acceptHeaderValidation(request.headers.get(HeaderNames.ACCEPT)),
         auditSourceValidation(request.headers.get("Audit-Source"))) match {
         case (false, true) =>
-          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAcceptHeader())))
+          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAcceptHeader()))
         case (true, false) =>
-          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAuditSource())))
+          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAuditSource()))
         case (false, false) =>
-          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAcceptHeader())))
+          Future.successful(CustomErrorResponse.getHttpResponse(InvalidAcceptHeader()))
         case (_, _) =>
           KeyGenerator.generateAndSetKey(request)
           block(request)

@@ -19,6 +19,9 @@ package uk.gov.hmrc.brm.models.brm
 import play.api.data.validation.ValidationError
 import play.api.http.Status
 import play.api.libs.json.{JsPath, Json}
+import play.api.mvc.Results._
+import play.api.mvc.Result
+
 
 trait HttpResponseBody {
   val httpCode: Int
@@ -40,9 +43,9 @@ trait HttpResponseBody {
 
 trait HttpResponse {
 
-  def getHttpResponse(key: String, error: String): String
+  def getHttpResponse(key: String, error: String): Result
 
-  def getErrorResponseByField(field: Seq[(JsPath, Seq[ValidationError])]): String = {
+  def getErrorResponseByField(field: Seq[(JsPath, Seq[ValidationError])]): Result = {
 
     val fields = field.map { case (key, validationError) =>
       (key.toString.stripPrefix("/"), validationError.head.message)
@@ -52,25 +55,32 @@ trait HttpResponse {
   }
 }
 
-object ErrorResponseBody extends HttpResponse {
+object CustomErrorResponse extends HttpResponse {
 
-  def getHttpResponse(key: String, error: String): String = (key, error) match {
+  def getHttpResponse(key: String, error: String): Result = (key, error) match {
     case ("birthReferenceNumber", _) if error != "error.path.missing" =>
-      InvalidBirthReferenceNumber().toJson()
+      BadRequest(InvalidBirthReferenceNumber().toJson())
     case ("firstName", _) if error != "error.path.missing" =>
-      InvalidFirstName().toJson()
+      BadRequest(InvalidFirstName().toJson())
     case ("lastName", _) if error != "error.path.missing" =>
-      InvalidLastName().toJson()
+      BadRequest(InvalidLastName().toJson())
     case ("dateOfBirth", _) if error != "error.path.missing" =>
-      InvalidDateOfBirth().toJson()
+      BadRequest(InvalidDateOfBirth().toJson())
     case ("whereBirthRegistered", _) if error != "error.path.missing" =>
-      InvalidWhereBirthRegistered().toJson()
+      Forbidden(InvalidWhereBirthRegistered().toJson())
     case (_, _) =>
-      ""
+      BadRequest("")
   }
 
-  def getHttpResponse(response: HttpResponseBody): String = {
-    response.toJson()
+  def getHttpResponse(response: HttpResponseBody): Result = {
+
+    response.httpCode match {
+      case Status.NOT_ACCEPTABLE =>
+        NotAcceptable(response.toJson())
+      case _ =>
+        BadRequest(response.toJson())
+    }
+
   }
 
 }
@@ -100,16 +110,16 @@ case class InvalidDateOfBirth(
                              ) extends HttpResponseBody
 
 case class InvalidBirthReferenceNumber(
-                                httpCode: Int = Status.BAD_REQUEST,
-                                code: String = "INVALID_BIRTH_REFERENCE_NUMBER",
-                                message: String = "The birth reference number does not meet the required length"
-                              ) extends HttpResponseBody
+                                        httpCode: Int = Status.BAD_REQUEST,
+                                        code: String = "INVALID_BIRTH_REFERENCE_NUMBER",
+                                        message: String = "The birth reference number does not meet the required length"
+                                      ) extends HttpResponseBody
 
 case class InvalidWhereBirthRegistered(
-                                httpCode: Int = Status.FORBIDDEN,
-                                code: String = "INVALID_WHERE_BIRTH_REGISTERED",
-                                message: String = "Provided Country is invalid."
-                              ) extends HttpResponseBody
+                                        httpCode: Int = Status.FORBIDDEN,
+                                        code: String = "INVALID_WHERE_BIRTH_REGISTERED",
+                                        message: String = "Provided Country is invalid."
+                                      ) extends HttpResponseBody
 
 case class InvalidAuditSource(
                                httpCode: Int = Status.NOT_ACCEPTABLE,

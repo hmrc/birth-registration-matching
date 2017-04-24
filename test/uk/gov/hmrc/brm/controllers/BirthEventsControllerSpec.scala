@@ -249,21 +249,21 @@ class BirthEventsControllerSpec
         bodyOf(result) shouldBe empty
       }
 
-      "return response code 400 if request contains missing whereBirthRegistered value" in {
+      "return response code 403 if request contains missing whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe FORBIDDEN
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
       }
 
-      "return response code 400 if request contains invalid whereBirthRegistered value" in {
+      "return response code 403 if request contains invalid whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userInvalidWhereBirthRegistered)
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe FORBIDDEN
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
         jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
