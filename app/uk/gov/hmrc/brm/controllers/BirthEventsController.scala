@@ -21,7 +21,7 @@ import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, Where
 import uk.gov.hmrc.brm.config.FeatureFactory
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
-import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
@@ -47,17 +47,17 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
   protected val countryAuditor : WhereBirthRegisteredAudit
   protected val auditFactory : AuditFactory
 
-  def post() = validateAccept(acceptHeaderValidationRules).async(parse.json) {
+  def post() = validateAccept().async(parse.json) {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
           countryAuditor.auditCountryInRequest(request.body)
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
-          Future.successful(respond(BadRequest("")))
+          Future.successful(respond(BadRequest(ErrorResponseBody.getErrorResponseByField(error))))
         },
         implicit payload => {
           if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
-            Future.successful(respond(BadRequest(CommonConstant.INVALID_BIRTH_REFERENCE_NUMBER)))
+            Future.successful(respond(BadRequest(ErrorResponseBody.getHttpResponse(InvalidBirthReferenceNumber()))))
           }
           else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()

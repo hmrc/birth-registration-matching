@@ -651,7 +651,7 @@ object TestHelper {
   val lastNameWithSpecialCharacters = Json.parse(
     s"""
        |{
-       |"firstname" : "Adam TEST",
+       |"firstName" : "Adam TEST",
        |"lastName" : "Gibby&cat /etc/passwd&",
        |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789",
@@ -662,7 +662,7 @@ object TestHelper {
   val userNoMatchExcludinglastNameKey = Json.parse(
     s"""
        |{
-       |"firstname" : "John",
+       |"firstName" : "John",
        |"dateOrBirth" : "2012-12-17",
        |"birthReferenceNumber" : "123456789",
        |"whereBirthRegistered" : "england"
@@ -672,7 +672,7 @@ object TestHelper {
   val userNoMatchExcludinglastNameValue = Json.parse(
     s"""
        |{
-       |"firstname" : "John",
+       |"firstName" : "John",
        |"lastName" : "",
        |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789",
@@ -684,18 +684,17 @@ object TestHelper {
   val userNoMatchExcludingWhereBirthRegisteredKey = Json.parse(
     s"""
        |{
-       |"firstname" : "Manish",
+       |"firstName" : "Manish",
        |"lastName" : "Varma",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
-       |"whereBirthRegistered" : "england"
+       |"birthReferenceNumber" : "123456789"
        |}
      """.stripMargin)
 
   val userNoMatchExcludingWhereBirthRegisteredValue = Json.parse(
     s"""
        |{
-       |"firstname" : "John",
+       |"firstName" : "John",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789",

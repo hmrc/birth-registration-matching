@@ -129,7 +129,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
       "return response code 400 if request contains special characters in firstName" in {
@@ -139,7 +139,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
       "return response code 400 if request contains more than 250 characters in firstName" in {
@@ -149,7 +149,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
     }
@@ -173,7 +173,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
       "return response code 400 if request contains special character in lastName value" in {
@@ -183,7 +183,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
       "return response code 400 if request contains more than 250 character in lastName value" in {
@@ -193,7 +193,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
     }
@@ -217,7 +217,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_DATE_OF_BIRTH.json
       }
 
       "return response code 400 if request contains invalid dateOfBirth format" in {
@@ -227,7 +227,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_DATE_OF_BIRTH.json
       }
 
     }

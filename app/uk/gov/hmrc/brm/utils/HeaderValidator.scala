@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
-import uk.gov.hmrc.brm.models.brm.ErrorResponse
+import uk.gov.hmrc.brm.models.brm.{ErrorResponse, ErrorResponseBody, InvalidAcceptHeader, InvalidAuditSource}
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.concurrent.Future
@@ -28,17 +28,17 @@ import scala.util.matching.Regex.Match
 
 trait HeaderValidator extends Results {
 
-  private val validVersions : List[String] = List("1.0")
+  private val validVersions: List[String] = List("1.0")
 
-  val validateVersion : String => Boolean = validVersions.contains(_)
+  val validateVersion: String => Boolean = validVersions.contains(_)
 
-  val validateContentType : String => Boolean = _ == "json"
+  val validateContentType: String => Boolean = _ == "json"
 
-  val validateAuditSource : String => Boolean = !_.isEmpty
+  val validateAuditSource: String => Boolean = !_.isEmpty
 
-  val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
+  val matchAuditSource: String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
+  def acceptHeaderValidation(accept: Option[String] = None): Boolean = {
 
     val acceptStatus = accept.flatMap(
       a => {
@@ -47,12 +47,16 @@ trait HeaderValidator extends Results {
             val version = res.group("version")
             APIVersionMetrics(version).count()
 
-            validateContentType(res.group("contenttype")) &&
-              validateVersion(version)
-            }
+            validateContentType(res.group("contenttype")) && validateVersion(version)
+          }
           )
       }
     ) getOrElse false
+
+    acceptStatus
+  }
+
+  def auditSourceValidation(auditSource: Option[String] = None): Boolean = {
 
     val auditSourceStatus = auditSource.flatMap(
       a =>
@@ -65,18 +69,23 @@ trait HeaderValidator extends Results {
           )
     ) getOrElse false
 
-    acceptStatus && auditSourceStatus
+    auditSourceStatus
   }
 
-  def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
+  def validateAccept() = new ActionBuilder[Request] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
 
-      if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
-        KeyGenerator.generateAndSetKey(request)
-        block(request)
-      } else {
-        val errorCode = 145
-        Future.successful(BadRequest(ErrorResponse.getErrorResponseByErrorCode(errorCode)))
+      (acceptHeaderValidation(request.headers.get(HeaderNames.ACCEPT)),
+        auditSourceValidation(request.headers.get("Audit-Source"))) match {
+        case (false, true) =>
+          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAcceptHeader())))
+        case (true, false) =>
+          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAuditSource())))
+        case (false, false) =>
+          Future.successful(NotAcceptable(ErrorResponseBody.getHttpResponse(InvalidAcceptHeader())))
+        case (_, _) =>
+          KeyGenerator.generateAndSetKey(request)
+          block(request)
       }
     }
   }
