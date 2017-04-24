@@ -55,6 +55,8 @@ trait HttpResponse {
 object ErrorResponseBody extends HttpResponse {
 
   def getHttpResponse(key: String, error: String): String = (key, error) match {
+    case ("birthReferenceNumber", _) if error != "error.path.missing" =>
+      InvalidBirthReferenceNumber().toJson()
     case ("firstName", _) if error != "error.path.missing" =>
       InvalidFirstName().toJson()
     case ("lastName", _) if error != "error.path.missing" =>

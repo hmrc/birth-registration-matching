@@ -77,7 +77,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
       }
 
       "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
@@ -87,7 +87,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
       }
 
       for (scenario <- referenceNumberScenario) {
@@ -98,13 +98,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe scenario("responseCode")
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          jsonBodyOf(result).toString shouldBe Json.parse(
-            s"""
-               |{
-               |  "code": "INVALID_BIRTH_REFERENCE_NUMBER",
-               |  "message": "The birth reference number does not meet the required length"
-               |}
-             """.stripMargin).toString
+          jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
         }
       }
 
