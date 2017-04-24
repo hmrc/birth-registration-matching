@@ -61,6 +61,8 @@ object ErrorResponseBody extends HttpResponse {
       InvalidLastName().toJson()
     case ("dateOfBirth", _) if error != "error.path.missing" =>
       InvalidDateOfBirth().toJson()
+    case ("whereBirthRegistered", _) if error != "error.path.missing" =>
+      InvalidWhereBirthRegistered().toJson()
     case (_, _) =>
       ""
   }
@@ -80,35 +82,41 @@ case class DefaultResponse(
 case class InvalidFirstName(
                              httpCode: Int = Status.BAD_REQUEST,
                              code: String = "INVALID_FIRSTNAME",
-                             message: String = "Provided firstName is invalid"
+                             message: String = "Provided firstName is invalid."
                            ) extends HttpResponseBody
 
 case class InvalidLastName(
                             httpCode: Int = Status.BAD_REQUEST,
                             code: String = "INVALID_LASTNAME",
-                            message: String = "Provided lastName is invalid"
+                            message: String = "Provided lastName is invalid."
                           ) extends HttpResponseBody
 
 case class InvalidDateOfBirth(
                                httpCode: Int = Status.BAD_REQUEST,
                                code: String = "INVALID_DATE_OF_BIRTH",
-                               message: String = "Provided dateOfBirth is invalid"
+                               message: String = "Provided dateOfBirth is invalid."
                              ) extends HttpResponseBody
 
 case class InvalidBirthReferenceNumber(
-                               httpCode: Int = Status.BAD_REQUEST,
-                               code: String = "INVALID_BIRTH_REFERENCE_NUMBER",
-                               message: String = "The birth reference number does not meet the required length"
-                             ) extends HttpResponseBody
+                                httpCode: Int = Status.BAD_REQUEST,
+                                code: String = "INVALID_BIRTH_REFERENCE_NUMBER",
+                                message: String = "The birth reference number does not meet the required length"
+                              ) extends HttpResponseBody
+
+case class InvalidWhereBirthRegistered(
+                                httpCode: Int = Status.FORBIDDEN,
+                                code: String = "INVALID_WHERE_BIRTH_REGISTERED",
+                                message: String = "Provided Country is invalid."
+                              ) extends HttpResponseBody
 
 case class InvalidAuditSource(
                                httpCode: Int = Status.NOT_ACCEPTABLE,
                                code: String = "INVALID_AUDITSOURCE",
-                               message: String = "Provided Audit-Source is invalid"
+                               message: String = "Provided Audit-Source is invalid."
                              ) extends HttpResponseBody
 
 case class InvalidAcceptHeader(
-                               httpCode: Int = Status.NOT_ACCEPTABLE,
-                               code: String = "INVALID_ACCEPT_HEADER",
-                               message: String = "Accept header is invalid"
-                             ) extends HttpResponseBody
+                                httpCode: Int = Status.NOT_ACCEPTABLE,
+                                code: String = "INVALID_ACCEPT_HEADER",
+                                message: String = "Accept header is invalid."
+                              ) extends HttpResponseBody

@@ -262,7 +262,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
       }
 
       "return response code 400 if request contains invalid whereBirthRegistered value" in {
@@ -272,7 +272,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
       }
 
     }
