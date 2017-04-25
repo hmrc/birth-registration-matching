@@ -23,6 +23,7 @@ import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.utils.MockErrorResponses
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
@@ -65,7 +66,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      bodyOf(result).toString() shouldBe(empty)
+      jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
     }
 
@@ -76,7 +77,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
       status(result) shouldBe BAD_REQUEST
       contentType(result).get shouldBe "application/json"
       header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-      bodyOf(result).toString() shouldBe(empty)
+      jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
     }
 

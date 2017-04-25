@@ -16,67 +16,86 @@
 
 package uk.gov.hmrc.brm.models
 
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import uk.gov.hmrc.brm.models.brm.ErrorResponse
+import akka.stream.Materializer
+import play.api.Play
+import play.api.test.Helpers.{contentAsJson, _}
+import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
 
-  /**
-    * - Should
-    * Return a JSON error response when an id is invalid
-    * Return a JSON error response when given an error code of 5
-    * Return a JSON error response when given an error code of 6
-    * Return a default JSON error response when an invalid error code is given
-    */
+  "ErrorResponses" should {
 
-  "ErrorResponse" should {
-    "get the correct error when sent error code 5" in {
+    implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
 
-      val code = 5
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("5")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("ID invalid")
-      (response \ "details").as[JsString].value should be("The id you supplied is invalid")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
+    "return BadRequest with generic body when key doesn't exist" in {
+      val response = await(ErrorResponses.getHttpResponse("firstNameInvalid", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
     }
 
-    "get the correct error when sent error code 6" in {
-
-      val code = 6
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("6")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("ID value empty")
-      (response \ "details").as[JsString].value should be("You must supply an id")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
+    "return BadRequest with specific body when firstName is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("firstName", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidFirstName.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidFirstName.message
+      response.header.status shouldBe BAD_REQUEST
     }
 
-    "get the correct error when sent error code 145" in {
-
-      val code = 145
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
-
-      response shouldBe a[JsObject]
-      (response \ "code").as[JsString].value should be("145")
-      (response \ "status").as[JsString].value should be("400")
-      (response \ "title").as[JsString].value should be("Headers invalid")
-      (response \ "details").as[JsString].value should be("The headers you supplied are invalid")
-      (response \ "about").as[JsString].value should be("http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html")
+    "return BadRequest with generic body when firstName key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
     }
 
-    "get default JSON error response when an invalid error code is given" in {
+    "return BadRequest with specific body when lastName is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("lastName", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidLastName.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidLastName.message
+      response.header.status shouldBe BAD_REQUEST
+    }
 
-      val code = 123456789
-      val response = ErrorResponse.getErrorResponseByErrorCode(code)
+    "return BadRequest with generic body when lastName key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("lastName", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
 
-      response shouldBe a[JsObject]
-      (response \ "details").as[JsString].value should be("something is wrong")
+    "return BadRequest with specific body when dateOfBirth is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("dateOfBirth", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidDateOfBirth.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidDateOfBirth.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with generic body when dateOfBirth key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("dateOfBirth", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with specific body when birthReferenceNumber is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("birthReferenceNumber", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidBirthReferenceNumber.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidBirthReferenceNumber.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return Forbidden with specific body when whereBirthRegistered is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("whereBirthRegistered", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidWhereBirthRegistered.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidWhereBirthRegistered.message
+      response.header.status shouldBe FORBIDDEN
+    }
+
+    "return BadRequest with generic body when whereBirthRegistered key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("whereBirthRegistered", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
     }
 
   }

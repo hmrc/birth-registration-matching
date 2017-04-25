@@ -33,8 +33,6 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  private val jsonResponse = """{"code":"145","status":"400","details":"The headers you supplied are invalid","title":"Headers invalid","about":"http://http://htmlpreview.github.io/?https://github.com/hmrc/birth-registration-matching/blob/master/api-documents/api.html"}"""
-
   object HeaderValidator extends HeaderValidator
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
@@ -50,42 +48,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
        |}
     """.stripMargin)
 
-  def httpResponse(js : JsValue) = HttpResponse.apply(200, Some(js))
-
-  "acceptHeaderValidationRules" should {
-
-    "return false when argument values are missing" in {
-      HeaderValidator.acceptHeaderValidationRules() shouldBe false
-    }
-
-    "return false when Accept header is invalid" in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some("text/html"), auditSource = Some("DFS")) shouldBe false
-    }
-
-    "return false when version is invalid" in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some("application/json"), auditSource = Some("DFS")) shouldBe false
-    }
-
-    "return false when auditSource is invalid" in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some("application/vnd.hmrc.1.0+json"), auditSource = Some("")) shouldBe false
-    }
-
-    "return true when Accept header and auditSource header are valid" in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some("application/vnd.hmrc.1.0+json"), auditSource = Some("DFS")) shouldBe true
-    }
-
-    "return true when Accept header for mixed case and auditSource header are valid " in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some("application/vNd.HMRC.1.0+jSon"), auditSource = Some("DFS")) shouldBe true
-    }
-
-    "return false when Accept header is not valid and auditSource header is valid " in {
-      HeaderValidator.acceptHeaderValidationRules(accept = Some(""), auditSource = Some("DFS")) shouldBe false
-    }
-
-    "return false when Accept header has no value and auditSource header is valid " in {
-      HeaderValidator.acceptHeaderValidationRules(accept = None, auditSource = Some("DFS")) shouldBe false
-    }
-  }
+  def httpResponse(js : JsValue) = HttpResponse.apply(200: Int, Some(js))
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
@@ -102,7 +65,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
       }
     }
 
-    "return response code 400 for invalid content-type in Accept header" in {
+    "return response code 406 for invalid content-type in Accept header" in {
       running(app) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
@@ -111,12 +74,12 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        status(result) shouldBe NOT_ACCEPTABLE
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
       }
     }
 
-    "return response code 400 for invalid version in Accept header" in {
+    "return response code 406 for invalid version in Accept header" in {
       running(app) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
@@ -125,12 +88,12 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        status(result) shouldBe NOT_ACCEPTABLE
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
       }
     }
 
-    "return response code 400 for excluded Accept header" in {
+    "return response code 406 for excluded Accept header" in {
       running(app) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders(("Audit-Source", "DFS"))
@@ -139,12 +102,12 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        status(result) shouldBe NOT_ACCEPTABLE
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
       }
     }
 
-    "return response code 400 for excluded Audit-Source value" in {
+    "return response code 401 for excluded Audit-Source value" in {
       running(app) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
@@ -153,12 +116,12 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        status(result) shouldBe UNAUTHORIZED
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
       }
     }
 
-    "return response code 400 for excluded Audit-Source header" in {
+    "return response code 401 for excluded Audit-Source header" in {
       running(app) {
         val request = FakeRequest("POST", "/api/v0/events/birth")
           .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
@@ -167,8 +130,22 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
-        bodyOf(result) shouldBe jsonResponse
+        status(result) shouldBe UNAUTHORIZED
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
+      }
+    }
+
+    "return response code 406 for excluded Audit-Source and Accept values" in {
+      running(app) {
+        val request = FakeRequest("POST", "/api/v0/events/birth")
+          .withHeaders(("Audit-Source", ""), (ACCEPT, ""))
+          .withBody(payload)
+
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+        val result = await(MockController.post().apply(request))
+        status(result) shouldBe NOT_ACCEPTABLE
+        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
       }
     }
 

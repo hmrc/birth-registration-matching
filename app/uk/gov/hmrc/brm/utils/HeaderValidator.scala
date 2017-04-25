@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import play.api.http.HeaderNames
 import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
-import uk.gov.hmrc.brm.models.brm.ErrorResponse
+import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.concurrent.Future
@@ -28,55 +28,74 @@ import scala.util.matching.Regex.Match
 
 trait HeaderValidator extends Results {
 
-  private val validVersions : List[String] = List("1.0")
+  private val validVersions: List[String] = List("1.0")
 
-  val validateVersion : String => Boolean = validVersions.contains(_)
+  val validateVersion: String => Boolean = validVersions.contains(_)
 
-  val validateContentType : String => Boolean = _ == "json"
+  val validateContentType: String => Boolean = _ == "json"
 
-  val validateAuditSource : String => Boolean = !_.isEmpty
+  val validateAuditSource: String => Boolean = !_.isEmpty
 
-  val matchAuditSource : String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
+  val matchAuditSource: String => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
 
-  def acceptHeaderValidationRules(accept: Option[String] = None, auditSource: Option[String] = None): Boolean = {
+  private def versionValidation(accept: Option[String] = None): Boolean = {
 
-    val acceptStatus = accept.flatMap(
+    accept.flatMap(
       a => {
         matchHeader(a.toLowerCase) map (
-          res => {
-            val version = res.group("version")
-            APIVersionMetrics(version).count()
+            res => {
+              val version = res.group("version")
+              APIVersionMetrics(version).count()
 
-            validateContentType(res.group("contenttype")) &&
               validateVersion(version)
             }
           )
       }
     ) getOrElse false
-
-    val auditSourceStatus = auditSource.flatMap(
-      a =>
-        matchAuditSource(a) map (
-          res => {
-            val source = res.group("auditsource")
-            AuditSourceMetrics(source).count()
-            validateAuditSource(source)
-          }
-          )
-    ) getOrElse false
-
-    acceptStatus && auditSourceStatus
   }
 
-  def validateAccept(rules: (Option[String], Option[String]) => Boolean) = new ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+  private def contentTypeValidation(accept: Option[String] = None): Boolean = {
 
-      if (rules(request.headers.get(HeaderNames.ACCEPT), request.headers.get("Audit-Source"))) {
-        KeyGenerator.generateAndSetKey(request)
-        block(request)
-      } else {
-        val errorCode = 145
-        Future.successful(BadRequest(ErrorResponse.getErrorResponseByErrorCode(errorCode)))
+    accept.flatMap(
+      a => {
+        matchHeader(a.toLowerCase) map (
+            res => {
+              validateContentType(res.group("contenttype"))
+            }
+          )
+      }
+    ) getOrElse false
+  }
+
+  private def auditSourceValidation(auditSource: Option[String] = None): Boolean = {
+
+    auditSource.flatMap(
+      a =>
+        matchAuditSource(a) map (
+            res => {
+              val source = res.group("auditsource")
+              AuditSourceMetrics(source).count()
+              validateAuditSource(source)
+            }
+          )
+    ) getOrElse false
+  }
+
+  def validateAccept() = new ActionBuilder[Request] {
+    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+      (
+        versionValidation(request.headers.get(HeaderNames.ACCEPT)),
+        auditSourceValidation(request.headers.get("Audit-Source")),
+        contentTypeValidation(request.headers.get(HeaderNames.ACCEPT))) match {
+        case (false, _, _) =>
+          Future.successful(InvalidAcceptHeader.status)
+        case (_, false, _) =>
+          Future.successful(InvalidAuditSource.status)
+        case (_, _, false) =>
+          Future.successful(InvalidContentType.status)
+        case (_, _, _) =>
+          KeyGenerator.generateAndSetKey(request)
+          block(request)
       }
     }
   }

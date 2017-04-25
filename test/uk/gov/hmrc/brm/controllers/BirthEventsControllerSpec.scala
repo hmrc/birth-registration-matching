@@ -77,7 +77,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
       }
 
       "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
@@ -87,7 +87,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
       }
 
       for (scenario <- referenceNumberScenario) {
@@ -98,13 +98,7 @@ class BirthEventsControllerSpec
           status(result) shouldBe scenario("responseCode")
           contentType(result).get shouldBe "application/json"
           header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-          jsonBodyOf(result).toString shouldBe Json.parse(
-            s"""
-               |{
-               |  "code": "INVALID_BIRTH_REFERENCE_NUMBER",
-               |  "message": "The birth reference number does not meet the required length"
-               |}
-             """.stripMargin).toString
+          jsonBodyOf(result).toString shouldBe MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json
         }
       }
 
@@ -119,7 +113,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing firstName value" in {
@@ -129,7 +123,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
       "return response code 400 if request contains special characters in firstName" in {
@@ -139,7 +133,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
       "return response code 400 if request contains more than 250 characters in firstName" in {
@@ -149,7 +143,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
       }
 
     }
@@ -163,7 +157,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing lastName value" in {
@@ -173,7 +167,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
       "return response code 400 if request contains special character in lastName value" in {
@@ -183,7 +177,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
       "return response code 400 if request contains more than 250 character in lastName value" in {
@@ -193,7 +187,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_LASTNAME.json
       }
 
     }
@@ -207,7 +201,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing dateOfBirth value" in {
@@ -217,7 +211,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_DATE_OF_BIRTH.json
       }
 
       "return response code 400 if request contains invalid dateOfBirth format" in {
@@ -227,7 +221,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_DATE_OF_BIRTH.json
       }
 
     }
@@ -252,27 +246,27 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
-      "return response code 400 if request contains missing whereBirthRegistered value" in {
+      "return response code 403 if request contains missing whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe FORBIDDEN
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
       }
 
-      "return response code 400 if request contains invalid whereBirthRegistered value" in {
+      "return response code 403 if request contains invalid whereBirthRegistered value" in {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val request = postRequest(userInvalidWhereBirthRegistered)
         val result = await(MockController.post().apply(request))
-        status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe FORBIDDEN
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        jsonBodyOf(result).toString() shouldBe MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json
       }
 
     }
@@ -395,8 +389,6 @@ class BirthEventsControllerSpec
       }
 
       "receiving error response from Proxy for reference number" should {
-
-
 
         "return InternalServerError when GRO returns Upstream5xxResponse GATEWAY_TIMEOUT" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))

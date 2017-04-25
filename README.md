@@ -123,6 +123,104 @@ Content-Type: application/json; charset=utf-8
 }
 ```
 
+##### BadRequest - firstName does not meet required length or contains invalid characters
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_FIRSTNAME",
+  "message": "Provided firstName is invalid."
+}
+```
+
+##### BadRequest - lastName does not meet required length or contains invalid characters
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_LASTNAME",
+  "message": "Provided lastName is invalid."
+}
+```
+
+##### BadRequest - dateOfBirth does not meet required format
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_DATE_OF_BIRTH",
+  "message": "Provided dateOfBirth is invalid."
+}
+```
+
+##### BadRequest - Audit-Source is invalid
+
+```http
+HTTP/1.1 401 unauthorized
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_AUDITSOURCE",
+  "message": "Provided Audit-Source is invalid."
+}
+```
+
+##### BadRequest 
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "BAD_REQUEST",
+  "message": "Provided request is invalid."
+}
+```
+
+##### NotAcceptable - Accept header contains invalid content type
+
+```http
+HTTP/1.1 406 Not Acceptable
+Accept: application/vnd.hmrc.1.0+xml
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_CONTENT_TYPE",
+  "message": "Accept header is invalid."
+}
+```
+
+##### NotAcceptable - Accept header contains invalid version
+
+```http
+HTTP/1.1 406 Not Acceptable
+Accept: application/vnd.hmrc.12.0+xml
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_CONTENT_TYPE",
+  "message": "Accept header is invalid."
+}
+```
+
 #### 5xx responses:
 
 ##### InternalServerError

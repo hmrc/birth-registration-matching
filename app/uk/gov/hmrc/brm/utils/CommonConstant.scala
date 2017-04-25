@@ -35,12 +35,4 @@ object CommonConstant {
   val DATETIME_HEADER =  "DateTime"
   val CONTENT_TYPE = "Content-Type"
   val CONTENT_TYPE_JSON = "application/json; charset=utf-8"
-
-  val INVALID_BIRTH_REFERENCE_NUMBER = Json.parse(
-    s"""
-       |{
-       |"code": "INVALID_BIRTH_REFERENCE_NUMBER",
-       |"message": "The birth reference number does not meet the required length"
-       |}
-      """.stripMargin)
 }
