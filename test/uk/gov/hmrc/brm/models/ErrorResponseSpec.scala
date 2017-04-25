@@ -18,9 +18,8 @@ package uk.gov.hmrc.brm.models
 
 import akka.stream.Materializer
 import play.api.Play
-import play.api.http.Status._
-import uk.gov.hmrc.brm.models.brm.ErrorResponses
-import uk.gov.hmrc.brm.utils.MockErrorResponses
+import play.api.test.Helpers.{contentAsJson, _}
+import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
@@ -31,33 +30,73 @@ class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
 
     "return BadRequest with generic body when key doesn't exist" in {
       val response = await(ErrorResponses.getHttpResponse("firstNameInvalid", ""))
-      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
       response.header.status shouldBe BAD_REQUEST
     }
 
     "return BadRequest with specific body when firstName is invalid" in {
       val response = await(ErrorResponses.getHttpResponse("firstName", ""))
-      bodyOf(response) shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidFirstName.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidFirstName.message
       response.header.status shouldBe BAD_REQUEST
     }
 
-//    "return BadRequest with generic body when firstName key is missing" in {
-//      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
-//      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
-//      response.header.status shouldBe BAD_REQUEST
-//    }
-//
-//    "return BadRequest with specific body when lastName is invalid" in {
-//      val response = await(ErrorResponses.getHttpResponse("firstName", ""))
-//      bodyOf(response) shouldBe MockErrorResponses.INVALID_LASTNAME.json
-//      response.header.status shouldBe BAD_REQUEST
-//    }
-//
-//    "return BadRequest with generic body when lastName key is missing" in {
-//      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
-//      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
-//      response.header.status shouldBe BAD_REQUEST
-//    }
+    "return BadRequest with generic body when firstName key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with specific body when lastName is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("lastName", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidLastName.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidLastName.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with generic body when lastName key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("lastName", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with specific body when dateOfBirth is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("dateOfBirth", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidDateOfBirth.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidDateOfBirth.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with generic body when dateOfBirth key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("dateOfBirth", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return BadRequest with specific body when birthReferenceNumber is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("birthReferenceNumber", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidBirthReferenceNumber.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidBirthReferenceNumber.message
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+    "return Forbidden with specific body when whereBirthRegistered is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("whereBirthRegistered", ""))
+      (contentAsJson(response) \ "code").as[String] shouldBe InvalidWhereBirthRegistered.code
+      (contentAsJson(response) \ "message").as[String] shouldBe InvalidWhereBirthRegistered.message
+      response.header.status shouldBe FORBIDDEN
+    }
+
+    "return BadRequest with generic body when whereBirthRegistered key is missing" in {
+      val response = await(ErrorResponses.getHttpResponse("whereBirthRegistered", "error.path.missing"))
+      (contentAsJson(response) \ "code").as[String] shouldBe BadRequest.code
+      (contentAsJson(response) \ "message").as[String] shouldBe BadRequest.message
+      response.header.status shouldBe BAD_REQUEST
+    }
 
   }
 
