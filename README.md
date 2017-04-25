@@ -179,6 +179,20 @@ Content-Type: application/json; charset=utf-8
 }
 ```
 
+##### BadRequest 
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "BAD_REQUEST",
+  "message": "Provided request is invalid."
+}
+```
+
 ##### NotAcceptable - Accept header contains invalid content type
 
 ```http
@@ -189,7 +203,7 @@ Content-Type: application/json; charset=utf-8
 
 {
   "code": "INVALID_CONTENT_TYPE",
-  "message": "Accept header is invalid.""
+  "message": "Accept header is invalid."
 }
 ```
 
@@ -203,7 +217,7 @@ Content-Type: application/json; charset=utf-8
 
 {
   "code": "INVALID_CONTENT_TYPE",
-  "message": "Accept header is invalid.""
+  "message": "Accept header is invalid."
 }
 ```
 
