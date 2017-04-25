@@ -50,23 +50,6 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   def httpResponse(js : JsValue) = HttpResponse.apply(200: Int, Some(js))
 
-  "acceptHeaderValidationRules" should {
-
-//    "return false when argument values are missing" in {
-//      HeaderValidator.versionValidation() shouldBe false
-//      HeaderValidator.contentTypeValidation() shouldBe false
-//      HeaderValidator.auditSourceValidation() shouldBe false
-//    }
-
-//    "return false when Accept header is invalid" in {
-//      HeaderValidator.acceptHeaderValidation(accept = Some("application/vNd.HMRC.1.0+xml")) shouldBe false
-//    }
-//
-//    "return false when Audit Source is invalid" in {
-//      HeaderValidator.auditSourceValidation(auditSource = Some("")) shouldBe false
-//    }
-  }
-
   "validateAccept" should {
     "return response code 200 for valid headers" in {
       running(app) {
