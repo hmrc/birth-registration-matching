@@ -19,7 +19,6 @@ package uk.gov.hmrc.brm.models.brm
 import play.api.data.validation.ValidationError
 import play.api.http.Status
 import play.api.libs.json.{JsPath, Json}
-import play.api.mvc.Results._
 import play.api.mvc.{Result, Results}
 
 
@@ -56,12 +55,10 @@ trait HttpResponse {
   }
 }
 
-object CustomErrorResponse extends HttpResponse {
-
-  def getHttpResponse(key: String, error: String): Result = {
-    ErrorResponses.handle(key, error)
-  }
-
+object BadRequest extends HttpResponseBody {
+  override val httpCode: Int = Status.BAD_REQUEST
+  override val code: String = "BAD_REQUEST"
+  override val message: String = "Provided request is invalid."
 }
 
 object InvalidFirstName extends HttpResponseBody {
@@ -112,20 +109,20 @@ object InvalidContentType extends HttpResponseBody {
   override val message: String = "Accept header is invalid."
 }
 
-object ErrorResponses {
+object ErrorResponses extends HttpResponse {
 
   type ErrorResponses = List[(String, HttpResponseBody)]
 
-  def handle(key: String, error: String) = {
+  def getHttpResponse(key: String, error: String): Result = {
     error match {
       case "error.path.missing" =>
-        BadRequest("")
+        BadRequest.status
       case e =>
         errors.filter(x => x._1.equals(key)) match {
           case head :: tail =>
             head._2.status
           case _ =>
-            BadRequest("")
+            BadRequest.status
         }
     }
   }

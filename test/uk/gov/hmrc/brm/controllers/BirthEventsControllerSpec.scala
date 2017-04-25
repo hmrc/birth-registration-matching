@@ -113,7 +113,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing firstName value" in {
@@ -157,7 +157,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing lastName value" in {
@@ -201,7 +201,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 400 if request contains missing dateOfBirth value" in {
@@ -246,7 +246,7 @@ class BirthEventsControllerSpec
         status(result) shouldBe BAD_REQUEST
         contentType(result).get shouldBe "application/json"
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        bodyOf(result) shouldBe empty
+        bodyOf(result) shouldBe MockErrorResponses.BAD_REQUEST.json
       }
 
       "return response code 403 if request contains missing whereBirthRegistered value" in {
@@ -389,8 +389,6 @@ class BirthEventsControllerSpec
       }
 
       "receiving error response from Proxy for reference number" should {
-
-
 
         "return InternalServerError when GRO returns Upstream5xxResponse GATEWAY_TIMEOUT" in {
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))

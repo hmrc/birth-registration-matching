@@ -20,28 +20,44 @@ import akka.stream.Materializer
 import play.api.Play
 import play.api.http.Status._
 import uk.gov.hmrc.brm.models.brm.ErrorResponses
+import uk.gov.hmrc.brm.utils.MockErrorResponses
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
-
-  /**
-    * - Should
-    * Return a JSON error response when an id is invalid
-    * Return a JSON error response when given an error code of 5
-    * Return a JSON error response when given an error code of 6
-    * Return a default JSON error response when an invalid error code is given
-    */
 
   "ErrorResponses" should {
 
     implicit lazy val materializer = Play.current.injector.instanceOf[Materializer]
 
-    "return BadRequest with empty body when key doesn't exist" in {
-
-      val response = await(ErrorResponses.handle("firstNameInvalid", ""))
-      bodyOf(response) shouldBe empty
+    "return BadRequest with generic body when key doesn't exist" in {
+      val response = await(ErrorResponses.getHttpResponse("firstNameInvalid", ""))
+      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
       response.header.status shouldBe BAD_REQUEST
     }
+
+    "return BadRequest with specific body when firstName is invalid" in {
+      val response = await(ErrorResponses.getHttpResponse("firstName", ""))
+      bodyOf(response) shouldBe MockErrorResponses.INVALID_FIRSTNAME.json
+      response.header.status shouldBe BAD_REQUEST
+    }
+
+//    "return BadRequest with generic body when firstName key is missing" in {
+//      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
+//      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
+//      response.header.status shouldBe BAD_REQUEST
+//    }
+//
+//    "return BadRequest with specific body when lastName is invalid" in {
+//      val response = await(ErrorResponses.getHttpResponse("firstName", ""))
+//      bodyOf(response) shouldBe MockErrorResponses.INVALID_LASTNAME.json
+//      response.header.status shouldBe BAD_REQUEST
+//    }
+//
+//    "return BadRequest with generic body when lastName key is missing" in {
+//      val response = await(ErrorResponses.getHttpResponse("firstName", "error.path.missing"))
+//      bodyOf(response) shouldBe MockErrorResponses.BAD_REQUEST.json
+//      response.header.status shouldBe BAD_REQUEST
+//    }
 
   }
 

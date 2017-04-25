@@ -53,7 +53,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
         error => {
           countryAuditor.auditCountryInRequest(request.body)
           info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
-          Future.successful(respond(CustomErrorResponse.getErrorResponseByField(error)))
+          Future.successful(respond(ErrorResponses.getErrorResponseByField(error)))
         },
         implicit payload => {
           if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
