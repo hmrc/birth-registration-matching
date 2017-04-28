@@ -33,7 +33,12 @@ case class Status (
   override def toJson: JsValue = {
     Json.parse(s"""
        |{
-          $flags
+       |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
+       |"correction": "${correction.getOrElse("")}",
+       |"cancelled": "$cancelled",
+       |"blockedRegistration": "$blockedRegistration",
+       |"marginalNote": "${marginalNote.getOrElse("")}",
+       |"reRegistered": "${reRegistered.getOrElse("")}"
        |}
      """.stripMargin)
   }
@@ -41,12 +46,19 @@ case class Status (
   override def flags : String = {
     s"""
        |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
-       |"correction": "${correction.getOrElse("")}",
+       |"correction": "${correction.getOrElse("None")}",
        |"cancelled": "$cancelled",
        |"blockedRegistration": "$blockedRegistration",
-       |"marginalNote": "${marginalNote.getOrElse("")}",
-       |"reRegistered": "${reRegistered.getOrElse("")}"
+       |"marginalNote": "$marginalNoteReason",
+       |"reRegistered": "${reRegistered.getOrElse("None")}"
      """.stripMargin.trim
+  }
+
+  private def marginalNoteReason = {
+    marginalNote match {
+      case Some(x) if !x.trim.equalsIgnoreCase("none") => "Marginal note on record"
+      case _ => "None"
+    }
   }
 
 }

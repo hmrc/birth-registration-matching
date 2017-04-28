@@ -35,12 +35,12 @@ case class NRSStatus (
 
   override def flags : String = {
     s"""
-       |"status": "$statusToString",
-       |"deathCode": "$deathCodeToString"
+       |"status": "$statusReason",
+       |"deathCode": "$deathCodeReason"
       """.stripMargin.trim
   }
 
-  private def statusToString = {
+  private def statusReason = {
     status match {
       case 1 => "Found"
       case -4 => "Corrections"
@@ -50,7 +50,7 @@ case class NRSStatus (
     }
   }
 
-  private def deathCodeToString = {
+  private def deathCodeReason = {
     deathCode match {
       case 0 => "Not deceased"
       case _ => "Potentially Deceased"
