@@ -99,7 +99,8 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
   private def length(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfForenames" -> s"${r.child.firstName.names.count(_.nonEmpty)}",
-      s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"
+      s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"//,
+      //s"records.record$c.flags" -> s"${r.status.fold("")(flags => flags.flags)}"
     )
   }
 
