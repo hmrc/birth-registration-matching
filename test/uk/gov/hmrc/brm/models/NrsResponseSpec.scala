@@ -53,8 +53,95 @@ class NrsResponseSpec extends UnitSpec {
       |}
     """.stripMargin)
 
+  lazy val jsonValidWithUTF8Deceased = Json.parse(
+    """
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |  "child" : {
+      |    "firstName" : "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+      |    "lastName" : "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--",
+      |    "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "id" : "2017734003",
+      | "status": 1,
+      | "deathCode": 1
+      |}   ]
+      |}
+    """.stripMargin)
 
+  lazy val jsonValidWithUTF8Corrections = Json.parse(
+    """
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |  "child" : {
+      |    "firstName" : "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+      |    "lastName" : "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--",
+      |    "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "id" : "2017734003",
+      | "status": -4,
+      | "deathCode": 1
+      |}   ]
+      |}
+    """.stripMargin)
 
+  lazy val jsonValidWithUTF8Incomplete = Json.parse(
+    """
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |  "child" : {
+      |    "firstName" : "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+      |    "lastName" : "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--",
+      |    "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "id" : "2017734003",
+      | "status": -5,
+      | "deathCode": 1
+      |}   ]
+      |}
+    """.stripMargin)
+
+  lazy val jsonValidWithUTF8Cancelled = Json.parse(
+    """
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |  "child" : {
+      |    "firstName" : "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+      |    "lastName" : "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--",
+      |    "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "id" : "2017734003",
+      | "status": -6,
+      | "deathCode": 1
+      |}   ]
+      |}
+    """.stripMargin)
+
+  lazy val jsonValidWithUTF8Unknown = Json.parse(
+    """
+      |{  "births": [
+      |    {
+      | "subjects" : {
+      |  "child" : {
+      |    "firstName" : "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",
+      |    "lastName" : "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--",
+      |    "dateOfBirth" : "2007-02-18"
+      |  }
+      | },
+      | "id" : "2017734003",
+      | "status": 0,
+      | "deathCode": 1
+      |}   ]
+      |}
+    """.stripMargin)
 
 
   "Record" should {
@@ -62,9 +149,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is a full record as NRS record" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -81,20 +168,74 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.toJson shouldBe
         Json.parse(s"""
            |{
-           |  "status" : "1",
+           |  "status": "1",
            |  "deathCode": "0"
            |}
          """.stripMargin)
     }
 
 
+    "return a string of flags where found and not deceased" in {
+      val response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Found",
+                                                 |"deathCode": "Not deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
+    "return a string of flags where found and deceased" in {
+      val response = jsonValidWithUTF8Deceased.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Found",
+                                                 |"deathCode": "Potentially Deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
+    "return a string of flags where status is Corrections" in {
+      val response = jsonValidWithUTF8Corrections.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Corrections",
+                                                 |"deathCode": "Potentially Deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
+    "return a string of flags where status is Not completed" in {
+      val response = jsonValidWithUTF8Incomplete.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Incomplete",
+                                                 |"deathCode": "Potentially Deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
+    "return a string of flags where status is Cancelled" in {
+      val response = jsonValidWithUTF8Cancelled.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Cancelled",
+                                                 |"deathCode": "Potentially Deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
+    "return a string of flags where status is Unknown" in {
+      val response = jsonValidWithUTF8Unknown.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
+      response.head.status.get.flags shouldBe s"""
+                                                 |"status": "Unknown",
+                                                 |"deathCode": "Potentially Deceased"
+                                                 |""".stripMargin.trim
+
+    }
+
 
     "return Record object with all Child attributes when json is does not have father details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutFatherDetails")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -110,15 +251,12 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
-
-
     "return Record object with all Child attributes when json is does not have mother details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherDetails")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -138,9 +276,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is does not have only informant details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutInformant")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -160,9 +298,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have mother First Name only." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherFirstName")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -183,9 +321,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have mother Last Name only." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherLastName")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -205,9 +343,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have mothers birth place." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherBirthPlace")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -227,9 +365,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes as empty when there are not child details value." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutChildDetails")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -247,9 +385,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes as empty when there are not child details object." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutChildDetailsObject")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -268,9 +406,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have father value firstName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherName = "")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -290,9 +428,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have father value lastName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherLastName = "")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -312,9 +450,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have father's birth place." in {
       val nrsJsonResponseObject = getNrsResponse(fatherBirthPlace = "")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -333,9 +471,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when record does not have informant's qualification." in {
       val nrsJsonResponseObject = getNrsResponse(qualification = "")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -354,7 +492,7 @@ class NrsResponseSpec extends UnitSpec {
 
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017350003")
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
       record shouldBe a[Record]
@@ -374,9 +512,9 @@ class NrsResponseSpec extends UnitSpec {
     "return two Record object with all Child attributes when json has two records" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
       listOfRecords.length shouldBe 2
 
       val record = listOfRecords.head
@@ -407,17 +545,17 @@ class NrsResponseSpec extends UnitSpec {
     }
 
     "return error when json is empty" in {
-      var response = emptyJson.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = emptyJson.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isError shouldBe true
-      var singleRecordRead = emptyJson.validate[Record](ReadsUtil.nrsRecordsRead)
+      val singleRecordRead = emptyJson.validate[Record](ReadsUtil.nrsRecordsRead)
       singleRecordRead.isError shouldBe true
     }
 
     "return Record object with all Child attributes when json is a full record and with UTF ASCII extendted characters." in {
 
-      var response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = jsonValidWithUTF8.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = jsonValidWithUTF8.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -438,9 +576,9 @@ class NrsResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is a full record with maximum length value." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMaxLength")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -460,9 +598,9 @@ class NrsResponseSpec extends UnitSpec {
 
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMinLength")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1
@@ -482,9 +620,9 @@ class NrsResponseSpec extends UnitSpec {
 
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMinRequiredField")
 
-      var response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val response = nrsJsonResponseObject.validate[List[Record]](ReadsUtil.nrsRecordsListRead)
       response.isSuccess shouldBe true
-      var listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
       listOfRecords.length shouldBe 1

@@ -33,14 +33,20 @@ case class Status (
   override def toJson: JsValue = {
     Json.parse(s"""
        |{
-       |  "potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
-       |  "correction": "${correction.getOrElse("")}",
-       |  "cancelled": "$cancelled",
-       |  "blockedRegistration": "$blockedRegistration",
-       |  "marginalNote": "${marginalNote.getOrElse("")}",
-       |  "reRegistered": "${reRegistered.getOrElse("")}"
+          $flags
        |}
      """.stripMargin)
+  }
+
+  override def flags : String = {
+    s"""
+       |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
+       |"correction": "${correction.getOrElse("")}",
+       |"cancelled": "$cancelled",
+       |"blockedRegistration": "$blockedRegistration",
+       |"marginalNote": "${marginalNote.getOrElse("")}",
+       |"reRegistered": "${reRegistered.getOrElse("")}"
+     """.stripMargin.trim
   }
 
 }

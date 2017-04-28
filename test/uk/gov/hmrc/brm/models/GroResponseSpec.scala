@@ -451,15 +451,20 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin)
 
   "Record" should {
-    "be an instance of Record" in {
-      val response = new Record(child = Child(
-        birthReferenceNumber = 500035710,
-        firstName = "John",
-        lastName = "Jones",
-        dateOfBirth = Option(new LocalDate("2007-02-18"))))
-      response shouldBe a[Record]
-      response.child shouldBe a[Child]
-      response.status shouldBe None
+
+    "return a list of flags" in {
+
+      val result = jsonAllStatusFlags.validate[Record](ReadsUtil.groReadRecord).get
+      result.status.get.flags shouldBe
+        s"""
+           |"potentiallyFictitiousBirth": "false",
+           |"correction": "None",
+           |"cancelled": "false",
+           |"blockedRegistration": "false",
+           |"marginalNote": "None",
+           |"reRegistered": "None"
+           |""".stripMargin.trim
+
     }
 
     "return Record object with all Child attributes when json is a full record within an array" in {
