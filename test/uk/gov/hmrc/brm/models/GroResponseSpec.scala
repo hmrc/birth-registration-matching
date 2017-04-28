@@ -657,7 +657,7 @@ class GroResponseSpec extends UnitSpec {
     }
 
     "return a string of flags where marginal note" in {
-
+      // We currently strip out the response for marginalNote and provide a default
       val result = jsonAllStatusFlagsMarginalNote.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         s"""
