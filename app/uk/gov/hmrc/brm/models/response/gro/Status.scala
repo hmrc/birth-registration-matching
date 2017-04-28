@@ -43,7 +43,7 @@ case class Status (
      """.stripMargin)
   }
 
-  // TODO should this be a Map(k ,v) instead so we can search on individual keys in splunk?
+  // TODO should this be a Map(k ,v) instead so we can search on individual keys in splunk? Refer to interface
   override def flags : String = {
     s"""
        |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
