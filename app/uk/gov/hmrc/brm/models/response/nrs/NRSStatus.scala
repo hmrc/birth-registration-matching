@@ -19,10 +19,10 @@ package uk.gov.hmrc.brm.models.response.nrs
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
-case class NRSStatus (
-                       status : Int = 1,
-                       deathCode : Int = 0
-                     ) extends StatusInterface {
+case class NRSStatus(
+  status: Int = 1,
+  deathCode: Int = 0
+) extends StatusInterface {
 
   override def toJson: JsValue = {
     Json.parse(s"""
@@ -33,12 +33,10 @@ case class NRSStatus (
     """.stripMargin)
   }
 
-  override def flags : String = {
-    s"""
-       |"status": "$statusReason",
-       |"deathCode": "$deathCodeReason"
-      """.stripMargin.trim
-  }
+  override def flags: Map[String, String] = Map(
+    "status" -> s"$statusReason",
+    "deathCode" -> s"$deathCodeReason"
+  )
 
   private def statusReason = {
     status match {
@@ -53,7 +51,7 @@ case class NRSStatus (
   private def deathCodeReason = {
     deathCode match {
       case 0 => "Not deceased"
-      case _ => "Potentially Deceased"
+      case _ => "Potentially deceased"
     }
   }
 }

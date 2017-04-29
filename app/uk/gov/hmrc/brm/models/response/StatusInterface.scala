@@ -25,7 +25,7 @@ trait StatusInterface {
 
   def toJson : JsValue
 
-  def flags : String
+  def flags : Map[String, String]
 //  def flags : Map[String, String]
 
 }

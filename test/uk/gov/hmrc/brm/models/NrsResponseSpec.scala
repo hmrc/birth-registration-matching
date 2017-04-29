@@ -25,15 +25,16 @@ import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.brm.utils.TestHelper._
 /**
-  * Created by user on 07/03/17.
-  */
-class NrsResponseSpec extends UnitSpec {
+ * Created by user on 07/03/17.
+ */
+class NRSResponseSpec extends UnitSpec {
 
   lazy val emptyJson = Json.parse(
     """
       |{
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8 = Json.parse(
     """
@@ -51,7 +52,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 0
       |}   ]
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8Deceased = Json.parse(
     """
@@ -69,7 +71,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 1
       |}   ]
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8Corrections = Json.parse(
     """
@@ -87,7 +90,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 1
       |}   ]
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8Incomplete = Json.parse(
     """
@@ -105,7 +109,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 1
       |}   ]
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8Cancelled = Json.parse(
     """
@@ -123,7 +128,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 1
       |}   ]
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithUTF8Unknown = Json.parse(
     """
@@ -141,8 +147,8 @@ class NrsResponseSpec extends UnitSpec {
       | "deathCode": 1
       |}   ]
       |}
-    """.stripMargin)
-
+    """.stripMargin
+  )
 
   "Record" should {
 
@@ -174,61 +180,40 @@ class NrsResponseSpec extends UnitSpec {
          """.stripMargin)
     }
 
-
     "return a string of flags where found and not deceased" in {
       val response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Found",
-                                                 |"deathCode": "Not deceased"
-                                                 |""".stripMargin.trim
-
+      response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Not deceased")
     }
 
     "return a string of flags where found and deceased" in {
       val response = jsonValidWithUTF8Deceased.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Found",
-                                                 |"deathCode": "Potentially Deceased"
-                                                 |""".stripMargin.trim
+      response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Potentially deceased")
 
     }
 
     "return a string of flags where status is Corrections" in {
       val response = jsonValidWithUTF8Corrections.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Corrections",
-                                                 |"deathCode": "Potentially Deceased"
-                                                 |""".stripMargin.trim
+      response.head.status.get.flags shouldBe Map("status" -> "Corrections", "deathCode" -> "Potentially deceased")
 
     }
 
     "return a string of flags where status is Not completed" in {
       val response = jsonValidWithUTF8Incomplete.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Incomplete",
-                                                 |"deathCode": "Potentially Deceased"
-                                                 |""".stripMargin.trim
+      response.head.status.get.flags shouldBe Map("status" -> "Incomplete", "deathCode" -> "Potentially deceased")
 
     }
 
     "return a string of flags where status is Cancelled" in {
       val response = jsonValidWithUTF8Cancelled.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Cancelled",
-                                                 |"deathCode": "Potentially Deceased"
-                                                 |""".stripMargin.trim
+      response.head.status.get.flags shouldBe Map("status" -> "Cancelled", "deathCode" -> "Potentially deceased")
 
     }
 
     "return a string of flags where status is Unknown" in {
       val response = jsonValidWithUTF8Unknown.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe s"""
-                                                 |"status": "Unknown",
-                                                 |"deathCode": "Potentially Deceased"
-                                                 |""".stripMargin.trim
+      response.head.status.get.flags shouldBe Map("status" -> "Unknown", "deathCode" -> "Potentially deceased")
 
     }
-
 
     "return Record object with all Child attributes when json is does not have father details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutFatherDetails")
@@ -272,7 +257,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
     "return Record object with all Child attributes when json is does not have only informant details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutInformant")
 
@@ -293,7 +277,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
-
 
     "return Record object with all Child attributes when record does not have mother First Name only." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherFirstName")
@@ -316,8 +299,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
-
     "return Record object with all Child attributes when record does not have mother Last Name only." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherLastName")
 
@@ -339,7 +320,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
     "return Record object with all Child attributes when record does not have mothers birth place." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutMotherBirthPlace")
 
@@ -360,7 +340,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
-
 
     "return Record object with all Child attributes as empty when there are not child details value." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withoutChildDetails")
@@ -402,7 +381,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
     "return Record object with all Child attributes when record does not have father value firstName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherName = "")
 
@@ -424,7 +402,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
     "return Record object with all Child attributes when record does not have father value lastName only." in {
       val nrsJsonResponseObject = getNrsResponse(fatherLastName = "")
 
@@ -445,7 +422,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
-
 
     "return Record object with all Child attributes when record does not have father's birth place." in {
       val nrsJsonResponseObject = getNrsResponse(fatherBirthPlace = "")
@@ -489,7 +465,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017350003")
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
@@ -505,9 +480,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].status shouldBe -4
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
-
-
-
 
     "return two Record object with all Child attributes when json has two records" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
@@ -571,8 +543,6 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-
-
     "return Record object with all Child attributes when json is a full record with maximum length value." in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMaxLength")
 
@@ -594,7 +564,7 @@ class NrsResponseSpec extends UnitSpec {
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
-   "return Record object with all Child attributes when json is a full record with minimum length value." in {
+    "return Record object with all Child attributes when json is a full record with minimum length value." in {
 
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003_withMinLength")
 

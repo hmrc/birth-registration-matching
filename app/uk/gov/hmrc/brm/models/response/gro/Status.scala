@@ -17,18 +17,18 @@
 package uk.gov.hmrc.brm.models.response.gro
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
+import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
-case class Status (
-                    potentiallyFictitiousBirth : Boolean = false,
-                    correction : Option[String] = None,
-                    cancelled : Boolean = false,
-                    blockedRegistration : Boolean = false,
-                    marginalNote : Option[String] = None,
-                    reRegistered : Option[String] = None
-                  ) extends StatusInterface {
+case class Status(
+  potentiallyFictitiousBirth: Boolean = false,
+  correction: Option[String] = None,
+  cancelled: Boolean = false,
+  blockedRegistration: Boolean = false,
+  marginalNote: Option[String] = None,
+  reRegistered: Option[String] = None
+) extends StatusInterface {
 
   override def toJson: JsValue = {
     Json.parse(s"""
@@ -43,17 +43,14 @@ case class Status (
      """.stripMargin)
   }
 
-  // TODO should this be a Map(k ,v) instead so we can search on individual keys in splunk? Refer to interface
-  override def flags : String = {
-    s"""
-       |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
-       |"correction": "${correction.getOrElse("None")}",
-       |"cancelled": "$cancelled",
-       |"blockedRegistration": "$blockedRegistration",
-       |"marginalNote": "$marginalNoteReason",
-       |"reRegistered": "${reRegistered.getOrElse("None")}"
-     """.stripMargin.trim
-  }
+  override def flags: Map[String, String] = Map(
+    "potentiallyFictitiousBirth" -> s"$potentiallyFictitiousBirth",
+    "correction" -> s"${correction.getOrElse("None")}",
+    "cancelled" -> s"$cancelled",
+    "blockedRegistration" -> s"$blockedRegistration",
+    "marginalNote" -> s"$marginalNoteReason",
+    "reRegistered" -> s"${reRegistered.getOrElse("None")}"
+  )
 
   private def marginalNoteReason = {
     marginalNote match {
@@ -66,12 +63,12 @@ case class Status (
 
 object Status {
 
-  implicit val childReads : Reads[Status] = (
+  implicit val childReads: Reads[Status] = (
     (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "correction").readNullable[String] and
-      (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "marginalNote").readNullable[String] and
-      (JsPath \ "reRegistered").readNullable[String]
-    )(Status.apply _)
+    (JsPath \ "correction").readNullable[String] and
+    (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
+    (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
+    (JsPath \ "marginalNote").readNullable[String] and
+    (JsPath \ "reRegistered").readNullable[String]
+  )(Status.apply _)
 }

@@ -25,34 +25,34 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.brm.utils.ReadsUtil
 
 /**
-  * Created by chrisianson on 09/08/16.
-  */
+ * Created by chrisianson on 09/08/16.
+ */
 class GroResponseSpec extends UnitSpec {
 
   /**
-    * Should
-    * - should be an instance of GroResponse
-    * - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
-    * - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters
-    * - should return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters
-    * - should return GroResponse object with all Child attributes when json is valid and complete max length
-    * - should return GroResponse object with null Child attributes when json is empty
-    * - should return GroResponse object with Child object when systemNumber key is missing
-    * - should return GroResponse object with Child object when givenName key is missing
-    * - should return GroResponse object with Child object when surname key is missing
-    * - should return GroResponse object with Child object when dateOfBirth key is missing
-    * - should return GroResponse object with Child object when name key is missing
-    * - should return GroResponse object with Child object when dateOfBirth value is invalid format
-    * - should return GROResponse object with missing properties in all objects
-    * - should return a JsonParseException from a broken json object
-    * - should return an JsonMappingException from an invalid json object
-    */
+   * Should
+   * - should be an instance of GroResponse
+   * - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
+   * - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters
+   * - should return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters
+   * - should return GroResponse object with all Child attributes when json is valid and complete max length
+   * - should return GroResponse object with null Child attributes when json is empty
+   * - should return GroResponse object with Child object when systemNumber key is missing
+   * - should return GroResponse object with Child object when givenName key is missing
+   * - should return GroResponse object with Child object when surname key is missing
+   * - should return GroResponse object with Child object when dateOfBirth key is missing
+   * - should return GroResponse object with Child object when name key is missing
+   * - should return GroResponse object with Child object when dateOfBirth value is invalid format
+   * - should return GROResponse object with missing properties in all objects
+   * - should return a JsonParseException from a broken json object
+   * - should return an JsonMappingException from an invalid json object
+   */
 
-  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("gro","500035710")
+  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("gro", "500035710")
 
-  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("gro","500035710-array")
+  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
 
-  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("gro","key-no-value")
+  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("gro", "key-no-value")
 
   lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
 
@@ -70,7 +70,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValid = Json.parse(
     """
@@ -86,7 +87,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonValidWithASCIIExtended = Json.parse(
     """
@@ -102,13 +104,14 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   /**
-    * Max Length response from GRO with x1 FirstName at max length
-    * x3 Max Length strings for middle names
-    * x1 Max Length string for lastName
-    */
+   * Max Length response from GRO with x1 FirstName at max length
+   * x3 Max Length strings for middle names
+   * x1 Max Length string for lastName
+   */
   lazy val jsonValidMaxLength = Json.parse(
     s"""
        |{
@@ -123,7 +126,8 @@ class GroResponseSpec extends UnitSpec {
        | },
        | "systemNumber" : 500035710
        |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingGivenNameKey = Json.parse(
     """
@@ -138,7 +142,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingSurnameKey = Json.parse(
     """
@@ -153,10 +158,11 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingObjectsProperties = Json.parse(
-  """
+    """
     |{
     |  "location": {
     |
@@ -210,7 +216,8 @@ class GroResponseSpec extends UnitSpec {
       |  }
       | }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingDateOfBirthKey = Json.parse(
     """
@@ -225,7 +232,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingNameKey = Json.parse(
     """
@@ -237,20 +245,23 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingSubjectsKey = Json.parse(
     """
       |{
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonMissingEmptyObject = Json.parse(
     """
       |{
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonInavlidDateOfBirthFormat = Json.parse(
     """
@@ -266,7 +277,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : 500035710
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonInvalidSystemNumberType = Json.parse(
     """
@@ -282,7 +294,8 @@ class GroResponseSpec extends UnitSpec {
       | },
       | "systemNumber" : "500035710"
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonNoObject = Json.parse("")
 
@@ -310,7 +323,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsPotentiallyFictious = Json.parse(
     """
@@ -334,7 +348,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsCorrection = Json.parse(
     """
@@ -358,7 +373,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsCancelled = Json.parse(
     """
@@ -382,7 +398,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsBlocked = Json.parse(
     """
@@ -406,7 +423,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsMarginalNote = Json.parse(
     """
@@ -430,7 +448,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonAllStatusFlagsReregistered = Json.parse(
     """
@@ -454,7 +473,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "Re-registered"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingPotentiallyFicticiousBirth = Json.parse(
     """
@@ -477,7 +497,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingCorrection = Json.parse(
     """
@@ -500,7 +521,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingCancelled = Json.parse(
     """
@@ -523,7 +545,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingBlockedRegistration = Json.parse(
     """
@@ -546,7 +569,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingMarginalNote = Json.parse(
     """
@@ -569,7 +593,8 @@ class GroResponseSpec extends UnitSpec {
       |    "reRegistered": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   lazy val jsonStatusFlagsExcludingReRegistered = Json.parse(
     """
@@ -592,7 +617,8 @@ class GroResponseSpec extends UnitSpec {
       |    "marginalNote": "None"
       |  }
       |}
-    """.stripMargin)
+    """.stripMargin
+  )
 
   "Record" should {
 
@@ -600,89 +626,83 @@ class GroResponseSpec extends UnitSpec {
 
       val result = jsonAllStatusFlagsPotentiallyFictious.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "true",
-           |"correction": "None",
-           |"cancelled": "false",
-           |"blockedRegistration": "false",
-           |"marginalNote": "None",
-           |"reRegistered": "None"
-           |""".stripMargin.trim
-
+        Map(
+          "potentiallyFictitiousBirth" -> "true",
+          "correction" -> "None",
+          "cancelled" -> "false",
+          "blockedRegistration" -> "false",
+          "marginalNote" -> "None",
+          "reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where correction" in {
 
       val result = jsonAllStatusFlagsCorrection.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "false",
-           |"correction": "Typographical",
-           |"cancelled": "false",
-           |"blockedRegistration": "false",
-           |"marginalNote": "None",
-           |"reRegistered": "None"
-           |""".stripMargin.trim
-
+        Map(
+          "potentiallyFictitiousBirth" -> "false",
+          "correction" -> "Typographical",
+          "cancelled" -> "false",
+          "blockedRegistration" -> "false",
+          "marginalNote" -> "None",
+          "reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where cancelled" in {
 
       val result = jsonAllStatusFlagsCancelled.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "false",
-           |"correction": "None",
-           |"cancelled": "true",
-           |"blockedRegistration": "false",
-           |"marginalNote": "None",
-           |"reRegistered": "None"
-           |""".stripMargin.trim
-
+        Map(
+          "potentiallyFictitiousBirth" -> "false",
+          "correction" -> "None",
+          "cancelled" -> "true",
+          "blockedRegistration" -> "false",
+          "marginalNote" -> "None",
+          "reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where blocked" in {
 
       val result = jsonAllStatusFlagsBlocked.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "false",
-           |"correction": "None",
-           |"cancelled": "false",
-           |"blockedRegistration": "true",
-           |"marginalNote": "None",
-           |"reRegistered": "None"
-           |""".stripMargin.trim
-
+        Map(
+          "potentiallyFictitiousBirth" -> "false",
+          "correction" -> "None",
+          "cancelled" -> "false",
+          "blockedRegistration" -> "true",
+          "marginalNote" -> "None",
+          "reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where marginal note" in {
       // We currently strip out the response for marginalNote and provide a default
       val result = jsonAllStatusFlagsMarginalNote.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "false",
-           |"correction": "None",
-           |"cancelled": "false",
-           |"blockedRegistration": "false",
-           |"marginalNote": "Marginal note on record",
-           |"reRegistered": "None"
-           |""".stripMargin.trim
-
+        Map(
+          "potentiallyFictitiousBirth" -> "false",
+          "correction" -> "None",
+          "cancelled" -> "false",
+          "blockedRegistration" -> "false",
+          "marginalNote" -> "Marginal note on record",
+          "reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where re-registered" in {
 
       val result = jsonAllStatusFlagsReregistered.validate[Record](ReadsUtil.groReadRecord).get
-      result.status.get.flags shouldBe
-        s"""
-           |"potentiallyFictitiousBirth": "false",
-           |"correction": "None",
-           |"cancelled": "false",
-           |"blockedRegistration": "false",
-           |"marginalNote": "None",
-           |"reRegistered": "Re-registered"
-           |""".stripMargin.trim
+      result.status.get.flags shouldBe Map(
+        "potentiallyFictitiousBirth" -> "false",
+        "correction" -> "None",
+        "cancelled" -> "false",
+        "blockedRegistration" -> "false",
+        "marginalNote" -> "None",
+        "reRegistered" -> "Re-registered"
+      )
 
     }
 
