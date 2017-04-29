@@ -20,21 +20,4 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 
-case class Record(child: Child, status: Option[StatusInterface] = None) {
-
-  def mapFlagsToIndex(index: Int) : Map[String, String] = {
-    /**
-     convert a Map() of flags into a flattened Map() with index associated to each key
-     otherwise return empty Map()
-     */
-    status match {
-      case Some(s) =>
-        val flags = s.flags
-        flags.keys.map(k =>
-          s"records.record$index.$k" -> flags(k)
-        ).toMap
-      case None => Map()
-    }
-  }
-
-}
+case class Record(child: Child, status: Option[StatusInterface] = None)

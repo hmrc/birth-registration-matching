@@ -37,9 +37,11 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 15/02/2017.
   */
-class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
+class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
+
+  val auditor = auditorFixtures.transactionAudit
 
   implicit val hc = HeaderCarrier()
 
@@ -49,10 +51,10 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditorFixtures.transactionAudit.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditorFixtures.transactionAudit.audit(event, Some(payload)))
+      val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
 
       argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
@@ -66,10 +68,10 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(None, "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditorFixtures.transactionAudit.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditorFixtures.transactionAudit.audit(event, Some(payload)))
+      val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
 
       argumentCapture.value.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
@@ -82,7 +84,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
     "throw Illegal argument exception when no payload is provided" in {
       val event = Map("match" -> "true")
       intercept[IllegalArgumentException] {
-        await(auditorFixtures.transactionAudit.audit(event, None))
+        await(auditor.audit(event, None))
       }
     }
 
@@ -91,7 +93,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
   "responseWordCount" should {
 
     "return empty Map when an empty list is sent" in {
-      val response = auditorFixtures.transactionAudit.responseWordCount(List())
+      val response = auditor.recordListToMap(Nil, auditor.wordCount)
       response shouldBe a[Map[_,_]]
       response.isEmpty shouldBe true
     }
@@ -103,7 +105,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         "",
         Some(new LocalDate("2009-06-30"))))
 
-      val response = auditorFixtures.transactionAudit.responseWordCount(List(child))
+      val response = auditor.recordListToMap(List(child), auditor.wordCount)
 
       response shouldBe a[Map[_, _]]
       response("records.record1.numberOfForenames") shouldBe "0"
@@ -117,7 +119,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
 
-      val response = auditorFixtures.transactionAudit.responseWordCount(List(child))
+      val response = auditor.recordListToMap(List(child), auditor.wordCount)
 
       response("records.record1.numberOfForenames") shouldBe "2"
       response("records.record1.numberOfLastnames") shouldBe "1"
@@ -136,7 +138,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
 
-      val response = auditorFixtures.transactionAudit.responseWordCount(List(child, child2))
+      val response = auditor.recordListToMap(List(child, child2), auditor.wordCount)
 
       response("records.record1.numberOfForenames") shouldBe "2"
       response("records.record1.numberOfLastnames") shouldBe "1"
@@ -148,7 +150,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
   "responseCharacterCount" should {
 
     "return empty Map when an empty list is sent" in {
-      val response = auditorFixtures.transactionAudit.responseCharacterCount(List())
+      val response = auditor.recordListToMap(Nil, auditor.characterCount)
       response shouldBe a[Map[_,_]]
       response.isEmpty shouldBe true
     }
@@ -160,7 +162,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
 
-      val response = auditorFixtures.transactionAudit.responseCharacterCount(List(child))
+      val response = auditor.recordListToMap(List(child), auditor.characterCount)
       response shouldBe a[Map[_, _]]
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
       response("records.record1.numberOfCharactersInLastName") shouldBe "5"
@@ -178,7 +180,7 @@ class RequestsAndResultsAuditSpec extends UnitSpec with MockitoSugar with OneApp
         "Andrews",
         Some(new LocalDate("2009-08-30"))))
 
-      val response = auditorFixtures.transactionAudit.responseCharacterCount(List(child1, child2))
+      val response = auditor.recordListToMap(List(child1, child2), auditor.characterCount)
 
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
       response("records.record1.numberOfCharactersInLastName") shouldBe "5"
