@@ -183,12 +183,19 @@ class NRSResponseSpec extends UnitSpec {
     "return a string of flags where found and not deceased" in {
       val response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
       response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Not deceased")
+      response.head.mapFlagsToIndex(1) shouldBe Map(
+        "records.record1.status" -> "Found",
+        "records.record1.deathCode" -> "Not deceased"
+      )
     }
 
     "return a string of flags where found and deceased" in {
       val response = jsonValidWithUTF8Deceased.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
       response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Potentially deceased")
-
+      response.head.mapFlagsToIndex(2) shouldBe Map(
+        "records.record2.status" -> "Found",
+        "records.record2.deathCode" -> "Potentially deceased"
+      )
     }
 
     "return a string of flags where status is Corrections" in {

@@ -634,6 +634,15 @@ class GroResponseSpec extends UnitSpec {
           "marginalNote" -> "None",
           "reRegistered" -> "None"
         )
+
+        result.mapFlagsToIndex(1) shouldBe Map(
+          "records.record1.potentiallyFictitiousBirth" -> "true",
+          "records.record1.correction" -> "None",
+          "records.record1.cancelled" -> "false",
+          "records.record1.blockedRegistration" -> "false",
+          "records.record1.marginalNote" -> "None",
+          "records.record1.reRegistered" -> "None"
+        )
     }
 
     "return a string of flags where correction" in {
@@ -647,6 +656,15 @@ class GroResponseSpec extends UnitSpec {
           "blockedRegistration" -> "false",
           "marginalNote" -> "None",
           "reRegistered" -> "None"
+        )
+
+        result.mapFlagsToIndex(2) shouldBe Map(
+          "records.record2.potentiallyFictitiousBirth" -> "false",
+          "records.record2.correction" -> "Typographical",
+          "records.record2.cancelled" -> "false",
+          "records.record2.blockedRegistration" -> "false",
+          "records.record2.marginalNote" -> "None",
+          "records.record2.reRegistered" -> "None"
         )
     }
 

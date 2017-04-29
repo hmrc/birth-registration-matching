@@ -96,15 +96,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     responseDetail(record, characterCount)
   }
 
-//  private def flagssomething(r : Record, c : Int) : Map[String, String] = {
-//    val flags = r.status.get.flags
-//
-//    val res = flags.keys.map(k =>
-//      s"records.record$c.$k" -> flags(k)
-//    )
-//    res.toMap
-//  }
-
   private def length(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfForenames" -> s"${r.child.firstName.names.count(_.nonEmpty)}",
