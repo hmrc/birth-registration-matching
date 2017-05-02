@@ -34,9 +34,10 @@ object BirthEventsController extends BirthEventsController {
   override val auditFactory = new AuditFactory()
   override val transactionAuditor = new TransactionAuditor()
   override val matchingAuditor = new MatchingAudit()
+  override val headerValidator = HeaderValidator
 }
 
-trait BirthEventsController extends HeaderValidator with BRMBaseController {
+trait BirthEventsController extends BRMBaseController {
 
   override val CLASS_NAME : String = this.getClass.getCanonicalName
   override val METHOD_NAME: String = "BirthEventsController::post"
@@ -47,7 +48,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
   protected val countryAuditor : WhereBirthRegisteredAudit
   protected val auditFactory : AuditFactory
 
-  def post() = validateAccept().async(parse.json) {
+  def post() = headerValidator.validateAccept().async(parse.json) {
     implicit request =>
       request.body.validate[Payload].fold(
         error => {
@@ -63,6 +64,9 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
             implicit val auditor: BRMAudit = auditFactory.getAuditor()
             implicit val features = FeatureFactory
+
+            
+
             if (!features().validate) {
               //TODO: Need to work out
               //TODO: 1. What We're going to log
