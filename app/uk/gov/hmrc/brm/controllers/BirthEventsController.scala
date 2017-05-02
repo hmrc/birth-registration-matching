@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json._
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
-import uk.gov.hmrc.brm.config.FeatureFactory
+import uk.gov.hmrc.brm.config.{FeatureFactory, GROConcreteFeature, NRSConcreteFeature}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm._
@@ -63,6 +63,10 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
             implicit val auditor: BRMAudit = auditFactory.getAuditor()
             implicit val features = FeatureFactory
+
+            info(CLASS_NAME, "GRO enabled", s"${GROConcreteFeature.feature}")
+            info(CLASS_NAME, "NRS enabled", s"${NRSConcreteFeature.feature}")
+
             if (!features().validate) {
               //TODO: Need to work out
               //TODO: 1. What We're going to log
