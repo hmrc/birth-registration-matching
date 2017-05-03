@@ -115,7 +115,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       case Some(s) =>
         val flags = s.flags
         flags.keys.map(k =>
-          s"records.record$index.$k" -> flags(k)
+          s"records.record$index.flags.$k" -> flags(k)
         ).toMap
       case None => Map()
     }

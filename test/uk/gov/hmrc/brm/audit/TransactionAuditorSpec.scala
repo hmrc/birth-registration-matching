@@ -210,12 +210,12 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
           )
         )
         val response = auditor.recordListToMap(List(child1), auditor.flags)
-        response("records.record1.potentiallyFictitiousBirth") shouldBe "true"
-        response("records.record1.correction") shouldBe "Correction"
-        response("records.record1.cancelled") shouldBe "true"
-        response("records.record1.blockedRegistration") shouldBe "true"
-        response("records.record1.marginalNote") shouldBe "Marginal note on record"
-        response("records.record1.reRegistered") shouldBe "Re-registered"
+        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        response("records.record1.flags.correction") shouldBe "Correction"
+        response("records.record1.flags.cancelled") shouldBe "true"
+        response("records.record1.flags.blockedRegistration") shouldBe "true"
+        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+        response("records.record1.flags.reRegistered") shouldBe "Re-registered"
       }
 
     }
@@ -233,8 +233,8 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
           )
         )
         val response = auditor.recordListToMap(List(child1), auditor.flags)
-        response("records.record1.status") shouldBe "Found"
-        response("records.record1.deathCode") shouldBe "Potentially deceased"
+        response("records.record1.flags.status") shouldBe "Found"
+        response("records.record1.flags.deathCode") shouldBe "Potentially deceased"
       }
 
     }
