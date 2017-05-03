@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.brm.models.response
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.gro.Child
 
 case class Record(child: Child, status: Option[StatusInterface] = None)
-
-object Record {}

@@ -17,42 +17,51 @@
 package uk.gov.hmrc.brm.models.response.gro
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
+import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
-case class Status (
-                    potentiallyFictitiousBirth : Boolean = false,
-                    correction : Option[String] = None,
-                    cancelled : Boolean = false,
-                    blockedRegistration : Boolean = false,
-                    marginalNote : Option[String] = None,
-                    reRegistered : Option[String] = None
-                  ) extends StatusInterface {
+case class Status(
+  potentiallyFictitiousBirth: Boolean = false,
+  correction: Option[String] = None,
+  cancelled: Boolean = false,
+  blockedRegistration: Boolean = false,
+  marginalNote: Option[String] = None,
+  reRegistered: Option[String] = None
+) extends StatusInterface {
 
   override def toJson: JsValue = {
     Json.parse(s"""
        |{
-       |  "potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
-       |  "correction": "${correction.getOrElse("")}",
-       |  "cancelled": "$cancelled",
-       |  "blockedRegistration": "$blockedRegistration",
-       |  "marginalNote": "${marginalNote.getOrElse("")}",
-       |  "reRegistered": "${reRegistered.getOrElse("")}"
+       |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
+       |"correction": "${correction.getOrElse("")}",
+       |"cancelled": "$cancelled",
+       |"blockedRegistration": "$blockedRegistration",
+       |"marginalNote": "${marginalNote.getOrElse("")}",
+       |"reRegistered": "${reRegistered.getOrElse("")}"
        |}
      """.stripMargin)
   }
+
+  override def flags: Map[String, String] = Map(
+    "potentiallyFictitiousBirth" -> s"$potentiallyFictitiousBirth",
+    "correction" -> s"${correction.getOrElse("None")}",
+    "cancelled" -> s"$cancelled",
+    "blockedRegistration" -> s"$blockedRegistration",
+    "marginalNote" -> obfuscateReason(marginalNote, "Marginal note on record"),
+    "reRegistered" -> s"${reRegistered.getOrElse("None")}"
+  )
 
 }
 
 object Status {
 
-  implicit val childReads : Reads[Status] = (
+  implicit val childReads: Reads[Status] = (
     (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "correction").readNullable[String] and
-      (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
-      (JsPath \ "marginalNote").readNullable[String] and
-      (JsPath \ "reRegistered").readNullable[String]
-    )(Status.apply _)
+    (JsPath \ "correction").readNullable[String] and
+    (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
+    (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
+    (JsPath \ "marginalNote").readNullable[String] and
+    (JsPath \ "reRegistered").readNullable[String]
+  )(Status.apply _)
 }
