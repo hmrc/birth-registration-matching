@@ -25,7 +25,8 @@ import org.specs2.mock.mockito.ArgumentCapture
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.models.response.gro.Child
+import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -190,4 +191,66 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
 
   }
 
+  "flags" when {
+
+    "record has flags for GRO" should {
+
+      "return a Map() of flags" in {
+        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+          Some(new LocalDate("2009-06-30"))),
+          status = Some(
+            Status(
+              potentiallyFictitiousBirth = true,
+              correction = Some("Correction"),
+              cancelled = true,
+              blockedRegistration = true,
+              marginalNote = Some("RCE"),
+              reRegistered = Some("Re-registered")
+            )
+          )
+        )
+        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        response("records.record1.potentiallyFictitiousBirth") shouldBe "true"
+        response("records.record1.correction") shouldBe "Correction"
+        response("records.record1.cancelled") shouldBe "true"
+        response("records.record1.blockedRegistration") shouldBe "true"
+        response("records.record1.marginalNote") shouldBe "Marginal note on record"
+        response("records.record1.reRegistered") shouldBe "Re-registered"
+      }
+
+    }
+
+    "record has flags for NRS" should {
+
+      "return a Map() of flags" in {
+        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+          Some(new LocalDate("2009-06-30"))),
+          status = Some(
+            NRSStatus(
+              status = 1,
+              deathCode = 1
+            )
+          )
+        )
+        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        response("records.record1.status") shouldBe "Found"
+        response("records.record1.deathCode") shouldBe "Potentially deceased"
+      }
+
+    }
+
+    "has no status" should {
+
+      "return a empty Map()" in {
+        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+          Some(new LocalDate("2009-06-30"))),
+          status = None
+        )
+        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        response shouldBe empty
+      }
+
+    }
+
+  }
 }

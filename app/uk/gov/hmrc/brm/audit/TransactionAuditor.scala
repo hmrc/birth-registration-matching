@@ -88,20 +88,9 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       payloadAudit ++
       auditWordsPerNameOnRecords ++
       auditCharactersPerNameOnRecords ++
-      matchAudit
+      matchAudit ++
+      auditFlags
   }
-
-  // def responseWordCount(record: List[Record]): Map[String, String] = {
-  //   recordListToMap(record, wordCount)
-  // }
-  //
-  // def responseCharacterCount(record: List[Record]): Map[String, String] = {
-  //   recordListToMap(record, characterCount)
-  // }
-
-  // def mapFlags(records: List[Record]): Map[String, String] = {
-  //   recordListToMap(records, flags)
-  // }
 
   def wordCount(r: Record, c: Int): Map[String, String] = {
     Map(

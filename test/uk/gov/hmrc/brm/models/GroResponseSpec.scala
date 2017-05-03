@@ -622,7 +622,7 @@ class GroResponseSpec extends UnitSpec {
 
   "Record" should {
 
-    "return a string of flags where potentiallyFictitiousBirth" in {
+    "return a Map() of flags where potentiallyFictitiousBirth" in {
 
       val result = jsonAllStatusFlagsPotentiallyFictious.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
@@ -634,18 +634,9 @@ class GroResponseSpec extends UnitSpec {
           "marginalNote" -> "None",
           "reRegistered" -> "None"
         )
-
-        result.mapFlagsToIndex(1) shouldBe Map(
-          "records.record1.potentiallyFictitiousBirth" -> "true",
-          "records.record1.correction" -> "None",
-          "records.record1.cancelled" -> "false",
-          "records.record1.blockedRegistration" -> "false",
-          "records.record1.marginalNote" -> "None",
-          "records.record1.reRegistered" -> "None"
-        )
     }
 
-    "return a string of flags where correction" in {
+    "return a Map() of flags where correction" in {
 
       val result = jsonAllStatusFlagsCorrection.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
@@ -657,18 +648,9 @@ class GroResponseSpec extends UnitSpec {
           "marginalNote" -> "None",
           "reRegistered" -> "None"
         )
-
-        result.mapFlagsToIndex(2) shouldBe Map(
-          "records.record2.potentiallyFictitiousBirth" -> "false",
-          "records.record2.correction" -> "Typographical",
-          "records.record2.cancelled" -> "false",
-          "records.record2.blockedRegistration" -> "false",
-          "records.record2.marginalNote" -> "None",
-          "records.record2.reRegistered" -> "None"
-        )
     }
 
-    "return a string of flags where cancelled" in {
+    "return a Map() of flags where cancelled" in {
 
       val result = jsonAllStatusFlagsCancelled.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
@@ -682,7 +664,7 @@ class GroResponseSpec extends UnitSpec {
         )
     }
 
-    "return a string of flags where blocked" in {
+    "return a Map() of flags where blocked" in {
 
       val result = jsonAllStatusFlagsBlocked.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
@@ -696,7 +678,7 @@ class GroResponseSpec extends UnitSpec {
         )
     }
 
-    "return a string of flags where marginal note" in {
+    "return a Map() of flags where marginal note" in {
       // We currently strip out the response for marginalNote and provide a default
       val result = jsonAllStatusFlagsMarginalNote.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
@@ -710,7 +692,7 @@ class GroResponseSpec extends UnitSpec {
         )
     }
 
-    "return a string of flags where re-registered" in {
+    "return a Map() of flags where re-registered" in {
 
       val result = jsonAllStatusFlagsReregistered.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe Map(
