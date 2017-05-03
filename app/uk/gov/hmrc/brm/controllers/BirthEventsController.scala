@@ -64,9 +64,6 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
             implicit val auditor: BRMAudit = auditFactory.getAuditor()
             implicit val features = FeatureFactory
 
-            info(CLASS_NAME, "GRO enabled", s"${GROConcreteFeature.feature}")
-            info(CLASS_NAME, "NRS enabled", s"${NRSConcreteFeature.feature}")
-
             if (!features().validate) {
               //TODO: Need to work out
               //TODO: 1. What We're going to log
