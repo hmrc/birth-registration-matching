@@ -48,16 +48,9 @@ case class Status(
     "correction" -> s"${correction.getOrElse("None")}",
     "cancelled" -> s"$cancelled",
     "blockedRegistration" -> s"$blockedRegistration",
-    "marginalNote" -> s"$marginalNoteReason",
+    "marginalNote" -> obfuscateReason(marginalNote, "Marginal note on record"),
     "reRegistered" -> s"${reRegistered.getOrElse("None")}"
   )
-
-  private def marginalNoteReason = {
-    marginalNote match {
-      case Some(x) if !x.trim.equalsIgnoreCase("none") => "Marginal note on record"
-      case _ => "None"
-    }
-  }
 
 }
 
