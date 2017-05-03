@@ -40,7 +40,7 @@ import scala.concurrent.Future
 /**
   * Created by anuja on 16/02/17.
   */
-class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
+class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
 
   val connector = mock[AuditConnector]
   val auditor = new TransactionAuditor(connector)
