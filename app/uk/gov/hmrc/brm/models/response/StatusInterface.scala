@@ -28,12 +28,13 @@ trait StatusInterface {
   def flags : Map[String, String]
 
   protected def obfuscateReason(reason : Option[String], alternative : String) : String = {
-    reason.fold("None"){
-      x =>
-        if(!x.trim.equalsIgnoreCase("none")){
-          alternative
+    val default = "None"
+    reason.fold(default){
+      flag =>
+        if (flag.trim.equalsIgnoreCase("none")) {
+          default
         } else {
-          x
+          alternative
         }
     }
   }

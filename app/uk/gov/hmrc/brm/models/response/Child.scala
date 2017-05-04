@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response.gro
+package uk.gov.hmrc.brm.models.response
 
 import org.joda.time.LocalDate
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json._
 import uk.gov.hmrc.brm.utils.BRMFormat
 
 case class Child(
