@@ -18,19 +18,16 @@ package uk.gov.hmrc.brm.utils
 
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.words.{EmptyWord, MatcherWords}
-import play.api.http.Status
+import org.scalatest.words.EmptyWord
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.utils.Mocks.MockController
+import uk.gov.hmrc.brm.utils.Mocks.{MockController, _}
+import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.http.GatewayTimeoutException
 /**
   * Created by user on 04/05/17.
   */

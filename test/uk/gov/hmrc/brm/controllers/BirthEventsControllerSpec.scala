@@ -17,27 +17,20 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatestplus.play.OneAppPerTest
-import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.test.Helpers.{contentAsJson, _}
+import play.api.test.Helpers._
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MockErrorResponses}
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MockErrorResponses}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.Future
 
 class BirthEventsControllerSpec
     extends UnitSpec

@@ -16,22 +16,14 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
-import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.Future
 
 class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BaseUnitSpec {
 
