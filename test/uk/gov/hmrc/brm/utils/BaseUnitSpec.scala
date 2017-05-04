@@ -71,8 +71,25 @@ trait BaseUnitSpec extends UnitSpec  {
   def mockReferenceResponse(jsonResponse:JsValue) = {
     when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
+
+
+
   def mockReferenceResponse(exception:Exception) = {
     when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
+  }
+
+  def mockNrsReferenceResponse(jsonResponse:JsValue) = {
+    when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  }
+
+  def mockNrsReferenceResponse(exception:Exception) = {
+    when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
+  }
+
+  def mockGroNiReferenceResponse(exception:Exception) = {
+    when(MockController.service.groniConnector.getReference(Matchers.any())(Matchers.any()))
       .thenReturn(Future.failed(exception))
   }
 
@@ -80,8 +97,22 @@ trait BaseUnitSpec extends UnitSpec  {
     when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
+  def mockNrsDetailsResponse(jsonResponse:JsValue) = {
+    when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  }
+
   def mockDetailsResponse(exception:Exception) = {
     when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
+  }
+
+  def mockNrsDetailsResponse(exception:Exception) = {
+    when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
+  }
+
+  def mockGroNiDetailsResponse(exception:Exception) = {
+    when(MockController.service.groniConnector.getChildDetails(Matchers.any())(Matchers.any()))
       .thenReturn(Future.failed(exception))
   }
 
