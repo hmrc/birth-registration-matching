@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import scala.concurrent.Future
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.play.http.GatewayTimeoutException
 /**
   * Created by user on 04/05/17.
   */
@@ -57,10 +58,31 @@ trait BaseUnitSpec extends UnitSpec  {
     header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
   }
 
+  def checkResponse(result: Result, responseStatus:Int , code:String, message: String): Unit = {
+    status(result) shouldBe responseStatus
+    contentType(result).get shouldBe "application/json"
+    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    (contentAsJson(result) \ "code").as[String] shouldBe code
+    (contentAsJson(result) \ "message").as[String] shouldBe message
+  }
+
 
 
   def mockReferenceResponse(jsonResponse:JsValue) = {
     when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  }
+  def mockReferenceResponse(exception:Exception) = {
+    when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
+  }
+
+  def mockDetailsResponse(jsonResponse:JsValue) = {
+    when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  }
+
+  def mockDetailsResponse(exception:Exception) = {
+    when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
+      .thenReturn(Future.failed(exception))
   }
 
   def mockAuditSuccess = {
