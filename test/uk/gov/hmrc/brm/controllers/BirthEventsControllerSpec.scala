@@ -136,7 +136,6 @@ class BirthEventsControllerSpec
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludinglastNameKey)
         val result = await(MockController.post().apply(request))
-
         checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
@@ -199,7 +198,6 @@ class BirthEventsControllerSpec
         mockReferenceResponse(groJsonResponseObject)
         val request = postRequest(userNoMatchIncludingReferenceNumberCamelCase)
         val result = await(MockController.post().apply(request))
-
         checkResponse(result,OK, false)
       }
 
@@ -283,7 +281,6 @@ class BirthEventsControllerSpec
 
         "return JSON response on when details contain valid UTF-8 special characters" in {
           mockAuditSuccess
-
           mockDetailsResponse(Json.parse("[]"))
           val request = postRequest(userNoMatchUTF8SpecialCharacters)
           val result = await(MockController.post().apply(request))
@@ -301,7 +298,6 @@ class BirthEventsControllerSpec
 
         "return JSON response false when birth date is before 2009-07-01" in {
           mockAuditSuccess
-
           mockDetailsResponse(groJsonResponseObjectCollection)
           val request = postRequest(userMatchExcludingReferenceNumberKey)
           val result = await(MockController.post().apply(request))
@@ -317,8 +313,6 @@ class BirthEventsControllerSpec
           mockReferenceResponse(Upstream5xxResponse(MockErrorResponses.GATEWAY_TIMEOUT.json, GATEWAY_TIMEOUT, GATEWAY_TIMEOUT))
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
-
-
           checkResponse(result,INTERNAL_SERVER_ERROR, empty)
         }
 
