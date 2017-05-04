@@ -39,40 +39,37 @@ trait BaseUnitSpec extends UnitSpec  {
 
   def checkResponse(result: Result, responseStatus:Int , matchResonse:Boolean): Unit = {
     status(result) shouldBe responseStatus
-    contentType(result).get shouldBe "application/json"
     (contentAsJson(result) \ "matched").as[Boolean] shouldBe matchResonse
-    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus:Int , responseString:String): Unit = {
     status(result) shouldBe responseStatus
-    contentType(result).get shouldBe "application/json"
     jsonBodyOf(result).toString() shouldBe responseString
-    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus:Int , responseBody:EmptyWord): Unit = {
     status(result) shouldBe responseStatus
-    contentType(result).get shouldBe "application/json"
     bodyOf(result) shouldBe responseBody
-    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus:Int , code:String, message: String): Unit = {
     status(result) shouldBe responseStatus
-    contentType(result).get shouldBe "application/json"
-    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    checkHeaders(result)
     (contentAsJson(result) \ "code").as[String] shouldBe code
     (contentAsJson(result) \ "message").as[String] shouldBe message
   }
 
-
+  private def checkHeaders(result: Result): Unit = {
+    contentType(result).get shouldBe "application/json"
+    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+  }
 
   def mockReferenceResponse(jsonResponse:JsValue) = {
     when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
-
-
 
   def mockReferenceResponse(exception:Exception) = {
     when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
