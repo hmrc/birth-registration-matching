@@ -196,7 +196,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "record has flags for GRO" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
             GROStatus(
@@ -219,7 +219,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       }
 
       "return a Map() of flags where flag has reason and none" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
             GROStatus(
@@ -242,7 +242,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       }
 
       "return a Map() of 'none' flags" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
             GROStatus(
@@ -269,7 +269,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "record has flags for NRS" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
             NRSStatus(
@@ -288,7 +288,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "has no status" should {
 
       "return a empty Map()" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = None
         )
