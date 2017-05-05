@@ -29,7 +29,7 @@ Parameters           | Type                                                   | 
 ---------------------|--------------------------------------------------------|------------------------------|-------------------------------------------------------------------------------
 birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) (10 = 4,3,3. In that first 4 digits are child's birth year i.e. 2017 and then after 3 digits are child's district number i.e. 417 and last 3 digits are entry number i.e.001. So Scottish BRN will be '2017417001')  | Birth reference number for England or Wales / Scotland
 firstName            | `String`                                               | 1-250                        | Child's first name
-additionalNames      | `Optional(String)`                                     | 1-250                        | Child's additional names (It can contain space seprated names)
+additionalNames      | `Optional(String)`                                     | 1-250                        | Child's additional names (It can contain space separated names)
 lastName             | `String`                                               | 1-250                        | Child's last name
 dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10                           | Child's date of birth
 whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A                          | Where the child was registered (England / Wales / Scotland / Northern Ireland)
