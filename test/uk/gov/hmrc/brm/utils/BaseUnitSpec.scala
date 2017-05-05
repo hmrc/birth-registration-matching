@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.words.EmptyWord
+import play.api.http.Status
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.test.Helpers._
@@ -26,6 +27,7 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks.{MockController, _}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -125,6 +127,12 @@ trait BaseUnitSpec extends UnitSpec  {
 
   def mockAuditFailure = {
     when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.failed(AuditResult.Failure("")))
+  }
+
+  def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]) = {
+    when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+      (Matchers.any(), Matchers.any(), Matchers.any()))
+      .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
   }
 
 }
