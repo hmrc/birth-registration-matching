@@ -18,8 +18,8 @@ package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
 import play.api.libs.json.{Json, Reads}
-import uk.gov.hmrc.brm.models.response.{Record, StatusInterface}
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
+import uk.gov.hmrc.brm.models.response.gro.GROStatus$
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -182,20 +182,12 @@ class NRSResponseSpec extends UnitSpec {
 
     "return a Map() of flags where found and not deceased" in {
       val response = jsonValidWithUTF8.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Not deceased")
-//      response.head.mapFlagsToIndex(1) shouldBe Map(
-//        "records.record1.status" -> "Found",
-//        "records.record1.deathCode" -> "Not deceased"
-//      )
+      response.head.status.get.flags shouldBe Map("status" -> "Valid", "deathCode" -> "Not deceased")
     }
 
     "return a Map() of flags where found and deceased" in {
       val response = jsonValidWithUTF8Deceased.validate[List[Record]](ReadsUtil.nrsRecordsListRead).get
-      response.head.status.get.flags shouldBe Map("status" -> "Found", "deathCode" -> "Potentially deceased")
-//      response.head.mapFlagsToIndex(2) shouldBe Map(
-//        "records.record2.status" -> "Found",
-//        "records.record2.deathCode" -> "Potentially deceased"
-//      )
+      response.head.status.get.flags shouldBe Map("status" -> "Valid", "deathCode" -> "Potentially deceased")
     }
 
     "return a Map() of flags where status is Corrections" in {

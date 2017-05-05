@@ -21,7 +21,7 @@ import play.api.libs.json.{JsPath, JsValue, Json, Reads}
 import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.models.response.StatusInterface
 
-case class Status(
+case class GROStatus(
   potentiallyFictitiousBirth: Boolean = false,
   correction: Option[String] = None,
   cancelled: Boolean = false,
@@ -45,23 +45,23 @@ case class Status(
 
   override def flags: Map[String, String] = Map(
     "potentiallyFictitiousBirth" -> s"$potentiallyFictitiousBirth",
-    "correction" -> s"${correction.getOrElse("None")}",
+    "correction" -> obfuscateReason(correction, "Correction on record"),
     "cancelled" -> s"$cancelled",
     "blockedRegistration" -> s"$blockedRegistration",
     "marginalNote" -> obfuscateReason(marginalNote, "Marginal note on record"),
-    "reRegistered" -> s"${reRegistered.getOrElse("None")}"
+    "reRegistered" -> obfuscateReason(reRegistered, "Re-registration on record")
   )
 
 }
 
-object Status {
+object GROStatus {
 
-  implicit val childReads: Reads[Status] = (
+  implicit val childReads: Reads[GROStatus] = (
     (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
     (JsPath \ "correction").readNullable[String] and
     (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
     (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
     (JsPath \ "marginalNote").readNullable[String] and
     (JsPath \ "reRegistered").readNullable[String]
-  )(Status.apply _)
+  )(GROStatus.apply _)
 }
