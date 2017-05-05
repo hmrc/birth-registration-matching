@@ -20,6 +20,8 @@ import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsValue
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.brm.utils.Mocks._
@@ -45,36 +47,44 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject20120216)
-      val request = postRequest(userValidDOB)
-      val result = await(MockController.post().apply(request))
+      val result = makeRequest(userValidDOB)
       checkResponse(result,OK,  true)
     }
 
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject20090701)
-      val request = postRequest(userValidDOB20090701)
-      val result = await(MockController.post().apply(request))
+      val result = makeRequest(userValidDOB20090701)
+
       checkResponse(result,OK, true)
     }
 
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
-      val request = postRequest(userInvalidDOB)
-      val result = await(MockController.post().apply(request))
+      val result = makeRequest(userInvalidDOB)
       checkResponse(result,OK,  false)
     }
 
     "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject20090630)
-      val request = postRequest(userValidDOB20090630)
-      val result = await(MockController.post().apply(request))
+      val result = makeRequest(userValidDOB20090630)
       checkResponse(result,OK,  false)
     }
 
+
+
   }
+
+  def makeRequest(jsonRequest :JsValue):Result = {
+    val request = postRequest(jsonRequest)
+    val result = await(MockController.post().apply(request))
+    result
+  }
+
+
+
 
 
 }
