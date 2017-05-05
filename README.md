@@ -27,7 +27,7 @@ Content-Type | `String` | application/json; charset=utf-8 | N/A  | Type of paylo
 
 Parameters           | Type                                                   | Size                         | Description
 ---------------------|--------------------------------------------------------|------------------------------|-------------------------------------------------------------------------------
-birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) (10 = 4,3,3. In that first 4 digits are child's birth year i.e. 2017 and then after 3 digits are child's district number i.e. 417 and last 3 digits are entry number i.e.001. So Scotish BRN will be '2017417001')  | Birth reference number for England or Wales / Scotland
+birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) (10 = 4,3,3. In that first 4 digits are child's birth year i.e. 2017 and then after 3 digits are child's district number i.e. 417 and last 3 digits are entry number i.e.001. So Scottish BRN will be '2017417001')  | Birth reference number for England or Wales / Scotland
 firstName            | `String`                                               | 1-250                        | Child's first name
 additionalNames      | `Optional(String)`                                     | 1-250                        | Child's additional names (It can contain space seprated names)
 lastName             | `String`                                               | 1-250                        | Child's last name
@@ -54,6 +54,25 @@ curl --request POST \
     "whereBirthRegistered": "england"
   }'
 ```
+##### HTTP
+
+```http
+POST /birth-registration-matching/match HTTP/1.1
+Host: localhost:8098
+Content-Type: application/json
+Audit-Source: test
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache
+
+{
+	"birthReferenceNumber": "123456789",
+	"firstName": "Adam Test",
+	"lastName": "Smith",
+	"dateOfBirth": "2010-01-01",
+	"whereBirthRegistered": "england"
+}
+```
+
 ##### cURL (With additionalNames)
 ```bash
 curl --request POST \
@@ -85,6 +104,7 @@ Cache-Control: no-cache
 {
 	"birthReferenceNumber": "123456789",
 	"firstName": "Adam Test",
+	"additionalNames": "David",
 	"lastName": "Smith",
 	"dateOfBirth": "2010-01-01",
 	"whereBirthRegistered": "england"
