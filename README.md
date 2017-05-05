@@ -38,7 +38,7 @@ whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | 
 
 #### Example Request
 
-##### cURL
+##### cURL (Without additionalNames)
 ```bash
 curl --request POST \
   --url http://localhost:8098/birth-registration-matching/match \
@@ -49,6 +49,23 @@ curl --request POST \
   --data '{
     "birthReferenceNumber": "123456789",
     "firstName": "Adam Test",
+    "lastName": "Smith",
+    "dateOfBirth": "2010-01-01",
+    "whereBirthRegistered": "england"
+  }'
+```
+##### cURL (With additionalNames)
+```bash
+curl --request POST \
+  --url http://localhost:8098/birth-registration-matching/match \
+  --header 'accept: application/vnd.hmrc.1.0+json' \
+  --header 'audit-source: test' \
+  --header 'cache-control: no-cache' \
+  --header 'content-type: application/json' \
+  --data '{
+    "birthReferenceNumber": "123456789",
+    "firstName": "Adam Test",
+    "additionalNames": "David",
     "lastName": "Smith",
     "dateOfBirth": "2010-01-01",
     "whereBirthRegistered": "england"
@@ -178,10 +195,10 @@ Content-Type: application/json; charset=utf-8
   "message": "Provided dateOfBirth is invalid."
 }
 ```
-##### Forbidden - whereBirthRegistered does not meet required format
+##### Forbidden - whereBirthRegistered is invalid
 
 ```http
-HTTP/1.1 403 Bad Forbidden
+HTTP/1.1 403 Forbidden
 Accept: application/vnd.hmrc.1.0+json
 Cache-Control: no-cache,no-store,max-age=0
 Content-Type: application/json; charset=utf-8
