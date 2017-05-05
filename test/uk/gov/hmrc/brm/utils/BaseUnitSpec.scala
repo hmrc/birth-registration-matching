@@ -22,6 +22,7 @@ import org.scalatest.words.EmptyWord
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks.{MockController, _}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -65,26 +66,32 @@ trait BaseUnitSpec extends UnitSpec  {
   }
 
   def mockReferenceResponse(jsonResponse:JsValue) = {
-    when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+    mockRefResponse(MockController.service.groConnector,jsonResponse)
   }
 
   def mockReferenceResponse(exception:Exception) = {
-    when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any()))
+    mockRefResponse(MockController.service.groConnector, exception)
+  }
+
+  private def mockRefResponse(connector : BirthConnector,exception:Exception) = {
+    when(connector.getReference(Matchers.any())(Matchers.any()))
       .thenReturn(Future.failed(exception))
+  }
+
+  private def mockRefResponse(connector : BirthConnector,jsonResponse:JsValue ): Unit ={
+    when(connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
   def mockNrsReferenceResponse(jsonResponse:JsValue) = {
-    when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+    mockRefResponse(MockController.service.nrsConnector,jsonResponse)
   }
 
   def mockNrsReferenceResponse(exception:Exception) = {
-    when(MockController.service.nrsConnector.getReference(Matchers.any())(Matchers.any()))
-      .thenReturn(Future.failed(exception))
+    mockRefResponse(MockController.service.nrsConnector, exception)
   }
 
   def mockGroNiReferenceResponse(exception:Exception) = {
-    when(MockController.service.groniConnector.getReference(Matchers.any())(Matchers.any()))
-      .thenReturn(Future.failed(exception))
+    mockRefResponse(MockController.service.groniConnector, exception)
   }
 
   def mockDetailsResponse(jsonResponse:JsValue) = {
