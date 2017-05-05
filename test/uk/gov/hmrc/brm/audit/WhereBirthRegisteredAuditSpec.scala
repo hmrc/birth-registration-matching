@@ -18,37 +18,36 @@ package uk.gov.hmrc.brm.audit
 
 import java.util.concurrent.TimeUnit
 
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.BRMFakeApplication
+import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
   val auditor = auditorFixtures.whereBirthRegisteredAudit
   implicit val hc = HeaderCarrier()
 
+
+
   "WhereBirthRegisteredAudit" should {
 
     "audit country when an invalid birth country is used" in {
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(Map(), None))
       result shouldBe AuditResult.Success
     }
 
     "not audit when datastream is down" in {
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.failed(AuditResult.Failure("")))
+      mockAuditFailure
       val result = await(auditor.audit(Map(), None))(Duration.apply(20, TimeUnit.SECONDS))
       result shouldBe a[AuditResult.Failure]
     }

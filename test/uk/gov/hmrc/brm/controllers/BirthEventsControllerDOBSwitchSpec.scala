@@ -45,14 +45,14 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   "validating date of birth with dobValidation feature" should {
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
-      mockAuditSuccess
+
       mockReferenceResponse(groJsonResponseObject20120216)
       val result = makeRequest(userValidDOB)
       checkResponse(result,OK,  true)
     }
 
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
-      mockAuditSuccess
+
       mockReferenceResponse(groJsonResponseObject20090701)
       val result = makeRequest(userValidDOB20090701)
 
@@ -60,14 +60,14 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     }
 
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
-      mockAuditSuccess
+
       mockReferenceResponse(groJsonResponseObject)
       val result = makeRequest(userInvalidDOB)
       checkResponse(result,OK,  false)
     }
 
     "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
-      mockAuditSuccess
+      
       mockReferenceResponse(groJsonResponseObject20090630)
       val result = makeRequest(userValidDOB20090630)
       checkResponse(result,OK,  false)

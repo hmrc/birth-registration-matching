@@ -34,6 +34,8 @@ import scala.concurrent.Future
   */
 trait BaseUnitSpec extends UnitSpec  {
 
+  mockAuditSuccess
+
 
   def checkResponse(result: Result, responseStatus:Int , matchResonse:Boolean): Unit = {
     status(result) shouldBe responseStatus
@@ -119,6 +121,10 @@ trait BaseUnitSpec extends UnitSpec  {
 
   def mockAuditSuccess = {
     when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+  }
+
+  def mockAuditFailure = {
+    when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.failed(AuditResult.Failure("")))
   }
 
 }
