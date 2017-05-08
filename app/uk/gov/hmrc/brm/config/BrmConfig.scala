@@ -51,8 +51,6 @@ trait BrmConfig extends ServicesConfig {
     status
   }
 
-  def disableSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.disableSearchByDetails", defBool = false)
-
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
 
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
@@ -68,7 +66,6 @@ trait BrmConfig extends ServicesConfig {
       s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
-      s"$featuresPrefix.disableSearchByDetails" -> BrmConfig.disableSearchByDetails.toString,
       s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString
     )
 
