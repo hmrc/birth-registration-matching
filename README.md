@@ -27,8 +27,9 @@ Content-Type | `String` | application/json; charset=utf-8 | N/A  | Type of paylo
 
 Parameters           | Type                                                   | Size                         | Description
 ---------------------|--------------------------------------------------------|------------------------------|-------------------------------------------------------------------------------
-birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) | Birth reference number for England or Wales / Scotland
+birthReferenceNumber | `Optional(String)`                                     | 9 (england/wales) OR 10 (scotland) (10 = 4,3,3. In that first 4 digits are child's birth year i.e. 2017 and then after 3 digits are child's district number i.e. 417 and last 3 digits are entry number i.e.001. So Scottish BRN will be '2017417001')  | Birth reference number for England or Wales / Scotland
 firstName            | `String`                                               | 1-250                        | Child's first name
+additionalNames      | `Optional(String)`                                     | 1-250                        | Child's additional names (It can contain space separated names)
 lastName             | `String`                                               | 1-250                        | Child's last name
 dateOfBirth          | `Date (yyyy-MM-dd)`                                    | 10                           | Child's date of birth
 whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | N/A                          | Where the child was registered (England / Wales / Scotland / Northern Ireland)
@@ -37,7 +38,7 @@ whereBirthRegistered | `Enum` `england / wales / scotland / northern ireland` | 
 
 #### Example Request
 
-##### cURL
+##### cURL (Without additionalNames)
 ```bash
 curl --request POST \
   --url http://localhost:8098/birth-registration-matching/match \
@@ -48,6 +49,42 @@ curl --request POST \
   --data '{
     "birthReferenceNumber": "123456789",
     "firstName": "Adam Test",
+    "lastName": "Smith",
+    "dateOfBirth": "2010-01-01",
+    "whereBirthRegistered": "england"
+  }'
+```
+##### HTTP
+
+```http
+POST /birth-registration-matching/match HTTP/1.1
+Host: localhost:8098
+Content-Type: application/json
+Audit-Source: test
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache
+
+{
+	"birthReferenceNumber": "123456789",
+	"firstName": "Adam Test",
+	"lastName": "Smith",
+	"dateOfBirth": "2010-01-01",
+	"whereBirthRegistered": "england"
+}
+```
+
+##### cURL (With additionalNames)
+```bash
+curl --request POST \
+  --url http://localhost:8098/birth-registration-matching/match \
+  --header 'accept: application/vnd.hmrc.1.0+json' \
+  --header 'audit-source: test' \
+  --header 'cache-control: no-cache' \
+  --header 'content-type: application/json' \
+  --data '{
+    "birthReferenceNumber": "123456789",
+    "firstName": "Adam Test",
+    "additionalNames": "David",
     "lastName": "Smith",
     "dateOfBirth": "2010-01-01",
     "whereBirthRegistered": "england"
@@ -67,6 +104,7 @@ Cache-Control: no-cache
 {
 	"birthReferenceNumber": "123456789",
 	"firstName": "Adam Test",
+	"additionalNames": "David",
 	"lastName": "Smith",
 	"dateOfBirth": "2010-01-01",
 	"whereBirthRegistered": "england"
@@ -136,6 +174,19 @@ Content-Type: application/json; charset=utf-8
   "message": "Provided firstName is invalid."
 }
 ```
+##### BadRequest - additionalNames do not meet required length or contain invalid characters
+
+```http
+HTTP/1.1 400 Bad Request
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_ADDITIONALNAMES",
+  "message": "Provided additionalNames are invalid."
+}
+```
 
 ##### BadRequest - lastName does not meet required length or contains invalid characters
 
@@ -164,8 +215,21 @@ Content-Type: application/json; charset=utf-8
   "message": "Provided dateOfBirth is invalid."
 }
 ```
+##### Forbidden - whereBirthRegistered is invalid
 
-##### BadRequest - Audit-Source is invalid
+```http
+HTTP/1.1 403 Forbidden
+Accept: application/vnd.hmrc.1.0+json
+Cache-Control: no-cache,no-store,max-age=0
+Content-Type: application/json; charset=utf-8
+
+{
+  "code": "INVALID_WHERE_BIRTH_REGISTERED",
+  "message": " Provided Country is invalid. "
+}
+```
+
+##### Unauthorized - Audit-Source is invalid
 
 ```http
 HTTP/1.1 401 unauthorized

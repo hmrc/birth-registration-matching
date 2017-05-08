@@ -81,8 +81,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       case _ => Map().empty
     }
 
-
-
     // audit application feature switches
     val features = BrmConfig.audit
 
