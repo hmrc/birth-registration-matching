@@ -49,7 +49,6 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
   "validating max length change" should {
 
     "return OK if firstName < 250 characters" in {
-      mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
       val request = postRequest(firstNameWithMoreThan100Characters)
       val result = await(MockController.post().apply(request))
@@ -57,7 +56,6 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD_REQUEST if firstName > 250 characters" in {
-      mockAuditSuccess
       val request = postRequest(firstNameWithMoreThan250Characters)
       val result = await(MockController.post().apply(request))
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
@@ -65,11 +63,9 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
-      mockAuditSuccess
       val request = postRequest(lastNameWithMoreThan250Characters)
       val result = await(MockController.post().apply(request))
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
-
       verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
     }
 
