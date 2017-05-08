@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsValue
+import play.api.mvc.Result
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.concurrent.Future
-
-class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar {
+class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -47,49 +45,33 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   "validating date of birth with dobValidation feature" should {
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
-      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(userValidDOB)
-      val result = await(MockController.post().apply(request))
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      mockReferenceResponse(groJsonResponseObject20120216)
+      val result = makeRequest(userValidDOB)
+      checkResponse(result,OK,  true)
     }
 
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
-      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090701)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(userValidDOB20090701)
-      val result = await(MockController.post().apply(request))
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      mockReferenceResponse(groJsonResponseObject20090701)
+      val result = makeRequest(userValidDOB20090701)
+      checkResponse(result,OK, true)
     }
 
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
-      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(userInvalidDOB)
-      val result = await(MockController.post().apply(request))
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      mockReferenceResponse(groJsonResponseObject)
+      val result = makeRequest(userInvalidDOB)
+      checkResponse(result,OK,  false)
     }
 
     "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
-      when(MockController.service.groConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject20090630)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-
-      val request = postRequest(userValidDOB20090630)
-      val result = await(MockController.post().apply(request))
-      status(result) shouldBe OK
-      (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
-      header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+      mockReferenceResponse(groJsonResponseObject20090630)
+      val result = makeRequest(userValidDOB20090630)
+      checkResponse(result,OK,  false)
     }
-
   }
 
+  def makeRequest(jsonRequest :JsValue):Result = {
+    val request = postRequest(jsonRequest)
+    val result = await(MockController.post().apply(request))
+    result
+  }
 }
