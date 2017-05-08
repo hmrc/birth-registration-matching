@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.config
 
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 trait BrmConfig extends ServicesConfig {
@@ -59,6 +60,62 @@ trait BrmConfig extends ServicesConfig {
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
+  def apiEnabled(api : String)  = {
+    getConfBool(s"birth-registration-matching.features.$api.enabled",throw BirthConfigurationException(s"$api.enabled"))
+  }
+  def keyEnabled(api : String, requestType : RequestType)  = {
+    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"$key.enabled"))
+  }
+
+  /**
+    *
+    * def isReferenceEnabled(payload: Payload) : Boolean = {
+    *   payload.whereBirthRegistered match {
+    *   case England | Wales =>
+    *    // load this object from config for GRO
+    *            gro {
+          enabled = true
+          reference.enabled = true
+          details.enabled = true
+        }
+        then call {Object}.reference.enabled
+    *   case Scotland =>
+    *   // load nrs object then call reference.enabled
+    *   case Northern Ireland =>
+    *   case _ => false
+    * }
+    */
+
+  abstract class RequestType(val value : String)
+  object ReferenceRequest extends RequestType("reference")
+  object DetailsRequest extends RequestType("details")
+
+
+  def isDownstreamEnabled(payload: Payload, requestType: RequestType) : Boolean = {
+    payload.whereBirthRegistered match {
+      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
+        keyEnabled("gro", requestType)
+      case BirthRegisterCountry.SCOTLAND =>
+//        apiEnabled("nrs")
+        keyEnabled("nrs", requestType)
+      case BirthRegisterCountry.NORTHERN_IRELAND =>
+        keyEnabled("groni", requestType)
+      case _=> false
+
+    }
+  }
+
+
+  //  def referenceEnabled :Boolean = getConfBool("")
+
+  /**
+    * new methot only return Map() of refreence and details enabled
+    * pass in payload
+    *
+    * then in where we call audit() we just concat the two Map()
+    * @return
+    */
+
   def audit : Map[String, String] = {
     val featuresPrefix = "features"
     val features : Map[String, String] = Map(
@@ -66,7 +123,9 @@ trait BrmConfig extends ServicesConfig {
       s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
-      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString
+      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString,
+      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(null, ReferenceRequest).toString,
+      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(null, DetailsRequest).toString
     )
 
     features
