@@ -16,6 +16,4 @@
 
 package uk.gov.hmrc.brm.models.response
 
-import uk.gov.hmrc.brm.models.response.gro.Child
-
 case class Record(child: Child, status: Option[StatusInterface] = None)

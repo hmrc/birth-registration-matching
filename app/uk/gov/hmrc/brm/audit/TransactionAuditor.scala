@@ -76,7 +76,10 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     val auditCharactersPerNameOnRecords = recordListToMap(records, characterCount)
 
     // flags for each record
-    val auditFlags = recordListToMap(records, flags)
+    val auditFlags = BrmConfig.logFlags match {
+      case true => recordListToMap(records, flags)
+      case _ => Map().empty
+    }
 
     // audit application feature switches
     val features = BrmConfig.audit

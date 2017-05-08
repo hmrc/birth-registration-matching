@@ -24,8 +24,8 @@ import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
+import uk.gov.hmrc.brm.models.response.{Child, Record}
+import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -196,10 +196,10 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "record has flags for GRO" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
-            Status(
+            GROStatus(
               potentiallyFictitiousBirth = true,
               correction = Some("Correction"),
               cancelled = true,
@@ -211,11 +211,57 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         )
         val response = auditor.recordListToMap(List(child1), auditor.flags)
         response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        response("records.record1.flags.correction") shouldBe "Correction"
+        response("records.record1.flags.correction") shouldBe "Correction on record"
         response("records.record1.flags.cancelled") shouldBe "true"
         response("records.record1.flags.blockedRegistration") shouldBe "true"
         response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
-        response("records.record1.flags.reRegistered") shouldBe "Re-registered"
+        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+      }
+
+      "return a Map() of flags where flag has reason and none" in {
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+          Some(new LocalDate("2009-06-30"))),
+          status = Some(
+            GROStatus(
+              potentiallyFictitiousBirth = true,
+              correction = Some("Correction None"),
+              cancelled = true,
+              blockedRegistration = true,
+              marginalNote = Some("RCE"),
+              reRegistered = Some("Re-registered")
+            )
+          )
+        )
+        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        response("records.record1.flags.correction") shouldBe "Correction on record"
+        response("records.record1.flags.cancelled") shouldBe "true"
+        response("records.record1.flags.blockedRegistration") shouldBe "true"
+        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+      }
+
+      "return a Map() of 'none' flags" in {
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+          Some(new LocalDate("2009-06-30"))),
+          status = Some(
+            GROStatus(
+              potentiallyFictitiousBirth = true,
+              correction = Some(" None  "),
+              cancelled = true,
+              blockedRegistration = true,
+              marginalNote = Some("  None  "),
+              reRegistered = Some(" None.  .none... ")
+            )
+          )
+        )
+        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        response("records.record1.flags.correction") shouldBe "None"
+        response("records.record1.flags.cancelled") shouldBe "true"
+        response("records.record1.flags.blockedRegistration") shouldBe "true"
+        response("records.record1.flags.marginalNote") shouldBe "None"
+        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
       }
 
     }
@@ -223,7 +269,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "record has flags for NRS" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = Some(
             NRSStatus(
@@ -233,7 +279,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
           )
         )
         val response = auditor.recordListToMap(List(child1), auditor.flags)
-        response("records.record1.flags.status") shouldBe "Found"
+        response("records.record1.flags.status") shouldBe "Valid"
         response("records.record1.flags.deathCode") shouldBe "Potentially deceased"
       }
 
@@ -242,7 +288,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
     "has no status" should {
 
       "return a empty Map()" in {
-        val child1 = Record(Child(500035710, "Adam TEST", "SMITH",
+        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
           Some(new LocalDate("2009-06-30"))),
           status = None
         )

@@ -20,10 +20,10 @@ import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, Reads, _}
-import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.models.response.gro.Child._
-import uk.gov.hmrc.brm.models.response.gro.{Child, Status}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
+import uk.gov.hmrc.brm.models.response.gro.GROStatus
+import uk.gov.hmrc.brm.models.response.{Child, Record}
+import uk.gov.hmrc.brm.utils.BRMFormat.datePattern
 
 /**
   * Created by user on 06/03/17.
@@ -47,7 +47,7 @@ object ReadsUtil {
 
   val groReadRecord : Reads[Record] = (
     JsPath.read[Child](groChildReads) and
-      (JsPath \ "status").readNullable[Status]
+      (JsPath \ "status").readNullable[GROStatus]
     )(Record.apply _)
 
   val nrsRecordsRead : Reads[Record] = (

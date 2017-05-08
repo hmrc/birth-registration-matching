@@ -40,7 +40,7 @@ case class NRSStatus(
 
   private def statusReason = {
     status match {
-      case 1 => "Found"
+      case 1 => "Valid"
       case -4 => "Corrections"
       case -5 => "Incomplete"
       case -6 => "Cancelled"

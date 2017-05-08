@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.config
 
+import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.play.config.ServicesConfig
 
 trait BrmConfig extends ServicesConfig {
@@ -43,6 +44,12 @@ trait BrmConfig extends ServicesConfig {
   def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth",  defBool = true)
 
   def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
+
+  def logFlags : Boolean = {
+    val status = getConfBool("birth-registration-matching.features.logFlags.enabled", defBool = false)
+    BRMLogger.info("Brmconfig", "logFlags", status.toString)
+    status
+  }
 
   def disableSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.disableSearchByDetails", defBool = false)
 
