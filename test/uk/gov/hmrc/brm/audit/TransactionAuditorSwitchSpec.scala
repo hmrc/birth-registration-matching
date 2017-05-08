@@ -48,7 +48,9 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
   val auditor = new TransactionAuditor(connector)
   implicit val hc = HeaderCarrier()
 
-  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map()
+  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true
+  )
 
   val auditConfigOnForAlternate: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
