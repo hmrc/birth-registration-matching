@@ -135,4 +135,9 @@ trait BaseUnitSpec extends UnitSpec  {
       .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
   }
 
+  def checkResponse(result: HttpResponse, responseCode:Int): Unit = {
+    result shouldBe a[HttpResponse]
+    result.status shouldBe responseCode
+  }
+
 }
