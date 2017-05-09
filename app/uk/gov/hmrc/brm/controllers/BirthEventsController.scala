@@ -69,7 +69,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
               //TODO: 1. What We're going to log
               //TODO: 2. Do we want to do any auditing within the FeatureFactory
               //TODO: 3. Re-insert auditTransaction (see method below)
-              // auditTransaction()
+              auditRequestAndResults()
               info(CLASS_NAME, "post()", s"date of birth is before valid date / search is switched off (all/reference/details)")
               Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
             }
