@@ -60,59 +60,45 @@ trait BrmConfig extends ServicesConfig {
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
-  def apiEnabled(api : String)  = {
-    getConfBool(s"birth-registration-matching.features.$api.enabled",throw BirthConfigurationException(s"$api.enabled"))
-  }
-  def keyEnabled(api : String, requestType : RequestType)  = {
-    BRMLogger.info("BRMConfig", "keyEnabled", s"birth-registration-matching.features.$api.${requestType.value}.enabled")
-    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"birth-registration-matching.features.$api.enabled"))
-  }
+  def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
 
-  /**
-    *
-    * def isReferenceEnabled(payload: Payload) : Boolean = {
-    *   payload.whereBirthRegistered match {
-    *   case England | Wales =>
-    *    // load this object from config for GRO
-    *            gro {
-          enabled = true
-          reference.enabled = true
-          details.enabled = true
-        }
-        then call {Object}.reference.enabled
-    *   case Scotland =>
-    *   // load nrs object then call reference.enabled
-    *   case Northern Ireland =>
-    *   case _ => false
-    * }
-    */
+    val path = requestType.fold(s"birth-registration-matching.features.$api.enabled")(
+      x =>
+      s"birth-registration-matching.features.$api.${x.value}.enabled"
+    )
+
+    BRMLogger.info("BRMConfig", "featureEnabled", path)
+
+    getConfBool(path,
+      throw BirthConfigurationException(
+        s"birth-registration-matching.features.$api.enabled"
+      ))
+  }
 
   abstract class RequestType(val value : String)
   object ReferenceRequest extends RequestType("reference")
   object DetailsRequest extends RequestType("details")
 
-  def isDownstreamEnabled(payload: Option[Payload] = None, requestType: RequestType) : Boolean = payload match {
+  def isDownstreamEnabled(payload: Option[Payload] = None, requestType: Option[RequestType] = None) : Boolean = payload match {
       case Some(p) =>
         p.whereBirthRegistered match {
           case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-            keyEnabled("gro", requestType)
+            featureEnabled("gro", requestType)
           case BirthRegisterCountry.SCOTLAND =>
-            keyEnabled("nrs", requestType)
+            featureEnabled("nrs", requestType)
           case BirthRegisterCountry.NORTHERN_IRELAND =>
-            keyEnabled("groni", requestType)
+            featureEnabled("groni", requestType)
         }
       case None =>
         false
   }
-
-
-  //  def referenceEnabled :Boolean = getConfBool("")
 
   /**
     * new methot only return Map() of refreence and details enabled
     * pass in payload
     *
     * then in where we call audit() we just concat the two Map()
+    *
     * @return
     */
 
@@ -124,9 +110,9 @@ trait BrmConfig extends ServicesConfig {
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
       s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString,
-      s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, ReferenceRequest).toString,
-      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, ReferenceRequest).toString,
-      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, DetailsRequest).toString
+      s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, None).toString,
+      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, Some(ReferenceRequest)).toString,
+      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString
     )
 
     features
