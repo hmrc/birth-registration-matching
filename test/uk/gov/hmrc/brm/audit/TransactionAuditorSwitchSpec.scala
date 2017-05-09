@@ -57,9 +57,12 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
     "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
-    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false,
-    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false
+
   )
 
   val auditConfigOnAppForDefault = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForDefault).build()
@@ -96,8 +99,10 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       argumentCapture.value.detail("features.matchLastName") shouldBe "true"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "true"
       argumentCapture.value.detail("features.matchOnMultiple") shouldBe "false"
-      argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "false"
       argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "true"
+      argumentCapture.value.detail("features.details.enabled") shouldBe "true"
+      argumentCapture.value.detail("features.reference.enabled") shouldBe "true"
+      argumentCapture.value.detail("features.downstream.enabled") shouldBe "true"
       argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "None"
       argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
       argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "None"
@@ -122,8 +127,10 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       argumentCapture.value.detail("features.matchLastName") shouldBe "false"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "false"
       argumentCapture.value.detail("features.matchOnMultiple") shouldBe "true"
-      argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "true"
       argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "false"
+      argumentCapture.value.detail("features.details.enabled") shouldBe "false"
+      argumentCapture.value.detail("features.reference.enabled") shouldBe "false"
+      argumentCapture.value.detail("features.downstream.enabled") shouldBe "false"
       argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false

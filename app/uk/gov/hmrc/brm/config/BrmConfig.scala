@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.config
 
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 trait BrmConfig extends ServicesConfig {
@@ -51,8 +52,6 @@ trait BrmConfig extends ServicesConfig {
     status
   }
 
-  def disableSearchByDetails : Boolean = getConfBool("birth-registration-matching.matching.disableSearchByDetails", defBool = false)
-
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", 250)
 
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
@@ -61,15 +60,50 @@ trait BrmConfig extends ServicesConfig {
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
-  def audit : Map[String, String] = {
+  def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
+
+    val path = requestType.fold(s"birth-registration-matching.features.$api.enabled")(
+      x =>
+      s"birth-registration-matching.features.$api.${x.value}.enabled"
+    )
+
+    BRMLogger.info("BRMConfig", "featureEnabled", path)
+
+    getConfBool(path,
+      throw BirthConfigurationException(
+        s"birth-registration-matching.features.$api.enabled"
+      ))
+  }
+
+  abstract class RequestType(val value : String)
+  object ReferenceRequest extends RequestType("reference")
+  object DetailsRequest extends RequestType("details")
+
+  def isDownstreamEnabled(payload: Option[Payload] = None, requestType: Option[RequestType] = None) : Boolean = payload match {
+      case Some(p) =>
+        p.whereBirthRegistered match {
+          case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
+            featureEnabled("gro", requestType)
+          case BirthRegisterCountry.SCOTLAND =>
+            featureEnabled("nrs", requestType)
+          case BirthRegisterCountry.NORTHERN_IRELAND =>
+            featureEnabled("groni", requestType)
+        }
+      case None =>
+        false
+  }
+
+  def audit(p: Option[Payload] = None) : Map[String, String] = {
     val featuresPrefix = "features"
     val features : Map[String, String] = Map(
       s"$featuresPrefix.matchFirstName" -> BrmConfig.matchFirstName.toString,
       s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
-      s"$featuresPrefix.disableSearchByDetails" -> BrmConfig.disableSearchByDetails.toString,
-      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString
+      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString,
+      s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, None).toString,
+      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, Some(ReferenceRequest)).toString,
+      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString
     )
 
     features

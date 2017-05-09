@@ -61,7 +61,7 @@ trait BRMBaseController extends BaseController with BRMException {
       respond(allPfs.apply(t))
   }
 
-  private def auditTransaction()(implicit payload: Payload,
+  protected def auditTransaction()(implicit payload: Payload,
                                    auditor: BRMAudit,
                                    hc: HeaderCarrier): Unit = {
 
@@ -73,8 +73,18 @@ trait BRMBaseController extends BaseController with BRMException {
     // MetricsFactory auditor
     auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
 
+    auditRequestAndResults()
+  }
+
+
+  protected def auditRequestAndResults()(implicit payload: Payload,
+                                         auditor: BRMAudit,
+                                         hc: HeaderCarrier): Unit = {
+    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
     // audit transaction
     transactionAuditor.audit(transactionAuditor.transactionToMap(payload, Nil, matchResult), Some(payload))
+
+
   }
 
 }

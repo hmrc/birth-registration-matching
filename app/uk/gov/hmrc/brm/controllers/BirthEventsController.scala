@@ -65,11 +65,7 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
             implicit val features = FeatureFactory
 
             if (!features().validate) {
-              //TODO: Need to work out
-              //TODO: 1. What We're going to log
-              //TODO: 2. Do we want to do any auditing within the FeatureFactory
-              //TODO: 3. Re-insert auditTransaction (see method below)
-              // auditTransaction()
+              auditRequestAndResults()
               info(CLASS_NAME, "post()", s"date of birth is before valid date / search is switched off (all/reference/details)")
               Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
             }
@@ -82,7 +78,10 @@ trait BirthEventsController extends HeaderValidator with BRMBaseController {
                   info(CLASS_NAME, "post()", s"matched: ${bm.matched}")
                   respond(Ok(Json.toJson(bm)))
                 }
-              } recover handleException(if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails")
+              } recover handleException(
+                if (payload.birthReferenceNumber.isDefined) "getReference"
+                else "getDetails"
+              )
             }
           }
         }
