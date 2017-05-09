@@ -93,15 +93,6 @@ trait BrmConfig extends ServicesConfig {
         false
   }
 
-  /**
-    * new methot only return Map() of refreence and details enabled
-    * pass in payload
-    *
-    * then in where we call audit() we just concat the two Map()
-    *
-    * @return
-    */
-
   def audit(p: Option[Payload] = None) : Map[String, String] = {
     val featuresPrefix = "features"
     val features : Map[String, String] = Map(
