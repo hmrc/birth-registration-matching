@@ -82,7 +82,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     }
 
     // audit application feature switches
-    val features = BrmConfig.audit
+    val features = BrmConfig.audit(Some(payload))
     // val serviceConfig = plus get reference and details enabled map config (pass in payload)
     // then we do features ++ serviceConfig
 

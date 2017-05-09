@@ -64,7 +64,8 @@ trait BrmConfig extends ServicesConfig {
     getConfBool(s"birth-registration-matching.features.$api.enabled",throw BirthConfigurationException(s"$api.enabled"))
   }
   def keyEnabled(api : String, requestType : RequestType)  = {
-    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"$api.enabled"))
+    BRMLogger.info("BRMConfig", "keyEnabled", s"birth-registration-matching.features.$api.${requestType.value}.enabled")
+    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"birth-registration-matching.features.$api.enabled"))
   }
 
   /**
@@ -90,19 +91,18 @@ trait BrmConfig extends ServicesConfig {
   object ReferenceRequest extends RequestType("reference")
   object DetailsRequest extends RequestType("details")
 
-
-  def isDownstreamEnabled(payload: Payload, requestType: RequestType) : Boolean = {
-    payload.whereBirthRegistered match {
-      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-        keyEnabled("gro", requestType)
-      case BirthRegisterCountry.SCOTLAND =>
-//        apiEnabled("nrs")
-        keyEnabled("nrs", requestType)
-      case BirthRegisterCountry.NORTHERN_IRELAND =>
-        keyEnabled("groni", requestType)
-      case _=> false
-
-    }
+  def isDownstreamEnabled(payload: Option[Payload] = None, requestType: RequestType) : Boolean = payload match {
+      case Some(p) =>
+        p.whereBirthRegistered match {
+          case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
+            keyEnabled("gro", requestType)
+          case BirthRegisterCountry.SCOTLAND =>
+            keyEnabled("nrs", requestType)
+          case BirthRegisterCountry.NORTHERN_IRELAND =>
+            keyEnabled("groni", requestType)
+        }
+      case None =>
+        false
   }
 
 
@@ -116,7 +116,7 @@ trait BrmConfig extends ServicesConfig {
     * @return
     */
 
-  def audit : Map[String, String] = {
+  def audit(p: Option[Payload] = None) : Map[String, String] = {
     val featuresPrefix = "features"
     val features : Map[String, String] = Map(
       s"$featuresPrefix.matchFirstName" -> BrmConfig.matchFirstName.toString,
@@ -124,8 +124,9 @@ trait BrmConfig extends ServicesConfig {
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
       s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString,
-      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(null, ReferenceRequest).toString,
-      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(null, DetailsRequest).toString
+      s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, ReferenceRequest).toString,
+      s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, ReferenceRequest).toString,
+      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, DetailsRequest).toString
     )
 
     features
