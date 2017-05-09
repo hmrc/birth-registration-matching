@@ -64,7 +64,7 @@ trait BrmConfig extends ServicesConfig {
     getConfBool(s"birth-registration-matching.features.$api.enabled",throw BirthConfigurationException(s"$api.enabled"))
   }
   def keyEnabled(api : String, requestType : RequestType)  = {
-    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"$key.enabled"))
+    getConfBool(s"birth-registration-matching.features.$api.${requestType.value}.enabled",throw BirthConfigurationException(s"$api.enabled"))
   }
 
   /**
