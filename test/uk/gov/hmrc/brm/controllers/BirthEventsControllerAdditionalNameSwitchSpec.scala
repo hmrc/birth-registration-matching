@@ -34,7 +34,8 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false
+    "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
@@ -46,24 +47,44 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
     "return matched value of true request has additional names and record has same value" in {
       //request has additional name in it
       mockReferenceResponse(groResponseWithAdditionalName)
-      //TODO once api ready change it.
-      val payload = Json.toJson(Payload(Some("500035710"), "Adam Test", "SMITH", new LocalDate("2009-07-01"),
-                    BirthRegisterCountry.ENGLAND))
+
+      val payload = Json.toJson(Payload(Some("500035710"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
-      checkResponse(result,OK,  true)
+      checkResponse(result, OK, true)
     }
 
     "return matched value of false request has additional names and record does not have middle name in it." in {
       mockReferenceResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035711"), "Adam", "SMITH", new LocalDate("2009-07-01"),
+      val payload = Json.toJson(Payload(Some("500035711"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
-      checkResponse(result,OK, true)
+      checkResponse(result, OK, false)
     }
+
+
+    "return matched value of true when user does not provide additional name and record also does not have it " in {
+
+      mockReferenceResponse(groResponseWithoutAdditionalName)
+      val payload = Json.toJson(Payload(Some("500035711"), "Adam", None, "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of false when user provide additional name and record does not have it " in {
+
+      mockReferenceResponse(groResponseWithoutAdditionalName)
+      val payload = Json.toJson(Payload(Some("500035711"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, false)
+    }
+
 
   }
 
-  def makeRequest(jsonRequest :JsValue):Result = {
+  def makeRequest(jsonRequest: JsValue): Result = {
     val request = postRequest(jsonRequest)
     val result = await(MockController.post().apply(request))
     result

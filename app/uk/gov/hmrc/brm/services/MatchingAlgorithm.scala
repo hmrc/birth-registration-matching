@@ -68,14 +68,11 @@ trait MatchingAlgorithm {
   protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
    val firstNamePayload =  ignoreAdditionalName match {
       case true =>  payload.firstName.names.listToString
-      case false =>  concatAdditionalName(payload)
+      case false =>  concatAdditionalName(payload).names.listToString
     }
 
-
-
     val recordNamesFiltered = filterMiddleNames(payload, record)
-    val firstNamePayload = payload.firstName.names.listToString
-
+   // val firstNamePayload = payload.firstName.names.listToString
     val firstNames = nameMatch(Some(firstNamePayload), Some(recordNamesFiltered))
     firstNames
   }
@@ -110,8 +107,8 @@ trait MatchingAlgorithm {
     }
   }
 
-  private[MatchingAlgorithm] def concatAdditionalName(payload: Payload) = {
-   // payload.firstName.concat(" ").concat(payloa.additionalName)
+  private[MatchingAlgorithm] def concatAdditionalName(payload: Payload):String = {
+     payload.firstName.concat(" ").concat(payload.additionalNames.getOrElse("")).trim
   }
 
 }

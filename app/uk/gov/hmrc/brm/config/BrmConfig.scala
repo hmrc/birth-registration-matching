@@ -60,8 +60,8 @@ trait BrmConfig extends ServicesConfig {
   def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
-  def ignoreAdditionalName : Boolean = getConfBool("birth-registration-matching.matching.features.additionalNames.ignore.enabled",
-    throw BirthConfigurationException("additionalNames.ignore.enabled"))
+  def ignoreAdditionalName : Boolean = getConfBool("birth-registration-matching.features.additionalNames.ignore.enabled",
+    throw BirthConfigurationException("features.additionalNames.ignore.enabled"))
 
   def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
 
