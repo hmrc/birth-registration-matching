@@ -79,6 +79,7 @@ object Mocks extends MockitoSugar {
     override val auditFactory = MockAuditFactory
     override val transactionAuditor: TransactionAuditor = auditorFixtures.transactionAudit
     override val matchingAuditor: MatchingAudit = auditorFixtures.matchingAudit
+    override val headerValidator: HeaderValidator = HeaderValidator
   }
 
   object MockControllerMockedLookup extends BirthEventsController {
@@ -87,6 +88,7 @@ object Mocks extends MockitoSugar {
     override val auditFactory = MockAuditFactory
     override val transactionAuditor: TransactionAuditor = auditorFixtures.transactionAudit
     override val matchingAuditor: MatchingAudit = auditorFixtures.matchingAudit
+    override val headerValidator: HeaderValidator = HeaderValidator
   }
 
   def connectorFixtures = {

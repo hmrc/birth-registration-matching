@@ -16,10 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import play.api.mvc.Request
-import uk.gov.hmrc.brm.utils.CommonUtil._
 
 object KeyGenerator {
 
@@ -27,13 +24,11 @@ object KeyGenerator {
   private var keyForRequest: String = ""
   private val AUDITSOURCE_LENGTH = 20
 
-
-
-  def generateKey[A](request: Request[A]) = {
+  def generateKey[A](request: Request[A], headerValidator: HeaderValidator = HeaderValidator) = {
     val formattedDate: String = getDateKey
-    val apiVersion: String = getApiVersion(request)
+    val apiVersion: String = headerValidator.getApiVersion(request)
     //format is date-requestid-audit source - api version number
-    var auditSource = request.headers.get("Audit-Source").getOrElse("")
+    val auditSource = request.headers.get("Audit-Source").getOrElse("")
     val key = s"$formattedDate-${request.id}-${getSubString (auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
     key
   }
