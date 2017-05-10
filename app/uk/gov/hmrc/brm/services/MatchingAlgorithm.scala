@@ -28,6 +28,7 @@ import scala.annotation.tailrec
 trait MatchingAlgorithm {
 
   private[MatchingAlgorithm] def ignoreMiddleNames : Boolean = BrmConfig.ignoreMiddleNames
+  private[MatchingAlgorithm] def ignoreAdditionalName : Boolean = BrmConfig.ignoreAdditionalName
   private[MatchingAlgorithm] val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
   protected[MatchingAlgorithm] def matchFunction: PartialFunction[(Payload, Record), ResultMatch]
@@ -65,6 +66,13 @@ trait MatchingAlgorithm {
   }
 
   protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
+   val firstNamePayload =  ignoreAdditionalName match {
+      case true =>  payload.firstName.names.listToString
+      case false =>  concatAdditionalName(payload)
+    }
+
+
+
     val recordNamesFiltered = filterMiddleNames(payload, record)
     val firstNamePayload = payload.firstName.names.listToString
 
@@ -100,6 +108,10 @@ trait MatchingAlgorithm {
       case false =>
         record.child.firstName.names.listToString
     }
+  }
+
+  private[MatchingAlgorithm] def concatAdditionalName(payload: Payload) = {
+   // payload.firstName.concat(" ").concat(payloa.additionalName)
   }
 
 }
