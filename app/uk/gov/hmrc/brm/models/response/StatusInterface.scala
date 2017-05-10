@@ -25,4 +25,18 @@ trait StatusInterface {
 
   def toJson : JsValue
 
+  def flags : Map[String, String]
+
+  protected def obfuscateReason(reason : Option[String], alternative : String) : String = {
+    val default = "None"
+    reason.fold(default){
+      flag =>
+        if (flag.trim.equalsIgnoreCase("none")) {
+          default
+        } else {
+          alternative
+        }
+    }
+  }
+
 }

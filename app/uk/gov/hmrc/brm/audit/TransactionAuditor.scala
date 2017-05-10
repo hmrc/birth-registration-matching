@@ -72,45 +72,60 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     val matchAudit = recordFoundAndMatchToMap(records, matchResult)
 
     // audit status on the records
-    val auditWordsPerNameOnRecords = responseWordCount(records)
-    val auditCharactersPerNameOnRecords = responseCharacterCount(records)
+    val auditWordsPerNameOnRecords = recordListToMap(records, wordCount)
+    val auditCharactersPerNameOnRecords = recordListToMap(records, characterCount)
+
+    // flags for each record
+    val auditFlags = BrmConfig.logFlags match {
+      case true => recordListToMap(records, flags)
+      case _ => Map().empty
+    }
 
     // audit application feature switches
-    val features = BrmConfig.audit
+    val features = BrmConfig.audit(Some(payload))
 
     // audit payload
     val payloadAudit = payload.audit
 
+    // concat the Map() of all features
     features ++
       payloadAudit ++
       auditWordsPerNameOnRecords ++
       auditCharactersPerNameOnRecords ++
-      matchAudit
+      matchAudit ++
+      auditFlags
   }
 
-  def responseWordCount(record: List[Record]): Map[String, String] = {
-    responseDetail(record, length)
-  }
-
-  def responseCharacterCount(record: List[Record]): Map[String, String] = {
-    responseDetail(record, characterCount)
-  }
-
-  private def length(r: Record, c: Int): Map[String, String] = {
+  def wordCount(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfForenames" -> s"${r.child.firstName.names.count(_.nonEmpty)}",
       s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"
     )
   }
 
-  private def characterCount(r: Record, c: Int): Map[String, String] = {
+  def characterCount(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.firstName.names.filter(_.nonEmpty).listToString.length}",
       s"records.record$c.numberOfCharactersInLastName" -> s"${r.child.lastName.names.filter(_.nonEmpty).listToString.length}"
     )
   }
 
-  private def responseDetail(record: List[Record], f: (Record, Int) => Map[String, String]): Map[String, String] = {
+  def flags(r : Record, index: Int) : Map[String, String] = {
+    /**
+     convert a Map() of flags into a flattened Map() with index associated to each key
+     otherwise return empty Map()
+     */
+    r.status match {
+      case Some(s) =>
+        val flags = s.flags
+        flags.keys.map(k =>
+          s"records.record$index.flags.$k" -> flags(k)
+        ).toMap
+      case None => Map()
+    }
+  }
+
+  def recordListToMap(record: List[Record], f: (Record, Int) => Map[String, String]): Map[String, String] = {
     @tailrec
     def build(c: Int, r: List[Record], m: Map[String, String]) : Map[String, String] = {
       r match {

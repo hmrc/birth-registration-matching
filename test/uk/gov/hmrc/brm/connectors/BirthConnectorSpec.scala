@@ -16,25 +16,19 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import org.mockito.Matchers
 import org.mockito.Matchers.{eq => mockEq}
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import play.api.http.Status
-import play.api.libs.json.JsValue
-import play.api.test.Helpers._
-import uk.gov.hmrc.brm.utils.JsonUtils
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
+class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -54,163 +48,102 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   "GROConnector" should {
 
     "getReference returns json response" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
+      mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
       val result = await(connectorFixtures.groConnector.getReference(payload))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 200
+      checkResponse(result, 200)
     }
 
     "getReference returns http 500 when GRO is offline" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR,None)
       val result = await(connectorFixtures.groConnector.getReference(payload))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 500
+      checkResponse(result, 500)
     }
 
     "getReference returns http 400 for BadRequest" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
+      mockHttpPostResponse(Status.BAD_REQUEST,None)
       val result = await(connectorFixtures.groConnector.getReference(payload))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 400
+      checkResponse(result, 400)
     }
 
     "getReference returns http 404 when GRO has not found data" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
+      mockHttpPostResponse(Status.NOT_FOUND,None)
       val result = await(connectorFixtures.groConnector.getReference(payload))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 404
+      checkResponse(result, 404)
     }
 
     "getChildDetails returns json response" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groJsonResponseObject))))
+      mockHttpPostResponse(Status.OK, Some(groJsonResponseObject))
       val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 200
+      checkResponse(result, 200)
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
       val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 500
+      checkResponse(result, 500)
     }
 
     "getChildDetails returns http 400 for BadRequest" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, None)))
+      mockHttpPostResponse(Status.BAD_REQUEST, None)
       val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 400
+      checkResponse(result, 400)
     }
 
     "getChildDetails returns http 404 when GRO has not found data" in {
-      when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-        (Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, None)))
+      mockHttpPostResponse(Status.NOT_FOUND, None)
       val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      result shouldBe a[HttpResponse]
-      result.status shouldBe 404
+      checkResponse(result, 404)
     }
 
     "NRSConnector" should {
 
       "getReference returns 200 status with json response when record was found. " in {
-
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsJsonResponseObject))))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 200
+        checkResponse(result, 200)
       }
 
 
       "getReference returns 403 forbidden response when record was not found." in {
-
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.FORBIDDEN, None)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.FORBIDDEN, None)
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 403
+        checkResponse(result, 403)
       }
 
       "getReference returns 503 when NRS is down." in {
-
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, None)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 503
+        checkResponse(result, 503)
       }
 
       "getReference returns http 500 when DES is offline" in {
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+        mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 500
+        checkResponse(result, 500)
       }
 
       "getChildDetails returns json response" in {
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(nrsJsonResponseObject))))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 200
+        checkResponse(result, 200)
       }
 
       "getChildDetails returns 403 forbidden response when record was not found." in {
-
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.FORBIDDEN, None)))
-
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.FORBIDDEN, None)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 403
+        checkResponse(result, 403)
       }
 
       "getChildDetails returns 503 (SERVICE_UNAVAILABLE) when NRS is down." in {
-
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, None)))
-
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 503
+        checkResponse(result, 503)
       }
 
       "getChildDetails returns http 500 when DES is offline" in {
-        when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, None)))
+        mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        result shouldBe a[HttpResponse]
-        result.status shouldBe 500
+        checkResponse(result, 500)
       }
 
     }
@@ -222,7 +155,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getReference returns http NotImplementedException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val future = connectorFixtures.groniConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
@@ -234,7 +166,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
 
       "getChildDetails returns http NotImplementedException" in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
         val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
@@ -244,9 +175,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
             throw new Exception
         }
       }
-
     }
-
   }
-
 }

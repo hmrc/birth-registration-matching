@@ -29,6 +29,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.response.gro.GROStatus
+import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -40,25 +42,43 @@ import scala.concurrent.Future
 /**
   * Created by anuja on 16/02/17.
   */
-class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
+class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
 
   val connector = mock[AuditConnector]
   val auditor = new TransactionAuditor(connector)
   implicit val hc = HeaderCarrier()
 
-  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map()
+  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true
+  )
 
   val auditConfigOnForAlternate: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
     "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
-    "microservice.services.birth-registration-matching.matching.disableSearchByDetails" -> true,
-    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false,
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false
+
   )
 
   val auditConfigOnAppForDefault = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForDefault).build()
   val auditConfigOnAppForAlternate = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForAlternate).build()
+
+  val child: Child = Child(123456789: Int, "Adam", "Test1", Some(LocalDate.now()))
+
+  val status  = GROStatus(
+    potentiallyFictitiousBirth = false,
+    correction = Some("Correction on record"),
+    cancelled = false,
+    blockedRegistration = true,
+    marginalNote = None,
+    reRegistered = None)
+
+  val record = Record(child, Option(status))
 
   "RequestsAndResultsAudit" should {
 
@@ -67,7 +87,8 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
     ) {
 
       val payload = Payload(Some("123456789"), "Adam", "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+
+      val event = auditor.transactionToMap(payload, List(record), ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -78,8 +99,16 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
       argumentCapture.value.detail("features.matchLastName") shouldBe "true"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "true"
       argumentCapture.value.detail("features.matchOnMultiple") shouldBe "false"
-      argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "false"
       argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "true"
+      argumentCapture.value.detail("features.details.enabled") shouldBe "true"
+      argumentCapture.value.detail("features.reference.enabled") shouldBe "true"
+      argumentCapture.value.detail("features.downstream.enabled") shouldBe "true"
+      argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "None"
+      argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
+      argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "None"
+      argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "false"
+      argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "false"
+      argumentCapture.value.detail("records.record1.flags.correction") shouldBe "Correction on record"
     }
 
 
@@ -87,7 +116,7 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
       auditConfigOnAppForAlternate
     ) {
       val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(record), ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -98,8 +127,17 @@ class ConfigSwitchToggleAuditSpec extends UnitSpec with MockitoSugar with OneApp
       argumentCapture.value.detail("features.matchLastName") shouldBe "false"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "false"
       argumentCapture.value.detail("features.matchOnMultiple") shouldBe "true"
-      argumentCapture.value.detail("features.disableSearchByDetails") shouldBe "true"
       argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "false"
+      argumentCapture.value.detail("features.details.enabled") shouldBe "false"
+      argumentCapture.value.detail("features.reference.enabled") shouldBe "false"
+      argumentCapture.value.detail("features.downstream.enabled") shouldBe "false"
+      argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.reRegistered") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.cancelled") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
+      argumentCapture.value.detail.contains("records.record1.flags.correction") shouldBe false
     }
 
   }
