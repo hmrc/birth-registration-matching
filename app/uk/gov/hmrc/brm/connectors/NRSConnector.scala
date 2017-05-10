@@ -52,7 +52,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
    )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), fName, lName, dob, _) =>
+    case Payload(Some(brn), fName, aName, lName, dob, _) =>
 
       (referenceUri, Json.parse(
         s"""
@@ -66,7 +66,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
   }
 
   override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, fName, lName, dob, _) =>
+    case Payload(None, fName, aName, lName, dob, _) =>
       (detailsUri, Json.parse(
         s"""
            |{
