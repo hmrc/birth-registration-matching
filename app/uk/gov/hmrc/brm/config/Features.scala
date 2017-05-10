@@ -78,7 +78,7 @@ trait FeatureFactory {
   def isDetailsMatchingEnabled(implicit p: Payload): Boolean
 
   def validDateOfBirth(implicit p: Payload): Boolean = p match {
-    case Payload(_, _, _, dob, _) =>
+    case Payload(_, _, _, _, dob, _) =>
       val feature = DateOfBirthValidationFeature()
       if (feature.enabled()) {
         val configDate = LocalDate.parse(feature.value).toDate
@@ -97,9 +97,9 @@ trait FeatureFactory {
   def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 
   def validate()(implicit p: Payload): Boolean = p match {
-    case Payload(Some(_), _, _, _, _) =>
+    case Payload(Some(_), _, _, _, _, _) =>
       referenceFeatures
-    case Payload(None, _, _, _, _) =>
+    case Payload(None, _, _, _, _, _) =>
       detailsFeatures
   }
 }

@@ -44,7 +44,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
   "NorthernIrelandAudit" should {
 
     "audit requests when using reference number" in {
-      val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
       when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -53,7 +53,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
     }
 
     "audit requests when using child's details" in {
-      val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
       when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
