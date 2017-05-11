@@ -116,13 +116,26 @@ class BirthEventsControllerSpec
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
-
     }
 
     "validate additionalNames" should {
 
-      "return response code 400 if request contains additionalNames key but no value" ignore {
+      "return response code 400 if request contains additionalName key but no value" in {
+        val request = postRequest(additionalNamesKeyNoValue)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAME.json)
+      }
 
+      "return response code 400 if request contains special characters in additionalName" in {
+        val request = postRequest(additionalNameWithSpecialCharacters)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAME.json)
+      }
+
+      "return response code 400 if request contains more than 250 characters in additionalName" in {
+        val request = postRequest(additionalNameWithMoreThan250Characters)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAME.json)
       }
     }
 

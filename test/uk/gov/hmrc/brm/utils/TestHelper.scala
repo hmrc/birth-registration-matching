@@ -290,6 +290,51 @@ object TestHelper {
        |}
     """.stripMargin)
 
+  val additionalNamesKeyNoValue = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       | "additionalNames" : "",
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingAdditionalNameKey = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       |
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val additionalNameWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       | "additionalNames" : ",../WEB-INF/web.xml",
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val additionalNameWithMoreThan250Characters = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Adàm TËST",
+       |"additionalNames" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
   val userNoMatchExcludingReferenceKeyScotland = Json.parse(
     s"""
        |{
