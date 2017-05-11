@@ -104,8 +104,8 @@ object Mocks extends MockitoSugar {
       val scotlandAudit = new ScotlandAudit(mockAuditConnector)
       val northernIrelandAudit = new NorthernIrelandAudit(mockAuditConnector)
       val matchingAudit = new MatchingAudit(mockAuditConnector)
-      val transactionAudit = new TransactionAuditor(mockAuditConnector)
-    }
-  }
+  val transactionAudit = new TransactionAuditor(mockAuditConnector)
+}
+}
 
 }
