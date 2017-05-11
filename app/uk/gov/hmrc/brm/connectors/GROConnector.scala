@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
@@ -58,11 +58,21 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${NameFormat(f)}",
+           | "forenames" : "${NameFormat(forname(f, a))}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}
         """.stripMargin))
   }
+
+  private def forname(firstName: String, additionalName: Option[String]): String = {
+    val forenames = BrmConfig.ignoreAdditionalName match {
+      case true => firstName
+      case false => firstName.concat(" ").concat(additionalName.getOrElse("")).trim
+    }
+
+    NameFormat(forenames)
+  }
+
 
 }

@@ -18,11 +18,12 @@ package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
-import org.scalatest.BeforeAndAfter
+import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatest.mock.MockitoSugar
-import org.specs2.mock.mockito.ArgumentCapture
+import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
-import uk.gov.hmrc.brm.audit.AuditEvent
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
@@ -32,7 +33,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -40,79 +41,47 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
 
   implicit val hc = HeaderCarrier()
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
-  val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
 
-  val childDetailPayload = Map(
-    "firstName" -> "Adam",
-    "lastName" -> "Wilson",
-    "dateOfBirth" -> "2006-11-12"
+  val config: Map[String, _] = Map(
+    //dont ignore additional name values.
+    "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
+    //while matching dont ignore middle names.s
+    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
+
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    config
+  ).build()
+
 
   "GROConnector" should {
 
-    "getReference returns json response" in {
-
-      val argumentCapture=  mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
-      val result = await(connectorFixtures.groConnector.getReference(payload))
-      checkResponse(result, 200)
-    }
-
-
-
-    "getReference returns http 500 when GRO is offline" in {
-      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
-      checkResponse(result, 500)
-    }
-
-    "getReference returns http 400 for BadRequest" in {
-      mockHttpPostResponse(Status.BAD_REQUEST,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
-      checkResponse(result, 400)
-    }
-
-    "getReference returns http 404 when GRO has not found data" in {
-      mockHttpPostResponse(Status.NOT_FOUND,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
-      checkResponse(result, 404)
-    }
-
-    "getChildDetails returns json response" in {
-      mockHttpPostResponse(Status.OK, Some(groJsonResponseObject))
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      checkResponse(result, 200)
-    }
-
-    "getChildDetails call should not pass additional name to gro." in {
+    "getChildDetails call pass additional name to gro." in {
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
       val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
-      argumentCapture.value.toString()contains("test") shouldBe false
 
+      argumentCapture.value.toString.contains("Adam test") shouldBe true
+      argumentCapture.value.toString.contains("SMITH") shouldBe true
+      argumentCapture.value.toString.contains("2009-07-01") shouldBe true
     }
 
-    "getChildDetails returns http 500 when GRO is offline" in {
-      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      checkResponse(result, 500)
+    "getChildDetails call to gro should not pass additionalName values when empty" in {
+      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+      val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+      checkResponse(result, 200)
+      argumentCapture.value.toString.contains("Adam") shouldBe true
+      argumentCapture.value.toString.contains("SMITH") shouldBe true
+      argumentCapture.value.toString.contains("2009-07-01") shouldBe true
     }
 
-    "getChildDetails returns http 400 for BadRequest" in {
-      mockHttpPostResponse(Status.BAD_REQUEST, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      checkResponse(result, 400)
-    }
 
-    "getChildDetails returns http 404 when GRO has not found data" in {
-      mockHttpPostResponse(Status.NOT_FOUND, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
-      checkResponse(result, 404)
-    }
 
-    "NRSConnector" should {
+    /*"NRSConnector" should {
 
       "getReference returns 200 status with json response when record was found. " in {
         mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
@@ -163,36 +132,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         checkResponse(result, 500)
       }
 
-    }
+    }*/
 
-    "GRONIConnector" should {
-
-      "initialise with correct properties" in {
-        connectorFixtures.groniConnector.httpPost shouldBe a[WSPost]
-      }
-
-      "getReference returns http NotImplementedException" in {
-        val future = connectorFixtures.groniConnector.getReference(payload)
-        future.onComplete {
-          case Failure(e) =>
-            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage shouldBe "No getReference method available for GRONI connector."
-          case Success(_) =>
-            throw new Exception
-        }
-      }
-
-      "getChildDetails returns http NotImplementedException" in {
-        val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
-        future.onComplete {
-          case Failure(e) =>
-            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage shouldBe "No getChildDetails method available for GRONI connector."
-          case Success(_) =>
-            throw new Exception
-        }
-      }
-    }
   }
 
 }

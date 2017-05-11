@@ -50,7 +50,7 @@ object CommonUtil extends Controller {
 
   def getOperationType(payload: Payload): RequestType = {
     payload match {
-      case input@Payload(None, firstName, None, lastName, dateOfBirth, whereBirthRegistered) => {
+      case input@Payload(None,_, _,  _, _, _) => {
         DetailsRequest()
       }
       case payload@Payload(Some(birthReferenceNumber), _, _,  _, _, _) => {
