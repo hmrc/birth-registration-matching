@@ -42,23 +42,23 @@ class   MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
 
   "MatchingAudit" should {
 
-//    "audit requests when using reference number" in {
-//      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-//      val event = Map("match" -> "true")
-//
-//      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-//      val result = await(auditor.audit(event, Some(payload)))
-//      result shouldBe AuditResult.Success
-//    }
-//
-//    "audit requests when using child's details" in {
-//      val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-//      val event = Map("match" -> "true")
-//
-//      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-//      val result = await(auditor.audit(event, Some(payload)))
-//      result shouldBe AuditResult.Success
-//    }
+    "audit requests when using reference number" in {
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val event = Map("match" -> "true")
+
+      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      val result = await(auditor.audit(event, Some(payload)))
+      result shouldBe AuditResult.Success
+    }
+
+    "audit requests when using child's details" in {
+      val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val event = Map("match" -> "true")
+
+      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      val result = await(auditor.audit(event, Some(payload)))
+      result shouldBe AuditResult.Success
+    }
 
     "throw Illegal argument exception when no payload is provided" in {
       val event = Map("match" -> "true")

@@ -312,6 +312,22 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         jsonObject.validate[Payload].isError shouldBe true
       }
 
+      "return success when additionalNames contains multiple space separated strings" in {
+        val jsonObject: JsValue = Json.parse(
+          """
+            |{
+            | "birthReferenceNumber": "123456789",
+            | "firstName" : "John",
+            | "additionalName" : "Andrews Smith Davis",
+            | "lastName" : "Jones",
+            | "dateOfBirth" : "2010-01-13",
+            | "whereBirthRegistered" : "england"
+            |}
+          """.stripMargin)
+
+        jsonObject.validate[Payload].isSuccess shouldBe true
+      }
+
       "return success when additionalNames contains valid special characters" in {
         val jsonObject: JsValue = Json.parse(
           """
