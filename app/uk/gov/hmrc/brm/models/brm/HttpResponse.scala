@@ -69,7 +69,7 @@ object InvalidFirstName extends HttpResponseBody {
 
 object InvalidAdditionalName extends HttpResponseBody {
   override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_ADDITIONALNAME"
+  override val code: String = "INVALID_ADDITIONALNAMES"
   override val message: String = "Provided additionalName is invalid."
 }
 
