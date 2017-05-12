@@ -54,9 +54,17 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, true)
     }
 
-    "return matched value of true when reference request has additional names and record has same value" in {
+    "return matched value of true when reference request has  more than one additional names and record has same value" in {
       mockReferenceResponse(groResponseWithMoreAdditionalName)
       val payload = Json.toJson(Payload(Some("500035712"), "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of true when reference request has  more than one additional names with space and record has same value without space" in {
+      mockReferenceResponse(groResponseWithMoreAdditionalName)
+      val payload = Json.toJson(Payload(Some("500035712"), "Adam", Some(" test david "), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
@@ -96,6 +104,22 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
         BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
+    }
+
+    "return matched value of true when detail request has more thatn one additional names and record has same value" in {
+      mockDetailsResponse(groResponseWithMoreAdditionalName)
+      val payload = Json.toJson(Payload(None, "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of false when detail request has more that one additional names and record has only one additional name." in {
+      mockDetailsResponse(groResponseWithMoreAdditionalName)
+      val payload = Json.toJson(Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, false)
     }
 
     "return matched value of false when detail request has additional names and record does not have middle name in it." in {

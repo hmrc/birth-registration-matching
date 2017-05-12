@@ -38,6 +38,8 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
   implicit val hc = HeaderCarrier()
 
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val nrsJsonResponseObjectWithotuAdditionalName = JsonUtils.getJsonFromFile("nrs", "2017350006")
+
   val config: Map[String, _] = Map(
     //dont ignore additional name values.
     "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
@@ -129,14 +131,14 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       }
 
       "getChildDetails call to nrs should not pass additionalName values when empty" in {
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val requestWithoutAdditionalName = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-11-12"),
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithotuAdditionalName))
+        val requestWithoutAdditionalName = Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"),
           BirthRegisterCountry.SCOTLAND)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName))
         checkResponse(result, 200)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "ANTHONY"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "ANDREWS"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2016-11-08"
 
       }
 
