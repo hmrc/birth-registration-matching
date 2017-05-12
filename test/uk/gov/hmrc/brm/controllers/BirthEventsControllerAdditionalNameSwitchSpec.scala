@@ -106,7 +106,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, true)
     }
 
-    "return matched value of true when detail request has more thatn one additional names and record has same value" in {
+    "return matched value of true when detail request has more that one additional names and record has same value" in {
       mockDetailsResponse(groResponseWithMoreAdditionalName)
       val payload = Json.toJson(Payload(None, "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
