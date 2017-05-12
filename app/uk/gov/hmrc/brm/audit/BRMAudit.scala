@@ -60,7 +60,7 @@ abstract class BRMAudit(connector : AuditConnector) {
 
     connector.sendEvent(eventWithKey) map {
       success =>
-        BRMLogger.info(super.getClass.getCanonicalName, s"event", "event successfully audited")
+        BRMLogger.debug(super.getClass.getCanonicalName, s"event", "event successfully audited")
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>

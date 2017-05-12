@@ -43,7 +43,7 @@ class MatchingAudit(connector : AuditConnector = MicroserviceGlobal.auditConnect
     extends AuditEvent("BRM-Matching-Results", detail = result, transactionName = "brm-match", path)
 
   def audit(result : Map[String, String], payload : Option[Payload])(implicit hc : HeaderCarrier) = {
-    BRMLogger.info("MatchingAudit", "audit", "auditing match event")
+    BRMLogger.debug("MatchingAudit", "audit", "auditing match event")
     payload match {
       case Some(p) =>
         CommonUtil.getOperationType(p) match {
