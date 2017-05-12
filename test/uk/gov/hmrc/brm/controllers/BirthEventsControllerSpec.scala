@@ -409,16 +409,12 @@ class BirthEventsControllerSpec
           checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
         }
 
-
-
         "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway Upstream5xxResponse." in {
           mockDetailsResponse(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY))
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
           checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
         }
-
-
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
           mockDetailsResponse(new GatewayTimeoutException(""))
@@ -441,7 +437,6 @@ class BirthEventsControllerSpec
           checkResponse(result,INTERNAL_SERVER_ERROR, empty)
         }
 
-     
         "return 200 false when GRO returns NotFoundException" in {
           mockDetailsResponse(new NotFoundException(""))
           val request = postRequest(userNoMatchExcludingReferenceKey)

@@ -39,7 +39,7 @@ case class Payload(
     Map(
     "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),
     "payload.firstName" -> firstName,
-    "payload.additionalNames" -> additionalNames.fold("No additionalNames")(x => x),
+    "payload.additionalNames" -> additionalNames.fold("")(x => x),
     "payload.lastName" -> lastName,
     "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
     "payload.whereBirthRegistered" -> whereBirthRegistered.toString
@@ -49,6 +49,12 @@ case class Payload(
 }
 
 object Payload extends BRMFormat {
+
+  abstract class RequestType
+
+  case class ReferenceRequest() extends RequestType
+
+  case class DetailsRequest() extends RequestType
 
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
@@ -60,7 +66,7 @@ object Payload extends BRMFormat {
   implicit val PayloadWrites: Writes[Payload] = (
       (JsPath \ birthReferenceNumber).write[Option[String]] and
       (JsPath \ firstName).write[String] and
-      (JsPath \ additionalNames).write[Option[String]] and
+      (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate](jodaLocalDateWrites(datePattern)) and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry](birthRegisterWrites)
