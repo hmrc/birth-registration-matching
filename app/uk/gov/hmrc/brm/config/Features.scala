@@ -69,7 +69,7 @@ case class NRSReferenceFeature() extends Feature("nrs.reference")
 
 case class NRSDetailsFeature() extends Feature("nrs.details")
 
-trait FeatureFactory {
+trait DownstreamFeatureFactory {
 
   def feature: Boolean
 
@@ -96,7 +96,7 @@ trait FeatureFactory {
 
   def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 
-  def validate()(implicit p: Payload): Boolean = p match {
+  def enabled()(implicit p: Payload): Boolean = p match {
     case Payload(Some(_), _, _, _, _) =>
       referenceFeatures
     case Payload(None, _, _, _, _) =>
@@ -104,7 +104,7 @@ trait FeatureFactory {
   }
 }
 
-object NRSConcreteFeature extends FeatureFactory {
+object NRSConcreteFeature extends DownstreamFeatureFactory {
 
   def feature: Boolean = NRSFeature().enabled()
 
@@ -121,7 +121,7 @@ object NRSConcreteFeature extends FeatureFactory {
   override def detailsFeatures(implicit p: Payload) = validDateOfBirth && isDetailsMatchingEnabled
 }
 
-object GROConcreteFeature extends FeatureFactory {
+object GROConcreteFeature extends DownstreamFeatureFactory {
 
   def feature: Boolean = GROFeature().enabled()
 
@@ -144,7 +144,7 @@ case class GRONIReferenceFeature() extends Feature("groni.reference")
 
 case class GRONIDetailsFeature() extends Feature("groni.details")
 
-object GRONIConcreteFeature extends FeatureFactory {
+object GRONIConcreteFeature extends DownstreamFeatureFactory {
   def feature: Boolean = GRONIFeature().enabled()
 
   override def isDetailsMatchingEnabled(implicit p: Payload): Boolean = {
@@ -160,9 +160,9 @@ object GRONIConcreteFeature extends FeatureFactory {
   override def detailsFeatures(implicit p: Payload) = isDetailsMatchingEnabled
 }
 
-object FeatureFactory {
+object DownstreamFeatureFactory {
 
-  private lazy val set: Map[BirthRegisterCountry, FeatureFactory] = Map(
+  private lazy val set: Map[BirthRegisterCountry, DownstreamFeatureFactory] = Map(
     BirthRegisterCountry.ENGLAND -> GROConcreteFeature,
     BirthRegisterCountry.WALES -> GROConcreteFeature,
     BirthRegisterCountry.SCOTLAND -> NRSConcreteFeature,

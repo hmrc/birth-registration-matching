@@ -20,7 +20,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
-import uk.gov.hmrc.brm.config.{BrmConfig, FeatureFactory}
+import uk.gov.hmrc.brm.config.{BrmConfig, DownstreamFeatureFactory}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm._
@@ -68,11 +68,12 @@ trait BirthEventsController extends BRMBaseController {
     Future.successful(respond(InvalidBirthReferenceNumber.status))
   }
 
-  private def handleKnockoutForSwitch()(implicit payload: Payload, hc : HeaderCarrier, audit : BRMAudit) = {
+  private def downstreamUnavailable()(implicit payload: Payload, hc : HeaderCarrier, audit : BRMAudit) = {
     // audit the request
     auditRequestAndResults()
 
-    info(CLASS_NAME, "post()", s"Request was not processed. Feature switches: ${BrmConfig.audit(Some(payload))}")
+    info(CLASS_NAME, "post()", s"Request was not processed due to downstream being unavailable. " +
+      s"Feature switches: ${BrmConfig.audit(Some(payload))}")
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
 
@@ -100,10 +101,10 @@ trait BirthEventsController extends BRMBaseController {
           } else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
             implicit val auditor: BRMAudit = auditFactory.getAuditor()
-            implicit val features = FeatureFactory
+            implicit val downstream = DownstreamFeatureFactory
 
-            if (!features().validate) {
-              handleKnockoutForSwitch()
+            if (!downstream().enabled()) {
+              downstreamUnavailable()
             } else {
               traceAndMatchRecord()
             }
