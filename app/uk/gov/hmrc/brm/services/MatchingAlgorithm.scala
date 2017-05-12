@@ -66,13 +66,13 @@ trait MatchingAlgorithm {
   }
 
   protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
+    //add additonal name to firstname based on feature toggle.
    val firstNamePayload =  ignoreAdditionalName match {
       case true =>  payload.firstName.names.listToString
       case false =>  concatAdditionalName(payload).names.listToString
     }
 
     val recordNamesFiltered = filterMiddleNames(payload, record)
-   // val firstNamePayload = payload.firstName.names.listToString
     val firstNames = nameMatch(Some(firstNamePayload), Some(recordNamesFiltered))
     firstNames
   }

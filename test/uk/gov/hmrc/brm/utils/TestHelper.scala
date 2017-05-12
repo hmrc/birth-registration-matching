@@ -40,6 +40,8 @@ object TestHelper {
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
   val groResponseWithAdditionalName = JsonUtils.getJsonFromFile("gro","with_additional_name")
   val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro","without_additional_name")
+  val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro","with_more_additional_name")
+
 
   val payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
   val payloadNoReference = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)

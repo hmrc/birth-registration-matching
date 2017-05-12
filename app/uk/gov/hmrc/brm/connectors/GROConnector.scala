@@ -58,21 +58,21 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${NameFormat(forname(f, a))}",
+           | "forenames" : "${forname(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}
         """.stripMargin))
   }
 
-  private def forname(firstName: String, additionalName: Option[String]): String = {
+  //add additional name to firstname while sending to respective service.
+  protected def forname(firstName: String, additionalName: Option[String]): String = {
     val forenames = BrmConfig.ignoreAdditionalName match {
-      case true => firstName
-      case false => firstName.concat(" ").concat(additionalName.getOrElse("")).trim
+      case true => NameFormat(firstName)
+      case false => NameFormat(firstName).concat(" ").concat(NameFormat(additionalName.getOrElse(""))).trim
     }
 
     NameFormat(forenames)
   }
-
 
 }

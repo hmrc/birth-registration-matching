@@ -18,30 +18,26 @@ package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
-import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.ws.WSPost
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
-import scala.util.{Failure, Success}
+import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.brm.utils.CommonConstant._
 
 class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   implicit val hc = HeaderCarrier()
 
-
+  val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
   val config: Map[String, _] = Map(
     //dont ignore additional name values.
     "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
@@ -63,76 +59,88 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
 
-      argumentCapture.value.toString.contains("Adam test") shouldBe true
-      argumentCapture.value.toString.contains("SMITH") shouldBe true
-      argumentCapture.value.toString.contains("2009-07-01") shouldBe true
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test"
+      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
+      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+    }
+
+    "getChildDetails call pass additional name to gro in proper format." in {
+      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+      val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+      checkResponse(result, 200)
+
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test"
+      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
+      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+    }
+
+    "getChildDetails call pass additional name to gro in proper format when additional name are multiple" in {
+      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
+      val payload = Payload(None, " Adam ", Some(" test david "), " SMITH ", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+      checkResponse(result, 200)
+
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test david"
+      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
+      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
     }
 
     "getChildDetails call to gro should not pass additionalName values when empty" in {
-      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
       val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
-      argumentCapture.value.toString.contains("Adam") shouldBe true
-      argumentCapture.value.toString.contains("SMITH") shouldBe true
-      argumentCapture.value.toString.contains("2009-07-01") shouldBe true
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
+      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
+      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
     }
 
 
 
-    /*"NRSConnector" should {
+    "NRSConnector" should {
 
-      "getReference returns 200 status with json response when record was found. " in {
-        mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+
+      "getChildDetails call pass additional name to nrs." in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
         checkResponse(result, 200)
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+
       }
 
-
-      "getReference returns 403 forbidden response when record was not found." in {
-        mockHttpPostResponse(Status.FORBIDDEN, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        checkResponse(result, 403)
-      }
-
-      "getReference returns 503 when NRS is down." in {
-        mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        checkResponse(result, 503)
-      }
-
-      "getReference returns http 500 when DES is offline" in {
-        mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
-        checkResponse(result, 500)
-      }
-
-      "getChildDetails returns json response" in {
-        mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+      "getChildDetails call pass additional name to nrs in proper format." in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithAdditionalName = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-11-12"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
         checkResponse(result, 200)
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+
       }
 
-      "getChildDetails returns 403 forbidden response when record was not found." in {
-        mockHttpPostResponse(Status.FORBIDDEN, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        checkResponse(result, 403)
+      "getChildDetails call to nrs should not pass additionalName values when empty" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithoutAdditionalName = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-11-12"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName))
+        checkResponse(result, 200)
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+
       }
 
-      "getChildDetails returns 503 (SERVICE_UNAVAILABLE) when NRS is down." in {
-        mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        checkResponse(result, 503)
-      }
-
-      "getChildDetails returns http 500 when DES is offline" in {
-        mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
-        checkResponse(result, 500)
-      }
-
-    }*/
+    }
 
   }
 

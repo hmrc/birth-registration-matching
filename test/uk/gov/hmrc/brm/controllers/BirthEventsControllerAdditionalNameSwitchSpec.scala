@@ -54,6 +54,14 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, true)
     }
 
+    "return matched value of true when reference request has additional names and record has same value" in {
+      mockReferenceResponse(groResponseWithMoreAdditionalName)
+      val payload = Json.toJson(Payload(Some("500035712"), "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
     "return matched value of false when reference request has additional names and record does not have middle name in it." in {
       mockReferenceResponse(groResponseWithoutAdditionalName)
       val payload = Json.toJson(Payload(Some("500035711"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),

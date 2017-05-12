@@ -70,11 +70,21 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       (detailsUri, Json.parse(
         s"""
            |{
-           | "$JSON_FIRSTNAME_PATH" : "${NameFormat(fName)}",
+           | "$JSON_FIRSTNAME_PATH" : "${firstName(fName,aName)}",
            | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
            | "$JSON_DATEOFBIRTH_PATH" : "$dob"
            |}
          """.stripMargin))
   }
 
+
+  //add additional name to firstname while sending to respective service.
+  protected def firstName(firstName: String, additionalName: Option[String]): String = {
+    val forenames = BrmConfig.ignoreAdditionalName match {
+      case true => NameFormat(firstName)
+      case false => NameFormat(firstName).concat(" ").concat(NameFormat(additionalName.getOrElse(""))).trim
+    }
+
+    NameFormat(forenames)
+  }
 }

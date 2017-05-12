@@ -29,7 +29,7 @@ import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
+import uk.gov.hmrc.brm.utils.CommonConstant._
 import scala.util.{Failure, Success}
 
 class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
@@ -90,8 +90,8 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         BirthRegisterCountry.ENGLAND)
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
-      argumentCapture.value.toString()contains("test") shouldBe false
-
+      argumentCapture.value.toString().contains("test") shouldBe false
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
@@ -120,7 +120,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         checkResponse(result, 200)
       }
 
-
       "getReference returns 403 forbidden response when record was not found." in {
         mockHttpPostResponse(Status.FORBIDDEN, None)
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
@@ -143,6 +142,17 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
         checkResponse(result, 200)
+      }
+
+      "getChildDetails call should not pass additional name to nrs." in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
+        checkResponse(result, 200)
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
       }
 
       "getChildDetails returns 403 forbidden response when record was not found." in {

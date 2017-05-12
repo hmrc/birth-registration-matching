@@ -20,7 +20,7 @@ import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
@@ -31,18 +31,20 @@ trait BirthConnector extends ServicesConfig {
   val serviceUrl: String
   var httpPost: HttpPost
 
-  protected def headers  : BRMHeaders
+  protected def headers: BRMHeaders
 
 
-  protected val referenceBody : PartialFunction[Payload, (String, JsValue)]
-  protected val detailsBody : PartialFunction[Payload, (String, JsValue)]
+  protected val referenceBody: PartialFunction[Payload, (String, JsValue)]
+  protected val detailsBody: PartialFunction[Payload, (String, JsValue)]
 
 
   /**
     * RequestType, reference or details
     */
   abstract class RequestType
+
   case class ReferenceRequest() extends RequestType
+
   case class DetailsRequest() extends RequestType
 
   case class Request(uri: String, jsonBody: Option[JsValue] = None)
@@ -71,6 +73,8 @@ trait BirthConnector extends ServicesConfig {
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
   }
+
+
 
 }
 
