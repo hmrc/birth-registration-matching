@@ -78,7 +78,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
     }
 
-    "getChildDetails call pass additional name to gro in proper format when additional name are multiple" in {
+    "getChildDetails call pass additional name to gro in proper format when multiple additional name are present." in {
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
       val payload = Payload(None, " Adam ", Some(" test david "), " SMITH ", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
@@ -90,7 +90,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
     }
 
-    "getChildDetails call to gro should not pass additionalName values when empty" in {
+    "getChildDetails call to gro should pass only firstname when additionalName value is empty" in {
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
       val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
@@ -102,10 +102,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
     }
 
 
-
     "NRSConnector" should {
-
-
       "getChildDetails call pass additional name to nrs." in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
@@ -130,7 +127,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
 
       }
 
-      "getChildDetails call to nrs should not pass additionalName values when empty" in {
+      "getChildDetails call to nrs pass only firstname when additionalName value is empty" in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithotuAdditionalName))
         val requestWithoutAdditionalName = Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"),
           BirthRegisterCountry.SCOTLAND)
