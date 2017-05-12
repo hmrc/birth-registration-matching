@@ -60,7 +60,7 @@ trait BirthConnector extends ServicesConfig {
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
     //TODO do we need to change this?
-    httpPost.POST(request.uri, request.jsonBody.get, headers)
+    httpPost.POST(request.uri, request.jsonBody.getOrElse(None), headers)
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
