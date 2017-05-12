@@ -43,12 +43,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
 
-  val childDetailPayload = Map(
-    "firstName" -> "Adam",
-    "lastName" -> "Wilson",
-    "dateOfBirth" -> "2006-11-12"
-  )
-
   "GROConnector" should {
 
     "getReference returns json response" in {
@@ -57,8 +51,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       val result = await(connectorFixtures.groConnector.getReference(payload))
       checkResponse(result, 200)
     }
-
-
 
     "getReference returns http 500 when GRO is offline" in {
       mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR,None)

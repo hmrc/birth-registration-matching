@@ -23,19 +23,22 @@ import org.scalatest.{BeforeAndAfter, TestData}
 import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.brm.utils.CommonConstant._
 
 class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
 
   implicit val hc = HeaderCarrier()
+
+  val FORNAMES: String = "forenames"
+  val LASTNAME: String = "lastname"
+  val DATE_OF_BIRTH: String = "dateofbirth"
 
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
   val nrsJsonResponseObjectWithotuAdditionalName = JsonUtils.getJsonFromFile("nrs", "2017350006")
@@ -43,7 +46,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
   val config: Map[String, _] = Map(
     //dont ignore additional name values.
     "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
-    //while matching dont ignore middle names.s
+    //while matching dont ignore middle names
     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
 
@@ -61,9 +64,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
 
-      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test"
-      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
-      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
+      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
     }
 
     "getChildDetails call pass additional name to gro in proper format." in {
@@ -73,9 +76,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
 
-      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test"
-      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
-      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
+      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
     }
 
     "getChildDetails call pass additional name to gro in proper format when multiple additional name are present." in {
@@ -85,9 +88,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
 
-      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam test david"
-      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
-      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test david"
+      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
     }
 
     "getChildDetails call to gro should pass only firstname when additionalName value is empty" in {
@@ -96,9 +99,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
         BirthRegisterCountry.ENGLAND)
       val result = await(connectorFixtures.groConnector.getChildDetails(payload))
       checkResponse(result, 200)
-      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
-      (argumentCapture.value \ "lastname").as[String] shouldBe "SMITH"
-      (argumentCapture.value \ "dateofbirth").as[String] shouldBe "2009-07-01"
+      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam"
+      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
     }
 
 
