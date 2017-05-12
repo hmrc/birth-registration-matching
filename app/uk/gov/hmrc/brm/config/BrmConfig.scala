@@ -26,6 +26,10 @@ trait BrmConfig extends ServicesConfig {
     override def toString: String = s"birth-registration-matching.matching.$switch configuration not found"
   }
 
+  case class FeatureSwitchException(switch : String) extends RuntimeException {
+    override def toString: String = s"birth-registration-matching.features.$switch configuration not found"
+  }
+
   case class DesException(switch: String) extends RuntimeException {
     override def toString: String = s"des.$switch configuration not found"
   }
