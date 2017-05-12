@@ -150,7 +150,7 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
           BirthRegisterCountry.SCOTLAND)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
         checkResponse(result, 200)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
         (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
       }
