@@ -21,7 +21,7 @@ import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.services.Bad
-import uk.gov.hmrc.brm.utils.BRMException
+import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
@@ -32,6 +32,7 @@ trait BRMBaseController extends BaseController with BRMException {
 
   protected val transactionAuditor : TransactionAuditor
   protected val matchingAuditor : MatchingAudit
+  protected val headerValidator : HeaderValidator
 
   def respond(response: Result): Result = {
     response

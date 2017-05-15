@@ -33,9 +33,9 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class   MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
-  val connector = mock[AuditConnector]
+  val connector = mockAuditConnector
   val auditor = auditorFixtures.matchingAudit
 
   implicit val hc = HeaderCarrier()

@@ -26,23 +26,6 @@ import scala.util.matching.Regex.Match
 
 object CommonUtil extends Controller {
 
-  private val groupNames: Seq[String] = Seq("version", "contenttype")
-  private val regEx: String = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
-
-  val matchHeader: String => Option[Match] = new Regex(
-    regEx,
-    groupNames: _*) findFirstMatchIn _
-
-  def getApiVersion[A](request: Request[A]): String = {
-    val accept = request.headers.get(HeaderNames.ACCEPT)
-    accept.flatMap(
-      a =>
-        matchHeader(a.toLowerCase) map (
-          res => res.group("version")
-          )
-    ) getOrElse ""
-  }
-
   abstract class RequestType
 
   case class ReferenceRequest() extends RequestType
@@ -51,10 +34,10 @@ object CommonUtil extends Controller {
 
   def getOperationType(payload: Payload): RequestType = {
     payload match {
-      case input@Payload(None,_, _,  _, _, _) => {
+      case input@Payload(None, _, _, _, _, _) => {
         DetailsRequest()
       }
-      case payload@Payload(Some(birthReferenceNumber), _, _,  _, _, _) => {
+      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
         ReferenceRequest()
       }
     }

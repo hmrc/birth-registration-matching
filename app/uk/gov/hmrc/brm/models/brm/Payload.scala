@@ -39,7 +39,7 @@ case class Payload(
     Map(
     "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),
     "payload.firstName" -> firstName,
-    "payload.additionalNames" -> additionalNames.fold("No additionalNames")(x => x),
+    "payload.additionalNames" -> additionalNames.fold("")(x => x),
     "payload.lastName" -> lastName,
     "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
     "payload.whereBirthRegistered" -> whereBirthRegistered.toString
@@ -49,7 +49,7 @@ case class Payload(
 }
 
 object Payload extends BRMFormat {
-
+  
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
   val additionalNames = "additionalNames"
