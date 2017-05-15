@@ -34,9 +34,6 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   val config: Map[String, _] = Map(
-    //dont ignore additional name values.
-    "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
-    //while matching dont ignore middle names.s
     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
 
@@ -97,6 +94,23 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, false)
     }
 
+
+    "return matched value of true when reference request has additional names with special character and record has same value" in {
+      mockReferenceResponse(groResponseWithSpecialCharacter)
+      val payload = Json.toJson(Payload(Some("500035713"), "Mary-Ann ", Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of true when reference request firstname has additional name with special character and record has same value" in {
+      mockReferenceResponse(groResponseWithSpecialCharacter)
+      val payload = Json.toJson(Payload(Some("500035713"), "Mary-Ann O'Leary ",None, "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
     //details
     "return matched value of true when detail request has additional names and record has same value" in {
       mockDetailsResponse(groResponseWithAdditionalName)
@@ -147,6 +161,22 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
         BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
       checkResponse(result, OK, false)
+    }
+
+    "return matched value of true when details request additional name with special character and record has same value" in {
+      val payload = Json.toJson(None, "Mary-Ann  ",Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      mockDetailsResponse(groResponseWithSpecialCharacter)
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of true when details request fistname has additiona name with special character  and record has same value" in {
+      val payload = Json.toJson(None, "Mary-Ann O'Leary ",None, "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      mockDetailsResponse(groResponseWithSpecialCharacter)
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
     }
 
 
