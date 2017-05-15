@@ -40,21 +40,3 @@ trait SwitchValue extends ServicesConfig with SwitchException {
   val name : String
   final def value : String = getConfString(s"birth-registration-matching.features.$name.value", exception(name))
 }
-
-object GROReferenceSwitch extends Switch {
-  override val name = "gro.reference"
-}
-
-object GRODetailsSwitch extends Switch {
-  override val name = "gro.details"
-}
-object GROSwitch extends Switch {
-  override val name = "gro"
-}
-
-object DateOfBirthSwitch extends Switch {
-  override val name = "dobValidation"
-}
-object DateOfBirthSwitchValue extends SwitchValue {
-  override val name = "dobValidation"
-}

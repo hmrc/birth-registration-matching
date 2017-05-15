@@ -90,35 +90,35 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
 
   }
 
-//  "NRS" should {
-//
-//    "be enabled for NRS" in {
-//      NRSSwitch.isEnabled shouldBe true
-//    }
-//
-//    "be enabled for NRS Reference" in {
-//      NRSReferenceSwitch.isEnabled shouldBe true
-//    }
-//
-//    "be enabled for NRS Details" in {
-//      NRSDetailsSwitch.isEnabled shouldBe true
-//    }
-//
-//  }
-//
-//  "GRO-NI" should {
-//    "be enabled for GRO-NI" in {
-//      GRONISwitch.isEnabled shouldBe true
-//    }
-//
-//    "be enabled for GRO-NI Reference" in {
-//      GRONIReferenceSwitch.isEnabled shouldBe true
-//    }
-//
-//    "be enabled for GRO-NI Details" in {
-//      GRONIDetailsSwitch.isEnabled shouldBe true
-//    }
-//  }
+  "NRS" should {
+
+    "be enabled for NRS" in {
+      NRSSwitch.isEnabled shouldBe true
+    }
+
+    "be enabled for NRS Reference" in {
+      NRSReferenceSwitch.isEnabled shouldBe true
+    }
+
+    "be enabled for NRS Details" in {
+      NRSDetailsSwitch.isEnabled shouldBe true
+    }
+
+  }
+
+  "GRO-NI" should {
+    "be disabled for GRO-NI" in {
+      GRONISwitch.isEnabled shouldBe false
+    }
+
+    "be disabled for GRO-NI Reference" in {
+      GRONIReferenceSwitch.isEnabled shouldBe false
+    }
+
+    "be disabled for GRO-NI Details" in {
+      GRONIDetailsSwitch.isEnabled shouldBe false
+    }
+  }
 
   "DateOfBirth" should {
 

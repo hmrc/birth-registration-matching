@@ -84,7 +84,6 @@ object Filters {
 
 object Test {
 
-  // always check these
   private val baseFilters = List(DateOfBirthFilter, GROFilter)
   val detailsFilters = List(GRODetailsFilter)
   val referenceFilters = List(GROReferenceFilter)
