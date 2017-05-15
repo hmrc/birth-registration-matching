@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
 import play.api.http.HeaderNames
-import play.api.libs.json.JsValue
 import play.api.mvc.{Controller, Request}
-import uk.gov.hmrc.brm.config.{BrmConfig, FeatureFactory}
 import uk.gov.hmrc.brm.models.brm.Payload
 
 import scala.util.matching.Regex
@@ -36,10 +33,10 @@ object CommonUtil extends Controller {
 
   def getOperationType(payload: Payload): RequestType = {
     payload match {
-      case input@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
+      case input@Payload(None, _, _, _, _, _) => {
         DetailsRequest()
       }
-      case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
+      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
         ReferenceRequest()
       }
     }

@@ -31,8 +31,8 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
   "MetricsFactory" should {
 
     "return England and Wales metrics for reference" in {
-      implicit val payload = Payload(Some("123456789"), "Adam", "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val factory = MetricsFactory.getMetrics()
+      implicit val payload = Payload(Some("123456789"), "Adam", None, "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      MetricsFactory.getMetrics()
     }
 
   }
@@ -151,9 +151,6 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
       for (i <- 1 to 5) yield metrics.status(423)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
     }
-
-
-
 
   }
 

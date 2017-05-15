@@ -41,30 +41,28 @@ class AuditFactorySpec extends UnitSpec with MockitoSugar with WithFakeApplicati
   "AuditFactory" should {
 
     "return EnglandAndWalesAudit for england birth registered request." in {
-      implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      implicit val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[EnglandAndWalesAudit]  shouldBe true
     }
 
     "return EnglandAndWalesAudit for wales birth registered request." in {
-      implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.WALES)
+      implicit val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.WALES)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[EnglandAndWalesAudit] shouldBe true
     }
 
     "return ScotlandAudit for wales birth registered request." in {
-      implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.SCOTLAND)
+      implicit val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.SCOTLAND)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[ScotlandAudit] shouldBe true
     }
 
     "return NorthernIrelandAudit for NORTHERN IRELAND birth registered request." in {
-      implicit val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.NORTHERN_IRELAND)
+      implicit val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.NORTHERN_IRELAND)
       var auditor = (new AuditFactory()).getAuditor()
       auditor.isInstanceOf[NorthernIrelandAudit] shouldBe true
     }
-
-
 
   }
 

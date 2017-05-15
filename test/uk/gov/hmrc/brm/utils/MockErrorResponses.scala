@@ -43,6 +43,7 @@ object MockErrorResponses {
     val UNKNOWN_ERROR = ErrorResponse("UNKNOWN_ERROR", "An unknown exception has been thrown")
     val INVALID_BIRTH_REFERENCE_NUMBER = ErrorResponse("INVALID_BIRTH_REFERENCE_NUMBER", "The birth reference number does not meet the required length")
     val INVALID_FIRSTNAME = ErrorResponse("INVALID_FIRSTNAME", "Provided firstName is invalid.")
+    val INVALID_ADDITIONALNAMES = ErrorResponse("INVALID_ADDITIONALNAMES", "Provided additionalNames are invalid.")
     val INVALID_LASTNAME = ErrorResponse("INVALID_LASTNAME", "Provided lastName is invalid.")
     val INVALID_DATE_OF_BIRTH = ErrorResponse("INVALID_DATE_OF_BIRTH", "Provided dateOfBirth is invalid.")
     val INVALID_WHERE_BIRTH_REGISTERED = ErrorResponse("INVALID_WHERE_BIRTH_REGISTERED", "Provided Country is invalid.")

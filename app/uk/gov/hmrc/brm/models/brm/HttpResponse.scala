@@ -67,6 +67,12 @@ object InvalidFirstName extends HttpResponseBody {
   override val message: String = "Provided firstName is invalid."
 }
 
+object InvalidAdditionalName extends HttpResponseBody {
+  override val httpCode: Int = Status.BAD_REQUEST
+  override val code: String = "INVALID_ADDITIONALNAMES"
+  override val message: String = "Provided additionalNames are invalid."
+}
+
 object InvalidLastName extends HttpResponseBody {
   override val httpCode: Int = Status.BAD_REQUEST
   override val code: String = "INVALID_LASTNAME"
@@ -130,6 +136,7 @@ object ErrorResponses extends HttpResponse {
   protected val errors: ErrorResponses = List(
     ("birthReferenceNumber", InvalidBirthReferenceNumber),
     ("firstName", InvalidFirstName),
+    ("additionalNames" , InvalidAdditionalName),
     ("lastName", InvalidLastName),
     ("dateOfBirth", InvalidDateOfBirth),
     ("whereBirthRegistered", InvalidWhereBirthRegistered)

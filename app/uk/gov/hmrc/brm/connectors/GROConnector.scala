@@ -44,7 +44,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _) =>
+    case Payload(Some(brn), _, _, _, _, _) =>
       (referenceUri, Json.parse(
         s"""
            |{
@@ -54,7 +54,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
   }
 
   override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, l, d, _) =>
+    case Payload(None, f, a, l, d, _) =>
       (detailsUri, Json.parse(
         s"""
            |{

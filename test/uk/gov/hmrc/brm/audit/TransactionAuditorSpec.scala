@@ -50,7 +50,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
 
     "audit request and result when child's reference number used" in {
       val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
       val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
@@ -67,7 +67,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
 
     "audit request and result when child's details used" in {
       val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(None, "Adam", "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
       val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
 

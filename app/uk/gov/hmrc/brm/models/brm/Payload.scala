@@ -29,6 +29,7 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply =
 case class Payload(
                     birthReferenceNumber: Option[String] = None,
                     firstName: String,
+                    additionalNames: Option[String] = None,
                     lastName: String,
                     dateOfBirth: LocalDate,
                     whereBirthRegistered : BirthRegisterCountry
@@ -38,6 +39,7 @@ case class Payload(
     Map(
     "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),
     "payload.firstName" -> firstName,
+    "payload.additionalNames" -> additionalNames.fold("")(x => x),
     "payload.lastName" -> lastName,
     "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
     "payload.whereBirthRegistered" -> whereBirthRegistered.toString
@@ -47,9 +49,10 @@ case class Payload(
 }
 
 object Payload extends BRMFormat {
-
+  
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
+  val additionalNames = "additionalNames"
   val lastName = "lastName"
   val dateOfBirth = "dateOfBirth"
   val whereBirthRegistered = "whereBirthRegistered"
@@ -57,6 +60,7 @@ object Payload extends BRMFormat {
   implicit val PayloadWrites: Writes[Payload] = (
       (JsPath \ birthReferenceNumber).write[Option[String]] and
       (JsPath \ firstName).write[String] and
+      (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate](jodaLocalDateWrites(datePattern)) and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry](birthRegisterWrites)
@@ -65,6 +69,7 @@ object Payload extends BRMFormat {
   implicit val requestFormat: Reads[Payload] = (
       (JsPath \ birthReferenceNumber).readNullable[String](birthReferenceNumberValidate) and
       (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1)  keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
+      (JsPath \ additionalNames).readNullable[String](nameValidation keepAnd minLength[String](1)  keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
       (JsPath \ lastName).read[String](nameValidation  keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
