@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.filters
 
+import uk.gov.hmrc.brm.filters.Filter.FilterType
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.Switch
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -23,7 +24,14 @@ import uk.gov.hmrc.play.config.ServicesConfig
 /**
   * Created by mew on 15/05/2017.
   */
-abstract class Filter(switch : Switch) extends ServicesConfig {
+object Filter {
+  abstract class FilterType
+  object ReferenceFilter extends FilterType
+  object DetailsFilter extends FilterType
+  object GeneralFilter extends FilterType
+}
+
+abstract class Filter(switch : Switch, val filterType : FilterType) extends ServicesConfig {
 
   def process(payload : Payload) : Boolean = {
     switch.isEnabled

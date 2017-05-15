@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.brm.filters
 
+import uk.gov.hmrc.brm.filters.Filter._
 import uk.gov.hmrc.brm.switches.{GRODetailsSwitch, GROReferenceSwitch, GROSwitch}
 
 /**
   * Created by mew on 15/05/2017.
   */
-object GROFilter extends Filter(GROSwitch) {
+object GROFilter extends Filter(GROSwitch, GeneralFilter) {
   override def toString = "GROFilter"
 }
-object GRODetailsFilter extends Filter(GRODetailsSwitch) {
+object GRODetailsFilter extends Filter(GRODetailsSwitch, DetailsFilter) {
   override def toString = "GRODetailsFilter"
 }
-object GROReferenceFilter extends Filter(GROReferenceSwitch) {
+object GROReferenceFilter extends Filter(GROReferenceSwitch, ReferenceFilter) {
   override def toString = "GROReferenceFilter"
 }

@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.brm.switches
 
+import uk.gov.hmrc.brm.config.BrmConfig.RequestType
 import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
 import scala.annotation.tailrec
 
@@ -34,23 +35,40 @@ trait FilterResults {
 
 object Filters extends FilterResults {
 
-  private val baseFilters = List(DateOfBirthFilter, GROFilter)
-  private val detailsFilters = List(GRODetailsFilter)
-  private val referenceFilters = List(GROReferenceFilter)
+  private val groFilters = List(GROFilter, GROReferenceFilter, GRODetailsFilter)
+  private val nrsFilters = Nil
+  private val groniFilters = Nil
+
+  private val baseFilters = List(DateOfBirthFilter)
+
+  private def shouldProcess(filter: Filter, payload: Payload) = {
+
+  }
+
+  private def getFilters(payload: Payload) : List[Filter] = {
+    val filters = payload.whereBirthRegistered match {
+      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.ENGLAND =>
+        groFilters
+      case BirthRegisterCountry.SCOTLAND =>
+        nrsFilters
+      case BirthRegisterCountry.NORTHERN_IRELAND =>
+        groniFilters
+    }
+    val baseWithFilters = baseFilters ::: filters
+
+    BRMLogger.info("Filters", "getFilters", s"processing the following filters: $baseWithFilters")
+
+    baseWithFilters
+  }
 
   def process(payload : Payload) : FilterResult = {
 
-    def getFilters(payload: Payload) : List[Filter] = {
-      val filters = payload match {
-        case Payload(Some(_), _, _, _, _) => referenceFilters
-        case Payload(None, _, _, _, _) => detailsFilters
-      }
-      val baseWithFilters = baseFilters ::: filters
-
-      BRMLogger.info("Filters", "getFilters", s"processing the following filters: $baseWithFilters")
-
-      baseWithFilters
-    }
+    /**
+      * TODO need to also consider whereBirthRegistered for the correct filters
+      * @param uncheckedFilters
+      * @param failedFilters
+      * @return
+      */
 
     @tailrec
     def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : FilterResult = {
@@ -62,6 +80,7 @@ object Filters extends FilterResults {
         uncheckedFilters match {
           case Nil => PassedFilters
           case head :: tail =>
+            // check if the filter is correct for request type
             val passed = head.process(payload)
             if (passed) {
               filterHelper(tail, failedFilters ::: Nil)
