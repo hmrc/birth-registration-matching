@@ -49,13 +49,7 @@ case class Payload(
 }
 
 object Payload extends BRMFormat {
-
-  abstract class RequestType
-
-  case class ReferenceRequest() extends RequestType
-
-  case class DetailsRequest() extends RequestType
-
+  
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
   val additionalNames = "additionalNames"
