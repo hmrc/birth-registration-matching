@@ -68,7 +68,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       (detailsUri, Json.parse(
         s"""
            |{
-           | "$JSON_FIRSTNAME_PATH" : "${CommonUtil.forname(fName,aName)}",
+           | "$JSON_FIRSTNAME_PATH" : "${CommonUtil.forenames(fName,aName)}",
            | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
            | "$JSON_DATEOFBIRTH_PATH" : "$dob"
            |}

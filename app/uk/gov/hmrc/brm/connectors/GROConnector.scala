@@ -59,7 +59,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${forname(f, a)}",
+           | "forenames" : "${forenames(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}

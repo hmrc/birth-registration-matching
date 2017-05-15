@@ -57,7 +57,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
     "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
-    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false,
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,

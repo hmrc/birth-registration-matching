@@ -16,13 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.http.HeaderNames
-import play.api.mvc.{Controller, Request}
+import play.api.mvc.Controller
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-
-import scala.util.matching.Regex
-import scala.util.matching.Regex.Match
 
 object CommonUtil extends Controller {
 
@@ -45,10 +41,10 @@ object CommonUtil extends Controller {
 
 
   //add additional name to firstname if ignore middle name is false.
-  def forname(firstName: String, additionalName: Option[String]): String = {
-    val forenames = BrmConfig.ignoreMiddleNames match {
+  def forenames(firstName: String, additionalName: Option[String]): String = {
+    val forenames = BrmConfig.ignoreAdditionalNames match {
       case true => NameFormat(firstName)
-      case false => NameFormat(firstName).concat(" ").concat(NameFormat(additionalName.getOrElse(""))).trim
+      case false => s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
     }
     NameFormat(forenames)
   }

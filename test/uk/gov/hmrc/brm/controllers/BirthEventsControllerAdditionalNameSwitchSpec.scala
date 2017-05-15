@@ -34,7 +34,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
