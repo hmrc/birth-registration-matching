@@ -163,17 +163,17 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, false)
     }
 
-    "return matched value of true when details request additional name with special character and record has same value" in {
-      val payload = Json.toJson(None, "Mary-Ann  ",Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
+    "return matched value of true when details request has additional name with special character and record has same value" in {
+      val payload = Json.toJson(Payload(None, "Mary-Ann  ",Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
       mockDetailsResponse(groResponseWithSpecialCharacter)
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
     }
 
     "return matched value of true when details request fistname has additiona name with special character  and record has same value" in {
-      val payload = Json.toJson(None, "Mary-Ann O'Leary ",None, "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
+      val payload = Json.toJson(Payload(None, "Mary-Ann O'Leary ",None, "Smith-Johnson", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND))
       mockDetailsResponse(groResponseWithSpecialCharacter)
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
