@@ -18,11 +18,12 @@ package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
+import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.http.HttpPost
+
 
 /**
   * Created by adamconder on 07/02/2017.
@@ -65,14 +66,6 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
         """.stripMargin))
   }
 
-  //add additional name to firstname while sending to respective service.
-  protected def forname(firstName: String, additionalName: Option[String]): String = {
-    val forenames = BrmConfig.ignoreAdditionalName match {
-      case true => NameFormat(firstName)
-      case false => NameFormat(firstName).concat(" ").concat(NameFormat(additionalName.getOrElse(""))).trim
-    }
 
-    NameFormat(forenames)
-  }
 
 }

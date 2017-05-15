@@ -44,10 +44,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
   val nrsJsonResponseObjectWithotuAdditionalName = JsonUtils.getJsonFromFile("nrs", "2017350006")
 
   val config: Map[String, _] = Map(
-    //dont ignore additional name values.
-    "microservice.services.birth-registration-matching.features.additionalNames.ignore.enabled" -> false,
-    //while matching dont ignore middle names
-    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
+     "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(

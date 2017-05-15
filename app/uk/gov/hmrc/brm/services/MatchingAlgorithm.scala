@@ -22,13 +22,13 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 import scala.annotation.tailrec
 
 trait MatchingAlgorithm {
 
   private[MatchingAlgorithm] def ignoreMiddleNames : Boolean = BrmConfig.ignoreMiddleNames
-  private[MatchingAlgorithm] def ignoreAdditionalName : Boolean = BrmConfig.ignoreAdditionalName
   private[MatchingAlgorithm] val noMatch = ResultMatch(Bad(), Bad(), Bad(), Bad())
 
   protected[MatchingAlgorithm] def matchFunction: PartialFunction[(Payload, Record), ResultMatch]
@@ -66,11 +66,8 @@ trait MatchingAlgorithm {
   }
 
   protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
-    //add additonal name to firstname based on feature toggle.
-   val firstNamePayload =  ignoreAdditionalName match {
-      case true =>  payload.firstName.names.listToString
-      case false =>  concatAdditionalName(payload).names.listToString
-    }
+    //add additonal name to firstname based on feature toggle value
+    val firstNamePayload =  forname(payload.firstName, payload.additionalNames).names.listToString
 
     val recordNamesFiltered = filterMiddleNames(payload, record)
     val firstNames = nameMatch(Some(firstNamePayload), Some(recordNamesFiltered))
@@ -106,13 +103,7 @@ trait MatchingAlgorithm {
         record.child.firstName.names.listToString
     }
   }
-
-  private[MatchingAlgorithm] def concatAdditionalName(payload: Payload):String = {
-     payload.firstName.concat(" ").concat(payload.additionalNames.getOrElse("")).trim
-  }
-
 }
-
 
 object FullMatching extends MatchingAlgorithm {
 

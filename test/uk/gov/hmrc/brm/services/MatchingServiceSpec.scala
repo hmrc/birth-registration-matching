@@ -27,7 +27,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -466,7 +466,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplica
 
 }
 
-class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -500,7 +500,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
       "matching on multiple is true" should {
 
         "should return true if a minimum of one record matches" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
           val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
@@ -699,6 +698,17 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
               }
             }
 
+
+            s"($name) match when firstName with additional name  has all middle names on input that are on the record" in {
+              running(FakeApplication(additionalConfiguration = ignoreMiddleNamesDisabled)) {
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+                val payload = Payload(reference, "Adam ", Some("David"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                resultMatch.isMatch shouldBe true
+              }
+            }
+
             s"($name) not match when firstName argument has a missing first name on input that is on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreMiddleNamesDisabled)) {
                 when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -734,6 +744,16 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
                 when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                resultMatch.isMatch shouldBe false
+              }
+            }
+
+            s"($name) not match when firstName with additional name has too many names not on the record" in {
+              running(FakeApplication(additionalConfiguration = ignoreMiddleNamesDisabled)) {
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+                val payload = Payload(reference, "Adam ", Some(" David James "), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.isMatch shouldBe false
               }

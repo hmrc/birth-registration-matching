@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsNull, JsValue}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
@@ -47,7 +47,7 @@ trait BirthConnector extends ServicesConfig {
 
   case class DetailsRequest() extends RequestType
 
-  case class Request(uri: String, jsonBody: Option[JsValue] = None)
+  case class Request(uri: String, jsonBody: JsValue)
 
   private def buildRequest(payload: Payload, operation: RequestType): Request = {
     val f = operation match {
@@ -55,12 +55,11 @@ trait BirthConnector extends ServicesConfig {
       case DetailsRequest() => detailsBody
     }
     val request = f(payload)
-    Request(request._1, Some(request._2))
+    Request(request._1, request._2)
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
-    //TODO do we need to change this?
-    httpPost.POST(request.uri, request.jsonBody.getOrElse(None), headers)
+    httpPost.POST(request.uri, request.jsonBody, headers)
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
@@ -74,6 +73,7 @@ trait BirthConnector extends ServicesConfig {
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
   }
+
 
 
 
