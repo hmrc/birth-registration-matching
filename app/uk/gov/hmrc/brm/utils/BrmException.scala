@@ -39,7 +39,6 @@ trait BRMException extends Controller {
   }
 
   private def InternalServerErrorException(method: String, e : Throwable, upstreamCode : Int = INTERNAL_SERVER_ERROR)(implicit payload: Payload) = {
-    e.printStackTrace()
     logException(method, s"InternalServerError: ${e.getMessage}", upstreamCode)
     InternalServerError
   }
