@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.switches
 
-import uk.gov.hmrc.brm.config.BrmConfig.FeatureSwitchException
 import uk.gov.hmrc.play.config.ServicesConfig
 
 /**
@@ -24,32 +23,38 @@ import uk.gov.hmrc.play.config.ServicesConfig
   */
 
 trait SwitchException {
-  def exception(key : String) = throw FeatureSwitchException(key)
+
+  final case class FeatureSwitchException(switch : String) extends RuntimeException {
+    override def toString: String = s"birth-registration-matching.features.$switch.enabled configuration not found"
+  }
+
+  final def exception(key : String) = throw FeatureSwitchException(key)
 }
 
 trait Switch extends ServicesConfig with SwitchException {
-  val key : String
-  def isEnabled : Boolean = getConfBool(s"birth-registration-matching.matching.features.$key.enabled", exception(key))
+  val name : String
+  final def isEnabled : Boolean = getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
 }
 
 trait SwitchValue extends ServicesConfig with SwitchException {
-  val key : String
-  def value : String = getConfString(s"birth-registration-matching.features.$key.value", exception(key))
+  val name : String
+  final def value : String = getConfString(s"birth-registration-matching.features.$name.value", exception(name))
 }
 
 object GROReferenceSwitch extends Switch {
-  override val key = "gro.reference"
+  override val name = "gro.reference"
 }
+
 object GRODetailsSwitch extends Switch {
-  override val key = "gro.details"
+  override val name = "gro.details"
 }
 object GROSwitch extends Switch {
-  override val key = "gro"
+  override val name = "gro"
 }
 
 object DateOfBirthSwitch extends Switch {
-  override val key = "dobValidation"
+  override val name = "dobValidation"
 }
 object DateOfBirthSwitchValue extends SwitchValue {
-  override val key = "dobValidation"
+  override val name = "dobValidation"
 }

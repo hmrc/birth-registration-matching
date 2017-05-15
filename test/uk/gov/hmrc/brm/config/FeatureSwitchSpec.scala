@@ -138,7 +138,6 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest 
   }.build()
 
 
-
   "GROFeature" should {
     "set child features to false if parent is false" taggedAs Tag("parentdisabled") in {
       GROReferenceFeature().enabled shouldBe false
