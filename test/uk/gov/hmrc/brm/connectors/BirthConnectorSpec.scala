@@ -16,16 +16,20 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
+import org.specs2.mock.mockito.ArgumentCapture
 import play.api.http.Status
+import uk.gov.hmrc.brm.audit.AuditEvent
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, JsonUtils}
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
+import uk.gov.hmrc.brm.utils.CommonConstant._
 import scala.util.{Failure, Success}
 
 class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
@@ -39,16 +43,11 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
 
-  val childDetailPayload = Map(
-    "firstName" -> "Adam",
-    "lastName" -> "Wilson",
-    "dateOfBirth" -> "2006-11-12"
-  )
-
   "GROConnector" should {
 
     "getReference returns json response" in {
-      mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
+
+      val argumentCapture=  mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
       val result = await(connectorFixtures.groConnector.getReference(payload))
       checkResponse(result, 200)
     }
@@ -77,6 +76,16 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       checkResponse(result, 200)
     }
 
+    "getChildDetails call should not pass additional name to gro." in {
+      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+      val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+        BirthRegisterCountry.ENGLAND)
+      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+      checkResponse(result, 200)
+      argumentCapture.value.toString().contains("test") shouldBe false
+      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
+    }
+
     "getChildDetails returns http 500 when GRO is offline" in {
       mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
       val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
@@ -103,7 +112,6 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         checkResponse(result, 200)
       }
 
-
       "getReference returns 403 forbidden response when record was not found." in {
         mockHttpPostResponse(Status.FORBIDDEN, None)
         val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
@@ -126,6 +134,17 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
         mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
         checkResponse(result, 200)
+      }
+
+      "getChildDetails call should not pass additional name to nrs." in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
+        checkResponse(result, 200)
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
       }
 
       "getChildDetails returns 403 forbidden response when record was not found." in {
@@ -177,4 +196,5 @@ class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoS
       }
     }
   }
+
 }

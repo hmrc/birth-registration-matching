@@ -38,6 +38,11 @@ object TestHelper {
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
+  val groResponseWithAdditionalName = JsonUtils.getJsonFromFile("gro","with_additional_name")
+  val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro","without_additional_name")
+  val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro","with_more_additional_name")
+  val groResponseWithSpecialCharacter = JsonUtils.getJsonFromFile("gro","with_special_character")
+
 
   val payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
   val payloadNoReference = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
@@ -935,5 +940,8 @@ object TestHelper {
   
     nrsResponse
   }
+
+
+
 
 }
