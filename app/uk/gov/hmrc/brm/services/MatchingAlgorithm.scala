@@ -93,11 +93,16 @@ trait MatchingAlgorithm {
   private[MatchingAlgorithm] def filterMiddleNames(payload: Payload, record: Record) = {
     ignoreMiddleNames match {
       case true =>
+        // return the X number of names from the record for what was provided on the input
+        // if I receive 3 names on the input, take 3 names from the record
+        // if I give you more names than on the record then return what is on the record
+        // if I give you less names than on the record, take the number of names from the record that was on input
         val right = record.child.firstName.names
         val left = payload.firstName.names
         val names = left filter right
         names.listToString
       case false =>
+        // take all names on the record
         record.child.firstName.names.listToString
     }
   }

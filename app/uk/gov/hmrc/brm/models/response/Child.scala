@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.models.response
 import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.utils.BRMFormat
 
+// TODO: Record rename this to forenames as this can include middle names
 case class Child(
                   birthReferenceNumber: Int,
                   firstName: String,
