@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.words.EmptyWord
+import org.specs2.mock.mockito.ArgumentCapture
 import play.api.http.Status
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
@@ -130,9 +131,11 @@ trait BaseUnitSpec extends UnitSpec  {
   }
 
   def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]) = {
-    when(mockHttpPost.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
+    val argumentCapture = new ArgumentCapture[JsValue]
+    when(mockHttpPost.POST[JsValue, HttpResponse]( Matchers.any(), argumentCapture.capture, Matchers.any())
       (Matchers.any(), Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
+    argumentCapture
   }
 
   def checkResponse(result: HttpResponse, responseCode:Int): Unit = {

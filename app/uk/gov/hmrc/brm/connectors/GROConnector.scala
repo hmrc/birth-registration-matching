@@ -20,9 +20,10 @@ import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.http.HttpPost
+
 
 /**
   * Created by adamconder on 07/02/2017.
@@ -58,11 +59,13 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${NameFormat(f)}",
+           | "forenames" : "${forenames(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}
         """.stripMargin))
   }
+
+
 
 }

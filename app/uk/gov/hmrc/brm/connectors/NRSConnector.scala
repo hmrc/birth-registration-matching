@@ -22,12 +22,10 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
 import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{KeyGenerator, NameFormat}
-import uk.gov.hmrc.play.http.HttpPost
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil._
-
-import scala.concurrent.Future
+import uk.gov.hmrc.brm.utils.{CommonConstant, CommonUtil, KeyGenerator, NameFormat}
+import uk.gov.hmrc.play.http.HttpPost
 
 /**
   * Created by adamconder on 07/02/2017.
@@ -70,7 +68,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       (detailsUri, Json.parse(
         s"""
            |{
-           | "$JSON_FIRSTNAME_PATH" : "${NameFormat(fName)}",
+           | "$JSON_FIRSTNAME_PATH" : "${CommonUtil.forenames(fName,aName)}",
            | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
            | "$JSON_DATEOFBIRTH_PATH" : "$dob"
            |}
