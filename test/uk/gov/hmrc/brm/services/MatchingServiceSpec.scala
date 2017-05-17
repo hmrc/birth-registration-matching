@@ -699,7 +699,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) match when firstName with additional name  has all middle names on input that are on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam ", Some("David"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -719,7 +718,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) not match when firstName argument has a missing first name on input that is on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -729,7 +727,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -739,7 +736,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
@@ -749,7 +745,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) not match when firstName argument has too many names not on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -759,7 +754,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) not match when firstName with additional name has too many names not on the record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam ", Some(" David James "), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -769,7 +763,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) not match when firstName argument has too many names not on the record, with additional spaces on record" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
@@ -779,7 +772,6 @@ class MatchingServiceMiddleNameSpec extends UnitSpec with MockitoSugar with BRMF
 
             s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
               running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
