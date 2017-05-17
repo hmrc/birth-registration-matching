@@ -141,6 +141,12 @@ object TestHelper {
     Record(child, None)
   }
 
+  def adamTestTestJonesRecord: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Adam test test", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
   def validRecordMiddleNamesWithSpaces: Record ={
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "  Adam     David ", "Jones",Some(birthDate))
