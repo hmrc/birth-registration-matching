@@ -29,9 +29,13 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
   "Payload" when {
 
     /**
-      * - Should
-      * - instantiate an instance of payload
-      * - convert to json
+      * - Should return error
+      * - firstName contains only a single space ONLY
+      * - firstName contains multiple spaces ONLY
+      * - additionalNames contains only a single space ONLY
+      * - additionalNames contains multiple spaces ONLY
+      * - lastName contains only a single space ONLY
+      * - lastName contains multiple spaces ONLY
       */
 
     "NRS" should {

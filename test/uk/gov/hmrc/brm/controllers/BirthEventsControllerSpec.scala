@@ -50,6 +50,19 @@ class BirthEventsControllerSpec
     )
   ).build()
 
+
+  /**
+    * - validate firstName should
+    * - return response code 400 if request contains single space
+    * - return response code 400 if request contains multiple space
+    * - validate additionalNames should
+    * - return response code 400 if request contains single space
+    * - return response code 400 if request contains multiple space
+    * - validate lastName should
+    * - return response code 400 if request contains single space
+    * - return response code 400 if request contains multiple space
+    */
+
   "BirthEventsController" when {
 
     "initialising" should {
