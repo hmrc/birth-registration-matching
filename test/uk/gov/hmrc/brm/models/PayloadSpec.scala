@@ -28,16 +28,6 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
   private val maxCharacterLength = "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYY"
   "Payload" when {
 
-    /**
-      * - Should return error
-      * - firstName contains only a single space ONLY
-      * - firstName contains multiple spaces ONLY
-      * - additionalNames contains only a single space ONLY
-      * - additionalNames contains multiple spaces ONLY
-      * - lastName contains only a single space ONLY
-      * - lastName contains multiple spaces ONLY
-      */
-
     "NRS" should {
 
        "return error when birthReferenceNumber value exceeds maximum length" ignore {
@@ -162,6 +152,16 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
+      "return error when firstName contains a single white space only" in {
+        val payload = Payload(None, " ", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return error when firstName contains multiple white spaces only" in {
+        val payload = Payload(None, "     ", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
       "return error when firstName value is an int" in {
         val jsonObject: JsValue = Json.parse(
           """
@@ -248,6 +248,16 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
+      "return error when additionalNames contains a single white space only" in {
+        val payload = Payload(None, "Test", Some(" "), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return error when additionalNames contains multiple white spaces only" in {
+        val payload = Payload(None, "Test", Some("     "), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
       "return success when lastName contains unicode characters" in {
         val payload = Payload(None, "Test", None, unicode,  LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
@@ -306,6 +316,16 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
+      }
+
+      "return error when lastName contains a single white space only" in {
+        val payload = Payload(None, "Test", None, " ", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return error when lastName contains multiple white spaces only" in {
+        val payload = Payload(None, "Test", None, "      ", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
       "return success when birthReferenceNumber key doesn't exist" in {
