@@ -385,6 +385,16 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   resultMatch.isMatch shouldBe true
                 }
               }
+
+
+              s"($name) match when firstname and additional name with very long multiple names and record have same name." in {
+                running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+                  var record = getRecord("Henry TEST George Martin Malcolm Arthur Cameron McTavish Glenny Alberto Turton Felicity Andrew Starship Trooper Neil", "JONES")
+                  val payload = Payload(reference, "Henry", Some("test  George Martin Malcolm Arthur Cameron  McTavish Glenny Alberto Turton Felicity Andrew Starship Trooper Neil"), "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                  val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
+                  resultMatch.isMatch shouldBe true
+                }
+              }
             }
           }
         )
