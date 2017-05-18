@@ -352,8 +352,8 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
 
               s"($name) match when firstname contains multiple name, addtiional contains multiple names and record has same on it." in {
                 running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                  var record = getRecord("Manish test  test one  test   two    three", "joshi")
-                  val payload = Payload(reference, "Manish test", Some("test  one    test two  three  "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                  var record = getRecord("Manish test   test      one  test    two    three", "joshi")
+                  val payload = Payload(reference, "Manish test", Some("test   one    test    two  three  "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.isMatch shouldBe true
                 }
@@ -370,8 +370,8 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
 
               s"($name) not match when firstname contains multiple name, addtiional contains multiple names and record dont have in same order." in {
                 running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
-                  var record = getRecord("Manish test test one test two three", "joshi")
-                  val payload = Payload(reference, "Manish test", Some("test  three   test two  one "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                  var record = getRecord("Manish  test         test  one test      two three", "joshi")
+                  val payload = Payload(reference, "Manish test", Some("test  three      test  two   one "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.isMatch shouldBe false
                 }
