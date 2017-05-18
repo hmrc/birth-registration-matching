@@ -46,11 +46,12 @@ class BirthEventsControllerSpec
     Map(
       "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
       "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
-      "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true
+      "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true,
+      "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
     )
   ).build()
 
-  "BirthEventsController" when {
+  "BirthEventsController with ignoreAdditionalName true" when {
 
     "initialising" should {
 

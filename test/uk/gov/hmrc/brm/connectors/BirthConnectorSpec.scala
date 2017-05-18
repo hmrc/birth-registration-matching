@@ -18,27 +18,34 @@ package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
-import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
-import org.specs2.mock.mockito.ArgumentCapture
+import org.scalatest.{BeforeAndAfter, TestData}
+import org.scalatestplus.play.OneAppPerTest
 import play.api.http.Status
-import uk.gov.hmrc.brm.audit.AuditEvent
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSPost
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.play.test.UnitSpec
+
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthConnectorSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val hc = HeaderCarrier()
+
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    Map(
+      "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+    )
+  ).build()
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
