@@ -123,6 +123,12 @@ object TestHelper {
 
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
+  def getRecord(foreNames :String, lastName:String): Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, foreNames, lastName,Some(birthDate))
+    Record(child, None)
+  }
+
   def validRecord: Record ={
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "Chris", "Jones",Some(birthDate))
