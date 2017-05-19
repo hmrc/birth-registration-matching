@@ -66,7 +66,7 @@ object Filters {
 
   /**
     * @param payload request transformed into Payload
-    * @return Tuple of List[Filter], list of failed filters
+    * @return List[Filter], list of failed filters
     */
   def process(payload : Payload) : List[Filter] = {
 
