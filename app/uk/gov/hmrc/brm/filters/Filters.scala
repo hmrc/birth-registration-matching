@@ -22,17 +22,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
 import scala.annotation.tailrec
 
-/**
-  * Created by mew on 12/05/2017.
-  */
-
-trait FilterResults {
-  type FilterResult = Boolean
-  val PassedFilters : FilterResult = true
-  val FailedFilters : FilterResult = false
-}
-
-object Filters extends FilterResults {
+object Filters {
 
   private val groFilters = List(GROFilter, GROReferenceFilter, GRODetailsFilter)
   private val nrsFilters = List(NRSFilter, NRSReferenceFilter, NRSDetailsFilter)
