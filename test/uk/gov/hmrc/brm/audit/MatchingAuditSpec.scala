@@ -33,9 +33,9 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class   MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
-  val connector = mock[AuditConnector]
+  val connector = mockAuditConnector
   val auditor = auditorFixtures.matchingAudit
 
   implicit val hc = HeaderCarrier()
@@ -43,7 +43,7 @@ class MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplicati
   "MatchingAudit" should {
 
     "audit requests when using reference number" in {
-      val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
       when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -52,7 +52,7 @@ class MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplicati
     }
 
     "audit requests when using child's details" in {
-      val payload = Payload(None, "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
       when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))

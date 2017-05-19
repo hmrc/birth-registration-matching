@@ -49,8 +49,9 @@ trait BrmConfig extends ServicesConfig {
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
     throw BirthConfigurationException("ignoreMiddleNames"))
 
-  def ignoreMiddleNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreMiddleNames",
-    throw BirthConfigurationException("ignoreMiddleNames"))
+  def ignoreAdditionalNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreAdditionalNames",
+    throw BirthConfigurationException("ignoreAdditionalNames"))
+
 
   private def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
     val path = requestType.fold(s"birth-registration-matching.features.$api.enabled") { x => s"birth-registration-matching.features.$api.${x.value}.enabled" }
@@ -86,7 +87,7 @@ trait BrmConfig extends ServicesConfig {
       s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
       s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
       s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
-      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreMiddleNames.toString,
+      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreAdditionalNames.toString,
       s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, None).toString,
       s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, Some(ReferenceRequest)).toString,
       s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString

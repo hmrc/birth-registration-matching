@@ -109,7 +109,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val service = MockLookupService
-        implicit val payload = Payload(Some("999999920"), "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        implicit val payload = Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)(Duration.create(5, "seconds"))
         result shouldBe BirthMatchResponse(false)
       }
@@ -159,7 +159,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val service = MockLookupService
-        implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+        implicit val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)
         result shouldBe BirthMatchResponse(true)
       }
@@ -210,7 +210,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val service = MockLookupService
-        implicit val payload = Payload(None, "Adam", "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        implicit val payload = Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)(Duration.create(5, "seconds"))
         result shouldBe BirthMatchResponse(false)
       }
@@ -260,7 +260,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
         val service = MockLookupService
-        implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+        implicit val payload = Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
         val result = await(service.lookup)
         result shouldBe BirthMatchResponse(true)
       }
@@ -330,7 +330,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockLookupService.groniConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("No getReference method available for GRONI connector.")))
           val service = MockLookupService
-          implicit val payload = Payload(Some("123456789"), "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          implicit val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
           await(service.lookup)
         }
       }
@@ -340,7 +340,7 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
           when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
           when(MockLookupService.groniConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector.")))
           val service = MockLookupService
-          implicit val payload = Payload(None, "Chris", "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          implicit val payload = Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
           await(service.lookup)
         }
       }

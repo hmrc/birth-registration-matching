@@ -57,7 +57,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
     "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
-    "microservice.services.birth-registration-matching.matching.ignoreMiddleNames" -> false,
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
@@ -86,7 +86,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       auditConfigOnAppForDefault
     ) {
 
-      val payload = Payload(Some("123456789"), "Adam", "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam", None, "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
 
       val event = auditor.transactionToMap(payload, List(record), ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
@@ -115,7 +115,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "return correct settings when audit config is overridden" in running(
       auditConfigOnAppForAlternate
     ) {
-      val payload = Payload(Some("123456789"), "Adam", "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = auditor.transactionToMap(payload, List(record), ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       val argumentCapture = new ArgumentCapture[AuditEvent]

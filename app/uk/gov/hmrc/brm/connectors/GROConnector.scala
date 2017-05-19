@@ -20,9 +20,10 @@ import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.http.HttpPost
+
 
 /**
   * Created by adamconder on 07/02/2017.
@@ -44,7 +45,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _) =>
+    case Payload(Some(brn), _, _, _, _, _) =>
       (referenceUri, Json.parse(
         s"""
            |{
@@ -54,15 +55,17 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
   }
 
   override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, l, d, _) =>
+    case Payload(None, f, a, l, d, _) =>
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${NameFormat(f)}",
+           | "forenames" : "${forenames(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}
         """.stripMargin))
   }
+
+
 
 }

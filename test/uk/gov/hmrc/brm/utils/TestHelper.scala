@@ -38,9 +38,14 @@ object TestHelper {
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
+  val groResponseWithAdditionalName = JsonUtils.getJsonFromFile("gro","with_additional_name")
+  val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro","without_additional_name")
+  val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro","with_more_additional_name")
+  val groResponseWithSpecialCharacter = JsonUtils.getJsonFromFile("gro","with_special_character")
 
-  val payload = Payload(Some("500035710"), "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
-  val payloadNoReference = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+
+  val payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+  val payloadNoReference = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
 
   /**
     * NRS
@@ -53,20 +58,20 @@ object TestHelper {
   val nrsRecord20090630 = JsonUtils.getJsonFromFile("nrs", "2017734100")
   val nrsRecord2017350001 = JsonUtils.getJsonFromFile("nrs", "2017350001")
 
-  val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
-  val nrsRequestPayload2017350001 = Payload(Some("2017350001"), "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayload = Payload(Some("2017734003"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayload2017350001 = Payload(Some("2017350001"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
 
-  val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
-  val nrsRequestPayloadWithSpecialChar = Payload(Some("2017350007"), "Gab'iœ-Äæy", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
-  val nrsRequestPayloadWithFirstNameWrong = Payload(Some("2017350007"), "firstNameWrong", "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithoutBrn = Payload(None, "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithSpecialChar = Payload(Some("2017350007"), "Gab'iœ-Äæy", None, "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithFirstNameWrong = Payload(Some("2017350007"), "firstNameWrong", None, "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
 
-  val payloadNoReferenceScotland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
+  val payloadNoReferenceScotland = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
 
   /**
     * GRO-NI
     */
 
-  val payloadNoReferenceNorthernIreland = Payload(None, "Adam", "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
+  val payloadNoReferenceNorthernIreland = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
 
   val groResponseValidJson = Json.parse(
     """
@@ -289,6 +294,51 @@ object TestHelper {
        | "whereBirthRegistered" : "england"
        |}
     """.stripMargin)
+
+  val additionalNamesKeyNoValue = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       | "additionalNames" : "",
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val userNoMatchExcludingAdditionalNameKey = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       |
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val additionalNameWithSpecialCharacters = Json.parse(
+    s"""
+       |{
+       | "firstName" : "Adàm TËST",
+       | "additionalNames" : ",../WEB-INF/web.xml",
+       | "lastName" : "SMÏTH",
+       | "dateOfBirth" : "2006-08-12",
+       | "whereBirthRegistered" : "england"
+       |}
+    """.stripMargin)
+
+  val additionalNameWithMoreThan250Characters = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Adàm TËST",
+       |"additionalNames" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
 
   val userNoMatchExcludingReferenceKeyScotland = Json.parse(
     s"""
@@ -890,5 +940,8 @@ object TestHelper {
   
     nrsResponse
   }
+
+
+
 
 }

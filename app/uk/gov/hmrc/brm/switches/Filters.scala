@@ -41,7 +41,12 @@ object Filters extends FilterResults {
 
   private val baseFilters = List(DateOfBirthFilter)
 
-  private def shouldProcess(filter: Filter, payload: Payload) = {
+  /**
+    * Should the current filter be processed, is the Payload a reference or details request
+    * @param filter current Filter being processed
+    * @param payload Payload
+    */
+  def shouldProcessFilter(filter: Filter, payload: Payload) = {
 
   }
 
@@ -61,7 +66,11 @@ object Filters extends FilterResults {
     baseWithFilters
   }
 
-  def process(payload : Payload) : FilterResult = {
+  /**
+    * @param payload request transformed into Payload
+    * @return Tuple of (FilterResult, List[Filter]), filter result and list of failed filters
+    */
+  def process(payload : Payload) : (FilterResult, List[Filter]) = {
 
     /**
       * TODO need to also consider whereBirthRegistered for the correct filters
@@ -71,14 +80,15 @@ object Filters extends FilterResults {
       */
 
     @tailrec
-    def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : FilterResult = {
+    def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : (FilterResult, List[Filter]) = {
       if (failedFilters.nonEmpty) {
         BRMLogger.info("Filters", "process", s"Stopping due to failing a Filter, " +
           s"remaining: $uncheckedFilters, failed: $failedFilters")
-        FailedFilters
+        (FailedFilters, failedFilters)
       } else {
         uncheckedFilters match {
-          case Nil => PassedFilters
+          case Nil =>
+            (PassedFilters, Nil)
           case head :: tail =>
             // check if the filter is correct for request type
             val passed = head.process(payload)

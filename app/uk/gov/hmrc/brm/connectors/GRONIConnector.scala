@@ -41,7 +41,7 @@ class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandA
 
   override def headers = Seq()
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _) =>
+    case Payload(Some(brn), _, _, _, _, _) =>
       (referenceUri, Json.parse(
         s"""
            |{}
@@ -49,7 +49,7 @@ class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandA
   }
 
   override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, l, d, _) =>
+    case Payload(None, f, a, l, d, _) =>
       (detailsUri, Json.parse(
         s"""
            |{}

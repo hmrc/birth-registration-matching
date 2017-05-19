@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.switches
 
 import org.joda.time.LocalDate
 import org.scalatestplus.play.OneAppPerTest
+import uk.gov.hmrc.brm.filters.{DateOfBirthFilter, GRODetailsFilter, GROReferenceFilter}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.UnitSpec
@@ -27,20 +28,40 @@ import uk.gov.hmrc.play.test.UnitSpec
   */
 class SwitchFilterSpec extends UnitSpec with OneAppPerTest {
 
-  val payloadWithReference = Payload(Some("123456789"), "Adam", "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-  val payloadWithoutReference = Payload(None, "Adam", "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-  val payloadInvalidDateOfBirth = Payload(None, "Adam", "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
+  val payloadWithReference = Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+  val payloadWithoutReference = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+  val payloadInvalidDateOfBirth = Payload(None, "Adam", None, "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
 
-  "SwitchFilter" when {
+  "Filters" when {
+
+    "processing a filter" should {
+
+      "process BRN specific filters when the request has a Birth Reference Number" in {
+        Filters.shouldProcessFilter(GROReferenceFilter, payloadWithReference) shouldBe true
+      }
+
+      "not process BRN specific filters when the request does not have a Birth Reference Number" in {
+        Filters.shouldProcessFilter(GROReferenceFilter, payloadWithoutReference) shouldBe false
+      }
+
+      "process Details specific filters when the request does not have a Birth Reference Number" in {
+        Filters.shouldProcessFilter(GRODetailsFilter, payloadWithoutReference) shouldBe true
+      }
+
+      "not process Details specific filters when the request has a Birth Reference Number" in {
+        Filters.shouldProcessFilter(GRODetailsFilter, payloadWithReference) shouldBe false
+      }
+
+    }
 
     "for all requests" should {
 
       "process filters for a request with a valid date of birth" in {
-        Filters.process(payloadWithReference) shouldBe true
+        Filters.process(payloadWithReference) shouldBe (true, Nil)
       }
 
       "process filters for a request with a failure due to date of birth" in {
-        Filters.process(payloadInvalidDateOfBirth) shouldBe false
+        Filters.process(payloadInvalidDateOfBirth) shouldBe (false, List(DateOfBirthFilter))
       }
 
     }
@@ -48,7 +69,7 @@ class SwitchFilterSpec extends UnitSpec with OneAppPerTest {
     "request has BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithReference) shouldBe true
+        Filters.process(payloadWithReference) shouldBe (true, Nil)
       }
 
     }
@@ -56,7 +77,7 @@ class SwitchFilterSpec extends UnitSpec with OneAppPerTest {
     "request does not have BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithoutReference) shouldBe true
+        Filters.process(payloadWithoutReference) shouldBe (true, Nil)
       }
 
     }

@@ -16,17 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
-import play.api.http.HeaderNames
-import play.api.libs.json.JsValue
-import play.api.mvc.{Controller, Request}
-import uk.gov.hmrc.brm.config.{BrmConfig, DownstreamFeatureFactory}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 
-import scala.util.matching.Regex
-import scala.util.matching.Regex.Match
-
-object CommonUtil extends Controller {
+object CommonUtil {
 
   abstract class RequestType
 
@@ -36,12 +29,23 @@ object CommonUtil extends Controller {
 
   def getOperationType(payload: Payload): RequestType = {
     payload match {
-      case input@Payload(None, firstName, lastName, dateOfBirth, whereBirthRegistered) => {
+      case input@Payload(None, _, _, _, _, _) => {
         DetailsRequest()
       }
-      case payload@Payload(Some(birthReferenceNumber), _, _, _, _) => {
+      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
         ReferenceRequest()
       }
     }
   }
+
+
+  //add additional name to firstname if ignore middle name is false.
+  def forenames(firstName: String, additionalName: Option[String]): String = {
+    val forenames = BrmConfig.ignoreAdditionalNames match {
+      case true => NameFormat(firstName)
+      case false => s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
+    }
+    NameFormat(forenames)
+  }
+
 }

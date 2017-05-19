@@ -40,6 +40,8 @@ class BirthEventsControllerSpec
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
+  private val specialCharacters = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
+
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
     Map(
       "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
@@ -92,63 +94,72 @@ class BirthEventsControllerSpec
     "validate firstName" should {
 
       "return response code 400 if request contains missing firstName key" in {
-
         val request = postRequest(userNoMatchExcludingFirstNameKey)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 400 if request contains missing firstName value" in {
-
         val request = postRequest(userNoMatchExcludingfirstNameValue)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains special characters in firstName" in {
-
         val request = postRequest(firstNameWithSpecialCharacters)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains more than 250 characters in firstName" in {
-
         val request = postRequest(firstNameWithMoreThan250Characters)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
+    }
 
+    "validate additionalNames" should {
+
+      "return response code 400 if request contains additionalName key but no value" in {
+        val request = postRequest(additionalNamesKeyNoValue)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+      }
+
+      "return response code 400 if request contains special characters in additionalName" in {
+        val request = postRequest(additionalNameWithSpecialCharacters)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+      }
+
+      "return response code 400 if request contains more than 250 characters in additionalName" in {
+        val request = postRequest(additionalNameWithMoreThan250Characters)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+      }
     }
 
     "validate lastName" should {
 
       "return response code 400 if request contains missing lastName key" in {
-
         val request = postRequest(userNoMatchExcludinglastNameKey)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 400 if request contains missing lastName value" in {
-
-
         val request = postRequest(userNoMatchExcludinglastNameValue)
         val result = await(MockController.post().apply(request))
-
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains special character in lastName value" in {
-
         val request = postRequest(lastNameWithSpecialCharacters)
         val result = await(MockController.post().apply(request))
-
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains more than 250 character in lastName value" in {
-
         val request = postRequest(lastNameWithMoreThan250Characters)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
@@ -159,7 +170,6 @@ class BirthEventsControllerSpec
     "validate invalid dateOfBirth" should {
 
       "return response code 400 if request contains missing dateOfBirth key" in {
-
         val request = postRequest(userNoMatchExcludingDateOfBirthKey)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
@@ -399,16 +409,12 @@ class BirthEventsControllerSpec
           checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
         }
 
-
-
         "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway Upstream5xxResponse." in {
           mockDetailsResponse(new Upstream5xxResponse("", BAD_GATEWAY, BAD_GATEWAY))
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
           checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
         }
-
-
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
           mockDetailsResponse(new GatewayTimeoutException(""))
@@ -431,7 +437,6 @@ class BirthEventsControllerSpec
           checkResponse(result,INTERNAL_SERVER_ERROR, empty)
         }
 
-     
         "return 200 false when GRO returns NotFoundException" in {
           mockDetailsResponse(new NotFoundException(""))
           val request = postRequest(userNoMatchExcludingReferenceKey)
@@ -515,7 +520,7 @@ class BirthEventsControllerSpec
 
         "return 200 false response when first name has special characters for unsuccessful BRN match." in {
           mockNrsReferenceResponse(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
-          var payload = Payload(Some("1234567890"), "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø", "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+          val payload = Payload(Some("1234567890"), specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
           val request = postRequest(Json.toJson(payload))
           val result = await(MockController.post().apply(request))
           checkResponse(result,OK, false)
@@ -558,7 +563,7 @@ class BirthEventsControllerSpec
 
         "return 200 false response when child details are not found when first name has special characters." in {
           mockNrsReferenceResponse(new Upstream4xxResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
-          var payload = Payload(None, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø", "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+          val payload = Payload(None, specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
           val request = postRequest(Json.toJson(payload))
           val result = await(MockController.post().apply(request))
           checkResponse(result,OK, false)
