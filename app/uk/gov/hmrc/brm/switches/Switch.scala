@@ -24,6 +24,9 @@ import uk.gov.hmrc.play.config.ServicesConfig
 
 trait SwitchException {
 
+  final case class MatchingConfigurationException(switch: String)
+    extends RuntimeException(s"birth-registration-matching.matching.$switch configuration not found")
+
   final case class FeatureSwitchException(switch : String)
     extends RuntimeException(s"birth-registration-matching.features.$switch.enabled configuration not found")
 
