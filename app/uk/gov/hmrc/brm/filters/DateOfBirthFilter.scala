@@ -25,7 +25,7 @@ import uk.gov.hmrc.brm.switches.{DateOfBirthSwitch, DateOfBirthSwitchValue}
 /**
   * Created by mew on 15/05/2017.
   */
-object DateOfBirthFilter extends Filter(DateOfBirthSwitch, GeneralFilter) with FilterResults {
+object DateOfBirthFilter extends Filter(DateOfBirthSwitch, GeneralFilter) {
 
   override def process(payload: Payload): Boolean = {
     val isEnabled = super.process(payload)
@@ -41,7 +41,7 @@ object DateOfBirthFilter extends Filter(DateOfBirthSwitch, GeneralFilter) with F
       isValid
     } else {
       // if the check is disabled then skip and continue
-      PassedFilters
+      true
     }
   }
 
