@@ -28,11 +28,17 @@ object NameParser {
 
     lazy val regex = BrmConfig.ignoreMiddleNamesRegex
 
-    def names: List[String] = {
-      val nameArray: Array[String] = s.toLowerCase.trim.split(regex)
-      BRMLogger.debug("NameParser", "parse", s"names: ${nameArray.toList}, regex: $regex")
+    private def toList(x: Array[String], key: String) = {
+      BRMLogger.debug("NameParser", "parse", s"$key: ${x.toList}, regex: $regex")
+      x.toList
+    }
 
-      nameArray.toList
+    def names: List[String] = {
+      toList(s.toLowerCase.trim.split(regex), "names")
+    }
+
+    def namesOriginalCase: List[String] = {
+      toList(s.trim.split(regex), "namesOriginalCase")
     }
 
   }

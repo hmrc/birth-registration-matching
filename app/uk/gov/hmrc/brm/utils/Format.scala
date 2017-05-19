@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
+import uk.gov.hmrc.brm.services.parser.NameParser._
+
 object Trim {
   def apply(v: String): String = {
     v.trim
@@ -39,7 +41,15 @@ object LeadingZeros {
 object NameFormat {
 
   def apply(v: String): String = {
-    Trim.apply(v)
+    RemoveMultipleSpaces.apply(v)
+  }
+}
+
+
+object RemoveMultipleSpaces {
+
+  def apply(v: String): String = {
+    v.namesOriginalCase.listToString
   }
 }
 
