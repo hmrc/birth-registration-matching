@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.switches
 
-import uk.gov.hmrc.brm.config.BrmConfig.RequestType
+import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
@@ -36,8 +36,8 @@ trait FilterResults {
 object Filters extends FilterResults {
 
   private val groFilters = List(GROFilter, GROReferenceFilter, GRODetailsFilter)
-  private val nrsFilters = Nil
-  private val groniFilters = Nil
+  private val nrsFilters = List(NRSFilter, NRSReferenceFilter, NRSDetailsFilter)
+  private val groniFilters = List(GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
 
   private val baseFilters = List(DateOfBirthFilter)
 
@@ -46,11 +46,19 @@ object Filters extends FilterResults {
     * @param filter current Filter being processed
     * @param payload Payload
     */
-  def shouldProcessFilter(filter: Filter, payload: Payload) = {
-
+  def shouldProcessFilter(filter: Filter, payload: Payload) : Boolean = {
+    filter.filterType match {
+      case ReferenceFilter =>
+        payload.birthReferenceNumber.isDefined
+      case DetailsFilter =>
+        payload.birthReferenceNumber.isEmpty
+      case _ =>
+        // general filter
+        true
+    }
   }
 
-  private def getFilters(payload: Payload) : List[Filter] = {
+  def getFilters(payload: Payload) : List[Filter] = {
     val filters = payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.ENGLAND =>
         groFilters
@@ -59,7 +67,8 @@ object Filters extends FilterResults {
       case BirthRegisterCountry.NORTHERN_IRELAND =>
         groniFilters
     }
-    val baseWithFilters = baseFilters ::: filters
+    // Filter out registry filters by request type
+    val baseWithFilters = baseFilters ::: filters.filter(f => shouldProcessFilter(f, payload))
 
     BRMLogger.info("Filters", "getFilters", s"processing the following filters: $baseWithFilters")
 
@@ -71,13 +80,6 @@ object Filters extends FilterResults {
     * @return Tuple of (FilterResult, List[Filter]), filter result and list of failed filters
     */
   def process(payload : Payload) : (FilterResult, List[Filter]) = {
-
-    /**
-      * TODO need to also consider whereBirthRegistered for the correct filters
-      * @param uncheckedFilters
-      * @param failedFilters
-      * @return
-      */
 
     @tailrec
     def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : (FilterResult, List[Filter]) = {
