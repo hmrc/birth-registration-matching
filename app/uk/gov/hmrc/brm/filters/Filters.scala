@@ -83,8 +83,7 @@ object Filters extends FilterResults {
     @tailrec
     def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : List[Filter] = {
       if (failedFilters.nonEmpty && uncheckedFilters.isEmpty) {
-        BRMLogger.info("Filters", "process", s"Stopping due to failing a Filter, " +
-          s"remaining: $uncheckedFilters, failed: $failedFilters")
+        BRMLogger.info("Filters", "process", s"Stopping due to failing a Filter, failed: $failedFilters")
         failedFilters
       } else {
         uncheckedFilters match {
