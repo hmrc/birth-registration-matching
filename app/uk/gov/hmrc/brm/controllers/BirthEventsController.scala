@@ -20,7 +20,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
-import uk.gov.hmrc.brm.config.{BrmConfig, DownstreamFeatureFactory}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.{Filter, Filters}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
@@ -28,7 +28,7 @@ import uk.gov.hmrc.brm.models.brm._
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
-import uk.gov.hmrc.play.http.{HeaderCarrier, JsValidationException}
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
