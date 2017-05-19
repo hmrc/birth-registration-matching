@@ -34,12 +34,18 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     override val name = "invalid"
   }
 
+  object NonExistingValue extends SwitchValue {
+    override val name: String = "invalid"
+  }
+
   def switchDisabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.test.enabled" -> false
+    "microservice.services.birth-registration-matching.features.test.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false
   )
 
   def switchEnabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.test.enabled" -> true
+    "microservice.services.birth-registration-matching.features.test.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true
   )
 
   override def newAppForTest(testData: TestData) = GuiceApplicationBuilder(
@@ -67,9 +73,17 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     }
 
     "throw FeatureSwitchException for configuration that doesn't exist" in {
-      intercept[RuntimeException](
+      val e = intercept[RuntimeException](
         NonExistingSwitch.isEnabled
       )
+      e.getMessage shouldBe "birth-registration-matching.features.invalid.enabled configuration not found"
+    }
+
+    "throw FeatureSwitchException for configuration value that doesn't exist" in {
+      val e = intercept[RuntimeException](
+        NonExistingValue.value
+      )
+      e.getMessage shouldBe "birth-registration-matching.features.invalid.enabled configuration not found"
     }
 
   }
@@ -120,14 +134,26 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     }
   }
 
-  "DateOfBirth" should {
+  "DateOfBirth" when {
 
-    "be enabled" in {
-      DateOfBirthSwitch.isEnabled shouldBe true
+    "enabled" should {
+      "have a switch" taggedAs Tag("enabled") in {
+        DateOfBirthSwitch.isEnabled shouldBe true
+      }
+
+      "have a value" taggedAs Tag("enabled") in {
+        DateOfBirthSwitchValue.value should not be empty
+      }
     }
 
-    "have a value" in {
-      DateOfBirthSwitchValue.value should not be empty
+    "disabled" should {
+      "have a switch" taggedAs Tag("disabled") in {
+        DateOfBirthSwitch.isEnabled shouldBe false
+      }
+
+      "have a value" taggedAs Tag("disabled") in {
+        DateOfBirthSwitchValue.value should not be empty
+      }
     }
 
   }

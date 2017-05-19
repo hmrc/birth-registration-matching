@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.filters.Filter.GeneralFilter
 import uk.gov.hmrc.brm.metrics.DateofBirthFeature
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.switches.{DateOfBirthSwitch, DateOfBirthSwitchValue, FilterResults}
+import uk.gov.hmrc.brm.switches.{DateOfBirthSwitch, DateOfBirthSwitchValue}
 
 /**
   * Created by mew on 15/05/2017.

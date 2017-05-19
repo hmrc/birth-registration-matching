@@ -17,13 +17,45 @@
 package uk.gov.hmrc.brm.switches
 
 import org.joda.time.LocalDate
+import org.scalatest.{Tag, TestData}
 import org.scalatestplus.play.OneAppPerTest
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.UnitSpec
 
 class FiltersSpec extends UnitSpec with OneAppPerTest {
+
+  def switchEnabled: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true
+  )
+
+  def switchDisabled: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false
+  )
+
+
+  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder(
+//    disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+  ).configure {
+    if (testData.tags.contains("enabled")) {
+      switchEnabled
+    } else if (testData.tags.contains("disabled")) {
+      switchDisabled
+    } else {
+      switchEnabled
+    }
+  }.build()
 
   val payloadWithReference = Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
   val nrsPayloadWithReference = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
@@ -35,6 +67,14 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
   val payloadInvalidDateOfBirth = Payload(None, "Adam", None, "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
 
   "Filters" when {
+
+    "processing DateOfBirthFilter" should {
+
+      "skip filter if not enabled" taggedAs Tag("disabled") in {
+        DateOfBirthFilter.process(payloadWithReference) shouldBe true
+      }
+
+    }
 
     "gro" should {
 

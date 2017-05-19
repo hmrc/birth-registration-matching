@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.switches
+package uk.gov.hmrc.brm.filters
 
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, ReferenceFilter}
-import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
