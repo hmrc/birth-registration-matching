@@ -21,6 +21,7 @@ import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
 import uk.gov.hmrc.brm.config.{BrmConfig, DownstreamFeatureFactory}
+import uk.gov.hmrc.brm.filters.{Filter, Filters}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm._
@@ -68,11 +69,11 @@ trait BirthEventsController extends BRMBaseController {
     Future.successful(respond(InvalidBirthReferenceNumber.status))
   }
 
-  private def downstreamUnavailable()(implicit payload: Payload, hc : HeaderCarrier, audit : BRMAudit) = {
+  private def failedAtFilter(filters : List[Filter])(implicit payload: Payload, hc : HeaderCarrier, audit : BRMAudit) = {
     // audit the request
     auditRequestAndResults()
 
-    info(CLASS_NAME, "post()", s"Request was not processed due to downstream being unavailable. " +
+    info(CLASS_NAME, "post()", s"Request was not processed due to failing filter(s) $filters. " +
       s"Feature switches: ${BrmConfig.audit(Some(payload))}")
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
@@ -101,10 +102,11 @@ trait BirthEventsController extends BRMBaseController {
           } else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
             implicit val auditor: BRMAudit = auditFactory.getAuditor()
-            implicit val downstream = DownstreamFeatureFactory
 
-            if (!downstream().enabled()) {
-              downstreamUnavailable()
+            val processed = Filters.process(payload)
+
+            if (processed.nonEmpty) {
+              failedAtFilter(processed)
             } else {
               traceAndMatchRecord()
             }

@@ -59,7 +59,7 @@ object Filters extends FilterResults {
 
   def getFilters(payload: Payload) : List[Filter] = {
     val filters = payload.whereBirthRegistered match {
-      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.ENGLAND =>
+      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groFilters
       case BirthRegisterCountry.SCOTLAND =>
         nrsFilters
@@ -76,25 +76,24 @@ object Filters extends FilterResults {
 
   /**
     * @param payload request transformed into Payload
-    * @return Tuple of (FilterResult, List[Filter]), filter result and list of failed filters
+    * @return Tuple of List[Filter], list of failed filters
     */
-  def process(payload : Payload) : (FilterResult, List[Filter]) = {
+  def process(payload : Payload) : List[Filter] = {
 
     @tailrec
-    def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : (FilterResult, List[Filter]) = {
-      if (failedFilters.nonEmpty) {
+    def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : List[Filter] = {
+      if (failedFilters.nonEmpty && uncheckedFilters.isEmpty) {
         BRMLogger.info("Filters", "process", s"Stopping due to failing a Filter, " +
           s"remaining: $uncheckedFilters, failed: $failedFilters")
-        (FailedFilters, failedFilters)
+        failedFilters
       } else {
         uncheckedFilters match {
-          case Nil =>
-            (PassedFilters, Nil)
+          case Nil => Nil
           case head :: tail =>
             // check if the filter is correct for request type
             val passed = head.process(payload)
             if (passed) {
-              filterHelper(tail, failedFilters ::: Nil)
+              filterHelper(tail, failedFilters)
             } else {
               filterHelper(tail, failedFilters ::: List(head))
             }

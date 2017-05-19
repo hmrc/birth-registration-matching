@@ -179,11 +179,11 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
     "for all requests" should {
 
       "process filters for a request with a valid date of birth" in {
-        Filters.process(payloadWithReference) shouldBe (true, Nil)
+        Filters.process(payloadWithReference) shouldBe Nil
       }
 
       "process filters for a request with a failure due to date of birth" in {
-        Filters.process(payloadInvalidDateOfBirth) shouldBe (false, List(DateOfBirthFilter))
+        Filters.process(payloadInvalidDateOfBirth) shouldBe List(DateOfBirthFilter)
       }
 
     }
@@ -191,7 +191,7 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
     "request has BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithReference) shouldBe (true, Nil)
+        Filters.process(payloadWithReference) shouldBe Nil
       }
 
     }
@@ -199,7 +199,7 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
     "request does not have BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithoutReference) shouldBe (true, Nil)
+        Filters.process(payloadWithoutReference) shouldBe Nil
       }
 
     }
