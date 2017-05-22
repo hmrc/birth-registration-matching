@@ -715,7 +715,7 @@ class GroResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 500035710
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2006-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -735,7 +735,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -753,7 +753,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "Johnéë"
+          x.child.forenames shouldBe "Johnéë"
           x.child.lastName shouldBe "Jonésë"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -771,7 +771,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
+          x.child.forenames shouldBe "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ"
           x.child.lastName shouldBe "JonesƷġÊÊÊÊÊƂƂƂ-'"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -789,7 +789,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+          x.child.forenames shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -821,7 +821,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 999999926
-          x.child.firstName shouldBe ""
+          x.child.forenames shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
           x.status.get shouldBe a[GROStatus]
@@ -875,7 +875,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 999999920
-          x.child.firstName shouldBe empty
+          x.child.forenames shouldBe empty
           x.child.lastName shouldBe empty
           x.child.dateOfBirth shouldBe None
           x.status shouldBe Some(GROStatus(false, None, false, false, None, None))
@@ -892,7 +892,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe ""
+          x.child.forenames shouldBe ""
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -912,7 +912,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe ""
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -932,7 +932,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
@@ -951,7 +951,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe ""
+          x.child.forenames shouldBe ""
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
@@ -970,7 +970,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
@@ -989,7 +989,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1026,7 +1026,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1052,7 +1052,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1078,7 +1078,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1104,7 +1104,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1130,7 +1130,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -1156,7 +1156,7 @@ class GroResponseSpec extends UnitSpec {
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.firstName shouldBe "John"
+          x.child.forenames shouldBe "John"
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]

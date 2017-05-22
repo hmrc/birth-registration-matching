@@ -25,7 +25,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MockErrorResponses}
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -111,6 +111,31 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, true)
     }
 
+
+    "return matched value of true when reference request firstname and additional names has more space seprated names and record has same name on it." in {
+      mockReferenceResponse(groResponse500036682)
+      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ",Some("Welcome In The Valleys Grand Slam"), "WILLIAMS JONES", new LocalDate("2009-11-23"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of false when reference request firstname has multiple names ,no additional name and record has addiional name on it.." in {
+      mockReferenceResponse(groResponse500036682)
+      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ",None, "WILLIAMS JONES", new LocalDate("2009-11-23"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, false)
+    }
+
+    "return matched value of false when reference request firstname has multiple names and  additional name and record does not have same name on it." in {
+      mockReferenceResponse(groResponse500036682)
+      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ",Some("Welcome In The Valleys Grand"), "WILLIAMS JONES", new LocalDate("2009-11-23"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, false)
+    }
+
     //details
     "return matched value of true when detail request has additional names and record has same value" in {
       mockDetailsResponse(groResponseWithAdditionalName)
@@ -138,15 +163,13 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
 
     "return matched value of false when detail request has additional names and record does not have middle name in it." in {
       mockDetailsResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+      val payload = Json.toJson(Payload(None, "Adam", Some("david"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
       checkResponse(result, OK, false)
     }
 
-
     "return matched value of true when detail request does not have additional name and record also does not have it " in {
-
       mockDetailsResponse(groResponseWithoutAdditionalName)
       val payload = Json.toJson(Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
@@ -154,32 +177,61 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
       checkResponse(result, OK, true)
     }
 
-    "return matched value of false when detail request provide additional name and record does not have it " in {
-
-      mockDetailsResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
-      checkResponse(result, OK, false)
-    }
-
     "return matched value of true when details request has additional name with special character and record has same value" in {
+      mockDetailsResponse(groResponseWithSpecialCharacter)
       val payload = Json.toJson(Payload(None, "Mary-Ann  ",Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
-      mockDetailsResponse(groResponseWithSpecialCharacter)
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
     }
 
     "return matched value of true when details request fistname has additiona name with special character  and record has same value" in {
+      mockDetailsResponse(groResponseWithSpecialCharacter)
       val payload = Json.toJson(Payload(None, "Mary-Ann O'Leary ",None, "Smith-Johnson", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND))
-      mockDetailsResponse(groResponseWithSpecialCharacter)
+      val result = makeRequest(payload)
+      checkResponse(result, OK, true)
+    }
+
+    "return matched value of true when details request firstname and additional names has more space seprated names and record has same name on it." in {
+      mockDetailsResponse(groResponse500036682)
+      val payload = Json.toJson(Payload(None, "Ivor Test Hywel Tom Jones ",Some("Welcome In The Valleys Grand Slam"), "WILLIAMS JONES", new LocalDate("2009-11-23"),
+        BirthRegisterCountry.ENGLAND))
       val result = makeRequest(payload)
       checkResponse(result, OK, true)
     }
 
 
+    "return matched value of false when details request firstname and additional names has more space seprated names and record has same different name on it." in {
+      mockDetailsResponse(groResponse500036682)
+      val payload = Json.toJson(Payload(None, "Ivor Test Hywel Tom Jones ",Some("Welcome In The Valleys Grand"), "WILLIAMS JONES", new LocalDate("2009-11-23"),
+        BirthRegisterCountry.ENGLAND))
+      val result = makeRequest(payload)
+      checkResponse(result, OK, false)
+    }
+
+  }
+
+
+  "validate additionalNames when ignoreAdditionalName is false." should {
+
+    "return response code 400 if request contains additionalName key but no value" in {
+      val request = postRequest(additionalNamesKeyNoValue)
+      val result = await(MockController.post().apply(request))
+      checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+    }
+
+    "return response code 400 if request contains special characters in additionalName" in {
+      val request = postRequest(additionalNameWithSpecialCharacters)
+      val result = await(MockController.post().apply(request))
+      checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+    }
+
+    "return response code 400 if request contains more than 250 characters in additionalName" in {
+      val request = postRequest(additionalNameWithMoreThan250Characters)
+      val result = await(MockController.post().apply(request))
+      checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+    }
   }
 
   def makeRequest(jsonRequest: JsValue): Result = {
