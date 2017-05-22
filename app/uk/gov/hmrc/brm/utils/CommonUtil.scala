@@ -38,8 +38,6 @@ object CommonUtil {
     }
   }
 
-
-  //add additional name to firstname if ignore middle name is false.
   def forenames(firstName: String, additionalName: Option[String]): String = {
     val forenames = BrmConfig.ignoreAdditionalNames match {
       case true => NameFormat(firstName)

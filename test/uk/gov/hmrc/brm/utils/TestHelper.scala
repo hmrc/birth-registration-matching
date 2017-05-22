@@ -340,6 +340,31 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val additionalNameWithASingleSpace
+  = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Ronan",
+       |"additionalNames" : " ",
+       |"lastName" : "Test",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
+  val additionalNameWithMultipleSpaces = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Ronan",
+       |"additionalNames" : "     ",
+       |"lastName" : "Test",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
   val userNoMatchExcludingReferenceKeyScotland = Json.parse(
     s"""
        |{
@@ -675,6 +700,28 @@ object TestHelper {
        |}
      """.stripMargin)
 
+  val firstNameWithASingleSpace = Json.parse(
+    s"""
+       |{
+       |"firstName" : " ",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
+  val firstNameWithMultipleSpaces = Json.parse(
+    s"""
+       |{
+       |"firstName" : "      ",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
   val lastNameWithMoreThan100Characters = Json.parse(
     s"""
        |{
@@ -702,6 +749,28 @@ object TestHelper {
        |{
        |"firstName" : "Adam TEST",
        |"lastName" : "Gibby&cat /etc/passwd&",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
+  val lastNameWithASingleSpace = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Ronan",
+       |"lastName" : " ",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "123456789",
+       |"whereBirthRegistered" : "england"
+       |}
+     """.stripMargin)
+
+  val lastNameWithMultipleSpaces = Json.parse(
+    s"""
+       |{
+       |"firstName" : "Ronan",
+       |"lastName" : "      ",
        |"dateOfBirth" : "2012-11-16",
        |"birthReferenceNumber" : "123456789",
        |"whereBirthRegistered" : "england"

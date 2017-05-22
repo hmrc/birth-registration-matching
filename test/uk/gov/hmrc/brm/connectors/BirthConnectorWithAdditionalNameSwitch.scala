@@ -44,66 +44,71 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
   val nrsJsonResponseObjectWithotuAdditionalName = JsonUtils.getJsonFromFile("nrs", "2017350006")
 
   val config: Map[String, _] = Map(
-     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
     config
   ).build()
 
+  "GROConnector" when {
 
-  "GROConnector" should {
+    "getChildDetails called" should {
 
-    "getChildDetails call pass additional name to gro." in {
-      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
-      val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
-      checkResponse(result, 200)
+      "pass additionalNames to gro" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+        val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND)
+        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        checkResponse(result, 200)
 
-      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
-      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
-      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+      }
+
+      "pass additionalNames to gro in proper format" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+        val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND)
+        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        checkResponse(result, 200)
+
+        (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
+        (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+      }
+
+      "pass additionalNames to gro in proper format when multiple additional names are present" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
+        val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND)
+        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        checkResponse(result, 200)
+
+        (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test david"
+        (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+      }
+
+      "pass only firstName when additionalNames value is empty" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
+        val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND)
+        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        checkResponse(result, 200)
+        (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam"
+        (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+      }
     }
 
-    "getChildDetails call pass additional name to gro in proper format." in {
-      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
-      val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
-      checkResponse(result, 200)
+  }
 
-      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
-      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
-      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
-    }
+  "NRSConnector" when {
 
-    "getChildDetails call pass additional name to gro in proper format when multiple additional name are present." in {
-      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
-      val payload = Payload(None, " Adam ", Some(" test david "), " SMITH ", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
-      checkResponse(result, 200)
-
-      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test david"
-      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
-      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
-    }
-
-    "getChildDetails call to gro should pass only firstname when additionalName value is empty" in {
-      val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
-      val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
-      checkResponse(result, 200)
-      (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam"
-      (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
-      (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
-    }
-
-
-    "NRSConnector" should {
-      "getChildDetails call pass additional name to nrs." in {
+    "getChildDetails called" should {
+      "pass additionalNames to nrs" in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
@@ -115,7 +120,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
 
       }
 
-      "getChildDetails call pass additional name to nrs in proper format." in {
+      "pass additionalNames to nrs in proper format" in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
@@ -127,7 +132,19 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
 
       }
 
-      "getChildDetails call to nrs pass only firstname when additionalName value is empty" in {
+      "pass additionalNames to gro in proper format when multiple additional names are present" in {
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
+          BirthRegisterCountry.SCOTLAND)
+        val result = await(connectorFixtures.nrsConnector.getChildDetails(payload))
+        checkResponse(result, 200)
+
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test david"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-07-01"
+      }
+
+      "pass only firstName when additionalNames value is empty" in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithotuAdditionalName))
         val requestWithoutAdditionalName = Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"),
           BirthRegisterCountry.SCOTLAND)

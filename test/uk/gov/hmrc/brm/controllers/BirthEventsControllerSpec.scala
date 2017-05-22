@@ -116,24 +116,48 @@ class BirthEventsControllerSpec
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
+
+      "return response code 400 if request contains a single space in firstName" in {
+        val request = postRequest(firstNameWithASingleSpace)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+      }
+
+      "return response code 400 if request contains multiple spaces in firstName" in {
+        val request = postRequest(firstNameWithMultipleSpaces)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+      }
     }
 
     "validate additionalNames" should {
 
-      "return response code 400 if request contains additionalName key but no value" in {
+      "return response code 400 if request contains additionalNames key but no value" in {
         val request = postRequest(additionalNamesKeyNoValue)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
-      "return response code 400 if request contains special characters in additionalName" in {
+      "return response code 400 if request contains special characters in additionalNames" in {
         val request = postRequest(additionalNameWithSpecialCharacters)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
-      "return response code 400 if request contains more than 250 characters in additionalName" in {
+      "return response code 400 if request contains more than 250 characters in additionalNames" in {
         val request = postRequest(additionalNameWithMoreThan250Characters)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+      }
+
+      "return response code 400 if request contains a single space in additionalNames" in {
+        val request = postRequest(additionalNameWithASingleSpace)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+      }
+
+      "return response code 400 if request contains multiple spaces in additionalNames" in {
+        val request = postRequest(additionalNameWithMultipleSpaces)
         val result = await(MockController.post().apply(request))
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
@@ -165,6 +189,17 @@ class BirthEventsControllerSpec
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
+      "return response code 400 if request contains a single space in lastName" in {
+        val request = postRequest(lastNameWithASingleSpace)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+      }
+
+      "return response code 400 if request contains multiple spaces in lastName" in {
+        val request = postRequest(lastNameWithMultipleSpaces)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+      }
     }
 
     "validate invalid dateOfBirth" should {
