@@ -66,7 +66,7 @@ trait MatchingAlgorithm {
   }
 
   protected[MatchingAlgorithm] def matchFirstNames(payload: Payload, record: Record) : Match = {
-    //add additonal name to firstname based on feature toggle value
+    //add additionalNames to firstName based on feature toggle value
     val firstNamePayload =  forenames(payload.firstName, payload.additionalNames).names.listToString
 
     val recordNamesFiltered = filterMiddleNames(payload, record)
@@ -99,13 +99,13 @@ trait MatchingAlgorithm {
         // if I receive 3 names on the input, take 3 names from the record
         // if I give you more names than on the record then return what is on the record
         // if I give you less names than on the record, take the number of names from the record that was on input
-        val right = record.child.firstName.names
+        val right = record.child.forenames.names
         val left = payload.firstName.names
         val names = left filter right
         names.listToString
       case false =>
         // take all names on the record
-        record.child.firstName.names.listToString
+        record.child.forenames.names.listToString
     }
   }
 }
