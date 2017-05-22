@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.mvc.Controller
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 
-object CommonUtil extends Controller {
+object CommonUtil {
 
   abstract class RequestType
 
@@ -39,8 +38,6 @@ object CommonUtil extends Controller {
     }
   }
 
-
-  //add additional name to firstname if ignore middle name is false.
   def forenames(firstName: String, additionalName: Option[String]): String = {
     val forenames = BrmConfig.ignoreAdditionalNames match {
       case true => NameFormat(firstName)

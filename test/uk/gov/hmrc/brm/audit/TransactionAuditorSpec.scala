@@ -49,10 +49,15 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
   "RequestsAndResultsAudit" should {
 
     "audit request and result when child's reference number used" in {
+      val child = Record(Child(
+        500035710: Int,
+        "John",
+        "Smith",
+        Some(new LocalDate("2009-06-30"))))
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(child), ResultMatch(Bad(), Bad(), Bad(), Bad()))
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))

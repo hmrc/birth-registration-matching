@@ -17,13 +17,14 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
+import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.ResultMatch
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.{CommonUtil, KeyGenerator}
+import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -64,6 +65,18 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     }
   }
 
+  private def logNameCount(payload: Payload, auditWordsPerNameOnRecords: Map[String, String]): Unit = {
+
+    val payloadCount = Map(
+      s"payload.numberOfForenames" -> s"${payload.firstName.names.count(_.nonEmpty) + payload.additionalNames.fold(0)(x => x.names.count(_.nonEmpty))}",
+      s"payload.numberOfLastnames" -> s"${payload.lastName.names.count(_.nonEmpty)}"
+    )
+
+    val logNameCounts = payloadCount ++ auditWordsPerNameOnRecords
+
+    BRMLogger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(logNameCounts)}")
+  }
+
   def transactionToMap(payload: Payload,
                    records : List[Record],
                    matchResult : ResultMatch): Map[String, String] = {
@@ -73,6 +86,10 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
     // audit status on the records
     val auditWordsPerNameOnRecords = recordListToMap(records, wordCount)
+
+    // log name for payload and record
+    logNameCount(payload, auditWordsPerNameOnRecords)
+
     val auditCharactersPerNameOnRecords = recordListToMap(records, characterCount)
 
     // flags for each record
