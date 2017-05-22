@@ -21,7 +21,7 @@ import uk.gov.hmrc.brm.utils.BRMFormat
 
 case class Child(
                   birthReferenceNumber: Int,
-                  firstName: String,
+                  forenames: String,
                   lastName: String,
                   dateOfBirth: Option[LocalDate]
                 )

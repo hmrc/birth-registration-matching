@@ -164,7 +164,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -226,7 +226,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -247,7 +247,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -268,7 +268,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -289,7 +289,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -310,7 +310,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -331,7 +331,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -352,7 +352,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe ""
+      record.child.forenames shouldBe ""
       record.child.lastName shouldBe ""
       record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
@@ -372,7 +372,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe ""
+      record.child.forenames shouldBe ""
       record.child.lastName shouldBe ""
       record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
@@ -392,7 +392,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -413,7 +413,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -434,7 +434,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -455,7 +455,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -472,7 +472,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017350003
-      record.child.firstName shouldBe ""
+      record.child.forenames shouldBe ""
       record.child.lastName shouldBe ""
       record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]
@@ -493,7 +493,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "Adam TEST"
+      record.child.forenames shouldBe "Adam TEST"
       record.child.lastName shouldBe "SMITH"
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -506,7 +506,7 @@ class NRSResponseSpec extends UnitSpec {
       recordTwo shouldBe a[Record]
       recordTwo.child shouldBe a[Child]
       recordTwo.child.birthReferenceNumber shouldBe 2017734004
-      recordTwo.child.firstName shouldBe "Adam TEST"
+      recordTwo.child.forenames shouldBe "Adam TEST"
       recordTwo.child.lastName shouldBe "SMITH"
       recordTwo.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       recordTwo.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -533,7 +533,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+      record.child.forenames shouldBe "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
       record.child.lastName shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--"
       record.child.dateOfBirth.get.toString shouldBe "2007-02-18"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -554,7 +554,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName.length shouldBe 250
+      record.child.forenames.length shouldBe 250
       record.child.lastName.length shouldBe 250
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -576,7 +576,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName.length shouldBe 1
+      record.child.forenames.length shouldBe 1
       record.child.lastName.length shouldBe 1
       record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
       record.child.dateOfBirth.get shouldBe a[LocalDate]
@@ -598,7 +598,7 @@ class NRSResponseSpec extends UnitSpec {
       record shouldBe a[Record]
       record.child shouldBe a[Child]
       record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.firstName shouldBe ""
+      record.child.forenames shouldBe ""
       record.child.lastName shouldBe ""
       record.child.dateOfBirth shouldBe None
       record.status.get shouldBe a[StatusInterface]

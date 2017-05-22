@@ -42,6 +42,7 @@ object TestHelper {
   val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro","without_additional_name")
   val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro","with_more_additional_name")
   val groResponseWithSpecialCharacter = JsonUtils.getJsonFromFile("gro","with_special_character")
+  val groResponse500036682 = JsonUtils.getJsonFromFile("gro","500036682")
 
 
   val payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
@@ -123,6 +124,12 @@ object TestHelper {
 
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
+  def getRecord(foreNames :String, lastName:String): Record = {
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, foreNames, lastName,Some(birthDate))
+    Record(child, None)
+  }
+
   def validRecord: Record ={
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "Chris", "Jones",Some(birthDate))
@@ -138,6 +145,12 @@ object TestHelper {
   def validRecordMiddleNames: Record ={
     val birthDate = new LocalDate("2012-02-16")
     val child =  Child(123456789, "Adam David", "Jones",Some(birthDate))
+    Record(child, None)
+  }
+
+  def adamTestTestJonesRecord: Record ={
+    val birthDate = new LocalDate("2012-02-16")
+    val child =  Child(123456789, "Adam test test", "Jones",Some(birthDate))
     Record(child, None)
   }
 

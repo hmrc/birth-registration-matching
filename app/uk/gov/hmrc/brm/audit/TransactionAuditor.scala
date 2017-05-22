@@ -39,6 +39,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
   /**
     * Audit event for the result of MatchingService and data submitted to the API
+ *
     * @param result map of key value results
     * @param hc implicit headerCarrier
     */
@@ -115,22 +116,22 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
   def wordCount(r: Record, c: Int): Map[String, String] = {
     Map(
-      s"records.record$c.numberOfForenames" -> s"${r.child.firstName.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfForenames" -> s"${r.child.forenames.names.count(_.nonEmpty)}",
       s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"
     )
   }
 
   def characterCount(r: Record, c: Int): Map[String, String] = {
     Map(
-      s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.firstName.names.filter(_.nonEmpty).listToString.length}",
+      s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.forenames.names.filter(_.nonEmpty).listToString.length}",
       s"records.record$c.numberOfCharactersInLastName" -> s"${r.child.lastName.names.filter(_.nonEmpty).listToString.length}"
     )
   }
 
   def flags(r : Record, index: Int) : Map[String, String] = {
     /**
-     convert a Map() of flags into a flattened Map() with index associated to each key
-     otherwise return empty Map()
+     *convert a Map() of flags into a flattened Map() with index associated to each key
+     *otherwise return empty Map()
      */
     r.status match {
       case Some(s) =>
