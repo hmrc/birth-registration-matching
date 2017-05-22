@@ -17,18 +17,13 @@
 package uk.gov.hmrc.brm.config
 
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.switches.SwitchException
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.config.ServicesConfig
 
-trait BrmConfig extends ServicesConfig {
+trait BrmConfig extends ServicesConfig with SwitchException {
 
-  case class BirthConfigurationException(switch: String) extends RuntimeException {
-    override def toString: String = s"birth-registration-matching.matching.$switch configuration not found"
-  }
-
-  case class DesException(switch: String) extends RuntimeException {
-    override def toString: String = s"des.$switch configuration not found"
-  }
+  case class DesException(switch: String) extends RuntimeException(s"des.$switch configuration not found")
 
   private val defaultDate: Int = 1900
   private val characterMaxLength: Int = 250
@@ -43,18 +38,14 @@ trait BrmConfig extends ServicesConfig {
   def logFlags : Boolean = getConfBool("birth-registration-matching.features.logFlags.enabled", defBool = false)
 
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
-    throw BirthConfigurationException("ignoreMiddleNames"))
+    throw MatchingConfigurationException("ignoreMiddleNames"))
 
   def ignoreAdditionalNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreAdditionalNames",
-    throw BirthConfigurationException("ignoreAdditionalNames"))
-
+    throw MatchingConfigurationException("ignoreAdditionalNames"))
 
   private def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
     val path = requestType.fold(s"birth-registration-matching.features.$api.enabled") { x => s"birth-registration-matching.features.$api.${x.value}.enabled" }
-    getConfBool(path,
-      throw BirthConfigurationException(
-        s"birth-registration-matching.features.$api.enabled"
-      ))
+    getConfBool(path, throw FeatureSwitchException(api))
   }
 
   abstract class RequestType(val value : String)

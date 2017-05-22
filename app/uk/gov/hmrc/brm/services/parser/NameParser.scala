@@ -40,15 +40,15 @@ object NameParser {
     def namesOriginalCase: List[String] = {
       toList(s.trim.split(regex), "namesOriginalCase")
     }
-
+    
   }
 
   implicit class FilterList[T](left : List[T]) {
 
     def filter(right : List[T]) : List[T] = {
-      BRMLogger.debug("NameParser", "filter", s"left: $left right: $right")
 
       if (left.length > right.length || left.isEmpty || right.isEmpty) {
+        BRMLogger.debug("NameParser", "parser", s"Not dropping any names")
         right
       } else {
         val difference = right.length - left.length
@@ -62,10 +62,7 @@ object NameParser {
   }
 
   implicit class StringListToString(left: List[String]) {
-
-    def listToString : String =
-      left.foldLeft("")((x, acc) => s"$x $acc").trim
-
+    def listToString : String = left.foldLeft("")((x, acc) => s"$x $acc").trim
   }
 
 }

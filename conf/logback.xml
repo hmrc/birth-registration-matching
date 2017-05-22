@@ -62,15 +62,11 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="application">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
     <logger name="connector" level="OFF">
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ACCESS_LOG_FILE"/>
