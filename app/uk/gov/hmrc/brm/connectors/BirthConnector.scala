@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import play.api.libs.json.{JsNull, JsValue}
-import uk.gov.hmrc.brm.config.BrmConfig
+import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
+import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
+
 
 trait BirthConnector extends ServicesConfig {
 
@@ -59,7 +58,11 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
-    httpPost.POST(request.uri, request.jsonBody, headers)
+    val newHc = hc.withExtraHeaders(headers: _*)
+    httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
+      wts = Writes.JsValueWrites,
+      rds = HttpReads.readRaw,
+      hc = newHc)
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
