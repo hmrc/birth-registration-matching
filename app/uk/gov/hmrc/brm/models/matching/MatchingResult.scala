@@ -18,21 +18,21 @@ package uk.gov.hmrc.brm.models.matching
 
 import uk.gov.hmrc.brm.services.matching.{Match, Good, Bad}
 
-case class MatchingResult(firstNameMatch: Match,
-                          lastNameMatch: Match,
-                          dobMatch: Match,
-                          matchResult: Match) {
+case class MatchingResult(forenamesMatched: Match,
+                          lastNameMatched: Match,
+                          dobMatched: Match,
+                          result: Match) {
 
   def isMatch: Boolean = {
-    getBoolean(matchResult)
+    getBoolean(result)
   }
 
   def audit: Map[String, String] = {
     Map(
       s"match" -> s"$isMatch",
-      s"matchFirstName" -> s"${getBoolean(firstNameMatch)}",
-      s"matchLastName" -> s"${getBoolean(lastNameMatch)}",
-      s"matchDateOfBirth" -> s"${getBoolean(dobMatch)}"
+      s"matchFirstName" -> s"${getBoolean(forenamesMatched)}",
+      s"matchLastName" -> s"${getBoolean(lastNameMatched)}",
+      s"matchDateOfBirth" -> s"${getBoolean(dobMatched)}"
     )
   }
 
