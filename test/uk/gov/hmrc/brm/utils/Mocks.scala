@@ -27,7 +27,8 @@ import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
+import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HttpPost
 

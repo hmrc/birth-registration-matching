@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.audit
 
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.play.audit.AuditExtensions._
@@ -70,7 +70,7 @@ abstract class BRMAudit(connector : AuditConnector) {
   }
 
   def recordFoundAndMatchToMap(records : List[Record],
-                               matchResult : ResultMatch) = {
+                               matchResult : MatchingResult) = {
     Map(
       "recordFound" -> records.nonEmpty.toString,
       "multipleRecords" -> {records.length > 1}.toString,

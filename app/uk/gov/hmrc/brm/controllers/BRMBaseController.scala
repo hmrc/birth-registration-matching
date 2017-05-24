@@ -19,8 +19,8 @@ package uk.gov.hmrc.brm.controllers
 import play.api.mvc.Result
 import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.services.Bad
+import uk.gov.hmrc.brm.models.matching.MatchingResult
+import uk.gov.hmrc.brm.services.matching.Bad
 import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -66,7 +66,7 @@ trait BRMBaseController extends BaseController with BRMException {
                                    auditor: BRMAudit,
                                    hc: HeaderCarrier): Unit = {
 
-    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
+    val matchResult = MatchingResult(Bad(), Bad(), Bad(), Bad())
 
     // audit matching result
     matchingAuditor.audit(matchResult.audit, Some(payload))
@@ -81,7 +81,7 @@ trait BRMBaseController extends BaseController with BRMException {
   protected def auditRequestAndResults()(implicit payload: Payload,
                                          auditor: BRMAudit,
                                          hc: HeaderCarrier): Unit = {
-    val matchResult = ResultMatch(Bad(), Bad(), Bad(), Bad())
+    val matchResult = MatchingResult(Bad(), Bad(), Bad(), Bad())
     // audit transaction
     transactionAuditor.audit(transactionAuditor.transactionToMap(payload, Nil, matchResult), Some(payload))
 

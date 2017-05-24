@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import uk.gov.hmrc.brm.services.{Bad, Good, Match}
+import uk.gov.hmrc.brm.services.matching.{Match, Good, Bad}
 
-case class ResultMatch(firstNameMatch: Match,
-                       lastNameMatch: Match,
-                       dobMatch: Match,
-                       matchResult: Match) {
+case class MatchingResult(firstNameMatch: Match,
+                          lastNameMatch: Match,
+                          dobMatch: Match,
+                          matchResult: Match) {
 
   def isMatch: Boolean = {
     getBoolean(matchResult)

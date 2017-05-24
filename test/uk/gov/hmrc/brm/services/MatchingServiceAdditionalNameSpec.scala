@@ -25,6 +25,7 @@ import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult

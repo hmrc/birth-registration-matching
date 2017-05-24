@@ -20,7 +20,7 @@ import com.google.inject.Singleton
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
@@ -80,7 +80,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
   def transactionToMap(payload: Payload,
                    records : List[Record],
-                   matchResult : ResultMatch): Map[String, String] = {
+                   matchResult : MatchingResult): Map[String, String] = {
 
     // audit match result and if a record was found
     val matchAudit = recordFoundAndMatchToMap(records, matchResult)

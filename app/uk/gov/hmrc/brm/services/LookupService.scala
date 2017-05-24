@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.libs.json.{JsNull, JsString, JsValue}
 import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
 
 object LookupService extends LookupService {
   override val groConnector = new GROConnector
@@ -100,7 +99,7 @@ trait LookupService extends LookupServiceBinder {
     }
   }
 
-  private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
+  private[LookupService] def audit(records : List[Record], matchResult : MatchingResult)
                                   (implicit payload : Payload,
                                    hc: HeaderCarrier,
                                    downstreamAPIAuditor: BRMAudit) = {

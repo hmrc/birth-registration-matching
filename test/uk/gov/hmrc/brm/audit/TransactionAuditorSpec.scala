@@ -23,11 +23,11 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
-import uk.gov.hmrc.brm.models.response.{Child, Record}
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
-import uk.gov.hmrc.brm.services.Bad
+import uk.gov.hmrc.brm.models.response.{Child, Record}
+import uk.gov.hmrc.brm.services.matching.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -57,7 +57,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditor.transactionToMap(payload, List(child), ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(child), MatchingResult(Bad(), Bad(), Bad(), Bad()))
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
@@ -74,7 +74,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditor.transactionToMap(payload, Nil, ResultMatch(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, Nil, MatchingResult(Bad(), Bad(), Bad(), Bad()))
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
