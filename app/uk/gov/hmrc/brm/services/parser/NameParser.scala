@@ -26,28 +26,42 @@ import uk.gov.hmrc.brm.utils.BRMLogger
   */
 object NameParser {
 
+  /**
+    * Cache the names on the record after they have been split into FirstNames and MiddleNames
+    * @param _firstNames getter for FirstNames
+    * @param _additionalNames getter for AdditionalNames
+    */
+  case class Names(private val _firstNames : List[String],
+                   private val _additionalNames : List[String],
+                   private val _lastNames : List[String]) {
+
+    def firstNames : String = _firstNames.listToString
+
+    def additionalNames : String = _additionalNames.listToString
+
+    def lastNames : String = _lastNames.listToString
+
+  }
+
   private[NameParser] def ignoreAdditionalNames : Boolean = BrmConfig.ignoreAdditionalNames
 
-  def parseNamesOnRecord(payload: Payload, record: Record) : String = {
-    if(ignoreAdditionalNames) {
-      // return the X number of names from the record for what was provided on the input
-      // if I receive 3 names on the input, take 3 names from the record
-      // if I give you more names than on the record then return what is on the record
-      // if I give you less names than on the record, take the number of names from the record that was on input
-      val right = record.child.forenames.names
-      val left = payload.firstName.names
-      val names = left filter right
-      names.listToString
+  /**
+    * TODO: do we need to do this now?
+    * We can now just use the parseNames() method and ignore the Names(_additionalNames) argument when not matching
+    * middle names
+    * We no longer need to modify the givenName string on the record
+    */
+
+  def parseNames(payload: Payload, record: Record) : Names = {
+    val inputLength = payload.firstNames.names.length
+
+    val (firstNames, additionalNames) = record.child.forenames.names.splitAt(inputLength)
+    val lastNames = record.child.lastName.names
+
+    if (ignoreAdditionalNames) {
+      Names(firstNames, Nil, lastNames)
     } else {
-      /**
-        * When we want middle names
-        * We want to split into two groups
-        * Group 1: first names
-        * Group 2: Middle names
-        * Return group1 and group2
-        */
-      // take all names on the record
-      record.child.forenames.names.listToString
+      Names(firstNames, additionalNames, lastNames)
     }
   }
 
@@ -61,13 +75,9 @@ object NameParser {
     }
 
     def names: List[String] = {
-      toList(s.toLowerCase.trim.split(regex), "names")
+      toList(s.trim.split(regex), "names")
     }
 
-    def namesOriginalCase: List[String] = {
-      toList(s.trim.split(regex), "namesOriginalCase")
-    }
-    
   }
 
   implicit class FilterList[T](left : List[T]) {

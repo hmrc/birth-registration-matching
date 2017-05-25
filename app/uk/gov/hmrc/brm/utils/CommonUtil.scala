@@ -39,9 +39,10 @@ object CommonUtil {
   }
 
   def forenames(firstName: String, additionalName: Option[String]): String = {
-    val forenames = BrmConfig.ignoreAdditionalNames match {
-      case true => NameFormat(firstName)
-      case false => s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
+    val forenames = if(BrmConfig.ignoreAdditionalNames) {
+      NameFormat(firstName)
+    } else {
+      s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
     }
     NameFormat(forenames)
   }

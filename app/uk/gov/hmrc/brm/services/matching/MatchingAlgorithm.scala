@@ -20,24 +20,10 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.services.parser.NameParser._
-import uk.gov.hmrc.brm.utils.CommonUtil.forenames
 
 trait MatchingAlgorithm extends MatchingIterator {
 
   protected[MatchingAlgorithm] def matchFunction: PartialFunction[(Payload, Record), MatchingResult]
-
-  /**
-    * TODO remove this from MatchingAlgorithm
-    */
-  protected[MatchingAlgorithm] def matchForenames(payload: Payload, record: Record) : Match = {
-    //add additionalNames to firstName based on feature toggle value
-    val inputNames =  forenames(payload.firstName, payload.additionalNames).names.listToString
-    // this will remove middle names from record if toggle is enabled
-    val parsedNames = parseNamesOnRecord(payload, record)
-
-    stringMatch(Some(inputNames), Some(parsedNames))
-  }
 
   protected[MatchingAlgorithm] def stringMatch(input: Option[String], record: Option[String]): Match =
     matching[String](input, record, _ equalsIgnoreCase _)

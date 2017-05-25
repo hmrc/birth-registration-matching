@@ -28,21 +28,25 @@ object FullMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
     case (payload, record) =>
-      val f = matchForenames(payload, record)
-      /**
-        * TODO: add additionalNames match method
-        */
-      val l = stringMatch(Some(payload.lastName.names.listToString), Some(record.child.lastName.names.listToString))
-      val d = dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
+      // Split names on record into firstNames and AdditionalNames
+      val namesOnRecord : Names = parseNames(payload, record)
+      val firstNamesMatched = stringMatch(Some(payload.firstNames), Some(namesOnRecord.firstNames))
 
-      /**
-        * TODO: run expression for f and 'a' and l and d
-        */
-      val result = f and l and d
+      val additionalNamesMatched = stringMatch(Some(payload.additionalNames), Some(namesOnRecord.additionalNames))
+
+      val lastNameMatched = stringMatch(Some(payload.lastName), Some(record.child.lastName))
+      val dateOfBirthMatched = dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
+
+      val result = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
 
       /**
         * TODO: store result of the additionalNames match method
+        * and the split names
         */
-      MatchingResult(f, l, d, result)
+      MatchingResult(
+        firstNamesMatched and additionalNamesMatched,
+        lastNameMatched,
+        dateOfBirthMatched,
+        result)
   }
 }

@@ -69,7 +69,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
   private def logNameCount(payload: Payload, auditWordsPerNameOnRecords: Map[String, String]): Unit = {
 
     val payloadCount = Map(
-      s"payload.numberOfForenames" -> s"${payload.firstName.names.count(_.nonEmpty) + payload.additionalNames.fold(0)(x => x.names.count(_.nonEmpty))}",
+      s"payload.numberOfForenames" -> s"${payload.firstNames.names.count(_.nonEmpty) + payload.additionalNames.names.count(_.nonEmpty)}",
       s"payload.numberOfLastnames" -> s"${payload.lastName.names.count(_.nonEmpty)}"
     )
 
@@ -94,9 +94,10 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     val auditCharactersPerNameOnRecords = recordListToMap(records, characterCount)
 
     // flags for each record
-    val auditFlags = BrmConfig.logFlags match {
-      case true => recordListToMap(records, flags)
-      case _ => Map().empty
+    val auditFlags = if(BrmConfig.logFlags) {
+      recordListToMap(records, flags)
+    } else {
+      Map.empty
     }
 
     // audit application feature switches

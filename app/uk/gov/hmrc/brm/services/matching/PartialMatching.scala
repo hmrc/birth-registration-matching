@@ -20,11 +20,17 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.services.parser.NameParser.{Names, _}
 
 /**
   * Created by mew on 24/05/2017.
   */
 object PartialMatching extends MatchingAlgorithm {
+
+  /**
+    * We don't consider middle names here?
+    * @return
+    */
 
   private def lastNames()(implicit payload: Payload, record: Record) = {
     if (BrmConfig.matchLastName) {
@@ -36,7 +42,8 @@ object PartialMatching extends MatchingAlgorithm {
 
   private def forenames()(implicit payload: Payload, record: Record) = {
     if (BrmConfig.matchFirstName) {
-      matchForenames(payload, record)
+      val namesOnRecord : Names = parseNames(payload, record)
+      stringMatch(Some(payload.firstNames), Some(namesOnRecord.firstNames))
     } else {
       Good()
     }

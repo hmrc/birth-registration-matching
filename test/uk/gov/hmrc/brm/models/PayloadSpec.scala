@@ -26,6 +26,7 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
 
   private val unicode = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
   private val maxCharacterLength = "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYY"
+
   "Payload" when {
 
     "NRS" should {
@@ -61,15 +62,15 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
       "instantiate an instance of payload" in {
         val payload = Payload(
           birthReferenceNumber = Some("123456789"),
-          firstName = "John",
-          lastName = "Smith",
+          _firstName = "John",
+          _lastName = "Smith",
           dateOfBirth = new LocalDate("1997-01-13"),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )
 
         payload shouldBe a[Payload]
         payload.birthReferenceNumber shouldBe Some("123456789")
-        payload.firstName shouldBe "John"
+        payload.firstNames shouldBe "John"
         payload.lastName shouldBe "Smith"
         payload.whereBirthRegistered shouldBe BirthRegisterCountry.withName("england")
       }
@@ -77,9 +78,9 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
       "convert to json" in {
         val payload = Payload(
           birthReferenceNumber = Some("123456789"),
-          firstName = "John",
-          additionalNames = Some("Jones"),
-          lastName = "Smith",
+          _firstName = "John",
+          _additionalNames = Some("Jones"),
+          _lastName = "Smith",
           dateOfBirth = new LocalDate("1997-01-13"),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )

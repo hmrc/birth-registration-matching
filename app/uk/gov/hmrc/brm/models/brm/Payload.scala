@@ -28,18 +28,26 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply =
 
 case class Payload(
                     birthReferenceNumber: Option[String] = None,
-                    firstName: String,
-                    additionalNames: Option[String] = None,
-                    lastName: String,
+                    private val _firstName: String,
+                    private val _additionalNames: Option[String] = None,
+                    private val _lastName: String,
                     dateOfBirth: LocalDate,
                     whereBirthRegistered : BirthRegisterCountry
                   ){
 
+  import uk.gov.hmrc.brm.services.parser.NameParser._
+
+  def firstNames : String = _firstName.names.listToString
+
+  def additionalNames : String = _additionalNames.fold("")(x => x.names.listToString)
+
+  def lastName : String = _lastName.names.listToString
+
   def audit : Map[String, String] = {
     Map(
     "payload.birthReferenceNumber" -> birthReferenceNumber.fold("No Birth Reference Number")(x => x),
-    "payload.firstName" -> firstName,
-    "payload.additionalNames" -> additionalNames.fold("")(x => x),
+    "payload.firstName" -> firstNames,
+    "payload.additionalNames" -> additionalNames,
     "payload.lastName" -> lastName,
     "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
     "payload.whereBirthRegistered" -> whereBirthRegistered.toString
@@ -74,5 +82,6 @@ object Payload extends BRMFormat {
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
     )(Payload.apply _)
+
 }
 
