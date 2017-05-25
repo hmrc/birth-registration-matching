@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 import uk.gov.hmrc.play.http.HeaderCarrier
-
+import uk.gov.hmrc.brm.utils.CommonUtil._
 import scala.concurrent.Future
 
 object BirthEventsController extends BirthEventsController {
@@ -84,25 +84,23 @@ trait BirthEventsController extends BRMBaseController {
 
     val beforeRequestTime = DateTime.now.getMillis
 
-    val response = service.lookup() map {
+    service.lookup() map {
       bm =>
         metrics.status(OK)
         val response = Json.toJson(bm)
         info(CLASS_NAME, "post()", s"Response: $response")
+        logTime(beforeRequestTime)
         respond(Ok(response))
-    } recover handleException(
-      if (payload.birthReferenceNumber.isDefined) "getReference"
-      else "getDetails"
-    )
+    } recover {
+      handleException(if(payload.birthReferenceNumber.isDefined) "getReference"
+      else "getDetails", beforeRequestTime)
+     }
 
-    val diffInMillis = DateTime.now.getMillis-beforeRequestTime
 
-    BRMLogger.info(s"BirthConnector", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
-
-    response
   }
 
   def post() : Action[JsValue] = headerValidator.validateAccept().async(parse.json) {
+
     implicit request =>
       request.body.validate[Payload].fold(errors => handleInvalidRequest(request, errors),
         implicit payload => {
@@ -122,5 +120,8 @@ trait BirthEventsController extends BRMBaseController {
           }
         }
       )
+
+
   }
+
 }

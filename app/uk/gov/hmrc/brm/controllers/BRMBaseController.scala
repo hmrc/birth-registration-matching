@@ -24,6 +24,7 @@ import uk.gov.hmrc.brm.services.Bad
 import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.brm.utils.CommonUtil._
 
 trait BRMBaseController extends BaseController with BRMException {
 
@@ -40,7 +41,7 @@ trait BRMBaseController extends BaseController with BRMException {
       .withHeaders(headers)
   }
 
-  def handleException(method: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
+  def handleException(method: String,startTime:Long)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
     case t =>
       val allPfs = Seq(
         groProxyDownPF(method),
@@ -57,7 +58,8 @@ trait BRMBaseController extends BaseController with BRMException {
         exceptionPF(method)).reduce(_ orElse _)
 
       // audit the transaction when there was an exception with default arguments
-      auditTransaction()
+       auditTransaction()
+       logTime(startTime)
 
       respond(allPfs.apply(t))
   }
