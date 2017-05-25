@@ -83,7 +83,6 @@ trait BirthEventsController extends BRMBaseController {
     info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
     val beforeRequestTime = DateTime.now.getMillis
-
     service.lookup() map {
       bm =>
         metrics.status(OK)
@@ -95,8 +94,6 @@ trait BirthEventsController extends BRMBaseController {
       handleException(if(payload.birthReferenceNumber.isDefined) "getReference"
       else "getDetails", beforeRequestTime)
      }
-
-
   }
 
   def post() : Action[JsValue] = headerValidator.validateAccept().async(parse.json) {
@@ -120,8 +117,6 @@ trait BirthEventsController extends BRMBaseController {
           }
         }
       )
-
-
   }
 
 }

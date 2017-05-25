@@ -47,7 +47,7 @@ object CommonUtil {
     NameFormat(forenames)
   }
 
-
+  //log the time diff in milliseconds.
   def logTime(startTime:Long): Unit ={
     def diffInMillis = DateTime.now.getMillis-startTime
     BRMLogger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
