@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import org.joda.time.DateTime
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
@@ -81,7 +82,9 @@ trait BirthEventsController extends BRMBaseController {
   private def traceAndMatchRecord()(implicit payload: Payload, metrics : BRMMetrics, hc : HeaderCarrier, audit : BRMAudit) = {
     info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
-    service.lookup() map {
+    val beforeRequestTime = DateTime.now.getMillis
+
+    val response = service.lookup() map {
       bm =>
         metrics.status(OK)
         val response = Json.toJson(bm)
@@ -91,6 +94,12 @@ trait BirthEventsController extends BRMBaseController {
       if (payload.birthReferenceNumber.isDefined) "getReference"
       else "getDetails"
     )
+
+    val diffInMillis = DateTime.now.getMillis-beforeRequestTime
+
+    BRMLogger.info(s"BirthConnector", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
+
+    response
   }
 
   def post() : Action[JsValue] = headerValidator.validateAccept().async(parse.json) {
