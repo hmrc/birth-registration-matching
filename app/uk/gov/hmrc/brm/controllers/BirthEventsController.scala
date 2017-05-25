@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
+import org.joda.time.DateTime
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
@@ -29,7 +30,7 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
 import uk.gov.hmrc.play.http.HeaderCarrier
-
+import uk.gov.hmrc.brm.utils.CommonUtil._
 import scala.concurrent.Future
 
 object BirthEventsController extends BirthEventsController {
@@ -81,19 +82,22 @@ trait BirthEventsController extends BRMBaseController {
   private def traceAndMatchRecord()(implicit payload: Payload, metrics : BRMMetrics, hc : HeaderCarrier, audit : BRMAudit) = {
     info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
+    val beforeRequestTime = DateTime.now.getMillis
     service.lookup() map {
       bm =>
         metrics.status(OK)
         val response = Json.toJson(bm)
         info(CLASS_NAME, "post()", s"Response: $response")
+        logTime(beforeRequestTime)
         respond(Ok(response))
-    } recover handleException(
-      if (payload.birthReferenceNumber.isDefined) "getReference"
-      else "getDetails"
-    )
+    } recover {
+      handleException(if(payload.birthReferenceNumber.isDefined) "getReference"
+      else "getDetails", beforeRequestTime)
+     }
   }
 
   def post() : Action[JsValue] = headerValidator.validateAccept().async(parse.json) {
+
     implicit request =>
       request.body.validate[Payload].fold(errors => handleInvalidRequest(request, errors),
         implicit payload => {
@@ -114,4 +118,5 @@ trait BirthEventsController extends BRMBaseController {
         }
       )
   }
+
 }

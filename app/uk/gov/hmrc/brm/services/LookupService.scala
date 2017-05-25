@@ -85,9 +85,6 @@ trait LookupService extends LookupServiceBinder {
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
-
-//        records.foreach(r => Try(info(CLASS_NAME, "lookup()", s"Record status: ${r.status.fold[JsValue](JsNull)(_.toJson)}")))
-
         audit(records, matchResult)
 
         if(matchResult.isMatch) {
@@ -98,6 +95,7 @@ trait LookupService extends LookupServiceBinder {
           BirthResponseBuilder.withNoMatch()
         }
     }
+
   }
 
   private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
