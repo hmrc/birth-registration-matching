@@ -17,12 +17,39 @@
 package uk.gov.hmrc.brm.services.parser
 
 import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger
 
 /**
   * Created by adamconder on 02/02/2017.
   */
 object NameParser {
+
+  private[NameParser] def ignoreAdditionalNames : Boolean = BrmConfig.ignoreAdditionalNames
+
+  def parseNamesOnRecord(payload: Payload, record: Record) : String = {
+    if(ignoreAdditionalNames) {
+      // return the X number of names from the record for what was provided on the input
+      // if I receive 3 names on the input, take 3 names from the record
+      // if I give you more names than on the record then return what is on the record
+      // if I give you less names than on the record, take the number of names from the record that was on input
+      val right = record.child.forenames.names
+      val left = payload.firstName.names
+      val names = left filter right
+      names.listToString
+    } else {
+      /**
+        * When we want middle names
+        * We want to split into two groups
+        * Group 1: first names
+        * Group 2: Middle names
+        * Return group1 and group2
+        */
+      // take all names on the record
+      record.child.forenames.names.listToString
+    }
+  }
 
   implicit class NameParserImplicit(val s: String) {
 
