@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import org.joda.time.{DateTime, Seconds}
 import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
@@ -58,11 +59,16 @@ trait BirthConnector extends ServicesConfig {
   }
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
+    val beforeRequestTime = DateTime.now.getMillis
     val newHc = hc.withExtraHeaders(headers: _*)
-    httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
+    val response = httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
       wts = Writes.JsValueWrites,
       rds = HttpReads.readRaw,
       hc = newHc)
+
+    val diffInMillis = DateTime.now.getMillis-beforeRequestTime
+    BRMLogger.info(s"BirthConnector", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
+    response
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
