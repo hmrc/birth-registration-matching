@@ -31,6 +31,16 @@ class NameParserSpec extends UnitSpec with BRMFakeApplication {
 
   "NameParser" when {
 
+    "Names" should {
+      "return concatenated string of all the names" in {
+
+        val names = Names(List("Adam", "David", "Test"), List("Charles"), List("Smith"))
+        names.firstNames shouldBe "Adam David Test"
+        names.additionalNames shouldBe "Charles"
+        names.lastNames shouldBe "Smith"
+      }
+    }
+
     "filtering Middle Names" should {
 
       "split a string into words removing trailing space" in {
