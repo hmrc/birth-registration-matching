@@ -34,22 +34,15 @@ case class MatchingResult(firstNamesMatched: Match,
     )
   }
 
-  /**
-    * TODO: only set true for matchAdditionalNames if the additionalNames is defined in Name() object
-    * add tests
-    */
   def audit: Map[String, String] = {
 
     def auditAdditionalNames() : Boolean = {
       if(names.additionalNames.nonEmpty){
         getBoolean(additionalNamesMatched)
-      }
-      else {
+      } else {
         getBoolean(Bad())
       }
-
     }
-
 
     Map(
       s"match" -> s"$matched",
