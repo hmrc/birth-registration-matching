@@ -77,7 +77,6 @@ trait BRMBaseController extends BaseController with BRMException {
     auditRequestAndResults()
   }
 
-
   protected def auditRequestAndResults()(implicit payload: Payload,
                                          auditor: BRMAudit,
                                          hc: HeaderCarrier): Unit = {

@@ -19,11 +19,6 @@ package uk.gov.hmrc.brm.models.matching
 import uk.gov.hmrc.brm.services.matching.{Bad, Good, Match}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-
-/**
-  * TODO cache the names that were used to match on
-  * add additionalNames match result
-  */
 case class MatchingResult(firstNamesMatched: Match,
                           additionalNamesMatched: Match,
                           lastNameMatched: Match,
@@ -44,10 +39,22 @@ case class MatchingResult(firstNamesMatched: Match,
     * add tests
     */
   def audit: Map[String, String] = {
+
+    def auditAdditionalNames() : Boolean = {
+      if(names.additionalNames.nonEmpty){
+        getBoolean(additionalNamesMatched)
+      }
+      else {
+        getBoolean(Bad())
+      }
+
+    }
+
+
     Map(
       s"match" -> s"$matched",
       s"matchFirstName" -> s"${getBoolean(firstNamesMatched)}",
-      s"matchAdditionalNames" -> s"${getBoolean(additionalNamesMatched)}",
+      s"matchAdditionalNames" -> s"${auditAdditionalNames()}",
       s"matchLastName" -> s"${getBoolean(lastNameMatched)}",
       s"matchDateOfBirth" -> s"${getBoolean(dateOfBirthMatched)}"
     )
