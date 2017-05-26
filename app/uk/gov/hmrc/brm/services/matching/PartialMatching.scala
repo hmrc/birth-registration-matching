@@ -22,15 +22,7 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser.{Names, _}
 
-/**
-  * Created by mew on 24/05/2017.
-  */
 object PartialMatching extends MatchingAlgorithm {
-
-  /**
-    * We don't consider middle names here?
-    * @return
-    */
 
   private def lastNames()(implicit payload: Payload, record: Record) = {
     if (BrmConfig.matchLastName) {
@@ -40,10 +32,18 @@ object PartialMatching extends MatchingAlgorithm {
     }
   }
 
-  private def forenames()(implicit payload: Payload, record: Record) = {
+  private def firstNames(names: Names)(implicit payload: Payload, record: Record) = {
     if (BrmConfig.matchFirstName) {
-      val namesOnRecord : Names = parseNames(payload, record)
-      stringMatch(Some(payload.firstNames), Some(namesOnRecord.firstNames))
+      stringMatch(Some(payload.firstNames), Some(names.firstNames))
+    } else {
+      Good()
+    }
+  }
+
+
+  private def additionalNames(names: Names)(implicit payload: Payload, record: Record) = {
+    if (BrmConfig.matchAdditionalNames) {
+      stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {
       Good()
     }
@@ -62,9 +62,10 @@ object PartialMatching extends MatchingAlgorithm {
       implicit val p = payload
       implicit val r = record
 
-      val (f, l, d) : (Match, Match, Match) = (forenames(), lastNames(), dateOfBirth())
-      val result = f and l and d
+      val namesOnRecord : Names = parseNames(payload, record)
 
-      MatchingResult(f, l, d, result)
+      val (f, a, l, d) = (firstNames(namesOnRecord), additionalNames(namesOnRecord), lastNames(), dateOfBirth())
+
+      MatchingResult(f, a, l, d, namesOnRecord)
   }
 }

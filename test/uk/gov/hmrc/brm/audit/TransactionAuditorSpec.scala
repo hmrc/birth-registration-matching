@@ -57,7 +57,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditor.transactionToMap(payload, List(child), MatchingResult(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(child), MatchingResult.noMatch)
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
@@ -74,7 +74,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      val event = auditor.transactionToMap(payload, Nil, MatchingResult(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, Nil, MatchingResult.noMatch)
 
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))

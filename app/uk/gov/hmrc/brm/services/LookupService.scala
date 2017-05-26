@@ -89,9 +89,9 @@ trait LookupService extends LookupServiceBinder {
 
         audit(records, matchResult)
 
-        if(matchResult.isMatch) {
+        if(matchResult.matched) {
           MatchCountMetric.count()
-          BirthResponseBuilder.getResponse(matchResult.isMatch)
+          BirthResponseBuilder.getResponse(matchResult.matched)
         } else {
           NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()

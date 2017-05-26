@@ -32,7 +32,7 @@ object NameParser {
     * @param _additionalNames getter for AdditionalNames
     */
   case class Names(private val _firstNames : List[String],
-                   private val _additionalNames : List[String],
+                   private val _additionalNames : List[String] = Nil,
                    private val _lastNames : List[String]) {
 
     def firstNames : String = _firstNames.listToString
@@ -44,13 +44,6 @@ object NameParser {
   }
 
   private[NameParser] def ignoreAdditionalNames : Boolean = BrmConfig.ignoreAdditionalNames
-
-  /**
-    * TODO: do we need to do this now?
-    * We can now just use the parseNames() method and ignore the Names(_additionalNames) argument when not matching
-    * middle names
-    * We no longer need to modify the givenName string on the record
-    */
 
   def parseNames(payload: Payload, record: Record) : Names = {
     val inputLength = payload.firstNames.names.length

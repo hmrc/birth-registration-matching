@@ -30,23 +30,19 @@ object FullMatching extends MatchingAlgorithm {
     case (payload, record) =>
       // Split names on record into firstNames and AdditionalNames
       val namesOnRecord : Names = parseNames(payload, record)
+
+      // Match each property
       val firstNamesMatched = stringMatch(Some(payload.firstNames), Some(namesOnRecord.firstNames))
-
       val additionalNamesMatched = stringMatch(Some(payload.additionalNames), Some(namesOnRecord.additionalNames))
-
       val lastNameMatched = stringMatch(Some(payload.lastName), Some(record.child.lastName))
       val dateOfBirthMatched = dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
 
-      val result = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
-
-      /**
-        * TODO: store result of the additionalNames match method
-        * and the split names
-        */
+//      val result = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
       MatchingResult(
-        firstNamesMatched and additionalNamesMatched,
+        firstNamesMatched,
+        additionalNamesMatched,
         lastNameMatched,
         dateOfBirthMatched,
-        result)
+        namesOnRecord)
   }
 }

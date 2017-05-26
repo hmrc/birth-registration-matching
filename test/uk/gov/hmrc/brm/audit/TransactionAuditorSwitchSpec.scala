@@ -89,7 +89,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
 
       val payload = Payload(Some("123456789"), "Adam", None, "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
 
-      val event = auditor.transactionToMap(payload, List(record), MatchingResult(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(record), MatchingResult.noMatch)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
@@ -117,7 +117,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       auditConfigOnAppForAlternate
     ) {
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = auditor.transactionToMap(payload, List(record), MatchingResult(Bad(), Bad(), Bad(), Bad()))
+      val event = auditor.transactionToMap(payload, List(record), MatchingResult.noMatch)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))

@@ -25,7 +25,7 @@ import scala.annotation.tailrec
 trait MatchingIterator {
   this: MatchingAlgorithm =>
 
-  private val noMatch = MatchingResult(Bad(), Bad(), Bad(), Bad())
+  private def noMatch() = MatchingResult.noMatch
 
   def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean): MatchingResult = {
     @tailrec
@@ -33,7 +33,7 @@ trait MatchingIterator {
       records match {
         case Nil =>
           // no records returned therefore no match was found
-          noMatch
+          noMatch()
         case head :: Nil =>
           // 1 record returned therefore we will attempt to match
           f(payload, head)
@@ -46,10 +46,10 @@ trait MatchingIterator {
 
     if (matchOnMultiple || records.length == 1) {
       // one record returned, attempt to match
-      matchHelper(records, noMatch, matchFunction)
+      matchHelper(records, noMatch(), matchFunction)
     } else {
       // cannot filter or match
-      noMatch
+      noMatch()
     }
   }
 

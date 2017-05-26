@@ -31,7 +31,11 @@ trait BrmConfig extends ServicesConfig with SwitchException {
   def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
   def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", characterMaxLength)
 
+  /**
+    * TODO add switch for matching.additionalNames
+    */
   def matchFirstName : Boolean = getConfBool("birth-registration-matching.matching.firstName",  defBool = true)
+  def matchAdditionalNames : Boolean = getConfBool("birth-registration-matching.matching.additionalNames",  defBool = true)
   def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName",  defBool = true)
   def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth",  defBool = true)
   def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)

@@ -16,31 +16,40 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import uk.gov.hmrc.brm.services.matching.{Match, Good, Bad}
+import uk.gov.hmrc.brm.services.matching.{Bad, Good, Match}
+import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
 
 /**
   * TODO cache the names that were used to match on
   * add additionalNames match result
   */
-case class MatchingResult(forenamesMatched: Match,
+case class MatchingResult(firstNamesMatched: Match,
+                          additionalNamesMatched: Match,
                           lastNameMatched: Match,
-                          dobMatched: Match,
-                          result: Match) {
+                          dateOfBirthMatched: Match,
+                          names: Names) {
 
-  def isMatch: Boolean = {
-    getBoolean(result)
+  def matched: Boolean = {
+    getBoolean(
+      firstNamesMatched and
+      additionalNamesMatched and
+      lastNameMatched and
+      dateOfBirthMatched
+    )
   }
 
   /**
-    * TODO add on matchAdditionalNames
+    * TODO: only set true for matchAdditionalNames if the additionalNames is defined in Name() object
+    * add tests
     */
   def audit: Map[String, String] = {
     Map(
-      s"match" -> s"$isMatch",
-      s"matchFirstName" -> s"${getBoolean(forenamesMatched)}",
+      s"match" -> s"$matched",
+      s"matchFirstName" -> s"${getBoolean(firstNamesMatched)}",
+      s"matchAdditionalNames" -> s"${getBoolean(additionalNamesMatched)}",
       s"matchLastName" -> s"${getBoolean(lastNameMatched)}",
-      s"matchDateOfBirth" -> s"${getBoolean(dobMatched)}"
+      s"matchDateOfBirth" -> s"${getBoolean(dateOfBirthMatched)}"
     )
   }
 
@@ -50,4 +59,11 @@ case class MatchingResult(forenamesMatched: Match,
       case Bad() => false
     }
   }
+
+}
+
+object MatchingResult {
+
+  val noMatch = MatchingResult(Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
+
 }

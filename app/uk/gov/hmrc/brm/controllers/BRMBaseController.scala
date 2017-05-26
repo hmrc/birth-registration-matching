@@ -66,7 +66,7 @@ trait BRMBaseController extends BaseController with BRMException {
                                    auditor: BRMAudit,
                                    hc: HeaderCarrier): Unit = {
 
-    val matchResult = MatchingResult(Bad(), Bad(), Bad(), Bad())
+    val matchResult = MatchingResult.noMatch
 
     // audit matching result
     matchingAuditor.audit(matchResult.audit, Some(payload))
@@ -81,7 +81,7 @@ trait BRMBaseController extends BaseController with BRMException {
   protected def auditRequestAndResults()(implicit payload: Payload,
                                          auditor: BRMAudit,
                                          hc: HeaderCarrier): Unit = {
-    val matchResult = MatchingResult(Bad(), Bad(), Bad(), Bad())
+    val matchResult = MatchingResult.noMatch
     // audit transaction
     transactionAuditor.audit(transactionAuditor.transactionToMap(payload, Nil, matchResult), Some(payload))
 
