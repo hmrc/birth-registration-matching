@@ -22,8 +22,9 @@ import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 
 /**
-  * Created by mew on 24/05/2017.
+  * TODO do we need unit tests for additionalNames?
   */
+
 object FullMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
@@ -37,7 +38,6 @@ object FullMatching extends MatchingAlgorithm {
       val lastNameMatched = stringMatch(Some(payload.lastName), Some(record.child.lastName))
       val dateOfBirthMatched = dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
 
-//      val result = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
       MatchingResult(
         firstNamesMatched,
         additionalNamesMatched,

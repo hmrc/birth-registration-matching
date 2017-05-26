@@ -131,13 +131,13 @@ trait LookupService extends LookupServiceBinder {
   }
 
   private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(None, firstName, additionalNames, lastName, dateOfBirth, whereBirthRegistered) =>
+    case payload : Payload if payload.birthReferenceNumber.isEmpty =>
       info(CLASS_NAME, "lookup()", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
   }
 
   private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) =>
+    case payload : Payload if payload.birthReferenceNumber.isDefined =>
       info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
   }

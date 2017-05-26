@@ -115,6 +115,10 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       auditFlags
   }
 
+
+  /**
+    * TODO implement this
+    */
   def wordCount(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfForenames" -> s"${r.child.forenames.names.count(_.nonEmpty)}",
@@ -122,6 +126,9 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     )
   }
 
+  /**
+    * TODO implement this
+    */
   def characterCount(r: Record, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.forenames.names.filter(_.nonEmpty).listToString.length}",

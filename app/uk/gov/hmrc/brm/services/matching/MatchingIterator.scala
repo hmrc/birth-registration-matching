@@ -29,7 +29,7 @@ trait MatchingIterator {
 
   def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean): MatchingResult = {
     @tailrec
-    def matchHelper(records: List[Record], result: MatchingResult, f: ((Payload, Record)) => MatchingResult): MatchingResult = {
+    def matchHelper(records: List[Record], f: ((Payload, Record)) => MatchingResult): MatchingResult = {
       records match {
         case Nil =>
           // no records returned therefore no match was found
@@ -39,14 +39,14 @@ trait MatchingIterator {
           f(payload, head)
         case head :: tail =>
           // multiple records returned, iterate these until a match is found
-          val r = f(payload, head)
-          matchHelper(tail, r, f)
+          //val r = f(payload, head)
+          matchHelper(tail, f)
       }
     }
 
     if (matchOnMultiple || records.length == 1) {
       // one record returned, attempt to match
-      matchHelper(records, noMatch(), matchFunction)
+      matchHelper(records, matchFunction)
     } else {
       // cannot filter or match
       noMatch()

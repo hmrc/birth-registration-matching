@@ -22,6 +22,10 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser.{Names, _}
 
+
+/**
+  * TODO do we need unit tests for this?
+  */
 object PartialMatching extends MatchingAlgorithm {
 
   private def lastNames()(implicit payload: Payload, record: Record) = {
@@ -39,7 +43,6 @@ object PartialMatching extends MatchingAlgorithm {
       Good()
     }
   }
-
 
   private def additionalNames(names: Names)(implicit payload: Payload, record: Record) = {
     if (BrmConfig.matchAdditionalNames) {
