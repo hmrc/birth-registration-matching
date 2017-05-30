@@ -54,6 +54,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     )
 
   def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+
     payload match {
       case Some(p) =>
         CommonUtil.getOperationType(p) match {
@@ -95,11 +96,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     val auditCharactersPerNameOnRecords = recordListToMap(records, payload, characterCount)
 
     // flags for each record
-    val auditFlags = if(BrmConfig.logFlags) {
-      recordListToMap(records, payload, flags)
-    } else {
-      Map.empty
-    }
+    val auditFlags = recordListToMap(records, payload, flags)
 
     // audit application feature switches
     val features = BrmConfig.audit(Some(payload))
@@ -115,7 +112,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       matchAudit ++
       auditFlags
   }
-
 
   /**
     * TODO implement this
@@ -146,18 +142,18 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     )
   }
 
-  def flags(r : Record, p: Payload, index: Int) : Map[String, String] = {
+  def flags(r : Record, p: Payload, c: Int) : Map[String, String] = {
     /**
      *convert a Map() of flags into a flattened Map() with index associated to each key
      *otherwise return empty Map()
      */
     r.status match {
-      case Some(s) =>
+      case Some(s) if BrmConfig.logFlags =>
         val flags = s.flags
         flags.keys.map(k =>
-          s"records.record$index.flags.$k" -> flags(k)
+          s"records.record$c.flags.$k" -> flags(k)
         ).toMap
-      case None => Map()
+      case _ => Map()
     }
   }
 
