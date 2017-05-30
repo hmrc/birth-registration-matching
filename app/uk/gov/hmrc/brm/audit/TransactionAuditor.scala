@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.services.parser.NameParser
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator}
@@ -86,16 +87,16 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     val matchAudit = recordFoundAndMatchToMap(records, matchResult)
 
     // audit status on the records
-    val auditWordsPerNameOnRecords = recordListToMap(records, wordCount)
+    val auditWordsPerNameOnRecords = recordListToMap(records, payload, wordCount)
 
     // log name for payload and record
     logNameCount(payload, auditWordsPerNameOnRecords)
 
-    val auditCharactersPerNameOnRecords = recordListToMap(records, characterCount)
+    val auditCharactersPerNameOnRecords = recordListToMap(records, payload, characterCount)
 
     // flags for each record
     val auditFlags = if(BrmConfig.logFlags) {
-      recordListToMap(records, flags)
+      recordListToMap(records, payload, flags)
     } else {
       Map.empty
     }
@@ -119,24 +120,33 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
   /**
     * TODO implement this
     */
-  def wordCount(r: Record, c: Int): Map[String, String] = {
+  def wordCount(r: Record, p: Payload, c: Int): Map[String, String] = {
+
+    val recordNames = NameParser.parseNames(p, r)
+
+    //TODO: Should we change the key names to be more consistent (forenames or firstname?)
     Map(
-      s"records.record$c.numberOfForenames" -> s"${r.child.forenames.names.count(_.nonEmpty)}",
-      s"records.record$c.numberOfLastnames" -> s"${r.child.lastName.names.count(_.nonEmpty)}"
+      s"records.record$c.numberOfForenames" -> s"${recordNames.firstNames.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfAdditionalNames" -> s"${recordNames.additionalNames.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfLastnames" -> s"${recordNames.lastNames.names.count(_.nonEmpty)}"
     )
   }
 
   /**
     * TODO implement this
     */
-  def characterCount(r: Record, c: Int): Map[String, String] = {
+  def characterCount(r: Record, p: Payload, c: Int): Map[String, String] = {
+
+    val recordNames = NameParser.parseNames(p, r)
+
     Map(
-      s"records.record$c.numberOfCharactersInFirstName" -> s"${r.child.forenames.names.filter(_.nonEmpty).listToString.length}",
-      s"records.record$c.numberOfCharactersInLastName" -> s"${r.child.lastName.names.filter(_.nonEmpty).listToString.length}"
+      s"records.record$c.numberOfCharactersInFirstName" -> s"${recordNames.firstNames.length}",
+      s"records.record$c.numberOfCharactersInAdditionalName" -> s"${recordNames.additionalNames.length}",
+      s"records.record$c.numberOfCharactersInLastName" -> s"${recordNames.lastNames.length}"
     )
   }
 
-  def flags(r : Record, index: Int) : Map[String, String] = {
+  def flags(r : Record, p: Payload, index: Int) : Map[String, String] = {
     /**
      *convert a Map() of flags into a flattened Map() with index associated to each key
      *otherwise return empty Map()
@@ -151,13 +161,13 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     }
   }
 
-  def recordListToMap(record: List[Record], f: (Record, Int) => Map[String, String]): Map[String, String] = {
+  def recordListToMap(record: List[Record], p: Payload, f: (Record, Payload, Int) => Map[String, String]): Map[String, String] = {
     @tailrec
     def build(c: Int, r: List[Record], m: Map[String, String]) : Map[String, String] = {
       r match {
         case Nil => m
         case h :: tail =>
-          val newMap = f(h, c)
+          val newMap = f(h, p, c)
           build(c + 1, tail, m ++ newMap)
       }
     }
