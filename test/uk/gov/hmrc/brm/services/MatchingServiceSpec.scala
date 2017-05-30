@@ -46,24 +46,35 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
   val configFirstName: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
+    "microservice.services.birth-registration-matching.matching.additionalNames" -> false,
+    "microservice.services.birth-registration-matching.matching.lastName" -> false,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
+  )
+
+  val configAdditionalNames: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.matching.firstName" -> true,
+    "microservice.services.birth-registration-matching.matching.additionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
   val configLastName: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
+    "microservice.services.birth-registration-matching.matching.additionalNames" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
   val configDob: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
+    "microservice.services.birth-registration-matching.matching.additionalNames" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true
   )
 
   val configFirstNameLastName: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
+    "microservice.services.birth-registration-matching.matching.additionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
@@ -71,6 +82,7 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
   implicit val hc = HeaderCarrier()
 
   val firstNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstName).build()
+  val additionalNamesApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configAdditionalNames).build()
   val lastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configLastName).build()
   val dobApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configDob).build()
   val firstNameLastNameApp = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configFirstNameLastName).build()
@@ -84,9 +96,22 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
       ) {
         when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val payload = Payload(Some("123456789"), "Chris", None, "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+        val payload = Payload(Some("123456789"), "Chris", Some("test"), "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
         val resultMatch = MockMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
         BrmConfig.matchLastName shouldBe false
+        BrmConfig.matchFirstName shouldBe true
+        resultMatch.matched shouldBe true
+      }
+
+
+      "return true result for firstName and additionalName  only" in running(
+        additionalNamesApp
+      ) {
+        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val payload = Payload(Some("123456789"), "Adam", Some("David"), "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+        val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
+        BrmConfig.matchAdditionalNames shouldBe true
+        BrmConfig.matchFirstName shouldBe true
         resultMatch.matched shouldBe true
       }
 

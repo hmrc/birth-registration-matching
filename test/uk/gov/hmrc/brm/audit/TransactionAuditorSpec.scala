@@ -19,9 +19,11 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import org.specs2.mock.mockito.ArgumentCapture
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
@@ -38,11 +40,16 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 15/02/2017.
   */
-class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
+class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
   val auditor = auditorFixtures.transactionAudit
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    Map(
+      "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true
+    )
+  ).build()
 
   implicit val hc = HeaderCarrier()
 
@@ -127,8 +134,8 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Adam TEST",
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val localDate = new LocalDate("2009-06-30")
+      val payload = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
       val response = auditor.recordListToMap(List(child), payload,auditor.wordCount)
 
       response("records.record1.numberOfForenames") shouldBe "2"
@@ -148,7 +155,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
       val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val response = auditor.recordListToMap(List(child, child2),payload, auditor.wordCount)
       //TODO check for additional name
       response("records.record1.numberOfForenames") shouldBe "2"
@@ -175,7 +182,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
       val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val response = auditor.recordListToMap(List(child),payload, auditor.characterCount)
       response shouldBe a[Map[_, _]]
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
@@ -194,7 +201,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Andrews",
         Some(new LocalDate("2009-08-30"))))
       val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val response = auditor.recordListToMap(List(child1, child2),payload, auditor.characterCount)
 
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
