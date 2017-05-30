@@ -99,7 +99,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
   "responseWordCount" should {
 
     "return empty Map when an empty list is sent" in {
-      val response = auditor.recordListToMap(Nil, auditor.wordCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(Nil,payload ,auditor.wordCount)
       response shouldBe a[Map[_,_]]
       response.isEmpty shouldBe true
     }
@@ -110,8 +112,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "",
         "",
         Some(new LocalDate("2009-06-30"))))
-
-      val response = auditor.recordListToMap(List(child), auditor.wordCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(List(child),payload, auditor.wordCount)
 
       response shouldBe a[Map[_, _]]
       response("records.record1.numberOfForenames") shouldBe "0"
@@ -124,8 +127,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Adam TEST",
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
-
-      val response = auditor.recordListToMap(List(child), auditor.wordCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(List(child), payload,auditor.wordCount)
 
       response("records.record1.numberOfForenames") shouldBe "2"
       response("records.record1.numberOfLastnames") shouldBe "1"
@@ -143,9 +147,10 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Adam",
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
-
-      val response = auditor.recordListToMap(List(child, child2), auditor.wordCount)
-
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(List(child, child2),payload, auditor.wordCount)
+      //TODO check for additional name
       response("records.record1.numberOfForenames") shouldBe "2"
       response("records.record1.numberOfLastnames") shouldBe "1"
       response("records.record2.numberOfForenames") shouldBe "1"
@@ -156,7 +161,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
   "responseCharacterCount" should {
 
     "return empty Map when an empty list is sent" in {
-      val response = auditor.recordListToMap(Nil, auditor.characterCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(Nil, payload,auditor.characterCount)
       response shouldBe a[Map[_,_]]
       response.isEmpty shouldBe true
     }
@@ -167,8 +174,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Adam TEST",
         "SMITH",
         Some(new LocalDate("2009-06-30"))))
-
-      val response = auditor.recordListToMap(List(child), auditor.characterCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(List(child),payload, auditor.characterCount)
       response shouldBe a[Map[_, _]]
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
       response("records.record1.numberOfCharactersInLastName") shouldBe "5"
@@ -185,8 +193,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
         "Christopher",
         "Andrews",
         Some(new LocalDate("2009-08-30"))))
-
-      val response = auditor.recordListToMap(List(child1, child2), auditor.characterCount)
+      val localDate = new LocalDate("2017-02-17")
+      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val response = auditor.recordListToMap(List(child1, child2),payload, auditor.characterCount)
 
       response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
       response("records.record1.numberOfCharactersInLastName") shouldBe "5"
@@ -214,7 +223,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
             )
           )
         )
-        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
         response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
         response("records.record1.flags.correction") shouldBe "Correction on record"
         response("records.record1.flags.cancelled") shouldBe "true"
@@ -237,7 +248,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
             )
           )
         )
-        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
         response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
         response("records.record1.flags.correction") shouldBe "Correction on record"
         response("records.record1.flags.cancelled") shouldBe "true"
@@ -260,7 +273,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
             )
           )
         )
-        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
         response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
         response("records.record1.flags.correction") shouldBe "None"
         response("records.record1.flags.cancelled") shouldBe "true"
@@ -283,7 +298,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
             )
           )
         )
-        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val response = auditor.recordListToMap(List(child1), payload,auditor.flags)
         response("records.record1.flags.status") shouldBe "Valid"
         response("records.record1.flags.deathCode") shouldBe "Potentially deceased"
       }
@@ -297,7 +314,9 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerSu
           Some(new LocalDate("2009-06-30"))),
           status = None
         )
-        val response = auditor.recordListToMap(List(child1), auditor.flags)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
         response shouldBe empty
       }
 
