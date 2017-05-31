@@ -28,21 +28,21 @@ object TestHelper {
 
   /**
     * GRO
-   */
+    */
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
-  val groJsonResponseObject400000001 = JsonUtils.getJsonFromFile("gro","400000001")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
+  val groJsonResponseObject400000001 = JsonUtils.getJsonFromFile("gro", "400000001")
   val groJsonResponseObjectCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
   val groJsonResponseObjectCollection400000001 = JsonUtils.getJsonFromFile("gro", "400000001-array")
   val groJsonResponseObjectMultipleWithMatch = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
   val groJsonResponseObject20120216 = JsonUtils.getJsonFromFile("gro", "2012-02-16")
   val groJsonResponseObject20090701 = JsonUtils.getJsonFromFile("gro", "2009-07-01")
   val groJsonResponseObject20090630 = JsonUtils.getJsonFromFile("gro", "2009-06-30")
-  val groResponseWithAdditionalName = JsonUtils.getJsonFromFile("gro","with_additional_name")
-  val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro","without_additional_name")
-  val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro","with_more_additional_name")
-  val groResponseWithSpecialCharacter = JsonUtils.getJsonFromFile("gro","with_special_character")
-  val groResponse500036682 = JsonUtils.getJsonFromFile("gro","500036682")
+  val groResponseWithAdditionalName = JsonUtils.getJsonFromFile("gro", "with_additional_name")
+  val groResponseWithoutAdditionalName = JsonUtils.getJsonFromFile("gro", "without_additional_name")
+  val groResponseWithMoreAdditionalName = JsonUtils.getJsonFromFile("gro", "with_more_additional_name")
+  val groResponseWithSpecialCharacter = JsonUtils.getJsonFromFile("gro", "with_special_character")
+  val groResponse500036682 = JsonUtils.getJsonFromFile("gro", "500036682")
 
 
   val payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
@@ -75,7 +75,7 @@ object TestHelper {
   val payloadNoReferenceNorthernIreland = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
 
   val groResponseValidJson = Json.parse(
-    """
+    s"""
       |{
       |  "location": {
       |
@@ -104,8 +104,8 @@ object TestHelper {
       |      }
       |    }
       |  },
-      |  "systemNumber": 123456789,
-      |  "id": 123456789,
+      |  "systemNumber": $referenceNumber,
+      |  "id": $referenceNumber,
       |  "status": {
       |    "blockedRegistration": false
       |  },
@@ -113,6 +113,10 @@ object TestHelper {
       |
       |  }
     """.stripMargin)
+
+  private val referenceNumber: Int = 123456789
+
+  private val birthDate = new LocalDate("2012-02-16")
 
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
@@ -124,135 +128,119 @@ object TestHelper {
 
   def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
 
-  def getRecord(foreNames :String, lastName:String): Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, foreNames, lastName,Some(birthDate))
+  def getRecord(foreNames: String, lastName: String): Record = {
+    val child = Child(referenceNumber, foreNames, lastName, Some(birthDate))
     Record(child, None)
   }
 
-  def validRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jones",Some(birthDate))
+  def validRecord: Record = {
+    val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordSpecialCharactersFirstName: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris-Jame's", "Jones",Some(birthDate))
+  def validRecordSpecialCharactersFirstName: Record = {
+
+    val child = Child(referenceNumber, "Chris-Jame's", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordMiddleNames: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Adam David", "Jones",Some(birthDate))
+  def validRecordMiddleNames: Record = {
+    val child = Child(referenceNumber, "Adam David", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def adamTestTestJonesRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Adam test test", "Jones",Some(birthDate))
+  def adamTestTestJonesRecord: Record = {
+    val child = Child(referenceNumber, "Adam test test", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordMiddleNamesWithSpaces: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "  Adam     David ", "Jones",Some(birthDate))
+  def validRecordMiddleNamesWithSpaces: Record = {
+    val child = Child(referenceNumber, "  Adam     David ", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordMiddleNamesWithSpacesAndPunctuation: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "   Jamie  Mary-Ann'é    Earl ", "Jones",Some(birthDate))
+  def validRecordMiddleNamesWithSpacesAndPunctuation: Record = {
+    val child = Child(referenceNumber, "   Jamie  Mary-Ann'é    Earl ", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordSpecialCharactersLastName: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jones--Smith",Some(birthDate))
+  def validRecordSpecialCharactersLastName: Record = {
+    val child = Child(referenceNumber, "Chris", "Jones--Smith", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordFirstNameSpace: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris James", "Jones",Some(birthDate))
+  def validRecordFirstNameSpace: Record = {
+    val child = Child(referenceNumber, "Chris James", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordLastNameSpace: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jones Smith",Some(birthDate))
+  def validRecordLastNameSpace: Record = {
+    val child = Child(referenceNumber, "Chris", "Jones Smith", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordLastNameMultipleSpace: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jones  Smith",Some(birthDate))
+  def validRecordLastNameMultipleSpace: Record = {
+    val child = Child(referenceNumber, "Chris", "Jones  Smith", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordLastNameMultipleSpaceBeginningTrailing: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "  Jones  Smith ",Some(birthDate))
+  def validRecordLastNameMultipleSpaceBeginningTrailing: Record = {
+    val child = Child(referenceNumber, "Chris", "  Jones  Smith ", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordUTF8FirstName : Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chrîs", "Jones",Some(birthDate))
+  def validRecordUTF8FirstName: Record = {
+    val child = Child(referenceNumber, "Chrîs", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordUTF8LastName : Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jonéş",Some(birthDate))
+  def validRecordUTF8LastName: Record = {
+    val child = Child(referenceNumber, "Chris", "Jonéş", Some(birthDate))
     Record(child, None)
   }
 
-  def validRecordUppercase: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "CHRIS", "JONES",Some(birthDate))
+  def validRecordUppercase: Record = {
+    val child = Child(referenceNumber, "CHRIS", "JONES", Some(birthDate))
     Record(child, None)
   }
 
-  def wrongCaseFirstNameValidRecord : Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(1, "CHriS", "Jones", Some(birthDate))
+  def wrongCaseFirstNameValidRecord: Record = {
+    val child = Child(1, "CHriS", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def wrongCaseLastNameValidRecord : Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(1, "Chris", "JOnES", Some(birthDate))
+  def wrongCaseLastNameValidRecord: Record = {
+    val child = Child(1, "Chris", "JOnES", Some(birthDate))
     Record(child, None)
   }
 
-  def wrongCaseValidRecord : Record = {
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(1, "cHrIs", "JOnES", Some(birthDate))
+  def wrongCaseValidRecord: Record = {
+    val child = Child(1, "cHrIs", "JOnES", Some(birthDate))
     Record(child, None)
   }
 
-  def invalidRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(1, "invalidfirstName", "invalidLastName",None)
+  def invalidRecordFirstName: Record = {
+    val child = Child(referenceNumber, "", "", None)
     Record(child, None)
   }
 
-  def firstNameNotMatchedRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Manish", "Jones",Some(birthDate))
+  def invalidRecord: Record = {
+    val child = Child(1, "invalidfirstName", "invalidLastName", None)
     Record(child, None)
   }
 
-  def lastNameNotMatchRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "lastName",Some(birthDate))
+  def firstNameNotMatchedRecord: Record = {
+    val child = Child(referenceNumber, "Manish", "Jones", Some(birthDate))
     Record(child, None)
   }
 
-  def dobNotMatchRecord: Record ={
-    val birthDate = new LocalDate("2012-02-16")
-    val child =  Child(123456789, "Chris", "Jones",None)
+  def lastNameNotMatchRecord: Record = {
+    val child = Child(referenceNumber, "Chris", "lastName", Some(birthDate))
+    Record(child, None)
+  }
+
+  def dobNotMatchRecord: Record = {
+    val child = Child(referenceNumber, "Chris", "Jones", None)
     Record(child, None)
   }
 
@@ -269,7 +257,7 @@ object TestHelper {
   val userWhereBirthRegisteredNI = Json.parse(
     s"""
        |{
-       | "birthReferenceNumber" : "123456789",
+       | "birthReferenceNumber" : "$referenceNumber",
        | "firstName" : "Chris",
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-02-16",
@@ -348,7 +336,7 @@ object TestHelper {
        |"additionalNames" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -361,7 +349,7 @@ object TestHelper {
        |"additionalNames" : " ",
        |"lastName" : "Test",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -373,7 +361,7 @@ object TestHelper {
        |"additionalNames" : "     ",
        |"lastName" : "Test",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -481,7 +469,7 @@ object TestHelper {
        |{
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-04-18",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "$referenceNumber"
        |}
      """.stripMargin)
 
@@ -502,7 +490,7 @@ object TestHelper {
        | "firstName" : "Chris",
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-08-03",
-       | "birthReferenceNumber" : "123456789",
+       | "birthReferenceNumber" : "$referenceNumber",
        | "whereBirthRegistered" : "wales"
        |}
     """.stripMargin)
@@ -513,7 +501,7 @@ object TestHelper {
        | "firstName" : "Chris",
        | "lastName" : "Jones",
        | "dateOfBirth" : "2012-08-03",
-       | "birthReferenceNumber" : "123456789",
+       | "birthReferenceNumber" : "$referenceNumber",
        | "whereBirthRegistered" : "WalEs"
        |}
     """.stripMargin)
@@ -652,7 +640,7 @@ object TestHelper {
        |{
        |"lastName" : "Smith",
        |"dateOrBirth" : "2012-12-17",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -675,7 +663,7 @@ object TestHelper {
        |"firstName" : "",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -686,7 +674,7 @@ object TestHelper {
        |"firstName" : "../WEB-INF/web.xml",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -697,7 +685,7 @@ object TestHelper {
        |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -708,7 +696,7 @@ object TestHelper {
        |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -719,7 +707,7 @@ object TestHelper {
        |"firstName" : " ",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -730,7 +718,7 @@ object TestHelper {
        |"firstName" : "      ",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -741,7 +729,7 @@ object TestHelper {
        |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -752,7 +740,7 @@ object TestHelper {
        |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -763,7 +751,7 @@ object TestHelper {
        |"firstName" : "Adam TEST",
        |"lastName" : "Gibby&cat /etc/passwd&",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -774,7 +762,7 @@ object TestHelper {
        |"firstName" : "Ronan",
        |"lastName" : " ",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -785,7 +773,7 @@ object TestHelper {
        |"firstName" : "Ronan",
        |"lastName" : "      ",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -795,7 +783,7 @@ object TestHelper {
        |{
        |"firstName" : "John",
        |"dateOrBirth" : "2012-12-17",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -806,7 +794,7 @@ object TestHelper {
        |"firstName" : "John",
        |"lastName" : "",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : "england"
        |}
      """.stripMargin)
@@ -818,7 +806,7 @@ object TestHelper {
        |"firstName" : "Manish",
        |"lastName" : "Varma",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789"
+       |"birthReferenceNumber" : "$referenceNumber"
        |}
      """.stripMargin)
 
@@ -828,7 +816,7 @@ object TestHelper {
        |"firstName" : "John",
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-11-16",
-       |"birthReferenceNumber" : "123456789",
+       |"birthReferenceNumber" : "$referenceNumber",
        |"whereBirthRegistered" : ""
        |}
      """.stripMargin)
@@ -961,7 +949,7 @@ object TestHelper {
       "description" -> "return response code 400 if request contains birthReferenceNumber below minimum length for scotland",
       "responseCode" -> BAD_REQUEST,
       "country" -> "scotland",
-      "referenceNumber" -> "123456789"
+      "referenceNumber" -> s"$referenceNumber"
     ),
     Map(
       "description" -> "return response code 400 if request contains birthReferenceNumber above maximum length for scotland",
@@ -972,58 +960,55 @@ object TestHelper {
   )
 
 
-
-  def getNrsResponse(fatherName:String="Asdf", fatherLastName:String="ASDF",
-                     fatherBirthPlace:String="23 High Street, Perth, PA3 4TG",
-                     informantName:String="Mother",qualification:String="J Smith") : JsValue = {
+  def getNrsResponse(fatherName: String = "Asdf", fatherLastName: String = "ASDF",
+                     fatherBirthPlace: String = "23 High Street, Perth, PA3 4TG",
+                     informantName: String = "Mother", qualification: String = "J Smith"): JsValue = {
 
     def buildKey(key: String, value: String, append: Option[String] = Some(",")): String = {
-      if(!value.isEmpty)
-        s""" "$key": "${value}"${append.getOrElse("")}"""
+      if (!value.isEmpty)
+        s""" "$key": "$value"${append.getOrElse("")}"""
       else
         """"""
     }
 
     val nrsResponse = Json.parse(
-    s"""
-      |{  "births": [
-      |    {
-      | "subjects" : {
-      |    "father": {
-      |          ${buildKey("firstName", fatherName)}
-      |          ${buildKey("lastName", fatherLastName, if(fatherBirthPlace.isEmpty) None else Some(","))}
-      |          ${buildKey("address", fatherBirthPlace, None)}
-      |       },
-      |    "mother": {
-      |          "firstName": "Joan",
-      |          "lastName": "SMITH",
-      |          "address": "24 Church Road Edinburgh",
-      |          "maidenSurname": "SMITH"
-      |       },
-      |   "child" : {
-      |          "firstName": "Adam TEST",
-      |          "lastName": "SMITH",
-      |          "birthPlace": "Edinburgh",
-      |          "sex": "M",
-      |          "dateOfBirth": "2009-11-12"
-      |    },
-      |   "informant": {
-      |          ${buildKey("qualification", qualification)}
-      |          "fullName": "${informantName}"
-      |        }
-      | },
-      | "id" : "2017734003",
-      | "status": 1,
-      | "deathCode": 0
-      |}   ]
-      |}
+      s"""
+         |{  "births": [
+         |    {
+         | "subjects" : {
+         |    "father": {
+         |          ${buildKey("firstName", fatherName)}
+         |          ${buildKey("lastName", fatherLastName, if (fatherBirthPlace.isEmpty) None else Some(","))}
+         |          ${buildKey("address", fatherBirthPlace, None)}
+         |       },
+         |    "mother": {
+         |          "firstName": "Joan",
+         |          "lastName": "SMITH",
+         |          "address": "24 Church Road Edinburgh",
+         |          "maidenSurname": "SMITH"
+         |       },
+         |   "child" : {
+         |          "firstName": "Adam TEST",
+         |          "lastName": "SMITH",
+         |          "birthPlace": "Edinburgh",
+         |          "sex": "M",
+         |          "dateOfBirth": "2009-11-12"
+         |    },
+         |   "informant": {
+         |          ${buildKey("qualification", qualification)}
+         |          "fullName": "$informantName"
+         |        }
+         | },
+         | "id" : "2017734003",
+         | "status": 1,
+         | "deathCode": 0
+         |}   ]
+         |}
     """.stripMargin)
 
-  
+
     nrsResponse
   }
-
-
 
 
 }

@@ -25,6 +25,7 @@ import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Child
 import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.brm.utils.TestHelper._
@@ -91,13 +92,6 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
 
             val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
             val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
-            resultMatch.matched shouldBe false
-          }
-
-          "return false result match when List contains duplicate matches" ignore {
-
-            val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-            val resultMatch = MockMatchingService.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
             resultMatch.matched shouldBe false
           }
 
@@ -286,6 +280,15 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
 
                   val payload = Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                  resultMatch.matched shouldBe false
+                }
+              }
+
+              s"($name) match false when record has empty firstName." in {
+                running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+
+                  val payload = Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                  val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecordFirstName), MatchingType.FULL)
                   resultMatch.matched shouldBe false
                 }
               }
