@@ -54,7 +54,21 @@ case class Payload(
     )
   }
 
+  def requestType: RequestType = {
+    this match {
+      case input@Payload(None, _, _, _, _, _) => {
+        DetailsRequest()
+      }
+      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
+        ReferenceRequest()
+      }
+    }
+  }
 }
+
+abstract class RequestType
+case class ReferenceRequest() extends RequestType
+case class DetailsRequest() extends RequestType
 
 object Payload extends BRMFormat {
   

@@ -18,11 +18,9 @@ package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
-import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.CommonUtil
-import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -54,7 +52,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
 
     payload match {
       case Some(p) =>
-        CommonUtil.getOperationType(p) match {
+        p.requestType match {
           case DetailsRequest() =>
             event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/details"))
           case ReferenceRequest() =>
