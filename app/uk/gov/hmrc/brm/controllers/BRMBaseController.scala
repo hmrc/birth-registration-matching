@@ -72,7 +72,7 @@ trait BRMBaseController extends BaseController with BRMException {
     matchingAuditor.audit(matchResult.audit, Some(payload))
 
     // MetricsFactory auditor
-    auditor.audit(auditor.recordFoundAndMatchToMap(Nil, matchResult), Some(payload))
+    auditor.audit(auditor.matchingSummary(Nil, matchResult), Some(payload))
 
     auditRequestAndResults()
   }

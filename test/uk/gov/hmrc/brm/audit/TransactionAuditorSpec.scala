@@ -103,14 +103,15 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
 
   }
 
-  "responseWordCount" should {
+  "records audit" should {
 
-    "return empty Map when an empty list is sent" in {
+    "not return word counts for no records found" in {
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(Nil,payload ,auditor.wordCount)
-      response shouldBe a[Map[_,_]]
-      response.isEmpty shouldBe true
+      val response = auditor.transactionToMap(payload, Nil, MatchingResult.noMatch)
+      response.contains("records.record1.numberOfForenames") shouldBe false
+      response.contains("records.record1.numberOfAdditionalNames") shouldBe false
+      response.contains("records.record1.numberOfLastnames") shouldBe false
     }
 
     "return correct values when a single record is passed with empty name values" in {
@@ -121,213 +122,220 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
         Some(new LocalDate("2009-06-30"))))
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(List(child),payload, auditor.wordCount)
-
-      response shouldBe a[Map[_, _]]
-      response("records.record1.numberOfForenames") shouldBe "0"
-      response("records.record1.numberOfLastnames") shouldBe "0"
+      //val response = auditor.listToMap(List(child),payload, Record.audit)
+//      val response = auditor.transactionToMap(payload, Nil, MatchingResult.noMatch)
+//
+//      response shouldBe a[Map[_, _]]
+//      response("records.record1.numberOfForenames") shouldBe "0"
+//      response("records.record1.numberOfLastnames") shouldBe "0"
     }
-
-    "return correct values when a single record is passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2009-06-30")
-      val payload = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(List(child), payload,auditor.wordCount)
-
-      response("records.record1.numberOfForenames") shouldBe "2"
-      response("records.record1.numberOfLastnames") shouldBe "1"
-    }
-
-    "return correct values when multiple records are passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-
-      val child2 = Record(Child(
-        599935710: Int,
-        "Adam",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(List(child, child2),payload, auditor.wordCount)
-      //TODO check for additional name
-      response("records.record1.numberOfForenames") shouldBe "2"
-      response("records.record1.numberOfLastnames") shouldBe "1"
-      response("records.record2.numberOfForenames") shouldBe "1"
-      response("records.record2.numberOfLastnames") shouldBe "1"
-    }
+//
+//    "return correct values when a single record is passed" in {
+//      val child = Record(Child(
+//        500035710: Int,
+//        "Adam TEST",
+//        "SMITH",
+//        Some(new LocalDate("2009-06-30"))))
+//      val localDate = new LocalDate("2009-06-30")
+//      val payload = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
+//      val response = auditor.listToMap(List(child), payload, Record.audit)
+//
+//      response("records.record1.numberOfForenames") shouldBe "2"
+//      response("records.record1.numberOfLastnames") shouldBe "1"
+//    }
+//
+//    "return correct values when multiple records are passed" in {
+//      val child = Record(Child(
+//        500035710: Int,
+//        "Adam TEST",
+//        "SMITH",
+//        Some(new LocalDate("2009-06-30"))))
+//
+//      val child2 = Record(Child(
+//        599935710: Int,
+//        "Adam",
+//        "SMITH",
+//        Some(new LocalDate("2009-06-30"))))
+//      val localDate = new LocalDate("2017-02-17")
+//      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//      val response = auditor.listToMap(List(child, child2),payload, Record.audit)
+//      //TODO check for additional name
+//      response("records.record1.numberOfForenames") shouldBe "2"
+//      response("records.record1.numberOfLastnames") shouldBe "1"
+//      response("records.record2.numberOfForenames") shouldBe "1"
+//      response("records.record2.numberOfLastnames") shouldBe "1"
+//    }
   }
+//
+//  "responseCharacterCount" should {
+//
+//    "return empty Map when an empty list is sent" in {
+//      val localDate = new LocalDate("2017-02-17")
+//      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//      val response = auditor.listToMap(Nil, payload, Record.audit)
+//      response shouldBe a[Map[_,_]]
+//      response.isEmpty shouldBe true
+//    }
+//
+//    "return correct values when a single record is passed" in {
+//      val child = Record(Child(
+//        500035710: Int,
+//        "Adam TEST",
+//        "SMITH",
+//        Some(new LocalDate("2009-06-30"))))
+//      val localDate = new LocalDate("2017-02-17")
+//      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//      val response = auditor.listToMap(List(child),payload, Record.audit)
+//      response shouldBe a[Map[_, _]]
+//      response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
+//      response("records.record1.numberOfCharactersInLastName") shouldBe "5"
+//    }
+//
+//    "return correct values when a multiple records are passed" in {
+//      val child1 = Record(Child(
+//        500035710: Int,
+//        "Adam TEST",
+//        "SMITH",
+//        Some(new LocalDate("2009-06-30"))))
+//      val child2 = Record(Child(
+//        599935710: Int,
+//        "Christopher",
+//        "Andrews",
+//        Some(new LocalDate("2009-08-30"))))
+//      val localDate = new LocalDate("2017-02-17")
+//      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//      val response = auditor.listToMap(List(child1, child2),payload, Record.audit)
+//
+//      response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
+//      response("records.record1.numberOfCharactersInLastName") shouldBe "5"
+//      response("records.record2.numberOfCharactersInFirstName") shouldBe "11"
+//      response("records.record2.numberOfCharactersInLastName") shouldBe "7"
+//    }
+//
+//  }
+//
+//  "flags" when {
+//
+//    "record has flags for GRO" should {
+//
+//      "return a Map() of flags" in {
+//        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+//          Some(new LocalDate("2009-06-30"))),
+//          status = Some(
+//            GROStatus(
+//              potentiallyFictitiousBirth = true,
+//              correction = Some("Correction"),
+//              cancelled = true,
+//              blockedRegistration = true,
+//              marginalNote = Some("RCE"),
+//              reRegistered = Some("Re-registered")
+//            )
+//          )
+//        )
+//        val localDate = new LocalDate("2017-02-17")
+//        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//        val response = auditor.listToMap(List(child1),payload, Record.audit)
+//        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+//        response("records.record1.flags.correction") shouldBe "Correction on record"
+//        response("records.record1.flags.cancelled") shouldBe "true"
+//        response("records.record1.flags.blockedRegistration") shouldBe "true"
+//        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+//        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+//      }
+//
+//      "return a Map() of flags where flag has reason and none" in {
+//        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+//          Some(new LocalDate("2009-06-30"))),
+//          status = Some(
+//            GROStatus(
+//              potentiallyFictitiousBirth = true,
+//              correction = Some("Correction None"),
+//              cancelled = true,
+//              blockedRegistration = true,
+//              marginalNote = Some("RCE"),
+//              reRegistered = Some("Re-registered")
+//            )
+//          )
+//        )
+//        val localDate = new LocalDate("2017-02-17")
+//        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//        val response = auditor.listToMap(List(child1),payload, Record.audit)
+//        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+//        response("records.record1.flags.correction") shouldBe "Correction on record"
+//        response("records.record1.flags.cancelled") shouldBe "true"
+//        response("records.record1.flags.blockedRegistration") shouldBe "true"
+//        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+//        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+//      }
+//
+//      "return a Map() of 'none' flags" in {
+//        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+//          Some(new LocalDate("2009-06-30"))),
+//          status = Some(
+//            GROStatus(
+//              potentiallyFictitiousBirth = true,
+//              correction = Some(" None  "),
+//              cancelled = true,
+//              blockedRegistration = true,
+//              marginalNote = Some("  None  "),
+//              reRegistered = Some(" None.  .none... ")
+//            )
+//          )
+//        )
+//        val localDate = new LocalDate("2017-02-17")
+//        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//        val response = auditor.listToMap(List(child1),payload, Record.audit)
+//        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+//        response("records.record1.flags.correction") shouldBe "None"
+//        response("records.record1.flags.cancelled") shouldBe "true"
+//        response("records.record1.flags.blockedRegistration") shouldBe "true"
+//        response("records.record1.flags.marginalNote") shouldBe "None"
+//        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+//      }
+//
+//    }
+//
+//    "record has flags for NRS" should {
+//
+//      "return a Map() of flags" in {
+//        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+//          Some(new LocalDate("2009-06-30"))),
+//          status = Some(
+//            NRSStatus(
+//              status = 1,
+//              deathCode = 1
+//            )
+//          )
+//        )
+//        val localDate = new LocalDate("2017-02-17")
+//        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//        val response = auditor.listToMap(List(child1), payload, Record.audit)
+//        response("records.record1.flags.status") shouldBe "Valid"
+//        response("records.record1.flags.deathCode") shouldBe "Potentially deceased"
+//      }
+//
+//    }
+//
+//    "has no status" should {
+//
+//      "not return status flags" in {
+//        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+//          Some(new LocalDate("2009-06-30"))),
+//          status = None
+//        )
+//        val localDate = new LocalDate("2017-02-17")
+//        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+//        val response = auditor.listToMap(List(child1),payload, Record.audit)
+//        response.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
+//        response.contains("records.record1.flags.correction") shouldBe false
+//        response.contains("records.record1.flags.cancelled") shouldBe false
+//        response.contains("records.record1.flags.blockedRegistration") shouldBe false
+//        response.contains("records.record1.flags.marginalNote") shouldBe false
+//        response.contains("records.record1.flags.reRegistered") shouldBe false
+//      }
+//
+//    }
+//
+//  }
 
-  "responseCharacterCount" should {
-
-    "return empty Map when an empty list is sent" in {
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(Nil, payload,auditor.characterCount)
-      response shouldBe a[Map[_,_]]
-      response.isEmpty shouldBe true
-    }
-
-    "return correct values when a single record is passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(List(child),payload, auditor.characterCount)
-      response shouldBe a[Map[_, _]]
-      response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
-      response("records.record1.numberOfCharactersInLastName") shouldBe "5"
-    }
-
-    "return correct values when a multiple records are passed" in {
-      val child1 = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val child2 = Record(Child(
-        599935710: Int,
-        "Christopher",
-        "Andrews",
-        Some(new LocalDate("2009-08-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val response = auditor.recordListToMap(List(child1, child2),payload, auditor.characterCount)
-
-      response("records.record1.numberOfCharactersInFirstName") shouldBe "9"
-      response("records.record1.numberOfCharactersInLastName") shouldBe "5"
-      response("records.record2.numberOfCharactersInFirstName") shouldBe "11"
-      response("records.record2.numberOfCharactersInLastName") shouldBe "7"
-    }
-
-  }
-
-  "flags" when {
-
-    "record has flags for GRO" should {
-
-      "return a Map() of flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some("Correction"),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
-            )
-          )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
-        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        response("records.record1.flags.correction") shouldBe "Correction on record"
-        response("records.record1.flags.cancelled") shouldBe "true"
-        response("records.record1.flags.blockedRegistration") shouldBe "true"
-        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
-        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
-      }
-
-      "return a Map() of flags where flag has reason and none" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some("Correction None"),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
-            )
-          )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
-        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        response("records.record1.flags.correction") shouldBe "Correction on record"
-        response("records.record1.flags.cancelled") shouldBe "true"
-        response("records.record1.flags.blockedRegistration") shouldBe "true"
-        response("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
-        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
-      }
-
-      "return a Map() of 'none' flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some(" None  "),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("  None  "),
-              reRegistered = Some(" None.  .none... ")
-            )
-          )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
-        response("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        response("records.record1.flags.correction") shouldBe "None"
-        response("records.record1.flags.cancelled") shouldBe "true"
-        response("records.record1.flags.blockedRegistration") shouldBe "true"
-        response("records.record1.flags.marginalNote") shouldBe "None"
-        response("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
-      }
-
-    }
-
-    "record has flags for NRS" should {
-
-      "return a Map() of flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            NRSStatus(
-              status = 1,
-              deathCode = 1
-            )
-          )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-        val response = auditor.recordListToMap(List(child1), payload,auditor.flags)
-        response("records.record1.flags.status") shouldBe "Valid"
-        response("records.record1.flags.deathCode") shouldBe "Potentially deceased"
-      }
-
-    }
-
-    "has no status" should {
-
-      "return a empty Map()" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = None
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-        val response = auditor.recordListToMap(List(child1),payload, auditor.flags)
-        response shouldBe empty
-      }
-
-    }
-
-  }
 }

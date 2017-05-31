@@ -69,13 +69,12 @@ abstract class BRMAudit(connector : AuditConnector) {
     }
   }
 
-  def recordFoundAndMatchToMap(records : List[Record],
-                               matchResult : MatchingResult) = {
+  def matchingSummary(x : List[Record], r : MatchingResult): Map[String, String] = {
     Map(
-      "recordFound" -> records.nonEmpty.toString,
-      "multipleRecords" -> {records.length > 1}.toString,
-      "birthsPerSearch" -> records.length.toString
-    ) ++ matchResult.audit
+      "recordFound" -> x.nonEmpty.toString,
+      "multipleRecords" -> {x.length > 1}.toString,
+      "birthsPerSearch" -> x.length.toString
+    ) ++ r.audit
   }
 
 }

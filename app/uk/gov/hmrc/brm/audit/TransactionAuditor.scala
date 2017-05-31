@@ -17,15 +17,12 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.services.parser.NameParser
-import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.utils.CommonUtil
 import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -68,35 +65,15 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     }
   }
 
-  private def logNameCount(payload: Payload, auditWordsPerNameOnRecords: Map[String, String]): Unit = {
-
-    val payloadCount = Map(
-      s"payload.numberOfForenames" -> s"${payload.firstNames.names.count(_.nonEmpty) + payload.additionalNames.names.count(_.nonEmpty)}",
-      s"payload.numberOfLastnames" -> s"${payload.lastName.names.count(_.nonEmpty)}"
-    )
-
-    val logNameCounts = payloadCount ++ auditWordsPerNameOnRecords
-
-    BRMLogger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(logNameCounts)}")
-  }
-
   def transactionToMap(payload: Payload,
                    records : List[Record],
                    matchResult : MatchingResult): Map[String, String] = {
 
     // audit match result and if a record was found
-    val matchAudit = recordFoundAndMatchToMap(records, matchResult)
+    val matchAudit = matchingSummary(records, matchResult)
 
-    // audit status on the records
-    val auditWordsPerNameOnRecords = recordListToMap(records, payload, wordCount)
-
-    // log name for payload and record
-    logNameCount(payload, auditWordsPerNameOnRecords)
-
-    val auditCharactersPerNameOnRecords = recordListToMap(records, payload, characterCount)
-
-    // flags for each record
-    val auditFlags = recordListToMap(records, payload, flags)
+    // audit individual record details
+    val recordDetails = listToMap(records, payload, Record.audit)
 
     // audit application feature switches
     val features = BrmConfig.audit(Some(payload))
@@ -107,65 +84,17 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
     // concat the Map() of all features
     features ++
       payloadAudit ++
-      auditWordsPerNameOnRecords ++
-      auditCharactersPerNameOnRecords ++
-      matchAudit ++
-      auditFlags
+      recordDetails ++
+      matchAudit
   }
 
-  /**
-    * TODO implement this
-    */
-  def wordCount(r: Record, p: Payload, c: Int): Map[String, String] = {
-
-    val recordNames = NameParser.parseNames(p, r)
-
-    //TODO: Should we change the key names to be more consistent (forenames or firstname?)
-    Map(
-      s"records.record$c.numberOfForenames" -> s"${recordNames.firstNames.names.count(_.nonEmpty)}",
-      s"records.record$c.numberOfAdditionalNames" -> s"${recordNames.additionalNames.names.count(_.nonEmpty)}",
-      s"records.record$c.numberOfLastnames" -> s"${recordNames.lastNames.names.count(_.nonEmpty)}"
-    )
-  }
-
-  /**
-    * TODO implement this
-    */
-  def characterCount(r: Record, p: Payload, c: Int): Map[String, String] = {
-
-    val recordNames = NameParser.parseNames(p, r)
-
-    Map(
-      s"records.record$c.numberOfCharactersInFirstName" -> s"${recordNames.firstNames.length}",
-      s"records.record$c.numberOfCharactersInAdditionalName" -> s"${recordNames.additionalNames.length}",
-      s"records.record$c.numberOfCharactersInLastName" -> s"${recordNames.lastNames.length}"
-    )
-  }
-
-  def flags(r : Record, p: Payload, c: Int) : Map[String, String] = {
-    /**
-     *convert a Map() of flags into a flattened Map() with index associated to each key
-     *otherwise return empty Map()
-     */
-    r.status match {
-      case Some(s) if BrmConfig.logFlags =>
-        val flags = s.flags
-        flags.keys.map(k =>
-          s"records.record$c.flags.$k" -> flags(k)
-        ).toMap
-      case _ => Map()
-    }
-  }
-
-  def recordListToMap(record: List[Record], p: Payload, f: (Record, Payload, Int) => Map[String, String]): Map[String, String] = {
+  private def listToMap[A, B](record: List[A], p: B, f: (A, B, Int) => Map[String, String]): Map[String, String] = {
     @tailrec
-    def build(c: Int, r: List[Record], m: Map[String, String]) : Map[String, String] = {
-      r match {
+    def build(c: Int, r: List[A], m: Map[String, String]) : Map[String, String] = r match {
         case Nil => m
         case h :: tail =>
-          val newMap = f(h, p, c)
-          build(c + 1, tail, m ++ newMap)
-      }
+          val getMap = f(h, p, c)
+          build(c + 1, tail, m ++ getMap)
     }
 
     build(1, record, Map.empty)

@@ -16,4 +16,61 @@
 
 package uk.gov.hmrc.brm.models.response
 
+import play.api.libs.json.Json
+import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.services.parser.NameParser
+import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.utils.BRMLogger
+
 case class Record(child: Child, status: Option[StatusInterface] = None)
+
+object Record {
+
+  def audit(r: Record, p: Payload, c: Int): Map[String, String] = {
+
+    val recordNames = NameParser.parseNames(p, r)
+
+    val words = wordCount(recordNames, c)
+    val characters = characterCount(recordNames, c)
+    val status = statusFlags(r.status, c)
+
+    logNameCount(p, words)
+
+    words ++ characters ++ status
+  }
+
+  //TODO: Should we change the key names to be more consistent (forenames or firstname?)
+  private def wordCount(recordNames: Names, c: Int): Map[String, String] = {
+    Map(
+      s"records.record$c.numberOfForenames" -> s"${recordNames.firstNames.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfAdditionalNames" -> s"${recordNames.additionalNames.names.count(_.nonEmpty)}",
+      s"records.record$c.numberOfLastnames" -> s"${recordNames.lastNames.names.count(_.nonEmpty)}")
+  }
+
+  private def characterCount(recordNames: Names, c: Int): Map[String, String] = {
+    Map(
+      s"records.record$c.numberOfCharactersInFirstName" -> s"${recordNames.firstNames.length}",
+      s"records.record$c.numberOfCharactersInAdditionalName" -> s"${recordNames.additionalNames.length}",
+      s"records.record$c.numberOfCharactersInLastName" -> s"${recordNames.lastNames.length}"
+    )
+  }
+
+  private def statusFlags(s: Option[StatusInterface], c: Int) = s match {
+    case Some(s) if BrmConfig.logFlags =>
+      s.flags.map {
+        case (key, value) => s"records.record$c.flags.$key" -> value
+      }
+    case _ => Map()
+  }
+
+  private def logNameCount(p: Payload, auditWordsPerNameOnRecords: Map[String, String]): Unit = {
+
+    val payloadCount = Map(
+      s"payload.numberOfForenames" -> s"${p.firstNames.names.count(_.nonEmpty) + p.additionalNames.names.count(_.nonEmpty)}",
+      s"payload.numberOfLastnames" -> s"${p.lastName.names.count(_.nonEmpty)}"
+    )
+
+    BRMLogger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(payloadCount ++ auditWordsPerNameOnRecords)}")
+  }
+}

@@ -114,7 +114,7 @@ trait LookupService extends LookupServiceBinder {
       * - payload details
       */
 
-    val matchAudit = downstreamAPIAuditor.recordFoundAndMatchToMap(records, matchResult)
+    val matchAudit = downstreamAPIAuditor.matchingSummary(records, matchResult)
     val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)
 
     transactionAuditor.audit(transactionAudit, Some(payload))
