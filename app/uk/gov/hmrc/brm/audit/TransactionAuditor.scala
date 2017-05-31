@@ -48,9 +48,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       path = path
     )
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
-
-    payload match {
+  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = payload match {
       case Some(p) =>
         p.requestType match {
           case DetailsRequest() =>
@@ -60,7 +58,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
         }
       case _ =>
         Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
-    }
   }
 
   def transactionToMap(payload: Payload,
@@ -68,22 +65,18 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
                    matchResult : MatchingResult): Map[String, String] = {
 
     // audit match result and if a record was found
-    val matchAudit = matchingSummary(records, matchResult)
+    val matchSummary = matchingSummary(records, matchResult)
 
     // audit individual record details
     val recordDetails = listToMap(records, payload, Record.audit)
 
     // audit application feature switches
-    val features = BrmConfig.audit(Some(payload))
+    val featuresStatus = BrmConfig.audit(Some(payload))
 
     // audit payload
-    val payloadAudit = payload.audit
+    val payloadDetails = payload.audit
 
-    // concat the Map() of all features
-    features ++
-      payloadAudit ++
-      recordDetails ++
-      matchAudit
+    featuresStatus ++ payloadDetails ++ recordDetails ++ matchSummary
   }
 
   private def listToMap[A, B](record: List[A], p: B, f: (A, B, Int) => Map[String, String]): Map[String, String] = {
