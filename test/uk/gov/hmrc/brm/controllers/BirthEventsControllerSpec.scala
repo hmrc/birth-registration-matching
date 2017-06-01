@@ -273,6 +273,27 @@ class BirthEventsControllerSpec
           checkResponse(result,OK, true)
         }
 
+
+        "return JSON response true and ignore additional name provided in request." in {
+
+          mockReferenceResponse(groResponseWithAdditionalName)
+          val payload = Json.toJson(Payload(Some("500035710"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+            BirthRegisterCountry.ENGLAND))
+          val request = postRequest(payload)
+          val result = await(MockController.post().apply(request))
+          checkResponse(result,OK, true)
+        }
+
+        "return JSON response true and ignore additional name provided in request as ignoreAdditionalName is true." in {
+
+          mockReferenceResponse(groResponseWithAdditionalName)
+          val payload = Json.toJson(Payload(Some("500035710"), "Adam test", Some("test"), "SMITH", new LocalDate("2009-07-01"),
+            BirthRegisterCountry.ENGLAND))
+          val request = postRequest(payload)
+          val result = await(MockController.post().apply(request))
+          checkResponse(result,OK, true)
+        }
+
         "return JSON response false when date of birth is before 2009-07-01" in {
 
           val request = postRequest(userMatchIncludingReferenceNumber)
