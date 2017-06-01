@@ -40,7 +40,6 @@ object Record {
     words ++ characters ++ status
   }
 
-  //TODO: Should we change the key names to be more consistent (forenames or firstname?)
   private def wordCount(recordNames: Names, c: Int): Map[String, String] = {
     Map(
       s"records.record$c.numberOfForenames" -> s"${recordNames.firstNames.names.count(_.nonEmpty)}",
@@ -57,8 +56,8 @@ object Record {
   }
 
   private def statusFlags(s: Option[StatusInterface], c: Int) = s match {
-    case Some(s) if BrmConfig.logFlags =>
-      s.flags.map {
+    case Some(x) if BrmConfig.logFlags =>
+      x.flags.map {
         case (key, value) => s"records.record$c.flags.$key" -> value
       }
     case _ => Map()

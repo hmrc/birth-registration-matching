@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.{BRMAudit, BRMDownstreamAPIAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._
@@ -78,7 +78,7 @@ trait LookupService extends LookupServiceBinder {
   def lookup()(implicit hc: HeaderCarrier,
                payload: Payload,
                metrics: BRMMetrics,
-               auditor: BRMAudit) = {
+               auditor: BRMDownstreamAPIAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
@@ -102,7 +102,7 @@ trait LookupService extends LookupServiceBinder {
   private[LookupService] def audit(records : List[Record], matchResult : MatchingResult)
                                   (implicit payload : Payload,
                                    hc: HeaderCarrier,
-                                   downstreamAPIAuditor: BRMAudit) = {
+                                   downstreamAPIAuditor: BRMDownstreamAPIAudit) = {
     /**
       * Audit the response from APIs:
       * - if a record was found
@@ -114,11 +114,8 @@ trait LookupService extends LookupServiceBinder {
       * - payload details
       */
 
-    val matchAudit = downstreamAPIAuditor.matchingSummary(records, matchResult)
-    val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)
-
-    transactionAuditor.audit(transactionAudit, Some(payload))
-    downstreamAPIAuditor.audit(matchAudit, Some(payload))
+    downstreamAPIAuditor.transaction(payload, records, matchResult)
+    transactionAuditor.transaction(payload, records, matchResult)
   }
 
   private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {

@@ -17,10 +17,9 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.mvc.Result
-import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.{BRMAudit, BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
-import uk.gov.hmrc.brm.services.matching.Bad
 import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -40,7 +39,10 @@ trait BRMBaseController extends BaseController with BRMException {
       .withHeaders(headers)
   }
 
-  def handleException(method: String)(implicit payload: Payload, auditor: BRMAudit, hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
+  def handleException(method: String)
+                     (implicit payload: Payload,
+                      auditor: BRMDownstreamAPIAudit,
+                      hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
     case t =>
       val allPfs = Seq(
         groProxyDownPF(method),
@@ -63,7 +65,7 @@ trait BRMBaseController extends BaseController with BRMException {
   }
 
   protected def auditTransaction()(implicit payload: Payload,
-                                   auditor: BRMAudit,
+                                   downstream: BRMDownstreamAPIAudit,
                                    hc: HeaderCarrier): Unit = {
 
     val matchResult = MatchingResult.noMatch
@@ -71,20 +73,8 @@ trait BRMBaseController extends BaseController with BRMException {
     // audit matching result
     matchingAuditor.audit(matchResult.audit, Some(payload))
 
-    // MetricsFactory auditor
-    auditor.audit(auditor.matchingSummary(Nil, matchResult), Some(payload))
-
-    auditRequestAndResults()
-  }
-
-  protected def auditRequestAndResults()(implicit payload: Payload,
-                                         auditor: BRMAudit,
-                                         hc: HeaderCarrier): Unit = {
-    val matchResult = MatchingResult.noMatch
-    // audit transaction
-    transactionAuditor.audit(transactionAuditor.transactionToMap(payload, Nil, matchResult), Some(payload))
-
-
+    downstream.transaction(payload, Nil, matchResult)
+    transactionAuditor.transaction(payload, Nil, matchResult)
   }
 
 }

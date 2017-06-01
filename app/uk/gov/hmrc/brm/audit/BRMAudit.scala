@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.audit
 
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
@@ -25,6 +26,7 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.http.HeaderCarrier
 
+import scala.annotation.tailrec
 import scala.concurrent.Future
 /**
   * AuditEvent - Abstract class for auditing events
@@ -35,7 +37,7 @@ import scala.concurrent.Future
   * @param hc implicit headerCarrier
   */
 
-abstract class AuditEvent(auditType : String,
+private abstract class AuditEvent(auditType : String,
                           detail : Map[String, String],
                           transactionName: String,
                           path : String = "N/A")(implicit hc: HeaderCarrier)
@@ -45,7 +47,6 @@ abstract class AuditEvent(auditType : String,
     detail = detail,
     tags = hc.toAuditTags(transactionName, path)
   )
-
 
 abstract class BRMAudit(connector : AuditConnector) {
 
@@ -69,12 +70,57 @@ abstract class BRMAudit(connector : AuditConnector) {
     }
   }
 
-  def matchingSummary(x : List[Record], r : MatchingResult): Map[String, String] = {
+}
+
+abstract class BRMDownstreamAPIAudit(connector: AuditConnector) extends BRMAudit(connector) {
+
+  def transaction(payload: Payload,
+                  records : List[Record],
+                  result : MatchingResult)
+                 (implicit hc : HeaderCarrier) = {
+
+    // did the search return results
+    val searchSummary = searchResults(records)
+
+    // did the payload and record match
+    val matchResults = result.audit
+
+    // audit individual record details
+    val recordDetails = listToMap(records, payload, Record.audit)
+
+    // audit application feature switches
+    val featuresStatus = BrmConfig.audit(Some(payload))
+
+    // audit payload
+    val payloadDetails = payload.audit
+
+    val toAudit = featuresStatus ++
+      payloadDetails ++
+      recordDetails ++
+      searchSummary ++
+      matchResults
+
+    audit(toAudit, Some(payload))
+  }
+
+  private def searchResults(x : List[Record]) = {
     Map(
       "recordFound" -> x.nonEmpty.toString,
       "multipleRecords" -> {x.length > 1}.toString,
       "birthsPerSearch" -> x.length.toString
-    ) ++ r.audit
+    )
+  }
+
+  private def listToMap[A, B](record: List[A], p: B, f: (A, B, Int) => Map[String, String]): Map[String, String] = {
+    @tailrec
+    def build(c: Int, r: List[A], m: Map[String, String]) : Map[String, String] = r match {
+      case Nil => m
+      case h :: tail =>
+        val getMap = f(h, p, c)
+        build(c + 1, tail, m ++ getMap)
+    }
+
+    build(1, record, Map.empty)
   }
 
 }

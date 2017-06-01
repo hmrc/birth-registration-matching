@@ -31,7 +31,8 @@ import scala.util.Try
   * Created by adamconder on 09/02/2017.
   */
 @Singleton
-class WhereBirthRegisteredAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class WhereBirthRegisteredAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector)
+  extends BRMAudit(connector) {
 
   /**
     * OtherCountryAuditEvent
@@ -41,7 +42,7 @@ class WhereBirthRegisteredAudit(connector: AuditConnector = MicroserviceGlobal.a
   final private class OtherCountryAuditEvent(result : Map[String, String])(implicit hc: HeaderCarrier)
     extends AuditEvent(auditType = "BRM-Other-Results", detail = result, transactionName = "brm-other-match", "birth-registration-matching/match")
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) : Future[AuditResult] = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) : Future[AuditResult] = {
     event(new OtherCountryAuditEvent(result))
   }
 

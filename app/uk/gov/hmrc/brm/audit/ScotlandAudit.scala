@@ -24,11 +24,9 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-/**
-  * Created by adamconder on 08/02/2017.
-  */
 @Singleton
-class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector)
+  extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * ScotlandAuditEvent
@@ -37,10 +35,14 @@ class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnecto
     * @param path endpoint path
     * @param hc implicit headerCarrier
     */
-  final private class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-    extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match", path)
+  final private class ScotlandAuditEvent(result : Map[String, String], path: String)
+                                        (implicit hc: HeaderCarrier)
+    extends AuditEvent(auditType = "BRM-NRSScotland-Results",
+      detail = result,
+      transactionName = "brm-scotland-match",
+      path)
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
     payload match {
       case Some(p) =>
         p.requestType match {

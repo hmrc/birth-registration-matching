@@ -25,10 +25,12 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import scala.concurrent.Future
 
 /**
-  * Created by adamconder on 08/02/2017.
+  * TODO: should this be deprecated?
   */
+
 @Singleton
-class EnglandAndWalesAudit(connector : AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class EnglandAndWalesAudit(connector : AuditConnector = MicroserviceGlobal.auditConnector)
+  extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * EnglandAndWalesAuditEvent
@@ -38,9 +40,12 @@ class EnglandAndWalesAudit(connector : AuditConnector = MicroserviceGlobal.audit
     * @param hc implicit headerCarrier
     */
   final private class EnglandAndWalesAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-    extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results", detail =  result, transactionName = "brm-england-and-wales-match", path)
+    extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results",
+      detail =  result,
+      transactionName = "brm-england-and-wales-match",
+      path)
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
     payload match {
       case Some(p) =>
         p.requestType match {

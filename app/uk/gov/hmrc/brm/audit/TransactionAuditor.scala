@@ -17,25 +17,23 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import uk.gov.hmrc.brm.config.{BrmConfig, MicroserviceGlobal}
+import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
-import uk.gov.hmrc.brm.models.matching.MatchingResult
-import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.annotation.tailrec
 import scala.concurrent.Future
 
 /**
   * Created by adamconder on 15/02/2017.
   */
 @Singleton
-class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditConnector)
+  extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * Audit event for the result of MatchingService and data submitted to the API
- *
+    *
     * @param result map of key value results
     * @param hc implicit headerCarrier
     */
@@ -48,7 +46,7 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
       path = path
     )
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = payload match {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = payload match {
       case Some(p) =>
         p.requestType match {
           case DetailsRequest() =>
@@ -58,37 +56,6 @@ class TransactionAuditor(connector : AuditConnector = MicroserviceGlobal.auditCo
         }
       case _ =>
         Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
-  }
-
-  def transactionToMap(payload: Payload,
-                   records : List[Record],
-                   matchResult : MatchingResult): Map[String, String] = {
-
-    // audit match result and if a record was found
-    val matchSummary = matchingSummary(records, matchResult)
-
-    // audit individual record details
-    val recordDetails = listToMap(records, payload, Record.audit)
-
-    // audit application feature switches
-    val featuresStatus = BrmConfig.audit(Some(payload))
-
-    // audit payload
-    val payloadDetails = payload.audit
-
-    featuresStatus ++ payloadDetails ++ recordDetails ++ matchSummary
-  }
-
-  private def listToMap[A, B](record: List[A], p: B, f: (A, B, Int) => Map[String, String]): Map[String, String] = {
-    @tailrec
-    def build(c: Int, r: List[A], m: Map[String, String]) : Map[String, String] = r match {
-        case Nil => m
-        case h :: tail =>
-          val getMap = f(h, p, c)
-          build(c + 1, tail, m ++ getMap)
-    }
-
-    build(1, record, Map.empty)
   }
 
 }
