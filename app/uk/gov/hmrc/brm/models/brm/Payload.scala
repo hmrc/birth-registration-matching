@@ -39,6 +39,9 @@ case class Payload(
 
   def firstNames : String = _firstName.names.listToString
 
+  /**
+    * TODO: if the ignoreMiddleNames toggle is true then this should return empty ""
+    */
   def additionalNames : String = _additionalNames.fold("")(x => x.names.listToString)
 
   def lastName : String = _lastName.names.listToString
