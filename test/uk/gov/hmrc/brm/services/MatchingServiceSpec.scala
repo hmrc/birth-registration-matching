@@ -202,6 +202,12 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
 }
 
+
+/**
+  * TODO: add unit tests where additional names is provided
+  * With ignoreMiddleNames toggle true AND false
+  */
+
 class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
   import uk.gov.hmrc.brm.utils.Mocks._
