@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
+import org.joda.time.DateTime
 import uk.gov.hmrc.brm.config.BrmConfig
 
 object CommonUtil {
@@ -27,6 +28,12 @@ object CommonUtil {
       s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
     }
     NameFormat(forenames)
+  }
+
+  //log the time diff in milliseconds.
+  def logTime(startTime:Long): Unit ={
+    def diffInMillis = DateTime.now.getMillis-startTime
+    BRMLogger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
   }
 
 }
