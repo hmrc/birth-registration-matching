@@ -167,6 +167,16 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                 }
               }
 
+
+              s"($name) match when firstName argument has all middle names on input that are on the record and ignore any additional name provided in payload." in {
+                running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+
+                  val payload = Payload(reference, "Adam David", Some("test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                  val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                  resultMatch.matched shouldBe true
+                }
+              }
+
               s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
                 running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
 
