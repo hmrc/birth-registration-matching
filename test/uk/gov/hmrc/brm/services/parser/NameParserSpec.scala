@@ -17,6 +17,9 @@
 package uk.gov.hmrc.brm.services.parser
 
 import org.joda.time.LocalDate
+import org.scalatest.TestData
+import org.scalatestplus.play.OneAppPerTest
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.{Child, Record}
@@ -27,7 +30,13 @@ import uk.gov.hmrc.play.test.UnitSpec
 /**
   * Created by adamconder on 02/02/2017.
   */
-class NameParserSpec extends UnitSpec with BRMFakeApplication {
+class NameParserSpec extends UnitSpec with OneAppPerTest {
+
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
+    Map(
+      "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
+    )
+  ).build()
 
   "NameParser" when {
 
