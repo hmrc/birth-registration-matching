@@ -21,11 +21,6 @@ import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.play.http.HeaderCarrier
 
-/**
-  * Created by adamconder on 05/01/2017.
-  */
-
-// TODO Make generic, accept type C, S to model
 sealed trait ResponseParser {
 
   import uk.gov.hmrc.brm.utils.BRMLogger._
