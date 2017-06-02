@@ -35,12 +35,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-
-/**
-  *
-  * TODO: update these tests to check for result.names.$ shouldBe ""
-  */
-
 class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
 
     import uk.gov.hmrc.brm.utils.Mocks._
@@ -164,6 +158,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -174,6 +171,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David", Some("test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -183,6 +183,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -192,6 +195,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -201,6 +207,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "   Jamie  Mary-Ann'é ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Jamie Mary-Ann'é"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -210,6 +219,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -219,6 +231,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "    Adam     ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -229,6 +244,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -239,6 +257,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "   Adam  David     James  ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -249,6 +270,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Chris"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones Smith"
                 }
               }
 
@@ -262,6 +286,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -271,6 +298,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam", Some("test test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(adamTestTestJonesRecord), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe "test test"
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -281,6 +311,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam ", Some("David"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe "David"
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -291,6 +324,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe "David"
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -300,6 +336,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecordFirstName), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe empty
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe empty
                 }
               }
 
@@ -309,6 +348,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe "David"
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -318,6 +360,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -327,6 +372,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -336,6 +384,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -345,6 +396,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam ", Some(" David James "), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam"
+                  resultMatch.names.additionalNames shouldBe "David"
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -354,6 +408,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Adam David"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones"
                 }
               }
 
@@ -363,6 +420,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Chris"
+                  resultMatch.names.additionalNames shouldBe empty
+                  resultMatch.names.lastNames shouldBe "Jones Smith"
                 }
               }
 
@@ -372,6 +432,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Manish test", Some("test   one    test    two  three  "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Manish test"
+                  resultMatch.names.additionalNames shouldBe "test one test two three"
+                  resultMatch.names.lastNames shouldBe "joshi"
                 }
               }
 
@@ -381,6 +444,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Manish test", Some("test one test two  "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Manish test"
+                  resultMatch.names.additionalNames shouldBe "test one test two three"
+                  resultMatch.names.lastNames shouldBe "joshi"
                 }
               }
 
@@ -390,6 +456,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Manish test", Some("test  three      test  two   one "), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.matched shouldBe false
+                  resultMatch.names.firstNames shouldBe "Manish test"
+                  resultMatch.names.additionalNames shouldBe "test one test two three"
+                  resultMatch.names.lastNames shouldBe "joshi"
                 }
               }
 
@@ -399,6 +468,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ", Some("ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"), "joshi", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ"
+                  resultMatch.names.additionalNames shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
+                  resultMatch.names.lastNames shouldBe "joshi"
                 }
               }
 
@@ -409,6 +481,9 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
                   val payload = Payload(reference, "Henry", Some("test  George Martin Malcolm Arthur Cameron  McTavish Glenny Alberto Turton Felicity Andrew Starship Trooper Neil"), "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                   val resultMatch = MockMatchingService.performMatch(payload, List(record), MatchingType.FULL)
                   resultMatch.matched shouldBe true
+                  resultMatch.names.firstNames shouldBe "Henry"
+                  resultMatch.names.additionalNames shouldBe "TEST George Martin Malcolm Arthur Cameron McTavish Glenny Alberto Turton Felicity Andrew Starship Trooper Neil"
+                  resultMatch.names.lastNames shouldBe "JONES"
                 }
               }
             }
