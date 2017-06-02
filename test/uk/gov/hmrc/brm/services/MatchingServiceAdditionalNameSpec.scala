@@ -35,12 +35,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-
-/**
-  *
-  * TODO: update these tests to check for result.names.$ shouldBe ""
-  */
-
 class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
 
     import uk.gov.hmrc.brm.utils.Mocks._
