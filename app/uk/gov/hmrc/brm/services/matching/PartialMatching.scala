@@ -45,7 +45,7 @@ object PartialMatching extends MatchingAlgorithm {
   }
 
   private def additionalNames(names: Names)(implicit payload: Payload, record: Record) = {
-    if (BrmConfig.matchAdditionalNames) {
+    if (!BrmConfig.ignoreAdditionalNames) {
       stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {
       Good()
