@@ -36,14 +36,6 @@ case class MatchingResult(firstNamesMatched: Match,
 
   def audit: Map[String, String] = {
 
-    /*def auditAdditionalNames() : Boolean = {
-      if(names.additionalNames.nonEmpty){
-        getBoolean(additionalNamesMatched)
-      } else {
-        getBoolean((Good()))
-      }
-    }*/
-
     Map(
       s"match" -> s"$matched",
       s"matchFirstName" -> s"${getBoolean(firstNamesMatched)}",
