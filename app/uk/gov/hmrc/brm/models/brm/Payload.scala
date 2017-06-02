@@ -38,10 +38,7 @@ case class Payload(
 
   def firstNames : String = _firstName.names.listToString
 
-  def additionalNames : String = BrmConfig.ignoreAdditionalNames match {
-    case false => _additionalNames.fold("")(x => x.names.listToString)
-    case true => ""
-  }
+  def additionalNames : String = _additionalNames.fold("")(x => x.names.listToString)
 
   def lastName : String = _lastName.names.listToString
 

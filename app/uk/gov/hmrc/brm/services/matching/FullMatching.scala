@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services.matching
 
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
@@ -29,14 +30,19 @@ object FullMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
     case (payload, record) =>
+
+      val mp = payload.copy(
+        _additionalNames = if(BrmConfig.ignoreAdditionalNames) None else Some(payload.additionalNames)
+      )
+
       // Split names on record into firstNames and AdditionalNames
-      val namesOnRecord : Names = parseNames(payload, record)
+      val namesOnRecord : Names = parseNames(mp, record)
 
       // Match each property
-      val firstNamesMatched = stringMatch(Some(payload.firstNames), Some(namesOnRecord.firstNames))
-      val additionalNamesMatched = stringMatch(Some(payload.additionalNames), Some(namesOnRecord.additionalNames))
-      val lastNameMatched = stringMatch(Some(payload.lastName), Some(record.child.lastName))
-      val dateOfBirthMatched = dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
+      val firstNamesMatched = stringMatch(Some(mp.firstNames), Some(namesOnRecord.firstNames))
+      val additionalNamesMatched = stringMatch(Some(mp.additionalNames), Some(namesOnRecord.additionalNames))
+      val lastNameMatched = stringMatch(Some(mp.lastName), Some(record.child.lastName))
+      val dateOfBirthMatched = dateMatch(Some(mp.dateOfBirth), record.child.dateOfBirth)
 
       MatchingResult(
         firstNamesMatched,

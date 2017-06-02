@@ -249,12 +249,30 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
 class MatchingServiceSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
 
+
+  /**
+    * SHOULD
+    * - match when additionalNames contains special characters
+    * - match when additionalNames contain space
+    * - match when additionalNames from record contains multiple spaces between names
+    * - match when additionalNames contains UTF-8 characters
+    * - match for exact match on firstName, additonalNames, lastName and dateOfBirth on both input and record
+    * - not match when firstName is different on input
+    * - not match when firstName is different on record
+    */
+
   import uk.gov.hmrc.brm.utils.Mocks._
 
   implicit val hc = HeaderCarrier()
   val references = List(Some("123456789"), None)
 
-  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
+  val configIgnoreAdditionalNames: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
+  )
+
+  val ignoreAdditionalNames = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configIgnoreAdditionalNames).build()
+
+  def getApp(config: Map[String, _]) = ignoreAdditionalNames
 
   references.foreach(
     reference => {
