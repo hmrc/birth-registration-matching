@@ -37,7 +37,7 @@ object FullMatching extends MatchingAlgorithm {
       // Match each property
       val firstNamesMatched = stringMatch(Some(mp.firstNames), Some(namesOnRecord.firstNames))
       val additionalNamesMatched = stringMatch(Some(mp.additionalNames), Some(namesOnRecord.additionalNames))
-      val lastNameMatched = stringMatch(Some(mp.lastName), Some(record.child.lastName))
+      val lastNameMatched = stringMatch(Some(mp.lastName), Some(namesOnRecord.lastNames))
       val dateOfBirthMatched = dateMatch(Some(mp.dateOfBirth), record.child.dateOfBirth)
 
       MatchingResult(
