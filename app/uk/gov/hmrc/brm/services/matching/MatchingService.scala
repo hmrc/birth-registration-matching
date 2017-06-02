@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.services
+package uk.gov.hmrc.brm.services.matching
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit}
+import uk.gov.hmrc.brm.audit.MatchingAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
@@ -39,7 +39,7 @@ trait MatchingService {
   def performMatch(input: Payload,
                    records: List[Record],
                    matchingType: MatchingType.Value)
-                  (implicit hc: HeaderCarrier): ResultMatch = {
+                  (implicit hc: HeaderCarrier): MatchingResult = {
 
     info(CLASS_NAME, "MatchingType", s"$matchingType")
 

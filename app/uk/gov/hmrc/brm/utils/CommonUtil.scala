@@ -18,31 +18,14 @@ package uk.gov.hmrc.brm.utils
 
 import org.joda.time.DateTime
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.models.brm.Payload
 
 object CommonUtil {
 
-  abstract class RequestType
-
-  case class ReferenceRequest() extends RequestType
-
-  case class DetailsRequest() extends RequestType
-
-  def getOperationType(payload: Payload): RequestType = {
-    payload match {
-      case input@Payload(None, _, _, _, _, _) => {
-        DetailsRequest()
-      }
-      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
-        ReferenceRequest()
-      }
-    }
-  }
-
   def forenames(firstName: String, additionalName: Option[String]): String = {
-    val forenames = BrmConfig.ignoreAdditionalNames match {
-      case true => NameFormat(firstName)
-      case false => s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
+    val forenames = if(BrmConfig.ignoreAdditionalNames) {
+      NameFormat(firstName)
+    } else {
+      s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
     }
     NameFormat(forenames)
   }

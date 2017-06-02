@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.libs.json.{JsNull, JsString, JsValue}
-import uk.gov.hmrc.brm.audit.{BRMAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.{BRMAudit, BRMDownstreamAPIAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.ResultMatch
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
+import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
 
 object LookupService extends LookupService {
   override val groConnector = new GROConnector
@@ -79,7 +78,7 @@ trait LookupService extends LookupServiceBinder {
   def lookup()(implicit hc: HeaderCarrier,
                payload: Payload,
                metrics: BRMMetrics,
-               auditor: BRMAudit) = {
+               auditor: BRMDownstreamAPIAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
         info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
@@ -87,9 +86,9 @@ trait LookupService extends LookupServiceBinder {
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
         audit(records, matchResult)
 
-        if(matchResult.isMatch) {
+        if(matchResult.matched) {
           MatchCountMetric.count()
-          BirthResponseBuilder.getResponse(matchResult.isMatch)
+          BirthResponseBuilder.getResponse(matchResult.matched)
         } else {
           NoMatchCountMetric.count()
           BirthResponseBuilder.withNoMatch()
@@ -98,10 +97,10 @@ trait LookupService extends LookupServiceBinder {
 
   }
 
-  private[LookupService] def audit(records : List[Record], matchResult : ResultMatch)
+  private[LookupService] def audit(records : List[Record], matchResult : MatchingResult)
                                   (implicit payload : Payload,
                                    hc: HeaderCarrier,
-                                   downstreamAPIAuditor: BRMAudit) = {
+                                   downstreamAPIAuditor: BRMDownstreamAPIAudit) = {
     /**
       * Audit the response from APIs:
       * - if a record was found
@@ -113,11 +112,8 @@ trait LookupService extends LookupServiceBinder {
       * - payload details
       */
 
-    val matchAudit = downstreamAPIAuditor.recordFoundAndMatchToMap(records, matchResult)
-    val transactionAudit = transactionAuditor.transactionToMap(payload, records, matchResult)
-
-    transactionAuditor.audit(transactionAudit, Some(payload))
-    downstreamAPIAuditor.audit(matchAudit, Some(payload))
+    downstreamAPIAuditor.transaction(payload, records, matchResult)
+    transactionAuditor.transaction(payload, records, matchResult)
   }
 
   private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
@@ -130,13 +126,13 @@ trait LookupService extends LookupServiceBinder {
   }
 
   private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(None, firstName, additionalNames, lastName, dateOfBirth, whereBirthRegistered) =>
+    case payload : Payload if payload.birthReferenceNumber.isEmpty =>
       info(CLASS_NAME, "lookup()", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
   }
 
   private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) =>
+    case payload : Payload if payload.birthReferenceNumber.isDefined =>
       info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
   }

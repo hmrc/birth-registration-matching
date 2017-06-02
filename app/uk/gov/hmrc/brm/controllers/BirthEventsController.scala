@@ -20,12 +20,13 @@ import org.joda.time.DateTime
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.mvc.{Action, Request, Result}
-import uk.gov.hmrc.brm.audit.{BRMAudit, MatchingAudit, TransactionAuditor, WhereBirthRegisteredAudit}
+import uk.gov.hmrc.brm.audit._
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.{Filter, Filters}
 import uk.gov.hmrc.brm.implicits.Implicits.{AuditFactory, MetricsFactory}
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm._
+import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
@@ -70,16 +71,22 @@ trait BirthEventsController extends BRMBaseController {
     Future.successful(respond(InvalidBirthReferenceNumber.status))
   }
 
-  private def failedAtFilter(filters : List[Filter])(implicit payload: Payload, hc : HeaderCarrier, audit : BRMAudit) = {
+  private def failedAtFilter(filters : List[Filter])
+                            (implicit payload: Payload,
+                             hc : HeaderCarrier) = {
     // audit the request
-    auditRequestAndResults()
+    transactionAuditor.transaction(payload, Nil, MatchingResult.noMatch)
 
     info(CLASS_NAME, "post()", s"Request was not processed due to failing filter(s) $filters. " +
       s"Feature switches: ${BrmConfig.audit(Some(payload))}")
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
 
-  private def traceAndMatchRecord()(implicit payload: Payload, metrics : BRMMetrics, hc : HeaderCarrier, audit : BRMAudit) = {
+  private def traceAndMatchRecord()
+                                 (implicit payload: Payload,
+                                  metrics : BRMMetrics,
+                                  hc : HeaderCarrier,
+                                  downstream : BRMDownstreamAPIAudit) = {
     info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
     val beforeRequestTime = DateTime.now.getMillis
@@ -105,7 +112,7 @@ trait BirthEventsController extends BRMBaseController {
             handleInvalidBirthReferenceNumber()
           } else {
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
-            implicit val auditor: BRMAudit = auditFactory.getAuditor()
+            implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
 
             val processed = Filters.process(payload)
 

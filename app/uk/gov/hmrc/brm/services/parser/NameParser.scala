@@ -17,12 +17,46 @@
 package uk.gov.hmrc.brm.services.parser
 
 import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger
 
 /**
   * Created by adamconder on 02/02/2017.
   */
 object NameParser {
+
+  /**
+    * Cache the names on the record after they have been split into FirstNames and MiddleNames
+    * @param _firstNames getter for FirstNames
+    * @param _additionalNames getter for AdditionalNames
+    */
+  case class Names(private val _firstNames : List[String],
+                   private val _additionalNames : List[String] = Nil,
+                   private val _lastNames : List[String]) {
+
+    def firstNames : String = _firstNames.listToString
+
+    def additionalNames : String = _additionalNames.listToString
+
+    def lastNames : String = _lastNames.listToString
+
+  }
+
+  private[NameParser] def ignoreAdditionalNames : Boolean = BrmConfig.ignoreAdditionalNames
+
+  def parseNames(payload: Payload, record: Record) : Names = {
+    val inputLength = payload.firstNames.names.length
+
+    val (firstNames, additionalNames) = record.child.forenames.names.splitAt(inputLength)
+    val lastNames = record.child.lastName.names
+
+    if (ignoreAdditionalNames) {
+      Names(firstNames, Nil, lastNames)
+    } else {
+      Names(firstNames, additionalNames, lastNames)
+    }
+  }
 
   implicit class NameParserImplicit(val s: String) {
 
@@ -34,13 +68,9 @@ object NameParser {
     }
 
     def names: List[String] = {
-      toList(s.toLowerCase.trim.split(regex), "names")
+      toList(s.trim.split(regex), "names")
     }
 
-    def namesOriginalCase: List[String] = {
-      toList(s.trim.split(regex), "namesOriginalCase")
-    }
-    
   }
 
   implicit class FilterList[T](left : List[T]) {

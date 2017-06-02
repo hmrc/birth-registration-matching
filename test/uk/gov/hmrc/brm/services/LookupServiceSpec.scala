@@ -27,10 +27,10 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.brm.utils.TestHelper._
 
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -40,7 +40,6 @@ class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSu
   import uk.gov.hmrc.brm.utils.Mocks._
 
   implicit val hc = HeaderCarrier()
-
 
   before {
     reset(MockLookupService.groConnector)

@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response
+package uk.gov.hmrc.brm.services.matching
 
-import org.joda.time.LocalDate
-import uk.gov.hmrc.brm.utils.BRMFormat
+/**
+  * Created by mew on 24/05/2017.
+  */
+sealed abstract class Match {
 
-case class Child(
-                  birthReferenceNumber: Int,
-                  private val _forenames: String,
-                  private val _lastName: String,
-                  dateOfBirth: Option[LocalDate]
-                ) {
-
-  import uk.gov.hmrc.brm.services.parser.NameParser._
-
-  def forenames : String = _forenames.names.listToString
-
-  def lastName : String = _lastName.names.listToString
+  def and(other: Match): Match = (this, other) match {
+    case (Good(), Good()) => Good()
+    case _ => Bad()
+  }
 
 }
 
-object Child extends BRMFormat
+final case class Good() extends Match
+
+final case class Bad() extends Match

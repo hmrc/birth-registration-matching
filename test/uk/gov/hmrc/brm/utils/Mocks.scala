@@ -27,7 +27,8 @@ import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.metrics.BRMMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.{LookupService, MatchingService}
+import uk.gov.hmrc.brm.services.LookupService
+import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HttpPost
 
@@ -48,6 +49,7 @@ object Mocks extends MockitoSugar {
 
   implicit val metrics = mock[BRMMetrics]
   implicit val mockAuditor = mock[BRMAudit]
+  implicit val mockAPIAuditor = mock[BRMDownstreamAPIAudit]
 
   object MockBRMLogger extends BRMLogger(mockLogger)
 
@@ -70,7 +72,7 @@ object Mocks extends MockitoSugar {
   }
 
   object MockAuditFactory extends AuditFactory {
-    override def getAuditor()(implicit payload: Payload): BRMAudit = auditorFixtures.englandAndWalesAudit
+    override def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
   }
 
   object MockController extends BirthEventsController {
@@ -106,8 +108,8 @@ object Mocks extends MockitoSugar {
       val scotlandAudit = new ScotlandAudit(mockAuditConnector)
       val northernIrelandAudit = new NorthernIrelandAudit(mockAuditConnector)
       val matchingAudit = new MatchingAudit(mockAuditConnector)
-  val transactionAudit = new TransactionAuditor(mockAuditConnector)
-}
-}
+      val transactionAudit = new TransactionAuditor(mockAuditConnector)
+    }
+  }
 
 }

@@ -41,15 +41,7 @@ object LeadingZeros {
 object NameFormat {
 
   def apply(v: String): String = {
-    RemoveMultipleSpaces.apply(v)
-  }
-}
-
-
-object RemoveMultipleSpaces {
-
-  def apply(v: String): String = {
-    v.namesOriginalCase.listToString
+    v.names.listToString
   }
 }
 

@@ -18,19 +18,15 @@ package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
-import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonUtil
-import uk.gov.hmrc.brm.utils.CommonUtil.{DetailsRequest, ReferenceRequest}
+import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-/**
-  * Created by adamconder on 08/02/2017.
-  */
 @Singleton
-class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector)
+  extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * ScotlandAuditEvent
@@ -39,13 +35,17 @@ class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnecto
     * @param path endpoint path
     * @param hc implicit headerCarrier
     */
-  final private class ScotlandAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-    extends AuditEvent(auditType = "BRM-NRSScotland-Results", detail = result, transactionName = "brm-scotland-match", path)
+  final private class ScotlandAuditEvent(result : Map[String, String], path: String)
+                                        (implicit hc: HeaderCarrier)
+    extends AuditEvent(auditType = "BRM-NRSScotland-Results",
+      detail = result,
+      transactionName = "brm-scotland-match",
+      path)
 
-  def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
     payload match {
       case Some(p) =>
-        CommonUtil.getOperationType(p) match {
+        p.requestType match {
           case DetailsRequest() =>
             event(new ScotlandAuditEvent(result, "nrs-details"))
           case ReferenceRequest() =>
