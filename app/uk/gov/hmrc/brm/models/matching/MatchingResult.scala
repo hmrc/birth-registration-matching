@@ -40,7 +40,7 @@ case class MatchingResult(firstNamesMatched: Match,
       if(names.additionalNames.nonEmpty){
         getBoolean(additionalNamesMatched)
       } else {
-        getBoolean(Bad())
+        getBoolean((Good()))
       }
     }
 
