@@ -17,7 +17,6 @@
 package uk.gov.hmrc.brm.models.brm
 
 import org.joda.time.LocalDate
-import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
@@ -39,10 +38,10 @@ case class Payload(
 
   def firstNames : String = _firstName.names.listToString
 
-  /**
-    * TODO: if the ignoreMiddleNames toggle is true then this should return empty ""
-    */
-  def additionalNames : String = _additionalNames.fold("")(x => x.names.listToString)
+  def additionalNames : String = BrmConfig.ignoreAdditionalNames match {
+    case false => _additionalNames.fold("")(x => x.names.listToString)
+    case true => ""
+  }
 
   def lastName : String = _lastName.names.listToString
 
@@ -59,12 +58,8 @@ case class Payload(
 
   def requestType: RequestType = {
     this match {
-      case input@Payload(None, _, _, _, _, _) => {
-        DetailsRequest()
-      }
-      case payload@Payload(Some(birthReferenceNumber), _, _, _, _, _) => {
-        ReferenceRequest()
-      }
+      case input@Payload(None, _, _, _, _, _) => DetailsRequest()
+      case payload@Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
     }
   }
 }
@@ -101,4 +96,3 @@ object Payload extends BRMFormat {
     )(Payload.apply _)
 
 }
-
