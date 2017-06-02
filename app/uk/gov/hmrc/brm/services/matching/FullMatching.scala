@@ -22,10 +22,6 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser._
 
-/**
-  * TODO do we need unit tests for additionalNames?
-  */
-
 object FullMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
