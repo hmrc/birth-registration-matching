@@ -24,6 +24,9 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.FakeApplication
+import play.api.test.Helpers._
+import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
@@ -40,62 +43,75 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 15/02/2017.
   */
-class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTest with BaseUnitSpec {
+class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
   val auditor = auditorFixtures.transactionAudit
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    Map(
-      "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true
-    )
-  ).build()
+
+  val ignoreAdditionalNamesEnabled: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+  )
+
+  val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
+    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
+  )
+  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
+
 
   implicit val hc = HeaderCarrier()
 
   "RequestsAndResultsAudit" should {
 
     "audit request and result when child's reference number used" in {
-      val child = Record(Child(
-        500035710: Int,
-        "John",
-        "Smith",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val child = Record(Child(
+          500035710: Int,
+          "John",
+          "Smith",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditor.transaction(payload, List(child), MatchingResult.noMatch))
-      result shouldBe AuditResult.Success
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(auditor.transaction(payload, List(child), MatchingResult.noMatch))
+        result shouldBe AuditResult.Success
 
-      argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
-      argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
-      argumentCapture.value.detail("payload.lastName") shouldBe "Test"
-      argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
-      argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+        argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
+        argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
+        argumentCapture.value.detail("payload.lastName") shouldBe "Test"
+        argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
+        argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+      }
     }
 
     "audit request and result when child's details used" in {
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
 
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditor.transaction(payload, Nil, MatchingResult.noMatch))
-      result shouldBe AuditResult.Success
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        val result = await(auditor.transaction(payload, Nil, MatchingResult.noMatch))
+        result shouldBe AuditResult.Success
 
-      argumentCapture.value.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
-      argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
-      argumentCapture.value.detail("payload.lastName") shouldBe "Test"
-      argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
-      argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+        argumentCapture.value.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
+        argumentCapture.value.detail("payload.firstName") shouldBe "Adam"
+        argumentCapture.value.detail("payload.lastName") shouldBe "Test"
+        argumentCapture.value.detail("payload.dateOfBirth") shouldBe "2017-02-17"
+        argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+      }
     }
 
     "throw Illegal argument exception when no payload is provided" in {
-      val event = Map("match" -> "true")
-      intercept[IllegalArgumentException] {
-        await(auditor.audit(event, None))
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val event = Map("match" -> "true")
+        intercept[IllegalArgumentException] {
+          await(auditor.audit(event, None))
+        }
       }
     }
 
@@ -104,156 +120,255 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
   "records audit" should {
 
     "not return word counts for no records found" in {
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, Nil, MatchingResult.noMatch)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
 
-      argumentCapture.value.detail.contains("records.record1.numberOfForenames") shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfAdditionalNames") shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfLastnames") shouldBe false
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, Nil, MatchingResult.noMatch)
+
+        argumentCapture.value.detail.contains("records.record1.numberOfForenames") shouldBe false
+        argumentCapture.value.detail.contains("records.record1.numberOfAdditionalNames") shouldBe false
+        argumentCapture.value.detail.contains("records.record1.numberOfLastnames") shouldBe false
+      }
     }
 
     "return word count as 0 when a single record is passed with empty name values" in {
-      val child = Record(Child(
-        500035710: Int,
-        "",
-        "",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child), MatchingResult.noMatch)
+        val child = Record(Child(
+          500035710: Int,
+          "",
+          "",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "0"
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "0"
+      }
     }
 
     "return correct values for word count when a single record is passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2009-06-30")
-      val payload = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child), MatchingResult.noMatch)
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2009-06-30")
+        val payload = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "2"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "2"
+        argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+      }
     }
 
     "return correct values for word count when a single record is passed having additional names" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2009-06-30")
-      val payload = Payload(Some("500035710"), "Adam ", Some("test"), "SMITH", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child), MatchingResult.noMatch)
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2009-06-30")
+        val payload = Payload(Some("500035710"), "Adam ", Some("test"), "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "1"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "1"
-      argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "1"
+        argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "1"
+        argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+      }
     }
 
     "return correct values for word count when multiple records are passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
 
-      val child2 = Record(Child(
-        599935710: Int,
-        "Adam",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child, child2), MatchingResult.noMatch)
+        val child2 = Record(Child(
+          599935710: Int,
+          "Adam",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "2"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfForenames") shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfLastnames") shouldBe "1"
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child, child2), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "2"
+        argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+        argumentCapture.value.detail("records.record2.numberOfForenames") shouldBe "1"
+        argumentCapture.value.detail("records.record2.numberOfLastnames") shouldBe "1"
+      }
+    }
+
+    "return correct values for word count when multiple records are passed when ignoreAdditionalName is true" in {
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+
+        val child2 = Record(Child(
+          599935710: Int,
+          "Adam",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child, child2), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfForenames") shouldBe "2"
+        argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfLastnames") shouldBe "1"
+        argumentCapture.value.detail("records.record2.numberOfForenames") shouldBe "1"
+        argumentCapture.value.detail("records.record2.numberOfLastnames") shouldBe "1"
+      }
     }
   }
 
   "records audit for character count " should {
 
     "not get audited when no record return from upstream service" in {
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, Nil, MatchingResult.noMatch)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, Nil, MatchingResult.noMatch)
 
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInFirstName") shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInLastName") shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInAdditionalName") shouldBe false
+        argumentCapture.value.detail.contains("records.record1.numberOfCharactersInFirstName") shouldBe false
+        argumentCapture.value.detail.contains("records.record1.numberOfCharactersInLastName") shouldBe false
+        argumentCapture.value.detail.contains("records.record1.numberOfCharactersInAdditionalName") shouldBe false
+      }
     }
 
     "return correct values when a single record is passed" in {
-      val child = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child), MatchingResult.noMatch)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "9"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
+      }
+    }
+
+    "return correct values when a single record is passed when additional name is not considered." in {
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+        val child = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
+
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
+      }
     }
 
     "return correct values when a multiple records are passed" in {
-      val child1 = Record(Child(
-        500035710: Int,
-        "Adam TEST",
-        "SMITH",
-        Some(new LocalDate("2009-06-30"))))
-      val child2 = Record(Child(
-        599935710: Int,
-        "Adam TEST Test",
-        "SMITH",
-        Some(new LocalDate("2009-08-30"))))
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        val child1 = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val child2 = Record(Child(
+          599935710: Int,
+          "Adam TEST Test",
+          "SMITH",
+          Some(new LocalDate("2009-08-30"))))
 
-      val localDate = new LocalDate("2017-02-17")
-      val payload = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      auditor.transaction(payload, List(child1, child2), MatchingResult.noMatch)
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child1, child2), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "4"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInFirstName") shouldBe "4"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInLastName") shouldBe "5"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "9"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "9"
+      }
+    }
+
+    "return correct values when a multiple records are passed when additional name is not considered." in {
+      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+        val child1 = Record(Child(
+          500035710: Int,
+          "Adam TEST",
+          "SMITH",
+          Some(new LocalDate("2009-06-30"))))
+        val child2 = Record(Child(
+          599935710: Int,
+          "Adam TEST Test",
+          "SMITH",
+          Some(new LocalDate("2009-08-30"))))
+
+        val localDate = new LocalDate("2017-02-17")
+        val payload = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
+
+        val argumentCapture = new ArgumentCapture[AuditEvent]
+        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        auditor.transaction(payload, List(child1, child2), MatchingResult.noMatch)
+
+        argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInFirstName") shouldBe "4"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInLastName") shouldBe "5"
+        argumentCapture.value.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "0"
+      }
     }
 
   }
@@ -263,91 +378,97 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
     "record has flags for GRO" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some("Correction"),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
+        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+          val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+            Some(new LocalDate("2009-06-30"))),
+            status = Some(
+              GROStatus(
+                potentiallyFictitiousBirth = true,
+                correction = Some("Correction"),
+                cancelled = true,
+                blockedRegistration = true,
+                marginalNote = Some("RCE"),
+                reRegistered = Some("Re-registered")
+              )
             )
           )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+          val localDate = new LocalDate("2017-02-17")
+          val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
-        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        auditor.transaction(payload, List(child1), MatchingResult.noMatch)
+          val argumentCapture = new ArgumentCapture[AuditEvent]
+          when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction") shouldBe "Correction on record"
-        argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
-        argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+          argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.correction") shouldBe "Correction on record"
+          argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+          argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+        }
       }
 
       "return a Map() of flags where flag has reason and none" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some("Correction None"),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
+        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+          val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+            Some(new LocalDate("2009-06-30"))),
+            status = Some(
+              GROStatus(
+                potentiallyFictitiousBirth = true,
+                correction = Some("Correction None"),
+                cancelled = true,
+                blockedRegistration = true,
+                marginalNote = Some("RCE"),
+                reRegistered = Some("Re-registered")
+              )
             )
           )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+          val localDate = new LocalDate("2017-02-17")
+          val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
-        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        auditor.transaction(payload,List(child1), MatchingResult.noMatch)
+          val argumentCapture = new ArgumentCapture[AuditEvent]
+          when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction") shouldBe "Correction on record"
-        argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
-        argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+          argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.correction") shouldBe "Correction on record"
+          argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "Marginal note on record"
+          argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+        }
       }
 
       "return a Map() of 'none' flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            GROStatus(
-              potentiallyFictitiousBirth = true,
-              correction = Some(" None  "),
-              cancelled = true,
-              blockedRegistration = true,
-              marginalNote = Some("  None  "),
-              reRegistered = Some(" None.  .none... ")
+        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+          val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+            Some(new LocalDate("2009-06-30"))),
+            status = Some(
+              GROStatus(
+                potentiallyFictitiousBirth = true,
+                correction = Some(" None  "),
+                cancelled = true,
+                blockedRegistration = true,
+                marginalNote = Some("  None  "),
+                reRegistered = Some(" None.  .none... ")
+              )
             )
           )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+          val localDate = new LocalDate("2017-02-17")
+          val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
-        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        auditor.transaction(payload,List(child1), MatchingResult.noMatch)
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction") shouldBe "None"
-        argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "None"
-        argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+          val argumentCapture = new ArgumentCapture[AuditEvent]
+          when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          auditor.transaction(payload, List(child1), MatchingResult.noMatch)
+          argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.correction") shouldBe "None"
+          argumentCapture.value.detail("records.record1.flags.cancelled") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
+          argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "None"
+          argumentCapture.value.detail("records.record1.flags.reRegistered") shouldBe "Re-registration on record"
+        }
       }
 
     }
@@ -355,24 +476,26 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
     "record has flags for NRS" should {
 
       "return a Map() of flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = Some(
-            NRSStatus(
-              status = 1,
-              deathCode = 1
+        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+          val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+            Some(new LocalDate("2009-06-30"))),
+            status = Some(
+              NRSStatus(
+                status = 1,
+                deathCode = 1
+              )
             )
           )
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+          val localDate = new LocalDate("2017-02-17")
+          val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
-        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        auditor.transaction(payload,List(child1), MatchingResult.noMatch)
+          val argumentCapture = new ArgumentCapture[AuditEvent]
+          when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.status") shouldBe "Valid"
-        argumentCapture.value.detail("records.record1.flags.deathCode") shouldBe "Potentially deceased"
+          argumentCapture.value.detail("records.record1.flags.status") shouldBe "Valid"
+          argumentCapture.value.detail("records.record1.flags.deathCode") shouldBe "Potentially deceased"
+        }
       }
 
     }
@@ -380,23 +503,25 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with OneAppPerTe
     "has no status" should {
 
       "not return status flags" in {
-        val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
-          Some(new LocalDate("2009-06-30"))),
-          status = None
-        )
-        val localDate = new LocalDate("2017-02-17")
-        val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+          val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
+            Some(new LocalDate("2009-06-30"))),
+            status = None
+          )
+          val localDate = new LocalDate("2017-02-17")
+          val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
-        when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-        auditor.transaction(payload,List(child1), MatchingResult.noMatch)
+          val argumentCapture = new ArgumentCapture[AuditEvent]
+          when(mockAuditConnector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.correction") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.cancelled") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.reRegistered") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.correction") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.cancelled") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
+          argumentCapture.value.detail.contains("records.record1.flags.reRegistered") shouldBe false
+        }
       }
 
     }
