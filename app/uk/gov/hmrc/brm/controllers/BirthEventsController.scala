@@ -64,13 +64,6 @@ trait BirthEventsController extends BRMBaseController {
     Future.successful(respond(response))
   }
 
-  private def handleInvalidBirthReferenceNumber()(implicit hc : HeaderCarrier) = {
-    val response = InvalidBirthReferenceNumber.status
-    info(CLASS_NAME, "post()", s"Invalid birth reference number provided.")
-    info(CLASS_NAME, "post()", s"Response: $response")
-    Future.successful(respond(InvalidBirthReferenceNumber.status))
-  }
-
   private def failedAtFilter(filters : List[Filter])
                             (implicit payload: Payload,
                              hc : HeaderCarrier) = {
@@ -90,6 +83,8 @@ trait BirthEventsController extends BRMBaseController {
     info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
     val beforeRequestTime = DateTime.now.getMillis
+    val method = if(payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
+
     service.lookup() map {
       bm =>
         metrics.status(OK)
@@ -98,8 +93,7 @@ trait BirthEventsController extends BRMBaseController {
         logTime(beforeRequestTime)
         respond(Ok(response))
     } recover {
-      handleException(if(payload.birthReferenceNumber.isDefined) "getReference"
-      else "getDetails", beforeRequestTime)
+      handleException(method, beforeRequestTime)
      }
   }
 
@@ -108,9 +102,7 @@ trait BirthEventsController extends BRMBaseController {
     implicit request =>
       request.body.validate[Payload].fold(errors => handleInvalidRequest(request, errors),
         implicit payload => {
-          if(!BRMFormat.validBirthReferenceNumber(payload.whereBirthRegistered, payload.birthReferenceNumber)) {
-            handleInvalidBirthReferenceNumber()
-          } else {
+
             implicit val metrics: BRMMetrics = MetricsFactory.getMetrics()
             implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
 
@@ -120,7 +112,6 @@ trait BirthEventsController extends BRMBaseController {
               failedAtFilter(processed)
             } else {
               traceAndMatchRecord()
-            }
           }
         }
       )

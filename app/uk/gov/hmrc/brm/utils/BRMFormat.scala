@@ -30,23 +30,23 @@ trait BRMFormat {
   val datePattern = "yyyy-MM-dd"
 
   private val invalidNameCharsRegEx =  "[;/\\\\()|*]|(<!)|(-->)|(\\n)|(\")|(^\\s+$)".r
-  private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
-  private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
-  private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
+//  private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
+//  private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
+//  private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
 
   private val validationError = ValidationError("")
 
-  def validBirthReferenceNumber(country:  BirthRegisterCountry,  referenceNumber: Option[String]) : Boolean = (country, referenceNumber) match {
-    case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
-    case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
-    case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
-    case (_, _) => true
-  }
-
-  val birthReferenceNumberValidate: Reads[String] =
-    Reads.StringReads.filter(validationError)(
-      _.matches(validBirthReferenceNumberRegEx)
-    )
+//  def validBirthReferenceNumber(country:  BirthRegisterCountry,  referenceNumber: Option[String]) : Boolean = (country, referenceNumber) match {
+//    case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+//    case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+//    case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
+//    case (_, _) => true
+//  }
+//
+//  val birthReferenceNumberValidate: Reads[String] =
+//    Reads.StringReads.filter(validationError)(
+//      _.matches(validBirthReferenceNumberRegEx)
+//    )
 
   val nameValidation: Reads[String] =
     Reads.StringReads.filter(validationError)(

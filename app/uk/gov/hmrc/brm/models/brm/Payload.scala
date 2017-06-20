@@ -17,12 +17,13 @@
 package uk.gov.hmrc.brm.models.brm
 
 import org.joda.time.LocalDate
+import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.utils.BRMFormat
+import uk.gov.hmrc.brm.utils.{BRMFormat, BirthRegisterCountry}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
 
 case class Payload(
@@ -66,13 +67,25 @@ case class ReferenceRequest() extends RequestType
 case class DetailsRequest() extends RequestType
 
 object Payload extends BRMFormat {
-  
+
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
   val additionalNames = "additionalNames"
   val lastName = "lastName"
   val dateOfBirth = "dateOfBirth"
   val whereBirthRegistered = "whereBirthRegistered"
+
+  private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
+  private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
+  private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
+
+  private def validBirthReferenceNumber(country: BirthRegisterCountry, referenceNumber: Option[String]): Boolean = (country, referenceNumber) match {
+    case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+    case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+    case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
+    case (_, Some(x)) => x.matches(validBirthReferenceNumberRegEx)
+    case (_, _) => true
+  }
 
   implicit val PayloadWrites: Writes[Payload] = (
       (JsPath \ birthReferenceNumber).writeNullable[String] and
@@ -84,12 +97,15 @@ object Payload extends BRMFormat {
     )(unlift(Payload.unapply))
 
   implicit val requestFormat: Reads[Payload] = (
-      (JsPath \ birthReferenceNumber).readNullable[String](birthReferenceNumberValidate) and
-      (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1)  keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
-      (JsPath \ additionalNames).readNullable[String](nameValidation keepAnd minLength[String](1)  keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
-      (JsPath \ lastName).read[String](nameValidation  keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
+      (JsPath \ birthReferenceNumber).readNullable[String] and
+      (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
+      (JsPath \ additionalNames).readNullable[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
+      (JsPath \ lastName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
-    )(Payload.apply _)
-
+    ) (Payload.apply _)
+    .filter(ValidationError(InvalidBirthReferenceNumber.message))(
+      x =>
+        validBirthReferenceNumber(x.whereBirthRegistered, x.birthReferenceNumber)
+  )
 }
