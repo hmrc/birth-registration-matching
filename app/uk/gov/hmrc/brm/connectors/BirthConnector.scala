@@ -59,10 +59,17 @@ trait BirthConnector extends ServicesConfig {
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
     val newHc = hc.withExtraHeaders(headers: _*)
-    httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
+    val response = httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
       wts = Writes.JsValueWrites,
       rds = HttpReads.readRaw,
       hc = newHc)
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+    response.onComplete(r =>
+      BRMLogger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
+    )
+
+    response
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
