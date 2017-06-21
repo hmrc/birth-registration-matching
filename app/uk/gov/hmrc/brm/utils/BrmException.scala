@@ -139,12 +139,6 @@ trait BRMException extends Controller {
       serviceUnavailable(method, "[NRS down]", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }
 
-  def upstreamErrorPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, upstream, _) =>
-      logException(method, s"[InternalServerError]: [$body]", upstream)
-      InternalServerErrorException(method, e, upstream)
-  }
-
 }
 
 private object Exception5xx {

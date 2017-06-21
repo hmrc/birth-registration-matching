@@ -53,7 +53,6 @@ trait BRMBaseController extends BaseController with BRMException {
         desInvalidHeadersBadRequestPF(method),
         groConnectionDownPF(method),
         nrsConnectionDownPF(method),
-        upstreamErrorPF(method),
         badRequestExceptionPF(method),
         notImplementedExceptionPF(method),
         notFoundExceptionPF(method),
