@@ -389,11 +389,11 @@ class BirthEventsControllerSpec
           checkResponse(result,INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
+        "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
           mockReferenceResponse(Upstream5xxResponse(MockErrorResponses.UNKNOWN_ERROR.json, NOT_IMPLEMENTED, NOT_IMPLEMENTED))
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result = await(MockController.post().apply(request))
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
         }
 
 
@@ -487,11 +487,11 @@ class BirthEventsControllerSpec
           checkResponse(result,INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
+        "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
           mockDetailsResponse(Upstream5xxResponse(MockErrorResponses.UNKNOWN_ERROR.json, NOT_IMPLEMENTED, NOT_IMPLEMENTED))
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
         }
 
         "return 200 false when GRO returns NotFoundException" in {
@@ -682,7 +682,7 @@ class BirthEventsControllerSpec
 
         "return 503 when NRS returns 503 Service unavailable" in {
           mockNrsDetailsResponse(new Upstream5xxResponse(MockErrorResponses.NRS_CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE))
-          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val request = postRequest(userNoMatchScotlandExcludingReferenceKey)
           val result = await(MockController.post().apply(request))
           checkResponse(result,SERVICE_UNAVAILABLE, "NRS_CONNECTION_DOWN","National Records Scotland: Scotland is unavailable")
         }
