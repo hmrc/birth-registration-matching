@@ -129,13 +129,13 @@ trait BRMException extends Controller {
 
   def groConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
-      logException(method, s"[GRO down]: [$body]", SERVICE_UNAVAILABLE)
+      logException(method, s"[GRO down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def nrsConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == SCOTLAND =>
-      logException(method, s"[NRS down]: [$body]", SERVICE_UNAVAILABLE)
+      logException(method, s"[NRS down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "[NRS down]", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }
 
