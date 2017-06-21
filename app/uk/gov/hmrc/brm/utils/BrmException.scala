@@ -74,7 +74,7 @@ trait BRMException extends Controller {
       serviceUnavailable(method, "groProxyDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
-  def desConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def desConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "desConnctionDownPF", e, ErrorResponse.DES_CONNECTION_DOWN)
     case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == SCOTLAND =>
@@ -125,14 +125,16 @@ trait BRMException extends Controller {
       InternalServerErrorException(method, e, GATEWAY_TIMEOUT)
   }
 
-  def groConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case e: Upstream5xxResponse if e.message.contains("GRO_CONNECTION_DOWN") =>
-      serviceUnavailable(method, "groConnctionDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
+  def groConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+    case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
+      logException(method, s"groConnectionDownPF: $body", SERVICE_UNAVAILABLE)
+      serviceUnavailable(method, "groConnectionDownPF", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
-  def nrsConnctionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
-    case e: Upstream5xxResponse if e.message.contains("SERVICE_UNAVAILABLE") =>
-      serviceUnavailable(method, "nrsConnctionDownPF", e, ErrorResponse.NRS_CONNECTION_DOWN)
+  def nrsConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+    case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == SCOTLAND =>
+      logException(method, s"nrsConnectionDownPF: $body", SERVICE_UNAVAILABLE)
+      serviceUnavailable(method, "nrsConnectionDownPF", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }
 
   def upstreamErrorPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
