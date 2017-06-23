@@ -23,7 +23,7 @@ import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.utils.{BRMFormat, BirthRegisterCountry}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
 
 case class Payload(
@@ -49,7 +49,7 @@ case class Payload(
     "payload.firstName" -> firstNames,
     "payload.additionalNames" -> additionalNames,
     "payload.lastName" -> lastName,
-    "payload.dateOfBirth" -> dateOfBirth.toString(BRMFormat.datePattern),
+    "payload.dateOfBirth" -> dateOfBirth.toString(Payload.datePattern),
     "payload.whereBirthRegistered" -> whereBirthRegistered.toString
     )
   }
@@ -66,7 +66,7 @@ abstract class RequestType
 case class ReferenceRequest() extends RequestType
 case class DetailsRequest() extends RequestType
 
-object Payload extends BRMFormat {
+object Payload {
 
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
@@ -75,9 +75,14 @@ object Payload extends BRMFormat {
   val dateOfBirth = "dateOfBirth"
   val whereBirthRegistered = "whereBirthRegistered"
 
+  val datePattern = "yyyy-MM-dd"
+
   private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
   private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
+  private val invalidNameCharsRegEx =  "[;/\\\\()|*]|(<!)|(-->)|(\\n)|(\")|(^\\s+$)".r
+
+  private val validationError = ValidationError("")
 
   private def validBirthReferenceNumber(country: BirthRegisterCountry, referenceNumber: Option[String]): Boolean = (country, referenceNumber) match {
     case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
@@ -86,6 +91,16 @@ object Payload extends BRMFormat {
     case (_, Some(x)) => x.matches(validBirthReferenceNumberRegEx)
     case (_, _) => true
   }
+
+  private val nameValidation: Reads[String] =
+    Reads.StringReads.filter(validationError)(
+      !invalidNameCharsRegEx.findFirstIn(_).isDefined
+    )
+
+  private val isAfterDate: Reads[LocalDate] =
+    jodaLocalDateReads(datePattern).filter(validationError)(
+      _.getYear >= BrmConfig.minimumDateOfBirthYear
+    )
 
   implicit val PayloadWrites: Writes[Payload] = (
       (JsPath \ birthReferenceNumber).writeNullable[String] and

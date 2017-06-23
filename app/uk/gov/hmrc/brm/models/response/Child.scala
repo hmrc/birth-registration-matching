@@ -17,7 +17,6 @@
 package uk.gov.hmrc.brm.models.response
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.brm.utils.BRMFormat
 
 case class Child(
                   birthReferenceNumber: Int,
@@ -34,4 +33,4 @@ case class Child(
 
 }
 
-object Child extends BRMFormat
+object Child
