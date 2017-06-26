@@ -700,6 +700,17 @@ object TestHelper {
        |}
      """.stripMargin)
 
+   val firstNameWithEqualsCharacter = Json.parse(
+     s"""
+        |{
+        |"firstName" : "=",
+        |"lastName" : "Jones",
+        |"dateOfBirth" : "2012-11-16",
+        |"birthReferenceNumber" : "$referenceNumber",
+        |"whereBirthRegistered" : "england"
+        |}
+      """.stripMargin)
+
   val firstNameWithMoreThan100Characters = Json.parse(
     s"""
        |{

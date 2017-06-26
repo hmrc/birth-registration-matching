@@ -133,6 +133,11 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         Json.toJson(payload).validate[Payload].isSuccess shouldBe false
       }
 
+      "return error when firstName contains = character" in {
+        val payload = Payload(Some("123456789"), "=", Some("Jones"), "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+      }
+
       "return error when firstName contains newline character" in {
         val payload = Payload(None, "John\n", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
@@ -224,6 +229,11 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
+      "return error when additionalNames contains = character" in {
+        val payload = Payload(Some("123456789"), "Test", Some("="), "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+      }
+
       "return error when additionalNames contains double quote character" in {
         val payload = Payload(None, "Test", Some("Johnny\""), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
@@ -291,6 +301,11 @@ class PayloadSpec extends UnitSpec with WithFakeApplication {
 
       "return error when lastName contains . character" in {
         val payload = Payload(Some("123456789"), "Adam", None, ".", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+      }
+
+      "return error when lastName contains = character" in {
+        val payload = Payload(Some("123456789"), "Test", Some("Jones"), "=", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe false
       }
 
