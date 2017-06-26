@@ -120,9 +120,6 @@ object ErrorResponses extends HttpResponse {
   type ErrorResponses = List[(String, HttpResponseBody)]
 
   def getHttpResponse(key: String, error: String): Result = {
-
-    println(s"ERROR - $error")
-
     error match {
       case InvalidBirthReferenceNumber.message => InvalidBirthReferenceNumber.status
       case "error.path.missing" =>

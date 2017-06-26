@@ -118,6 +118,12 @@ class BirthEventsControllerSpec
         checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
+      "return response code 400 if request contains = characters in firstName" in {
+        val request = postRequest(firstNameWithEqualsCharacter)
+        val result = await(MockController.post().apply(request))
+        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+      }
+
       "return response code 400 if request contains a single space in firstName" in {
         val request = postRequest(firstNameWithASingleSpace)
         val result = await(MockController.post().apply(request))
