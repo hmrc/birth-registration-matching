@@ -20,10 +20,10 @@ import org.joda.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, Reads, _}
-import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
+import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
+import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.brm.utils.BRMFormat.datePattern
 
 /**
   * Created by user on 06/03/17.
@@ -34,7 +34,7 @@ object ReadsUtil {
     (JsPath  \ "systemNumber").read[Int] and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(datePattern)).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
 
@@ -42,7 +42,7 @@ object ReadsUtil {
     (JsPath  \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(datePattern)).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
   val groReadRecord : Reads[Record] = (
