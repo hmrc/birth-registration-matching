@@ -711,6 +711,39 @@ object TestHelper {
         |}
       """.stripMargin)
 
+  val firstNameWithPlusCharacter = Json.parse(
+    s"""
+       |{
+       |"firstName" : "+",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "$referenceNumber",
+       |"whereBirthRegistered" : "england"
+       |}
+      """.stripMargin)
+
+  val firstNameWithAtCharacter = Json.parse(
+    s"""
+       |{
+       |"firstName" : "@",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "$referenceNumber",
+       |"whereBirthRegistered" : "england"
+       |}
+      """.stripMargin)
+
+  val firstNameWithNullCharacter = Json.parse(
+    s"""
+       |{
+       |"firstName" : "\\u0000",
+       |"lastName" : "Jones",
+       |"dateOfBirth" : "2012-11-16",
+       |"birthReferenceNumber" : "$referenceNumber",
+       |"whereBirthRegistered" : "england"
+       |}
+      """.stripMargin)
+
   val firstNameWithMoreThan100Characters = Json.parse(
     s"""
        |{

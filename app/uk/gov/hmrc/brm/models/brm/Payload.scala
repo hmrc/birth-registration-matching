@@ -80,7 +80,7 @@ object Payload {
   private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
   private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
-  private val invalidNameCharsRegEx =  "[;/\\\\()|*.=]|(<!)|(-->)|(\\n)|(\")|(^\\s+$)".r
+  private val invalidNameCharsRegEx =  "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
 
   private val validationError = ValidationError("")
 
