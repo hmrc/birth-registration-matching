@@ -4,6 +4,20 @@
         <encoder class="uk.gov.hmrc.play.logging.JsonEncoder"/>
     </appender>
 
+    <logger name="com.ning.http.client" level="OFF"/>
+
+    <logger name="java.nio.channels" level="OFF"/>
+
+    <logger name="org.asynchttpclient" level="OFF"/>
+
+    <logger name="com.google.inject" level="OFF"/>
+
+    <logger name="akka.event" level="OFF"/>
+
+    <logger name="io.netty" level="OFF"/>
+
+    <logger name="connector" level="OFF"/>
+
     <logger name="uk.gov" level="${logger.uk.gov:-WARN}"/>
 
     <root level="${logger.application:-WARN}">

@@ -34,35 +34,21 @@
         </encoder>
     </appender>
 
-    <logger name="com.ning.http.client" level="WARN">
-        <appender-ref ref="STDOUT"/>
-    </logger>
+    <logger name="com.ning.http.client" level="OFF"/>
 
-    <logger name="java.nio.channels" level="OFF">
-        <appender-ref ref="STDOUT"/>
-    </logger>
+    <logger name="java.nio.channels" level="OFF"/>
 
-    <logger name="org.asynchttpclient.netty" level="WARN">
-        <appender-ref ref="STDOUT"/>
-    </logger>
+    <logger name="org.asynchttpclient" level="OFF"/>
+
+    <logger name="com.google.inject" level="OFF"/>
+
+    <logger name="akka.event" level="OFF"/>
+
+    <logger name="io.netty" level="OFF"/>
+
+    <logger name="connector" level="OFF"/>
 
     <logger name="uk.gov">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
-    <logger name="com.google.inject" level="INFO">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
-    <logger name="akka.event" level="OFF">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
-    <logger name="io.netty" level="OFF">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
-    <logger name="connector" level="OFF">
         <appender-ref ref="STDOUT"/>
     </logger>
 
