@@ -39,7 +39,6 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(config)
     .build()
 

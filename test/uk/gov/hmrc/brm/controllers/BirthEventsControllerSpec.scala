@@ -50,7 +50,6 @@ class BirthEventsControllerSpec
         "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
       )
     )
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .build()
 
   "BirthEventsController with ignoreAdditionalName true" when {

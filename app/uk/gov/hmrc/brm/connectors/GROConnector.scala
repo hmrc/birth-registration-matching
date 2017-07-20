@@ -24,7 +24,6 @@ import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
 import uk.gov.hmrc.play.http.HttpPost
 
-
 /**
   * Created by adamconder on 07/02/2017.
   */

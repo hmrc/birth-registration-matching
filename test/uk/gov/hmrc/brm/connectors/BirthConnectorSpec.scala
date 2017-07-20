@@ -42,7 +42,6 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerTest with MockitoSugar w
   implicit val hc = HeaderCarrier()
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(
       Map(
         "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true

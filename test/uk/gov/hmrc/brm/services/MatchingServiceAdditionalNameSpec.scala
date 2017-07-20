@@ -46,12 +46,10 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
     )
 
   val ignoreAdditionalNamesOnAppEnabled = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(ignoreAdditionalNamesEnabled)
     .build()
 
   val ignoreAdditionalNamesOnAppDisabled = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(ignoreAdditionalNamesDisabled)
     .build()
 

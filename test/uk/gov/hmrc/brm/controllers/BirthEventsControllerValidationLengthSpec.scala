@@ -39,7 +39,6 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(config)
     .build()
 

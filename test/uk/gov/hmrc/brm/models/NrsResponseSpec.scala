@@ -17,17 +17,15 @@
 package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{Json, Reads}
-import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
-import uk.gov.hmrc.brm.models.response.gro.GROStatus$
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.libs.json.Json
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
+import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
+import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.brm.utils.TestHelper._
-/**
- * Created by user on 07/03/17.
- */
-class NRSResponseSpec extends UnitSpec {
+
+class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
 
   lazy val emptyJson = Json.parse(
     """
