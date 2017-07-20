@@ -87,7 +87,6 @@ class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar wi
     } else { Map("" -> "") }
 
     new GuiceApplicationBuilder()
-      .disable[com.kenshoo.play.metrics.PlayModule]
       .configure(config)
       .build()
   }
