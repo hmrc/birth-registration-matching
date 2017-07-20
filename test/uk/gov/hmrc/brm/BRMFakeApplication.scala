@@ -33,12 +33,11 @@ object BaseConfig {
 trait BRMFakeApplication extends WithFakeApplication {
   this: Suite =>
 
-  override def bindModules : Seq[GuiceableModule] = Seq()
+  override def bindModules : Seq[GuiceableModule] = Nil
 
   val config : Map[String, _] = BaseConfig.config
 
   override lazy val fakeApplication : Application = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .bindings(bindModules: _*).in(Mode.Test)
     .configure(config)
     .build()
