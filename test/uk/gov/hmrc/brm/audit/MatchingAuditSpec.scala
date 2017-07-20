@@ -32,7 +32,7 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class   MatchingAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class MatchingAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   val connector = mockAuditConnector
   val auditor = auditorFixtures.matchingAudit
