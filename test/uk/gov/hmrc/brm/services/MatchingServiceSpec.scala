@@ -22,16 +22,15 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeApplication
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
-import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
@@ -246,7 +245,7 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
   * TODO: add unit tests where additional names is provided
   * UPDATE: This is being tested in MatchingServiceAdditionalNameSpec
   */
-class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class MatchingServiceSpec extends UnitSpec with MockitoSugar {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -257,7 +256,11 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(configIgnoreAdditionalNames).build()
+  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(
+      disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+    )
+    .configure(configIgnoreAdditionalNames)
+    .build()
 
   references.foreach(
     reference => {
@@ -270,7 +273,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
       "MatchingService" should {
 
         s"($name) match when firstName contains special characters" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris-Jame's", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -280,7 +283,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName contains special characters" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones--Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -290,7 +293,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when firstName contains space" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -300,7 +303,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName contains space" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -310,7 +313,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName from record contains multiple spaces between names" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones  Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -320,7 +323,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName from payload contains multiple spaces between names and includes space at beginning and end of string" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "  Jones  Smith  ", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -330,7 +333,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName from payload contains multiple spaces between names" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -340,7 +343,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -350,7 +353,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when firstName contains UTF-8 characters" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chrîs", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -360,7 +363,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when lastName contains UTF-8 characters" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jonéş", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -370,7 +373,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match for exact match on firstName and lastName and dateOfBirth on both input and record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -380,7 +383,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for firstName, lastName on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "chRis", None, "joNes", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -390,7 +393,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for firstName, lastName on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -400,7 +403,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is uppercase for firstName, lastName on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "CHRIS", None, "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -410,7 +413,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is uppercase for firstName, lastName on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "CHRIS", None, "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -420,7 +423,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for firstName on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "chRis", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -430,7 +433,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for firstName on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -440,7 +443,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for lastName on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "joNES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -450,7 +453,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) match when case is different for lastName on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -460,7 +463,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when firstName and lastName are different on the input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -470,7 +473,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when firstName and lastName are different on the record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -480,7 +483,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when firstName is different on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -490,7 +493,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when firstName is different on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -500,7 +503,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when lastName is different on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jone", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -510,7 +513,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when lastName is different on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
@@ -520,7 +523,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when dateOfBirth is different on input" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-15"), BirthRegisterCountry.ENGLAND)
@@ -530,7 +533,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplic
         }
 
         s"($name) not match when dateOfBirth is different on record" in {
-          running(fakeApplication) {
+          running(getApp(configIgnoreAdditionalNames)) {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-15"), BirthRegisterCountry.ENGLAND)
