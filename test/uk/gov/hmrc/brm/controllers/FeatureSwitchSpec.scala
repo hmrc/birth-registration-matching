@@ -85,7 +85,11 @@ class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar wi
     } else if (testData.tags.contains("disabled")) {
       switchDisabled
     } else { Map("" -> "") }
-    new GuiceApplicationBuilder().configure(config).build()
+
+    new GuiceApplicationBuilder()
+      .disable[com.kenshoo.play.metrics.PlayModule]
+      .configure(config)
+      .build()
   }
 
   override protected def beforeEach(testData: TestData): Unit = {

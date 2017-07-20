@@ -46,9 +46,13 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
     val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
       "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
     )
+
     implicit val hc = HeaderCarrier()
 
-    def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
+    def getApp(config: Map[String, _]) = GuiceApplicationBuilder()
+      .disable[com.kenshoo.play.metrics.PlayModule]
+      .configure(config)
+      .build()
 
     "configuring" should {
 

@@ -38,9 +38,10 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    config
-  ).build()
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(config)
+    .build()
 
   before {
     reset(MockController.service.groConnector)

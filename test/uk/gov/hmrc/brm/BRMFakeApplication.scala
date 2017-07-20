@@ -16,18 +16,16 @@
 
 package uk.gov.hmrc.brm
 
-import com.kenshoo.play.metrics.PlayModule
 import org.scalatest.Suite
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.{Application, Mode}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 object BaseConfig {
 
   val config: Map[String, _] = Map(
     "auditing.enabled" -> false,
-    "auditing.traceRequests" -> false,
-    "metrics.enabled" -> false,
-    "microservice.metrics.graphite.enabled" -> false
+    "auditing.traceRequests" -> false
   )
 
 }
@@ -35,13 +33,14 @@ object BaseConfig {
 trait BRMFakeApplication extends WithFakeApplication {
   this: Suite =>
 
-  override def bindModules = Seq(new PlayModule)
+  override def bindModules : Seq[GuiceableModule] = Seq()
 
   val config : Map[String, _] = BaseConfig.config
-    .++(Map())
 
-  override lazy val fakeApplication = GuiceApplicationBuilder(
-    disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-  ).configure(config)
+  override lazy val fakeApplication : Application = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .bindings(bindModules: _*).in(Mode.Test)
+    .configure(config)
     .build()
+
 }

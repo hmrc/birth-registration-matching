@@ -42,14 +42,16 @@ class BirthEventsControllerSpec
 
   private val specialCharacters = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    Map(
-      "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
-      "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
-      "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true,
-      "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+    .configure(Map(
+        "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
+        "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
+        "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true,
+        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+      )
     )
-  ).build()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .build()
 
   "BirthEventsController with ignoreAdditionalName true" when {
 

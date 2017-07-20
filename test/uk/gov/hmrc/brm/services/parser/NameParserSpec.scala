@@ -46,7 +46,11 @@ class NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
     } else if (testData.tags.contains("dontIgnoreAdditionalNames")) {
       ignoreAdditionalNamesFalse
     } else { Map("" -> "") }
-    new GuiceApplicationBuilder().configure(config).build()
+
+    new GuiceApplicationBuilder()
+      .disable[com.kenshoo.play.metrics.PlayModule]
+      .configure(config)
+      .build()
   }
 
   "NameParser" when {

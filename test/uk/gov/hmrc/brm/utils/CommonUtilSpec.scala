@@ -31,8 +31,14 @@ class CommonUtilSpec extends UnitSpec with OneAppPerTest {
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  val ignoreAdditionalNamesOnAppEnabled = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(ignoreAdditionalNamesEnabled).build()
-  val ignoreAdditionalNamesOnAppDisabled = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(ignoreAdditionalNamesDisabled).build()
+  val ignoreAdditionalNamesOnAppEnabled = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(ignoreAdditionalNamesEnabled)
+    .build()
+  val ignoreAdditionalNamesOnAppDisabled = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(ignoreAdditionalNamesDisabled)
+    .build()
 
   "forenames" should {
 

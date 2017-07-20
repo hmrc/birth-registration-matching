@@ -24,6 +24,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
+import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.BaseConfig
@@ -66,8 +67,14 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
 
   )
 
-  val auditConfigOnAppForDefault = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForDefault).build()
-  val auditConfigOnAppForAlternate = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(auditConfigOnForAlternate).build()
+  val auditConfigOnAppForDefault = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(auditConfigOnForDefault)
+    .build()
+  val auditConfigOnAppForAlternate = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(auditConfigOnForAlternate)
+    .build()
 
   val child: Child = Child(123456789: Int, "Adam", "Test1", Some(LocalDate.now()))
 

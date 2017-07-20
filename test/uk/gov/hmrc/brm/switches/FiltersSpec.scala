@@ -44,10 +44,8 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false
   )
 
-
-  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder(
-//    disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-  ).configure {
+  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+    .configure {
     if (testData.tags.contains("enabled")) {
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
@@ -55,7 +53,8 @@ class FiltersSpec extends UnitSpec with OneAppPerTest {
     } else {
       switchEnabled
     }
-  }.build()
+  }
+    .build()
 
   val payloadWithReference = Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
   val nrsPayloadWithReference = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)

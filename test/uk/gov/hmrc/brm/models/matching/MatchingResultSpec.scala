@@ -26,14 +26,14 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class MatchingResultSpec extends UnitSpec with BRMFakeApplication {
 
-  /*val ignoreAdditionalNamesEnabled: Map[String, _] = BaseConfig.config ++ Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
-  )*/
-
   val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
-  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
+
+  def getApp(config: Map[String, _]) = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(config)
+    .build()
 
 
   "MatchingResult" should {

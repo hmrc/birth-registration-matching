@@ -37,9 +37,10 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    config
-  ).build()
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(config)
+    .build()
 
   "validating match when feature to ignore additional name is false." should {
 

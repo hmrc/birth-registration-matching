@@ -38,9 +38,10 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    config
-  ).build()
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(config)
+    .build()
 
   "validating date of birth with dobValidation feature" should {
 

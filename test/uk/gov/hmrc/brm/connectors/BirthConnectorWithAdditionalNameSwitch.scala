@@ -33,7 +33,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
-
   implicit val hc = HeaderCarrier()
 
   val FORNAMES: String = "forenames"
@@ -47,9 +46,10 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    config
-  ).build()
+  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure(config)
+    .build()
 
   "GROConnector" when {
 

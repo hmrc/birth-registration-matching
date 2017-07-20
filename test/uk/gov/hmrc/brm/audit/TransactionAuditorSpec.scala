@@ -23,6 +23,7 @@ import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import org.specs2.mock.mockito.ArgumentCapture
+import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -58,7 +59,12 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
-  def getApp(config: Map[String, _]) = GuiceApplicationBuilder(disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])).configure(config).build()
+
+  def getApp(config: Map[String, _]) = GuiceApplicationBuilder()
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .bindings(bindModules: _*).in(Mode.Test)
+    .configure(config)
+    .build()
 
 
   implicit val hc = HeaderCarrier()
