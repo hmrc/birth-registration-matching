@@ -23,7 +23,6 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.TestHelper._
@@ -38,42 +37,42 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val configFirstName: Map[String, _] = BaseConfig.config ++ Map(
+  val configFirstName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  val configAdditionalAndFirstNames: Map[String, _] = BaseConfig.config ++ Map(
+  val configAdditionalAndFirstNames: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  val configAdditionalNames: Map[String, _] = BaseConfig.config ++ Map(
+  val configAdditionalNames: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  val configLastName: Map[String, _] = BaseConfig.config ++ Map(
+  val configLastName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  val configDob: Map[String, _] = BaseConfig.config ++ Map(
+  val configDob: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true
   )
 
-  val configFirstNameLastName: Map[String, _] = BaseConfig.config ++ Map(
+  val configFirstNameLastName: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
     "microservice.services.birth-registration-matching.matching.lastName" -> true,
@@ -252,7 +251,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar {
   implicit val hc = HeaderCarrier()
   val references = List(Some("123456789"), None)
 
-  val configIgnoreAdditionalNames: Map[String, _] = BaseConfig.config ++ Map(
+  val configIgnoreAdditionalNames: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 

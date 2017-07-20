@@ -19,17 +19,18 @@ package uk.gov.hmrc.brm.audit
 import java.util.concurrent.TimeUnit
 
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.duration.Duration
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication with BaseUnitSpec {
+class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

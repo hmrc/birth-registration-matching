@@ -21,10 +21,8 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.specs2.mock.mockito.ArgumentCapture
-import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
@@ -46,12 +44,12 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpe
 
   val auditor = auditorFixtures.transactionAudit
 
-  val ignoreAdditionalNamesEnabled: Map[String, _] = BaseConfig.config ++ Map(
+  val ignoreAdditionalNamesEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
-  val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
+  val ignoreAdditionalNamesDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )

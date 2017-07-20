@@ -21,6 +21,7 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.connectors.BirthConnector
@@ -30,12 +31,12 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse, NotImplementedException}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
-class LookupServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
+class LookupServiceSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

@@ -23,7 +23,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.TestHelper._
@@ -38,11 +37,11 @@ class MatchingServiceAdditionalNameSpec extends UnitSpec with MockitoSugar with 
 
     import uk.gov.hmrc.brm.utils.Mocks._
 
-    val ignoreAdditionalNamesEnabled: Map[String, _] = BaseConfig.config ++ Map(
+    val ignoreAdditionalNamesEnabled: Map[String, _] = Map(
       "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
     )
 
-    val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
+    val ignoreAdditionalNamesDisabled: Map[String, _] = Map(
       "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
     )
 

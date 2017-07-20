@@ -18,16 +18,17 @@ package uk.gov.hmrc.brm.audit
 
 import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.implicits.Implicits.AuditFactory
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class AuditFactorySpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class AuditFactorySpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   implicit val hc = HeaderCarrier()
 

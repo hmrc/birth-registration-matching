@@ -19,10 +19,11 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with WithFakeApplication {
+class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with OneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

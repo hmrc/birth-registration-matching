@@ -18,14 +18,13 @@ package uk.gov.hmrc.brm.models.matching
 
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 import uk.gov.hmrc.play.test.UnitSpec
 
 class MatchingResultSpec extends UnitSpec {
 
-  val ignoreAdditionalNamesDisabled: Map[String, _] = BaseConfig.config ++ Map(
+  val ignoreAdditionalNamesDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 

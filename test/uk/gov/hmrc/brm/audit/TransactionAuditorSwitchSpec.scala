@@ -24,15 +24,12 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
-import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.brm.services.matching.Bad
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -49,12 +46,12 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
   val auditor = new TransactionAuditor(connector)
   implicit val hc = HeaderCarrier()
 
-  val auditConfigOnForDefault: Map[String, _] = BaseConfig.config ++ Map(
+  val auditConfigOnForDefault: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
-  val auditConfigOnForAlternate: Map[String, _] = BaseConfig.config ++ Map(
+  val auditConfigOnForAlternate: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
