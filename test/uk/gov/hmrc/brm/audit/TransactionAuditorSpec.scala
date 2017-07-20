@@ -19,21 +19,17 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.Mode
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeApplication
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.{BRMFakeApplication, BaseConfig}
+import uk.gov.hmrc.brm.BaseConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.brm.services.matching.Bad
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -44,7 +40,7 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 15/02/2017.
   */
-class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeApplication with BaseUnitSpec {
+class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -62,7 +58,6 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
 
   def getApp(config: Map[String, _]) = GuiceApplicationBuilder()
     .disable[com.kenshoo.play.metrics.PlayModule]
-    .bindings(bindModules: _*).in(Mode.Test)
     .configure(config)
     .build()
 
@@ -72,7 +67,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
   "RequestsAndResultsAudit" should {
 
     "audit request and result when child's reference number used" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val child = Record(Child(
           500035710: Int,
           "John",
@@ -95,7 +90,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "audit request and result when child's details used" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val localDate = new LocalDate("2017-02-17")
         val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
         val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -113,7 +108,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "throw Illegal argument exception when no payload is provided" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val event = Map("match" -> "true")
         intercept[IllegalArgumentException] {
           await(auditor.audit(event, None))
@@ -126,7 +121,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
   "records audit" should {
 
     "not return word counts for no records found" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
 
         val localDate = new LocalDate("2017-02-17")
         val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
@@ -141,7 +136,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return word count as 0 when a single record is passed with empty name values" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
 
         val child = Record(Child(
           500035710: Int,
@@ -162,7 +157,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values for word count when a single record is passed" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
 
         val child = Record(Child(
           500035710: Int,
@@ -183,7 +178,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values for word count when a single record is passed having additional names" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
 
         val child = Record(Child(
           500035710: Int,
@@ -204,7 +199,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values for word count when multiple records are passed" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
 
         val child = Record(Child(
           500035710: Int,
@@ -233,7 +228,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values for word count when multiple records are passed when ignoreAdditionalName is true" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+      running(getApp(ignoreAdditionalNamesEnabled)) {
 
         val child = Record(Child(
           500035710: Int,
@@ -265,7 +260,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
   "records audit for character count " should {
 
     "not get audited when no record return from upstream service" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val localDate = new LocalDate("2017-02-17")
         val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
@@ -280,7 +275,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values when a single record is passed" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val child = Record(Child(
           500035710: Int,
           "Adam TEST",
@@ -300,7 +295,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values when a single record is passed when additional name is not considered." in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+      running(getApp(ignoreAdditionalNamesEnabled)) {
         val child = Record(Child(
           500035710: Int,
           "Adam TEST",
@@ -320,7 +315,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values when a multiple records are passed" in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+      running(getApp(ignoreAdditionalNamesDisabled)) {
         val child1 = Record(Child(
           500035710: Int,
           "Adam TEST",
@@ -349,7 +344,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     }
 
     "return correct values when a multiple records are passed when additional name is not considered." in {
-      running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesEnabled)) {
+      running(getApp(ignoreAdditionalNamesEnabled)) {
         val child1 = Record(Child(
           500035710: Int,
           "Adam TEST",
@@ -384,7 +379,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     "record has flags for GRO" should {
 
       "return a Map() of flags" in {
-        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        running(getApp(ignoreAdditionalNamesDisabled)) {
           val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
             Some(new LocalDate("2009-06-30"))),
             status = Some(
@@ -416,7 +411,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
       }
 
       "return a Map() of flags where flag has reason and none" in {
-        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        running(getApp(ignoreAdditionalNamesDisabled)) {
           val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
             Some(new LocalDate("2009-06-30"))),
             status = Some(
@@ -448,7 +443,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
       }
 
       "return a Map() of 'none' flags" in {
-        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        running(getApp(ignoreAdditionalNamesDisabled)) {
           val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
             Some(new LocalDate("2009-06-30"))),
             status = Some(
@@ -482,7 +477,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     "record has flags for NRS" should {
 
       "return a Map() of flags" in {
-        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        running(getApp(ignoreAdditionalNamesDisabled)) {
           val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
             Some(new LocalDate("2009-06-30"))),
             status = Some(
@@ -509,7 +504,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BRMFakeAppl
     "has no status" should {
 
       "not return status flags" in {
-        running(FakeApplication(additionalConfiguration = ignoreAdditionalNamesDisabled)) {
+        running(getApp(ignoreAdditionalNamesDisabled)) {
           val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH",
             Some(new LocalDate("2009-06-30"))),
             status = None

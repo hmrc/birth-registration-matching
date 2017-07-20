@@ -20,20 +20,19 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.brm.BRMFakeApplication
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class   MatchingAuditSpec extends UnitSpec with MockitoSugar with BRMFakeApplication {
+class   MatchingAuditSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
 
   val connector = mockAuditConnector
   val auditor = auditorFixtures.matchingAudit
