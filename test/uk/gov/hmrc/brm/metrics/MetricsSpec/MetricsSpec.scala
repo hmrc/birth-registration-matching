@@ -36,7 +36,6 @@ class MetricsSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
   }
 
-
   "GROReferenceMetrics" should {
 
     "initialise" in {

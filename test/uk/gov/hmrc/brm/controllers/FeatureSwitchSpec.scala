@@ -37,7 +37,10 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 02/12/2016.
   */
-class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfterEachTestData {
+class FeatureSwitchSpec extends UnitSpec
+  with OneAppPerTest
+  with MockitoSugar
+  with BeforeAndAfterEachTestData {
 
   /**
     * Enable both GRO and NRS
@@ -79,7 +82,7 @@ class FeatureSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar wi
     "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> false
   )
 
-  implicit override def newAppForTest(testData: TestData) : Application = {
+  override def newAppForTest(testData: TestData) : Application = {
     val config = if (testData.tags.contains("enabled")) {
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
