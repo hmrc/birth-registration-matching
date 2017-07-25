@@ -19,8 +19,7 @@ package uk.gov.hmrc.brm.connectors
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -33,7 +32,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -41,7 +40,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerTest with MockitoSugar w
 
   implicit val hc = HeaderCarrier()
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+  override lazy val app = new GuiceApplicationBuilder()
     .configure(
       Map(
         "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
@@ -55,8 +54,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerTest with MockitoSugar w
   "GROConnector" should {
 
     "getReference returns json response" in {
-
-      val argumentCapture=  mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
+      val argumentCapture = mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
       val result = await(connectorFixtures.groConnector.getReference(payload))
       checkResponse(result, 200)
     }

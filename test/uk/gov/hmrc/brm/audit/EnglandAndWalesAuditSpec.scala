@@ -43,6 +43,7 @@ class EnglandAndWalesAuditSpec extends UnitSpec with MockitoSugar with OneAppPer
 
   before {
     reset(connector)
+    reset(auditor)
   }
 
   "EnglandAndWalesAudit" should {

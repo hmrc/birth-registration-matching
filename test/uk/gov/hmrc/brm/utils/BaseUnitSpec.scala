@@ -37,9 +37,6 @@ import scala.concurrent.Future
   */
 trait BaseUnitSpec extends UnitSpec  {
 
-  mockAuditSuccess
-
-
   def checkResponse(result: Result, responseStatus:Int , matchResonse:Boolean): Unit = {
     status(result) shouldBe responseStatus
     (contentAsJson(result) \ "matched").as[Boolean] shouldBe matchResonse
