@@ -55,7 +55,6 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpe
   )
 
   def getApp(config: Map[String, _]) = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(config)
     .build()
 

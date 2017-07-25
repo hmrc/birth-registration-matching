@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.controllers
 
 import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
@@ -27,7 +27,7 @@ import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.test.UnitSpec
 
-class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BaseUnitSpec {
+class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -38,7 +38,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerTest wit
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+  override lazy val app = new GuiceApplicationBuilder()
     .configure(config)
     .build()
 
