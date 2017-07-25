@@ -33,8 +33,6 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  //object HeaderValidator extends HeaderValidator
-
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
 
   val payload = Json.parse(
