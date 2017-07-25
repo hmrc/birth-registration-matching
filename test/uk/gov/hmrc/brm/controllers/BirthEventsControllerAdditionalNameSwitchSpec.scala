@@ -38,7 +38,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends UnitSpec with OneApp
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
+//    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(config)
     .build()
 
