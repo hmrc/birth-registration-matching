@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with OneAppPerTest with BaseUnitSpec {
+class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -41,7 +41,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
-  val ignoreAdditionalNamesOnAppEnabled = GuiceApplicationBuilder()
+  override lazy val app = GuiceApplicationBuilder()
     .configure(ignoreAdditionalNamesEnabled)
     .build()
 
@@ -150,7 +150,6 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
           "ignore middle names with feature toggle enabled" should {
 
             s"($name) match when firstName argument has all middle names on input that are on the record" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -158,12 +157,10 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
 
             s"($name) match when firstName argument has all middle names on input that are on the record and ignore any additional name provided in payload." in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "Adam David", Some("test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -171,11 +168,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -183,11 +178,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
@@ -195,11 +188,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when firstName argument has middle names with punctuation, with additional names on record" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "   Jamie  Mary-Ann'é ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
@@ -207,11 +198,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Jamie Mary-Ann'é"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when firstName argument has no middle names on input that are on the record" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -219,11 +208,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when firstName argument has no middle names on input that are on the record, with additional spaces" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
 
                 val payload = Payload(reference, "    Adam     ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -231,12 +218,12 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) not match when firstName argument has too many names not on the record" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                  .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -244,12 +231,12 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) not match when firstName argument has too many names not on the record, with additional spaces" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                  .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "   Adam  David     James  ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -257,12 +244,12 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones"
-              }
             }
 
             s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
-              running(ignoreAdditionalNamesOnAppEnabled) {
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                  .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
                 val resultMatch = MockMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
@@ -270,7 +257,6 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
                 resultMatch.names.firstNames shouldBe "Chris"
                 resultMatch.names.additionalNames shouldBe empty
                 resultMatch.names.lastNames shouldBe "Jones Smith"
-              }
             }
 
           }
