@@ -31,7 +31,10 @@ import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
-class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
+  with OneAppPerTest
+  with MockitoSugar
+  with BaseUnitSpec {
 
   implicit val hc = HeaderCarrier()
 
@@ -47,7 +50,6 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
   )
 
   override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
     .configure(config)
     .build()
 
