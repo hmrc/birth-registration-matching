@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.UnitSpec
 
-class CommonUtilSpec extends UnitSpec with OneAppPerTest {
+class CommonUtilSpec extends UnitSpec {
 
   lazy val ignoreAdditionalNamesEnabled: Map[String, Boolean] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true

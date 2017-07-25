@@ -40,7 +40,7 @@ class NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
-  implicit override def newAppForTest(testData: TestData) : Application = {
+  override def newAppForTest(testData: TestData) : Application = {
     val config = if (testData.tags.contains("ignoreAdditionalNames")) {
       ignoreAdditionalNamesTrue
     } else if (testData.tags.contains("dontIgnoreAdditionalNames")) {
