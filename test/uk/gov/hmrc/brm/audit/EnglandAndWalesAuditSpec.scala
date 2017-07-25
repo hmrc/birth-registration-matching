@@ -41,11 +41,6 @@ class EnglandAndWalesAuditSpec extends UnitSpec with MockitoSugar with OneAppPer
 
   implicit val hc = HeaderCarrier()
 
-  before {
-    reset(connector)
-    reset(auditor)
-  }
-
   "EnglandAndWalesAudit" should {
 
     "audit requests when using reference number" in {
