@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.controllers
 import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -35,14 +35,14 @@ import uk.gov.hmrc.play.test.UnitSpec
 class BirthEventsControllerSpec
     extends UnitSpec
     with MockitoSugar
-    with OneAppPerTest
-    with BeforeAndAfter with BaseUnitSpec {
+    with OneAppPerSuite
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   private val specialCharacters = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+  override lazy val app = new GuiceApplicationBuilder()
     .configure(Map(
         "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
         "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,

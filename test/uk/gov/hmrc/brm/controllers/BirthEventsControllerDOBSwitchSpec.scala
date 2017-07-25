@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.scalatest.TestData
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.mvc.Result

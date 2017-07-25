@@ -20,17 +20,18 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, MockErrorResponses}
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, MockErrorResponses}
 import uk.gov.hmrc.play.test.UnitSpec
 
-import scala.concurrent.Future
-
-class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthEventsControllerValidationLengthSpec extends UnitSpec
+  with OneAppPerSuite
+  with MockitoSugar
+  with BeforeAndAfter
+  with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -38,7 +39,7 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with OneAppPerT
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder()
+  override lazy val app = new GuiceApplicationBuilder()
     .configure(config)
     .build()
 
