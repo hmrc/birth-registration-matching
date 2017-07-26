@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.filters
 
 import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.filters.Filter.GeneralFilter
-import uk.gov.hmrc.brm.metrics.DateofBirthFeature
+import uk.gov.hmrc.brm.metrics.DateofBirthFeatureCountMetric
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.{DateOfBirthSwitch, DateOfBirthSwitchValue}
 
@@ -36,7 +36,7 @@ object DateOfBirthFilter extends Filter(DateOfBirthSwitch, GeneralFilter) {
       val configDate = LocalDate.parse(config).toDate
       val isValid = !payload.dateOfBirth.toDate.before(configDate)
       if(!isValid){
-        DateofBirthFeature.count()
+        DateofBirthFeatureCountMetric.count()
       }
       isValid
     } else {
