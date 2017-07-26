@@ -10,5 +10,6 @@ cache:
 branches:
   except:
     - master
-    - sbt clean coverage test
-    - sbt coverageReport
+script:
+  - sbt clean coverage test
+  - sbt coverageReport
