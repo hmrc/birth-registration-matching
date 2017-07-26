@@ -43,11 +43,13 @@ sealed protected trait Connector {
 
   val prefix : String
 
-  def status(code: Int) : Unit = metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
+  def status(code: Int) : Unit =
+    metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
 }
 
-sealed trait BRMMetrics extends MicroserviceMetrics with Timer with Connector {
-  Logger.info(s"[${super.getClass}][constructor] Initialising metrics interface")
+sealed trait BRMMetrics extends MicroserviceMetrics
+  with Timer
+  with Connector {
 
   val prefix : String
 }
@@ -58,7 +60,6 @@ sealed trait BRMMetrics extends MicroserviceMetrics with Timer with Connector {
   */
 
 object GROReferenceMetrics extends BRMMetrics {
-  Logger.info(s"[GROReferenceMetrics][init]")
   override val prefix = "proxy"
 }
 
@@ -77,7 +78,6 @@ object GRODetailsMetrics extends BRMMetrics {
   */
 
 object NRSMetrics extends BRMMetrics {
-  Logger.info(s"[NRSMetrics][init]")
   override val prefix = "nrs"
 }
 
@@ -87,7 +87,6 @@ object NRSMetrics extends BRMMetrics {
   */
 
 object GRONIMetrics extends BRMMetrics {
-  Logger.info(s"[GRONIMetrics][init]")
   override val prefix = "gro-ni"
 }
 
@@ -97,7 +96,6 @@ object GRONIMetrics extends BRMMetrics {
   */
 
 case class APIVersionMetrics(version :String) extends BRMMetrics {
-  Logger.info(s"[APIVersionMetrics][init]")
   override val prefix = version
   def count() = metrics.defaultRegistry.counter(s"api-version-$prefix").inc()
 }
@@ -108,7 +106,6 @@ case class APIVersionMetrics(version :String) extends BRMMetrics {
   */
 
 case class AuditSourceMetrics (auditSource :String) extends BRMMetrics {
-  Logger.info(s"[AuditSourceMetrics][init]")
   override val prefix = auditSource.toLowerCase
   def count() = metrics.defaultRegistry.counter(s"audit-source-$prefix").inc()
 }
@@ -133,4 +130,4 @@ object EnglandAndWalesBirthRegisteredCountMetrics extends CountingMetric("englan
 object ScotlandBirthRegisteredCountMetrics extends CountingMetric("scotland")
 object NorthernIrelandBirthRegisteredCountMetrics extends CountingMetric("northern-ireland")
 object InvalidBirthRegisteredCountMetrics extends CountingMetric("invalid-birth-registered")
-object DateofBirthFeature extends CountingMetric("feature-date-of-birth")
+object DateofBirthFeatureCountMetric extends CountingMetric("feature-date-of-birth")
