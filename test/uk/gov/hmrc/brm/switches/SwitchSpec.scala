@@ -48,9 +48,8 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true
   )
 
-  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder(
-    disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
-  ).configure {
+  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+    .configure {
     if (testData.tags.contains("enabled")) {
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
@@ -58,7 +57,9 @@ class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     } else {
       Map.empty[String, Any]
     }
-  }.build()
+  }
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .build()
 
   "Switch" should {
 

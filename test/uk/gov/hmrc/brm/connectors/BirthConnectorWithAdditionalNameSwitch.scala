@@ -19,8 +19,7 @@ package uk.gov.hmrc.brm.connectors
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => mockEq}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -31,8 +30,10 @@ import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
 
-class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
-
+class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
+  with OneAppPerSuite
+  with MockitoSugar
+  with BaseUnitSpec {
 
   implicit val hc = HeaderCarrier()
 
@@ -47,9 +48,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with OneAppPerTest
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  override def newAppForTest(testData: TestData) = new GuiceApplicationBuilder().configure(
-    config
-  ).build()
+  override lazy val app = new GuiceApplicationBuilder()
+    .configure(config)
+    .build()
 
   "GROConnector" when {
 

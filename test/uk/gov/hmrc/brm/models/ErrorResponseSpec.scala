@@ -17,12 +17,13 @@
 package uk.gov.hmrc.brm.models
 
 import akka.stream.Materializer
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.Play
 import play.api.test.Helpers.{contentAsJson, _}
 import uk.gov.hmrc.brm.models.brm._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ErrorResponseSpec extends UnitSpec with WithFakeApplication {
+class ErrorResponseSpec extends UnitSpec with OneAppPerSuite {
 
   "ErrorResponses" should {
 

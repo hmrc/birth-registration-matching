@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
-import java.util.concurrent.TimeUnit
-
 import org.joda.time.LocalDate
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.implicits.Implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class MetricsSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
   "MetricsFactory" should {
 
@@ -36,7 +35,6 @@ class MetricsSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
     }
 
   }
-
 
   "GROReferenceMetrics" should {
 

@@ -33,9 +33,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  //object HeaderValidator extends HeaderValidator
-
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro","500035710")
+  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
 
   val payload = Json.parse(
     s"""
@@ -48,105 +46,91 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
        |}
     """.stripMargin)
 
-  def httpResponse(js : JsValue) = HttpResponse.apply(200: Int, Some(js))
+  def httpResponse(js: JsValue) = HttpResponse.apply(200: Int, Some(js))
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
+        .withBody(payload)
 
-        when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe OK
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe OK
     }
 
     "return response code 406 for invalid content-type in Accept header" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe NOT_ACCEPTABLE
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe NOT_ACCEPTABLE
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
     }
 
     "return response code 406 for invalid version in Accept header" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe NOT_ACCEPTABLE
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe NOT_ACCEPTABLE
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 406 for excluded Accept header" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders(("Audit-Source", "DFS"))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders(("Audit-Source", "DFS"))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe NOT_ACCEPTABLE
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe NOT_ACCEPTABLE
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 401 for excluded Audit-Source value" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe UNAUTHORIZED
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe UNAUTHORIZED
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 401 for excluded Audit-Source header" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe UNAUTHORIZED
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe UNAUTHORIZED
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 406 for excluded Audit-Source and Accept values" in {
-      running(app) {
-        val request = FakeRequest("POST", "/api/v0/events/birth")
-          .withHeaders(("Audit-Source", ""), (ACCEPT, ""))
-          .withBody(payload)
+      val request = FakeRequest("POST", "/api/v0/events/birth")
+        .withHeaders(("Audit-Source", ""), (ACCEPT, ""))
+        .withBody(payload)
 
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val result = await(MockController.post().apply(request))
-        status(result) shouldBe NOT_ACCEPTABLE
-        bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
-      }
+      val result = await(MockController.post().apply(request))
+      status(result) shouldBe NOT_ACCEPTABLE
+      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
   }
