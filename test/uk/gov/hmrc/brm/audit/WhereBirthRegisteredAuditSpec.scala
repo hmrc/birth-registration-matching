@@ -40,6 +40,7 @@ class WhereBirthRegisteredAuditSpec extends UnitSpec with MockitoSugar with OneA
   "WhereBirthRegisteredAudit" should {
 
     "audit country when an invalid birth country is used" in {
+      mockAuditSuccess
       val result = await(auditor.audit(Map(), None))
       result shouldBe AuditResult.Success
     }
