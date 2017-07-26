@@ -69,6 +69,7 @@ class BirthEventsControllerDOBSwitchSpec extends UnitSpec with OneAppPerSuite wi
   }
 
   def makeRequest(jsonRequest :JsValue):Result = {
+    mockAuditSuccess
     val request = postRequest(jsonRequest)
     val result = await(MockController.post().apply(request))
     result
