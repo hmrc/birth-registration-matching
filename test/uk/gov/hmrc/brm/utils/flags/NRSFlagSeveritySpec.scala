@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response
+package uk.gov.hmrc.brm.utils.flags
 
-import play.api.libs.json.JsValue
+import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
+import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
+import uk.gov.hmrc.play.test.UnitSpec
 
-/**
-  * Created by chrisianson on 17/03/2017.
-  */
+class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar {
 
-trait StatusInterface {
+  val allFlagsGreen = NRSStatus(status = 1, deathCode = 0)
 
-  def toJson : JsValue
+  "determineFlagSeverity" should {
 
-  def flags : Map[String, String]
+    "return FlagSeverity" in {
+      allFlagsGreen.determineFlagSeverity() shouldBe a[FlagSeverity]
+    }
 
-  protected def obfuscateReason(reason : Option[String], alternative : String) : String = {
-    val default = "None"
-    reason.fold(default){
-      flag =>
-        if (flag.trim.equalsIgnoreCase("none")) {
-          default
-        } else {
-          alternative
-        }
+    "return true when all flags are default value" in {
+
+      val groFlags = allFlagsGreen.determineFlagSeverity()
+      groFlags.canProcessRecord() shouldBe true
     }
   }
-
-  def determineFlagSeverity : FlagSeverity
-
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import uk.gov.hmrc.brm.audit.{BRMAudit, BRMDownstreamAPIAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._

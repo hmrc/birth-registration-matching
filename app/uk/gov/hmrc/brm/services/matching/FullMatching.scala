@@ -40,7 +40,10 @@ object FullMatching extends MatchingAlgorithm {
       val lastNameMatched = stringMatch(Some(mp.lastName), Some(namesOnRecord.lastNames))
       val dateOfBirthMatched = dateMatch(Some(mp.dateOfBirth), record.child.dateOfBirth)
 
+      val matched = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
+
       MatchingResult(
+        matched,
         firstNamesMatched,
         additionalNamesMatched,
         lastNameMatched,

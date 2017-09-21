@@ -19,23 +19,18 @@ package uk.gov.hmrc.brm.models.matching
 import uk.gov.hmrc.brm.services.matching.{Bad, Good, Match}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-case class MatchingResult(firstNamesMatched: Match,
+case class MatchingResult(private val _matched: Match,
+                          firstNamesMatched: Match,
                           additionalNamesMatched: Match,
                           lastNameMatched: Match,
                           dateOfBirthMatched: Match,
                           names: Names) {
 
-  def matched: Boolean = {
-    getBoolean(
-      firstNamesMatched and
-      additionalNamesMatched and
-      lastNameMatched and
-      dateOfBirthMatched
-    )
+  def matched : Boolean = {
+    getBoolean(_matched)
   }
 
   def audit: Map[String, String] = {
-
     Map(
       s"match" -> s"$matched",
       s"matchFirstName" -> s"${getBoolean(firstNamesMatched)}",
@@ -56,6 +51,6 @@ case class MatchingResult(firstNamesMatched: Match,
 
 object MatchingResult {
 
-  val noMatch = MatchingResult(Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
+  val noMatch = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
 
 }

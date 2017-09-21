@@ -35,12 +35,12 @@ class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
   "MatchingResult" should {
 
     "have default noMatch result" in {
-      MatchingResult.noMatch shouldBe MatchingResult(Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
+      MatchingResult.noMatch shouldBe MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
     }
 
     "audit if not matched" in {
-      MatchingResult(Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).matched shouldBe false
-      MatchingResult(Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).audit shouldBe Map(
+      MatchingResult(Bad(), Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).matched shouldBe false
+      MatchingResult(Bad(), Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).audit shouldBe Map(
         "match" -> "false",
         "matchFirstName" -> "true",
         "matchAdditionalNames" -> "false",
@@ -50,8 +50,8 @@ class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
     }
 
     "audit if matched" in {
-      MatchingResult(Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).matched shouldBe true
-      MatchingResult(Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).audit shouldBe Map(
+      MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).matched shouldBe true
+      MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).audit shouldBe Map(
         "match" -> "true",
         "matchFirstName" -> "true",
         "matchAdditionalNames" -> "true",
@@ -61,7 +61,7 @@ class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
     }
 
     "cache Names without additionalNames" in {
-      val result = MatchingResult(Good(), Good(), Good(), Good(), Names(List("Adam"), Nil, List("Smith")))
+      val result = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List("Adam"), Nil, List("Smith")))
       result.matched shouldBe true
       result.audit shouldBe Map(
         "match" -> "true",
@@ -73,7 +73,7 @@ class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
     }
 
     "cache Names with additionalNames" in {
-      val result = MatchingResult(Good(), Good(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
+      val result = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
       result.matched shouldBe true
       result.audit shouldBe Map(
         "match" -> "true",
@@ -85,7 +85,7 @@ class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
     }
 
     "cache Names with additionalNames where did not match additionalNames" in {
-      val result = MatchingResult(Good(), Bad(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
+      val result = MatchingResult(Bad(), Good(), Bad(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
       result.matched shouldBe false
       result.audit shouldBe Map(
         "match" -> "false",

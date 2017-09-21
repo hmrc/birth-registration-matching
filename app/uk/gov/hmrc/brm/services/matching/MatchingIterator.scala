@@ -22,6 +22,7 @@ import uk.gov.hmrc.brm.models.response.Record
 
 import scala.annotation.tailrec
 
+
 trait MatchingIterator {
   this: MatchingAlgorithm =>
 
@@ -36,7 +37,12 @@ trait MatchingIterator {
           noMatch()
         case head :: Nil =>
           // 1 record returned therefore we will attempt to match
-          f(payload, head)
+          val matchResult = f(payload, head)
+          if(head.isFlagged) {
+            matchResult.copy(_matched = Bad())
+          } else {
+            matchResult
+          }
         case head :: tail =>
           // multiple records returned, iterate these until a match is found
           //val r = f(payload, head)

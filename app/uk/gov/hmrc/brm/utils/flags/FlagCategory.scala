@@ -14,33 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.models.response
+package uk.gov.hmrc.brm.utils.flags
 
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
-
-/**
-  * Created by chrisianson on 17/03/2017.
-  */
-
-trait StatusInterface {
-
-  def toJson : JsValue
-
-  def flags : Map[String, String]
-
-  protected def obfuscateReason(reason : Option[String], alternative : String) : String = {
-    val default = "None"
-    reason.fold(default){
-      flag =>
-        if (flag.trim.equalsIgnoreCase("none")) {
-          default
-        } else {
-          alternative
-        }
-    }
-  }
-
-  def determineFlagSeverity : FlagSeverity
-
-}
+sealed trait Severity
+object Red extends Severity
+object Green extends Severity
