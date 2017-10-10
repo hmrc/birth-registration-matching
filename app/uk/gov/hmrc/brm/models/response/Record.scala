@@ -23,7 +23,26 @@ import uk.gov.hmrc.brm.services.parser.NameParser
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.BRMLogger
 
-case class Record(child: Child, status: Option[StatusInterface] = None)
+case class Record(child: Child, status: Option[StatusInterface] = None) {
+
+  private def processFlags = BrmConfig.processFlags
+
+  def isFlagged: Boolean = {
+    val notFlagged = false
+    if (processFlags) {
+
+      BRMLogger.info("Record", "isFlagged", "processFlags turned on")
+
+      status match {
+        case Some(flags) => !flags.determineFlagSeverity.canProcessRecord()
+        case None => notFlagged
+      }
+    }
+    else {
+      notFlagged
+    }
+  }
+}
 
 object Record {
 
@@ -39,6 +58,7 @@ object Record {
 
     words ++ characters ++ status
   }
+
 
   private def wordCount(recordNames: Names, c: Int): Map[String, String] = {
     Map(

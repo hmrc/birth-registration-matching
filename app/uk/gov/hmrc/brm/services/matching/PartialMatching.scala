@@ -65,6 +65,8 @@ object PartialMatching extends MatchingAlgorithm {
 
       val (f, a, l, d) = (firstNames(namesOnRecord), additionalNames(namesOnRecord), lastNames(), dateOfBirth())
 
-      MatchingResult(f, a, l, d, namesOnRecord)
+      val matched = f and a and l and d
+
+      MatchingResult(matched, f, a, l, d, namesOnRecord)
   }
 }

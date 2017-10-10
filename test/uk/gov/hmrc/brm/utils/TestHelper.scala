@@ -21,6 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.play.http.HttpResponse
 
@@ -136,6 +137,20 @@ object TestHelper {
   def validRecord: Record = {
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, None)
+  }
+
+  def flaggedFictitiousBirth: Record = {
+
+    val potentiallyFictitiousBirthFlag = GROStatus(
+      potentiallyFictitiousBirth = true,
+      correction = None,
+      cancelled = false,
+      blockedRegistration = false,
+      marginalNote = None,
+      reRegistered = None)
+
+    val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
+    Record(child, Some(potentiallyFictitiousBirthFlag))
   }
 
   def validRecordSpecialCharactersFirstName: Record = {

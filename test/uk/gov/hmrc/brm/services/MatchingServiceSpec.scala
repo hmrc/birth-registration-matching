@@ -19,12 +19,14 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.{BeforeAndAfterAll, Tag, TestData}
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.services.matching.Good
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -244,7 +246,7 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
   * TODO: add unit tests where additional names is provided
   * UPDATE: This is being tested in MatchingServiceAdditionalNameSpec
   */
-class MatchingServiceSpec extends UnitSpec with MockitoSugar {
+class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -252,8 +254,34 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar {
   val references = List(Some("123456789"), None)
 
   val configIgnoreAdditionalNames: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> false
   )
+
+  val processFlags: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> true
+  )
+
+  def switchEnabled: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> true
+  )
+
+  def switchDisabled: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> false
+  )
+
+  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder().configure(
+    if (testData.tags.contains("enabled")) {
+      switchEnabled
+    } else if (testData.tags.contains("disabled")) {
+      switchDisabled
+    } else {
+      switchEnabled
+    }
+  ).build()
 
   def getApp(config: Map[String, _]) = GuiceApplicationBuilder(
       disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
@@ -270,6 +298,30 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar {
       }
 
       "MatchingService" should {
+
+        s"($name) not match when record contains fictitious birth and processFlags is true" taggedAs Tag("enabled") in {
+            when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+            val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            val resultMatch = MockMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
+            resultMatch.matched shouldBe false
+            resultMatch.firstNamesMatched shouldBe Good()
+            resultMatch.additionalNamesMatched shouldBe Good()
+            resultMatch.lastNameMatched shouldBe Good()
+            resultMatch.dateOfBirthMatched shouldBe Good()
+
+        }
+
+        s"($name) match when record contains fictitious birth and processFlags is false" taggedAs Tag("disabled") in {
+            when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+            val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            val resultMatch = MockMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
+            resultMatch.matched shouldBe true
+            resultMatch.firstNamesMatched shouldBe Good()
+            resultMatch.additionalNamesMatched shouldBe Good()
+            resultMatch.lastNameMatched shouldBe Good()
+            resultMatch.dateOfBirthMatched shouldBe Good()
+
+        }
 
         s"($name) match when firstName contains special characters" in {
           running(getApp(configIgnoreAdditionalNames)) {

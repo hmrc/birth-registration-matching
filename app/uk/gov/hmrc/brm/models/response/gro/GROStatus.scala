@@ -20,6 +20,11 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
 import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.models.response.StatusInterface
+import uk.gov.hmrc.brm.utils.flags.{Severity, Green, Red}
+
+trait FlagSeverity {
+  def canProcessRecord() : Boolean
+}
 
 case class GROStatus(
   potentiallyFictitiousBirth: Boolean = false,
@@ -29,6 +34,20 @@ case class GROStatus(
   marginalNote: Option[String] = None,
   reRegistered: Option[String] = None
 ) extends StatusInterface {
+
+  case class GROFlagSeverity(
+                            potentiallyFictitiousBirth: Severity,
+                            correction: Severity,
+                            cancelled: Severity,
+                            blockedRegistration: Severity,
+                            marginalNote: Severity,
+                            reRegistered: Severity
+                          ) extends FlagSeverity {
+    def canProcessRecord = {
+      this.potentiallyFictitiousBirth == Green && this.blockedRegistration == Green
+    }
+
+  }
 
   override def toJson: JsValue = {
     Json.parse(s"""
@@ -51,6 +70,47 @@ case class GROStatus(
     "marginalNote" -> obfuscateReason(marginalNote, "Marginal note on record"),
     "reRegistered" -> obfuscateReason(reRegistered, "Re-registration on record")
   )
+
+  def determineFlagSeverity() : FlagSeverity = {
+    GROFlagSeverity(
+      potentiallyFictitiousBirth = potentiallyFictitiousBirthP(this.potentiallyFictitiousBirth),
+      correction = correctionP(this.correction),
+      cancelled = cancelledP(this.cancelled),
+      blockedRegistration = blockedRegistrationP(this.blockedRegistration),
+      marginalNote = marginalNoteP(this.marginalNote),
+      reRegistered = reRegisteredP(this.reRegistered)
+    )
+  }
+
+  private def potentiallyFictitiousBirthP: PartialFunction[Boolean, Severity] = {
+    case true => Red
+    case _ => Green
+  }
+
+  private def correctionP[A]: PartialFunction[Option[A], Severity] = {
+    case Some(_) => Red
+    case _ => Green
+  }
+
+  private def cancelledP: PartialFunction[Boolean, Severity] = {
+    case true => Red
+    case _ => Green
+  }
+
+  private def blockedRegistrationP: PartialFunction[Boolean, Severity] = {
+    case true => Red
+    case _ => Green
+  }
+
+  private def marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
+    case Some(_) => Red
+    case _ => Green
+  }
+
+  private def reRegisteredP[A]: PartialFunction[Option[A], Severity] = {
+    case Some(_) => Red
+    case _ => Green
+  }
 
 }
 
