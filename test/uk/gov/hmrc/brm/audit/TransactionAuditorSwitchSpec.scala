@@ -47,7 +47,8 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
   implicit val hc = HeaderCarrier()
 
   val auditConfigOnForDefault: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.flags.logging" -> true,
+    "microservice.services.birth-registration-matching.features.flags.process" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
@@ -57,7 +58,8 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
     "microservice.services.birth-registration-matching.matching.matchOnMultiple" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-    "microservice.services.birth-registration-matching.features.logFlags.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.flags.logging" -> false,
+    "microservice.services.birth-registration-matching.features.flags.process" -> false,
     "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false
@@ -105,6 +107,8 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       argumentCapture.value.detail("features.ignoreMiddleNames") shouldBe "true"
       argumentCapture.value.detail("features.details.enabled") shouldBe "true"
       argumentCapture.value.detail("features.reference.enabled") shouldBe "true"
+      argumentCapture.value.detail("features.flags.logging") shouldBe "true"
+      argumentCapture.value.detail("features.flags.process") shouldBe "true"
       argumentCapture.value.detail("features.downstream.enabled") shouldBe "true"
       argumentCapture.value.detail("records.record1.flags.marginalNote") shouldBe "None"
       argumentCapture.value.detail("records.record1.flags.blockedRegistration") shouldBe "true"
@@ -133,6 +137,8 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       argumentCapture.value.detail("features.details.enabled") shouldBe "false"
       argumentCapture.value.detail("features.reference.enabled") shouldBe "false"
       argumentCapture.value.detail("features.downstream.enabled") shouldBe "false"
+      argumentCapture.value.detail("features.flags.logging") shouldBe "false"
+      argumentCapture.value.detail("features.flags.process") shouldBe "false"
       argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false

@@ -241,11 +241,6 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
 }
 
-
-/**
-  * TODO: add unit tests where additional names is provided
-  * UPDATE: This is being tested in MatchingServiceAdditionalNameSpec
-  */
 class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
@@ -255,22 +250,22 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest 
 
   val configIgnoreAdditionalNames: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> false
+    "microservice.services.birth-registration-matching.features.flags.process" -> false
   )
 
   val processFlags: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> true
+    "microservice.services.birth-registration-matching.features.flags.process" -> true
   )
 
   def switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> true
+    "microservice.services.birth-registration-matching.features.flags.process" -> true
   )
 
   def switchDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.process.enabled" -> false
+    "microservice.services.birth-registration-matching.features.flags.process" -> false
   )
 
   override def newAppForTest(testData: TestData) = GuiceApplicationBuilder().configure(

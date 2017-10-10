@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.utils.flags
+package uk.gov.hmrc.brm.filters.flags
 
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
