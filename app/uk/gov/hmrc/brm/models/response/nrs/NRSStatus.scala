@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.models.response.nrs
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
-import uk.gov.hmrc.brm.utils.flags.{Green, Severity}
+import uk.gov.hmrc.brm.filters.flags.{Green, Severity}
 
 case class NRSStatus(
   status: Int = 1,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.brm.utils.flags
+package uk.gov.hmrc.brm.filters.flags
 
 sealed trait Severity
 object Red extends Severity

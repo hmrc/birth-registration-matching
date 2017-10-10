@@ -35,10 +35,9 @@ trait BrmConfig extends ServicesConfig with SwitchException {
   def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName",  defBool = true)
   def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth",  defBool = true)
   def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
-  def logFlags : Boolean = getConfBool("birth-registration-matching.features.logFlags.enabled", defBool = false)
 
-
-  def processFlags : Boolean = getConfBool("birth-registration-matching.features.gro.flags.process.enabled", defBool = false)
+  def logFlags : Boolean = getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
+  def processFlags : Boolean = getConfBool("birth-registration-matching.features.flags.process", defBool = true)
 
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
     throw MatchingConfigurationException("ignoreMiddleNames"))
@@ -80,7 +79,9 @@ trait BrmConfig extends ServicesConfig with SwitchException {
       s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreAdditionalNames.toString,
       s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, None).toString,
       s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, Some(ReferenceRequest)).toString,
-      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString
+      s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString,
+      s"$featuresPrefix.flags.logging" -> BrmConfig.logFlags.toString,
+      s"$featuresPrefix.flags.process" -> BrmConfig.processFlags.toString
     )
   }
 

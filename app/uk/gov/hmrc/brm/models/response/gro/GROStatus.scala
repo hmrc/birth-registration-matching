@@ -20,7 +20,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
 import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.models.response.StatusInterface
-import uk.gov.hmrc.brm.utils.flags.{Severity, Green, Red}
+import uk.gov.hmrc.brm.filters.flags.{Severity, Green, Red}
 
 trait FlagSeverity {
   def canProcessRecord() : Boolean
