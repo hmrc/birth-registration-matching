@@ -31,7 +31,8 @@ class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> true,
     "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> true,
     "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> true
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process" -> true
   )
 
   val allDisabledConfig: Map[String, _] = Map(
@@ -39,7 +40,8 @@ class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
     "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
     "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process" -> false
   )
 
   val potentiallyFictitiousBirthConfig: Map[String, _] = Map(
@@ -177,7 +179,7 @@ class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     correction = None,
     cancelled = false,
     blockedRegistration = false,
-    marginalNote = Some("marginal note"),
+    marginalNote = Some("Other"),
     reRegistered = None)
 
   val reRegistered = GROStatus(
@@ -186,7 +188,7 @@ class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     cancelled = false,
     blockedRegistration = false,
     marginalNote = None,
-    reRegistered = Some("re-registered note"))
+    reRegistered = Some("Other"))
 
   "GROFlagSeverity.canProcessRecord" when {
 

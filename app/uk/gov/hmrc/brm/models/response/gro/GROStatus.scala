@@ -24,59 +24,58 @@ import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.filters.flags.{Green, Red, Severity}
 
 trait FlagSeverity {
-  def canProcessRecord() : Boolean
+  def canProcessRecord(): Boolean
 }
 
 case class GROStatus(
-  potentiallyFictitiousBirth: Boolean = false,
-  correction: Option[String] = None,
-  cancelled: Boolean = false,
-  blockedRegistration: Boolean = false,
-  marginalNote: Option[String] = None,
-  reRegistered: Option[String] = None
-) extends StatusInterface {
+                      potentiallyFictitiousBirth: Boolean = false,
+                      correction: Option[String] = None,
+                      cancelled: Boolean = false,
+                      blockedRegistration: Boolean = false,
+                      marginalNote: Option[String] = None,
+                      reRegistered: Option[String] = None
+                    ) extends StatusInterface {
 
   case class GROFlagSeverity(
-                            potentiallyFictitiousBirth: Severity,
-                            correction: Severity,
-                            cancelled: Severity,
-                            blockedRegistration: Severity,
-                            marginalNote: Severity,
-                            reRegistered: Severity
-                          ) extends FlagSeverity {
+                              potentiallyFictitiousBirth: Severity,
+                              correction: Severity,
+                              cancelled: Severity,
+                              blockedRegistration: Severity,
+                              marginalNote: Severity,
+                              reRegistered: Severity
+                            ) extends FlagSeverity {
     def canProcessRecord = {
-
-      println(s"PROCESS FLAGS Fictitious - ${isGreen(this.potentiallyFictitiousBirth, BrmConfig.validateFlag("gro", "potentiallyFictitiousBirth"))}")
-      println(s"PROCESS FLAGS Blocked - ${isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration"))}")
-
-//      this.potentiallyFictitiousBirth == Green && this.blockedRegistration == Green
-
       isGreen(this.potentiallyFictitiousBirth, BrmConfig.validateFlag("gro", "potentiallyFictitiousBirth")) &&
-      isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration"))
-//      &&
-//      isGreen(this.correction, BrmConfig.validateFlag("gro", "correction")) &&
-//      isGreen(this.cancelled, BrmConfig.validateFlag("gro", "cancelled")) &&
-//      isGreen(this.marginalNote, BrmConfig.validateFlag("gro", "marginalNote")) &&
-//      isGreen(this.reRegistered, BrmConfig.validateFlag("gro", "reRegistered"))
+        isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration")) &&
+        isGreen(this.correction, BrmConfig.validateFlag("gro", "correction")) &&
+        isGreen(this.cancelled, BrmConfig.validateFlag("gro", "cancelled")) &&
+        isGreen(this.marginalNote, BrmConfig.validateFlag("gro", "marginalNote")) &&
+        isGreen(this.reRegistered, BrmConfig.validateFlag("gro", "reRegistered"))
+    }
+
+    private def isGreen(flag: Severity, turnedOn: Boolean): Boolean = {
+      if (turnedOn) {
+        flag == Green
+      } else {
+        true
+      }
     }
   }
 
-   private def isGreen(flag: Severity, turnedOn: Boolean ) = {
-     if(turnedOn) {
-       flag == Green
-     } else { true }
-   }
+  private val invalidMarginalNote = List("other", "re-registered", "court order in place")
+  private val invalidReRegistered = List("other")
 
   override def toJson: JsValue = {
-    Json.parse(s"""
-       |{
-       |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
-       |"correction": "${correction.getOrElse("")}",
-       |"cancelled": "$cancelled",
-       |"blockedRegistration": "$blockedRegistration",
-       |"marginalNote": "${marginalNote.getOrElse("")}",
-       |"reRegistered": "${reRegistered.getOrElse("")}"
-       |}
+    Json.parse(
+      s"""
+         |{
+         |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
+         |"correction": "${correction.getOrElse("")}",
+         |"cancelled": "$cancelled",
+         |"blockedRegistration": "$blockedRegistration",
+         |"marginalNote": "${marginalNote.getOrElse("")}",
+         |"reRegistered": "${reRegistered.getOrElse("")}"
+         |}
      """.stripMargin)
   }
 
@@ -89,7 +88,7 @@ case class GROStatus(
     "reRegistered" -> obfuscateReason(reRegistered, "Re-registration on record")
   )
 
-  def determineFlagSeverity() : FlagSeverity = {
+  def determineFlagSeverity(): FlagSeverity = {
     GROFlagSeverity(
       potentiallyFictitiousBirth = potentiallyFictitiousBirthP(this.potentiallyFictitiousBirth),
       correction = correctionP(this.correction),
@@ -120,13 +119,13 @@ case class GROStatus(
     case _ => Green
   }
 
-  private def   marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
-    case Some(_) => Red
+  private def marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
+    case Some(x: String) if invalidMarginalNote.contains(x.trim.toLowerCase) => Red
     case _ => Green
   }
 
   private def reRegisteredP[A]: PartialFunction[Option[A], Severity] = {
-    case Some(_) => Red
+    case Some(x: String) if invalidReRegistered.contains(x.trim.toLowerCase()) => Red
     case _ => Green
   }
 
@@ -136,10 +135,10 @@ object GROStatus {
 
   implicit val childReads: Reads[GROStatus] = (
     (JsPath \ "potentiallyFictitiousBirth").read[Boolean].orElse(Reads.pure(false)) and
-    (JsPath \ "correction").readNullable[String] and
-    (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
-    (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
-    (JsPath \ "marginalNote").readNullable[String] and
-    (JsPath \ "reRegistered").readNullable[String]
-  )(GROStatus.apply _)
+      (JsPath \ "correction").readNullable[String] and
+      (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
+      (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
+      (JsPath \ "marginalNote").readNullable[String] and
+      (JsPath \ "reRegistered").readNullable[String]
+    ) (GROStatus.apply _)
 }

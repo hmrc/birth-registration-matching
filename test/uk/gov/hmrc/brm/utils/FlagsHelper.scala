@@ -82,21 +82,21 @@ object FlagsHelper  {
     Record(child, Some(status))
   }
 
-  def marginalNote: Record = {
+  def marginalNote(value: String): Record = {
 
     val status = GROStatus(
       potentiallyFictitiousBirth = false,
       correction = None,
       cancelled = false,
       blockedRegistration = false,
-      marginalNote = Some("Court order in place"),
+      marginalNote = Some(value),
       reRegistered = None)
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
   }
 
-  def reRegistered: Record = {
+  def reRegistered(value: String): Record = {
 
     val status = GROStatus(
       potentiallyFictitiousBirth = false,
@@ -104,7 +104,7 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = false,
       marginalNote = None,
-      reRegistered = Some("Father modified"))
+      reRegistered = Some(value))
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))

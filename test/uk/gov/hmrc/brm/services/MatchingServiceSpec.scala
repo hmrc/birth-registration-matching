@@ -291,6 +291,9 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     .configure(configIgnoreAdditionalNames)
     .build()
 
+  private val marginalNoteInvalidFlagValues = List("Other", "Re-registered", "Court order in place")
+  private val marginalNoteValidFlagValues = List("Court order revoked", "None")
+
   references.foreach(
     reference => {
 
@@ -400,36 +403,60 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest 
 
         }
 
-        "record contains a marginalNote flag" should {
-          s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
-            when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-            val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-            val resultMatch = MockMatchingService.performMatch(payload, List(marginalNote), MatchingType.FULL)
-            resultMatch.matched shouldBe false
-            resultMatch.firstNamesMatched shouldBe Good()
-            resultMatch.additionalNamesMatched shouldBe Good()
-            resultMatch.lastNameMatched shouldBe Good()
-            resultMatch.dateOfBirthMatched shouldBe Good()
+        for(validFlagValue <- marginalNoteValidFlagValues)
+        {
+          s"record contains a marginalNote flag of $validFlagValue" should {
+            s"($name) match when processFlags is true" taggedAs Tag("enabled") in {
+              when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+              val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              val resultMatch = MockMatchingService.performMatch(payload, List(marginalNote(validFlagValue)), MatchingType.FULL)
+              resultMatch.matched shouldBe true
+              resultMatch.firstNamesMatched shouldBe Good()
+              resultMatch.additionalNamesMatched shouldBe Good()
+              resultMatch.lastNameMatched shouldBe Good()
+              resultMatch.dateOfBirthMatched shouldBe Good()
+            }
           }
-
-          s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
-            when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-            val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-            val resultMatch = MockMatchingService.performMatch(payload, List(marginalNote), MatchingType.FULL)
-            resultMatch.matched shouldBe true
-            resultMatch.firstNamesMatched shouldBe Good()
-            resultMatch.additionalNamesMatched shouldBe Good()
-            resultMatch.lastNameMatched shouldBe Good()
-            resultMatch.dateOfBirthMatched shouldBe Good()
-          }
-
         }
+
+        for(flagValue <- marginalNoteInvalidFlagValues)
+          {
+            s"record contains a marginalNote flag of $flagValue" should {
+              s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+                val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MockMatchingService.performMatch(payload, List(marginalNote(flagValue)), MatchingType.FULL)
+                resultMatch.matched shouldBe false
+                resultMatch.firstNamesMatched shouldBe Good()
+                resultMatch.additionalNamesMatched shouldBe Good()
+                resultMatch.lastNameMatched shouldBe Good()
+                resultMatch.dateOfBirthMatched shouldBe Good()
+              }
+
+              s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
+                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+                val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+                val resultMatch = MockMatchingService.performMatch(payload, List(marginalNote(flagValue)), MatchingType.FULL)
+                resultMatch.matched shouldBe true
+                resultMatch.firstNamesMatched shouldBe Good()
+                resultMatch.additionalNamesMatched shouldBe Good()
+                resultMatch.lastNameMatched shouldBe Good()
+                resultMatch.dateOfBirthMatched shouldBe Good()
+              }
+
+            }
+
+          }
+
+
+
+
 
         "record contains a reRegistered flag" should {
           s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-            val resultMatch = MockMatchingService.performMatch(payload, List(reRegistered), MatchingType.FULL)
+            val resultMatch = MockMatchingService.performMatch(payload, List(reRegistered("Other")), MatchingType.FULL)
             resultMatch.matched shouldBe false
             resultMatch.firstNamesMatched shouldBe Good()
             resultMatch.additionalNamesMatched shouldBe Good()
@@ -440,7 +467,7 @@ class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest 
           s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
             when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
             val payload = Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-            val resultMatch = MockMatchingService.performMatch(payload, List(reRegistered), MatchingType.FULL)
+            val resultMatch = MockMatchingService.performMatch(payload, List(reRegistered("Other")), MatchingType.FULL)
             resultMatch.matched shouldBe true
             resultMatch.firstNamesMatched shouldBe Good()
             resultMatch.additionalNamesMatched shouldBe Good()
