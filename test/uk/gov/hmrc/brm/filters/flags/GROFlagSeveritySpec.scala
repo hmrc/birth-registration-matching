@@ -16,11 +16,113 @@
 
 package uk.gov.hmrc.brm.filters.flags
 
+import org.scalatest.{Tag, TestData}
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.OneAppPerTest
+import org.specs2.specification.TagFragments.TaggedAs
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.response.gro.{FlagSeverity, GROStatus}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class GROFlagSeveritySpec extends UnitSpec with MockitoSugar {
+class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest {
+
+  val allEnabledConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> true
+  )
+
+  val allDisabledConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+  )
+
+  val potentiallyFictitiousBirthConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+  )
+
+  val blockedRegistrationConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+  )
+
+  val correctionConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+  )
+
+  val cancelledConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false
+  )
+
+  val marginalNoteConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> true
+  )
+
+
+  val reRegisteredConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process" -> true
+  )
+
+
+  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+    .configure {
+      if (testData.tags.contains("allEnabled")) {
+        allEnabledConfig
+      }
+      else if (testData.tags.contains("allDisabled")) {
+        allDisabledConfig
+      }
+      else if (testData.tags.contains("potentiallyFictitiousBirth")) {
+        potentiallyFictitiousBirthConfig
+      }
+      else if (testData.tags.contains("blockedRegistration")) {
+        blockedRegistrationConfig
+      }
+      else if (testData.tags.contains("correction")) {
+        correctionConfig
+      }
+      else if (testData.tags.contains("cancelled")) {
+        cancelledConfig
+      }
+      else if (testData.tags.contains("marginalNote")) {
+        marginalNoteConfig
+      }
+      else if (testData.tags.contains("reRegistered")) {
+        reRegisteredConfig
+      }
+      else {
+        allEnabledConfig
+      }
+    }.build()
 
   val allFlagsGreen = GROStatus(
     potentiallyFictitiousBirth = false,
@@ -86,58 +188,98 @@ class GROFlagSeveritySpec extends UnitSpec with MockitoSugar {
     marginalNote = None,
     reRegistered = Some("re-registered note"))
 
-  "determineFlagSeverity" should  {
+  "GROFlagSeverity.canProcessRecord" when {
 
-    "return FlagSeverity" in {
-     allFlagsGreen.determineFlagSeverity() shouldBe a[FlagSeverity]
+    "all flags are green" should {
+      "return true " in {
+        val groFlags = allFlagsGreen.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return true when all flags are default value" in {
+    "all flags are red" should {
+      "return false when all individual flags are set to true" taggedAs Tag("allEnabled") in {
+        val groFlags = allFlagsRed.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = allFlagsGreen.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
+      "return true when all individual flags are set to  false" taggedAs Tag("allDisabled") in {
+        val groFlags = allFlagsRed.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return false when all flags are red" in {
+    "potentiallyFictitiousBirthFlag exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("potentiallyFictitiousBirth") in {
+        val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = allFlagsRed.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe false
+      "return true when when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return false when potentiallyFictitiousBirthFlag is set" in {
+    "blockedRegistration exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("blockedRegistration") in {
+        val groFlags = blockedRegistration.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe false
+      "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = blockedRegistration.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return true when correctionFlag is set" in {
+    "correction exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("correction") in {
+        val groFlags = correctionFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = correctionFlag.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
+      "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = correctionFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return true when cancelledFlag is set" in {
+    "cancelled exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("cancelled") in {
+        val groFlags = cancelledFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = cancelledFlag.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
+      "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = cancelledFlag.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return false when blockedRegistration is set" in {
+    "marginalNote exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("marginalNote") in {
+        val groFlags = marginalNote.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = blockedRegistration.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe false
+      "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = marginalNote.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
     }
 
-    "return true when marginalNote is set" in {
+    "reRegistered exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("reRegistered") in {
+        val groFlags = reRegistered.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe false
+      }
 
-      val groFlags = marginalNote.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
-    }
+      "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
+        val groFlags = reRegistered.determineFlagSeverity()
+        groFlags.canProcessRecord() shouldBe true
+      }
 
-    "return true when reRegistered is set" in {
-
-      val groFlags = reRegistered.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
     }
 
   }

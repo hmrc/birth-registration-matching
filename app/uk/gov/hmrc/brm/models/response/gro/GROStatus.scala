@@ -19,8 +19,9 @@ package uk.gov.hmrc.brm.models.response.gro
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
 import play.api.libs.json.Reads._
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.StatusInterface
-import uk.gov.hmrc.brm.filters.flags.{Severity, Green, Red}
+import uk.gov.hmrc.brm.filters.flags.{Green, Red, Severity}
 
 trait FlagSeverity {
   def canProcessRecord() : Boolean
@@ -44,10 +45,27 @@ case class GROStatus(
                             reRegistered: Severity
                           ) extends FlagSeverity {
     def canProcessRecord = {
-      this.potentiallyFictitiousBirth == Green && this.blockedRegistration == Green
-    }
 
+      println(s"PROCESS FLAGS Fictitious - ${isGreen(this.potentiallyFictitiousBirth, BrmConfig.validateFlag("gro", "potentiallyFictitiousBirth"))}")
+      println(s"PROCESS FLAGS Blocked - ${isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration"))}")
+
+//      this.potentiallyFictitiousBirth == Green && this.blockedRegistration == Green
+
+      isGreen(this.potentiallyFictitiousBirth, BrmConfig.validateFlag("gro", "potentiallyFictitiousBirth")) &&
+      isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration"))
+//      &&
+//      isGreen(this.correction, BrmConfig.validateFlag("gro", "correction")) &&
+//      isGreen(this.cancelled, BrmConfig.validateFlag("gro", "cancelled")) &&
+//      isGreen(this.marginalNote, BrmConfig.validateFlag("gro", "marginalNote")) &&
+//      isGreen(this.reRegistered, BrmConfig.validateFlag("gro", "reRegistered"))
+    }
   }
+
+   private def isGreen(flag: Severity, turnedOn: Boolean ) = {
+     if(turnedOn) {
+       flag == Green
+     } else { true }
+   }
 
   override def toJson: JsValue = {
     Json.parse(s"""
@@ -102,7 +120,7 @@ case class GROStatus(
     case _ => Green
   }
 
-  private def marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
+  private def   marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
     case Some(_) => Red
     case _ => Green
   }

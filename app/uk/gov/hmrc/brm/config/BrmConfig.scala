@@ -38,6 +38,7 @@ trait BrmConfig extends ServicesConfig with SwitchException {
 
   def logFlags : Boolean = getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
   def processFlags : Boolean = getConfBool("birth-registration-matching.features.flags.process", defBool = true)
+  def validateFlag(api: String, flag: String) : Boolean = getConfBool(s"birth-registration-matching.features.$api.flags.$flag.process", defBool = false)
 
   val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
     throw MatchingConfigurationException("ignoreMiddleNames"))
