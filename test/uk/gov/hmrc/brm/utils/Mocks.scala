@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.http.HttpPost
+import uk.gov.hmrc.http.HttpPost
 
 /**
   * Created by adamconder on 24/02/2017.

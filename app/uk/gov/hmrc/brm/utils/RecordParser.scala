@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.utils
 import play.api.libs.json.{JsValue, Reads}
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 sealed trait ResponseParser {
 

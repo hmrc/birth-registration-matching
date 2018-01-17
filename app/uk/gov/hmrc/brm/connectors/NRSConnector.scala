@@ -25,7 +25,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil._
 import uk.gov.hmrc.brm.utils.{CommonConstant, CommonUtil, KeyGenerator, NameFormat}
-import uk.gov.hmrc.play.http.HttpPost
+import uk.gov.hmrc.http.HttpPost
 
 /**
   * Created by adamconder on 07/02/2017.

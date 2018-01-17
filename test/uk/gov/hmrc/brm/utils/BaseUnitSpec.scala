@@ -28,10 +28,10 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks.{MockController, _}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 /**
   * Created by user on 04/05/17.
   */
@@ -130,7 +130,7 @@ trait BaseUnitSpec extends UnitSpec  {
   def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]) = {
     val argumentCapture = new ArgumentCapture[JsValue]
     when(mockHttpPost.POST[JsValue, HttpResponse]( Matchers.any(), argumentCapture.capture, Matchers.any())
-      (Matchers.any(), Matchers.any(), Matchers.any()))
+      (Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
     argumentCapture
   }

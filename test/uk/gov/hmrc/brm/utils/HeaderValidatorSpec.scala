@@ -24,10 +24,11 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http
+import uk.gov.hmrc.http.HttpResponse
 
 class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
@@ -46,7 +47,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
        |}
     """.stripMargin)
 
-  def httpResponse(js: JsValue) = HttpResponse.apply(200: Int, Some(js))
+  def httpResponse(js: JsValue) = HttpResponse(200: Int, Some(js))
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
