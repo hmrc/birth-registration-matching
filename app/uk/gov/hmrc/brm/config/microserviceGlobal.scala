@@ -21,9 +21,8 @@ import net.ceedubs.ficus.Ficus._
 import play.api.mvc.EssentialFilter
 import play.api.{Application, Configuration, Play}
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-//import uk.gov.hmrc.play.filters.frontend.HeadersFilter
 import uk.gov.hmrc.play.microservice.bootstrap.{DefaultMicroserviceGlobal, MicroserviceFilters}
-import uk.gov.hmrc.play.microservice.filters.{ AuditFilter, LoggingFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 
 object ControllerConfiguration extends ControllerConfig {
   lazy val controllerConfigs = Play.current.configuration.underlying.as[Config]("controllers")
@@ -48,9 +47,4 @@ object MicroserviceGlobal extends DefaultMicroserviceGlobal with RunMode with Mi
   override val microserviceAuditFilter = MicroserviceAuditFilter
 
   override val authFilter = None
-
-  override def microserviceFilters: Seq[EssentialFilter] = {
-    defaultMicroserviceFilters //++ Seq(HeadersFilters)
-  }
-
 }
