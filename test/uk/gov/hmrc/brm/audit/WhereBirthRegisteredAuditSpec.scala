@@ -22,10 +22,10 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.duration.Duration
+import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * Created by adamconder on 09/02/2017.

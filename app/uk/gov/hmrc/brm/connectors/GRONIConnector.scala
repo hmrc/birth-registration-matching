@@ -23,9 +23,9 @@ import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost, NotImplementedException}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpPost, NotImplementedException }
 
 /**
   * Created by adamconder on 07/02/2017.

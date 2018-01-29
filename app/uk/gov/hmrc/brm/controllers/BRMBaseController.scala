@@ -22,8 +22,8 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait BRMBaseController extends BaseController with BRMException {
 

@@ -22,7 +22,7 @@ import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
-import uk.gov.hmrc.play.http.HttpPost
+import uk.gov.hmrc.http.HttpPost
 
 /**
   * Created by adamconder on 07/02/2017.

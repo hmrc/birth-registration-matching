@@ -30,10 +30,10 @@ import uk.gov.hmrc.brm.services.matching.Good
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll {
 

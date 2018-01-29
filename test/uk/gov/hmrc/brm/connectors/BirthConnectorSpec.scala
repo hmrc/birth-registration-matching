@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.{Failure, Success}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
 

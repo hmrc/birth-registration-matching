@@ -23,7 +23,7 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.MatchingType
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 object MatchingService extends MatchingService {
   override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple

@@ -20,9 +20,9 @@ import com.google.inject.Singleton
 import uk.gov.hmrc.brm.config.MicroserviceGlobal
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * TODO: should this be deprecated?

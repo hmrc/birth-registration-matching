@@ -23,6 +23,7 @@ import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
+import uk.gov.hmrc.http.{ BadGatewayException, BadRequestException, NotFoundException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse }
 
 trait BRMException extends Controller {
 

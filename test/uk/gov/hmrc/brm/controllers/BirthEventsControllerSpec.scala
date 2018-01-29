@@ -31,6 +31,7 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MockErrorResponses}
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.{ BadGatewayException, BadRequestException, GatewayTimeoutException, NotFoundException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse }
 
 class BirthEventsControllerSpec
     extends UnitSpec
