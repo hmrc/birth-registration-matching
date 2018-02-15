@@ -25,8 +25,8 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
 
 class MatchingServiceAdditionalNameDisabledSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
 

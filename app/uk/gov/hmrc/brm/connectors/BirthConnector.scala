@@ -19,8 +19,11 @@ package uk.gov.hmrc.brm.connectors
 import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.ExecutionContext
 
 
 trait BirthConnector extends ServicesConfig {
@@ -57,14 +60,18 @@ trait BirthConnector extends ServicesConfig {
     Request(request._1, request._2)
   }
 
-  private def sendRequest(request: Request)(implicit hc: HeaderCarrier) = {
+  private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
+
+    import scala.concurrent.ExecutionContext.Implicits.global
+
     val newHc = hc.withExtraHeaders(headers: _*)
     val response = httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
       wts = Writes.JsValueWrites,
       rds = HttpReads.readRaw,
-      hc = newHc)
+      hc = newHc,
+      ec)
 
-    import scala.concurrent.ExecutionContext.Implicits.global
+
     response.onComplete(r =>
       BRMLogger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
     )

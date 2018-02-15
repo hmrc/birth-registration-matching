@@ -24,10 +24,10 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.annotation.tailrec
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 /**
   * AuditEvent - Abstract class for auditing events
   * @param auditType type of audit event, given a unique identifier to search on

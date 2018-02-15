@@ -22,7 +22,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.play.http.HttpResponse
+import uk.gov.hmrc.http
+import uk.gov.hmrc.http.HttpResponse
 
 object TestHelper {
 
@@ -122,11 +123,11 @@ object TestHelper {
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  def httpResponse(responseCode: Int, js: JsValue) = HttpResponse.apply(responseCode, Some(js))
+  def httpResponse(responseCode: Int, js: JsValue) = HttpResponse(responseCode, Some(js))
 
-  def httpResponse(js: JsValue) = HttpResponse.apply(OK, Some(js))
+  def httpResponse(js: JsValue) = HttpResponse(OK, Some(js))
 
-  def httpResponse(responseCode: Int) = HttpResponse.apply(responseCode)
+  def httpResponse(responseCode: Int) = HttpResponse(responseCode)
 
   def getRecord(foreNames: String, lastName: String): Record = {
     val child = Child(referenceNumber, foreNames, lastName, Some(birthDate))

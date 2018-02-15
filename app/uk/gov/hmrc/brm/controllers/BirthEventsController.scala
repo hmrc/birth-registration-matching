@@ -30,9 +30,9 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.{BirthResponseBuilder, HeaderValidator, _}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.brm.utils.CommonUtil._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object BirthEventsController extends BirthEventsController {
   override val service = LookupService
