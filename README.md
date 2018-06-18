@@ -225,7 +225,7 @@ Content-Type: application/json; charset=utf-8
 
 {
   "code": "INVALID_WHERE_BIRTH_REGISTERED",
-  "message": " Provided Country is invalid. "
+  "message": "Provided Country is invalid. "
 }
 ```
 
