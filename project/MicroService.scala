@@ -9,7 +9,7 @@ import sbt._
 trait MicroService {
 
   import uk.gov.hmrc._
-  import DefaultBuildSettings._
+  import DefaultBuildSettings.{scalaSettings, defaultSettings, targetJvm, addTestReportOption}
   import TestPhases._
   import play.sbt.routes.RoutesKeys.routesGenerator
 
@@ -24,7 +24,7 @@ trait MicroService {
 
     Seq(
       ScoverageKeys.coverageExcludedPackages := "<empty>;uk.gov.hmrc.brm.config.*;testOnlyDoNotUseInAppConf.*;uk.gov.hmrc.brm.views.*;prod.*;uk.gov.hmrc.BuildInfo.*;app.Routes.*;",
-      ScoverageKeys.coverageMinimum := 100,
+      ScoverageKeys.coverageMinimum := 95,
       ScoverageKeys.coverageFailOnMinimum := true,
       ScoverageKeys.coverageHighlighting := true
     )

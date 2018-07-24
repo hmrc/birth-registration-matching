@@ -37,7 +37,7 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 02/12/2016.
   */
-class FeatureSwitchSpec extends UnitSpec
+trait FeatureSwitchSpec extends UnitSpec
   with OneAppPerTest
   with MockitoSugar
   with BeforeAndAfterEachTestData {

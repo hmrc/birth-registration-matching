@@ -20,18 +20,17 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.{OneAppPerSuite, OneAppPerTest}
+import org.scalatestplus.play.OneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.MatchingService
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BaseUnitSpec {
 
@@ -66,6 +65,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
       "matching on multiple is true" should {
 
         "should return true if a minimum of one record matches" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
           val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
@@ -73,6 +73,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
         }
 
         "return false if no records match" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
           val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
@@ -80,6 +81,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
         }
 
         "return false result match when List is empty" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
           val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
@@ -91,6 +93,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
       "matching on multiple is false" should {
 
         "return false for more than 1 record" in {
+          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
           val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)

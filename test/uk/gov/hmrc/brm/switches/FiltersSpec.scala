@@ -25,7 +25,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.UnitSpec
 
-class FiltersSpec extends UnitSpec with OneAppPerTest {
+trait FiltersSpec extends UnitSpec with OneAppPerTest {
 
   def switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.enabled" -> true,

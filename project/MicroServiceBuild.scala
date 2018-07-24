@@ -17,10 +17,10 @@ object MicroServiceBuild extends Build with MicroService {
 private object AppDependencies {
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "6.15.0"
+  private val microserviceBootstrapVersion = "6.18.0"
   private val playUrlBindersVersion = "2.1.0"
-  private val hmrcTestVersion = "2.3.0"
-  private val mockito = "1.9.5"
+  private val hmrcTestVersion = "3.0.0"
+  private val mockito = "1.10.9"
   private val specs2 = "2.3.13"
 
   val compile = Seq(
@@ -42,7 +42,7 @@ private object AppDependencies {
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.mockito" % "mockito-all" % mockito,
         "org.specs2" % "specs2_2.10" % specs2,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
+        "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0"
       )
     }.test
   }
