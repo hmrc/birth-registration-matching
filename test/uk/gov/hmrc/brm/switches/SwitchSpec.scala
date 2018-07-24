@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 /**
   * Created by mew on 15/05/2017.
   */
-class SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
+trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
 
   object TestSwitch extends Switch {
     override val name = "test"

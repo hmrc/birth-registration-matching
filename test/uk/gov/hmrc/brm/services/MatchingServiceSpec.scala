@@ -242,7 +242,7 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 
 }
 
-class MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest {
+trait MatchingServiceSpec extends UnitSpec with MockitoSugar with OneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

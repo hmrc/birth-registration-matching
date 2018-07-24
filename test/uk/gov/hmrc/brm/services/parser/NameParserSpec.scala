@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 /**
   * Created by adamconder on 02/02/2017.
   */
-class NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEachTestData {
+trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEachTestData {
 
   lazy val ignoreAdditionalNamesFalse: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false

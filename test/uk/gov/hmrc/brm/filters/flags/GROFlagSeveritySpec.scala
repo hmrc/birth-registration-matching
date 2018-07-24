@@ -24,7 +24,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.response.gro.{FlagSeverity, GROStatus}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest {
+trait GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest {
 
   val allEnabledConfig: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
