@@ -64,7 +64,8 @@ trait BirthConnector extends ServicesConfig {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    val newHc = hc.withExtraHeaders(headers: _*)
+    val newHc = hc.copy(authorization = None).withExtraHeaders(headers: _*)
+
     val response = httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
       wts = Writes.JsValueWrites,
       rds = HttpReads.readRaw,
