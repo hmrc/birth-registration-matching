@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -36,7 +36,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with OneAppPerSuite
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val connector = mock[AuditConnector]
+  val connector = mockAuditConnector
   val auditor = auditorFixtures.northernIrelandAudit
 
   implicit val hc = HeaderCarrier()
