@@ -18,12 +18,14 @@ private object AppDependencies {
   import play.core.PlayVersion
 
   private val microserviceBootstrapVersion = "8.3.0"
+  private val playuiVersion = "7.22.0"
   private val hmrcTestVersion = "3.1.0"
   private val mockito = "1.10.9"
   private val specs2 = "2.3.13"
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion
+    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "play-ui" % playuiVersion
   )
 
   trait TestDependencies {
