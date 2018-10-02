@@ -17,8 +17,9 @@
 package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{eq => mockEq}
-import org.scalatest.mock.MockitoSugar
+import org.mockito.Matchers.{any, eq => mockEq}
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -26,12 +27,13 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import uk.gov.hmrc.http.HeaderCarrier
 
 class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
@@ -48,6 +50,10 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
       )
     )
     .build()
+
+  trait BirthConnectorSpecSetup {
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+  }
 
   val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
   val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
@@ -181,7 +187,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
         connectorFixtures.groniConnector.httpPost shouldBe a[WSPost]
       }
 
-      "getReference returns http NotImplementedException" in {
+      "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {
         val future = connectorFixtures.groniConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
@@ -192,7 +198,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
         }
       }
 
-      "getChildDetails returns http NotImplementedException" in {
+      "getChildDetails returns http NotImplementedException" in new BirthConnectorSpecSetup {
         val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
