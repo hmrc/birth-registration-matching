@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,30 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, NotImplementedException}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpPost, NotImplementedException }
 
 /**
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
 class GRONIConnector(var httpPost: HttpPost = WSHttp, auditor : NorthernIrelandAudit = new NorthernIrelandAudit()) extends BirthConnector {
+
+  // $COVERAGE-OFF$
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+  // $COVERAGE-ON$
 
   override val serviceUrl = ""
   private val baseUri = ""

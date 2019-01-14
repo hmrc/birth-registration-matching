@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.WSHttp
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -29,6 +31,14 @@ import uk.gov.hmrc.http.HttpPost
   */
 @Singleton
 class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
+
+  // $COVERAGE-OFF$
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+  // $COVERAGE-ON$
 
   override val serviceUrl = baseUrl("birth-registration-matching")
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.switches
 
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 /**
@@ -36,9 +38,25 @@ trait SwitchException {
 trait Switch extends ServicesConfig with SwitchException {
   val name : String
   final def isEnabled : Boolean = getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
+
+  // $COVERAGE-OFF$
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+  // $COVERAGE-ON$
 }
 
 trait SwitchValue extends ServicesConfig with SwitchException {
   val name : String
   final def value : String = getConfString(s"birth-registration-matching.features.$name.value", exception(name))
+
+  // $COVERAGE-OFF$
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+  // $COVERAGE-ON$
 }

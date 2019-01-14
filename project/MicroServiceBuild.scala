@@ -17,9 +17,9 @@ object MicroServiceBuild extends Build with MicroService {
 private object AppDependencies {
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "8.3.0"
-  private val playuiVersion = "7.22.0"
-  private val hmrcTestVersion = "3.1.0"
+  private val microserviceBootstrapVersion = "10.0.0"
+  private val playuiVersion = "7.27.0-play-25"
+  private val hmrcTestVersion = "3.3.0"
   private val mockito = "1.10.9"
   private val specs2 = "2.3.13"
 

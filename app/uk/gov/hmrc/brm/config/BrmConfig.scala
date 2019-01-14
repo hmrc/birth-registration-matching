@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.config
 
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.SwitchException
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -93,4 +95,8 @@ trait BrmConfig extends ServicesConfig with SwitchException {
 
 }
 
-object BrmConfig extends BrmConfig
+object BrmConfig extends BrmConfig {
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}
