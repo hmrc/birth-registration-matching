@@ -18,13 +18,15 @@ package uk.gov.hmrc.brm.connectors
 
 
 import com.google.inject.Singleton
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.brm.audit.ScotlandAudit
 import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil._
-import uk.gov.hmrc.brm.utils.{CommonConstant, CommonUtil, KeyGenerator, NameFormat}
+import uk.gov.hmrc.brm.utils.{CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.HttpPost
 
 /**
@@ -32,6 +34,14 @@ import uk.gov.hmrc.http.HttpPost
   */
 @Singleton
 class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
+
+  // $COVERAGE-OFF$
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+
+  // $COVERAGE-ON$
 
   override val serviceUrl = baseUrl("des")
   private val baseUri = "national-records/births"
