@@ -74,8 +74,10 @@ trait BirthConnector extends ServicesConfig {
 
     BRMLogger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 
-    response.onComplete(r =>
+    response.onComplete(r => {
+      BRMLogger.warn("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)}")
       BRMLogger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
+    }
     )
 
     response
