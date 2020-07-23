@@ -65,7 +65,7 @@ abstract class BRMAudit(connector : AuditConnector) {
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BRMLogger.warn(super.getClass.getCanonicalName, s"event", s"event failed to audit")
+        BRMLogger.error(super.getClass.getSimpleName, s"event", s"event failed to audit")
         e
     }
   }

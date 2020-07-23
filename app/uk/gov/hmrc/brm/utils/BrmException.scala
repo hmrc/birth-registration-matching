@@ -16,31 +16,30 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.libs.json.Json
-import play.api.mvc.{Controller, Result}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Controller, Request, Result}
 import uk.gov.hmrc.brm.implicits.Implicits._
 import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
-import uk.gov.hmrc.http.{ BadGatewayException, BadRequestException, NotFoundException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse }
+import uk.gov.hmrc.http.{BadGatewayException, BadRequestException, NotFoundException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse}
 
 trait BRMException extends Controller {
 
   val CLASS_NAME: String = "BRMException"
   val METHOD_NAME: String = "handleException"
 
-  private def logException(method: String, body: String, statusCode: Int)(implicit payload: Payload) = {
+  private def logException(method: String, body: String, statusCode: Int)(implicit payload: Payload, request: Request[JsValue]) = {
     MetricsFactory.getMetrics().status(statusCode)
     statusCode match {
-      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
-      case Exception4xx() => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
-      case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode))
+      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
+      case Exception4xx() => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
+      case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
     }
   }
 
   private def InternalServerErrorException(method: String, e : Throwable,
-                                           upstreamCode : Int = INTERNAL_SERVER_ERROR)(implicit payload: Payload) = {
+                                           upstreamCode : Int = INTERNAL_SERVER_ERROR)(implicit payload: Payload, request: Request[JsValue]) = {
     logException(method, s"[InternalServerError]: ${e.getMessage}", upstreamCode)
     InternalServerError
   }
@@ -48,7 +47,7 @@ trait BRMException extends Controller {
   private def serviceUnavailable(method : String,
                                  cause: String,
                                  e : Exception,
-                                 body: String)(implicit payload: Payload) = {
+                                 body: String)(implicit payload: Payload, request: Request[JsValue]) = {
     logException(method, s"[ServiceUnavailable] [$cause]: ${e.getMessage}", SERVICE_UNAVAILABLE)
     ServiceUnavailable(body)
   }
@@ -72,69 +71,69 @@ trait BRMException extends Controller {
 
   // Exceptions
 
-  def groProxyDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def groProxyDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
     case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
-  def desConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def desConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
     case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
   }
 
-  def desInvalidHeadersBadRequestPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def desInvalidHeadersBadRequestPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadRequestException if e.message.contains("INVALID_HEADER") =>
       InternalServerErrorException(method, e, BAD_REQUEST)
   }
 
-  def badRequestExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def badRequestExceptionPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadRequestException =>
       InternalServerErrorException(method, e, BAD_REQUEST)
   }
 
-  def notImplementedExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def notImplementedExceptionPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: NotImplementedException =>
       logException(method, s"[Not implemented]: [${e.getMessage}]", OK)
       respondNoMatch()
   }
 
-  def notFoundExceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def notFoundExceptionPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: NotFoundException =>
-      logException(method, s"[Not found]: [${e.getMessage}]", NOT_FOUND)
+      logException(method, s"[Not found]: ${e.getMessage}", NOT_FOUND)
       respondNoMatch()
   }
 
-  def exceptionPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def exceptionPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: Throwable =>
       InternalServerErrorException(method, e)
   }
 
   // UpstreamResponse(s)
 
-  def forbiddenUpstreamPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def forbiddenUpstreamPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case Upstream4xxResponse(body, FORBIDDEN, _, _) =>
       // this is correct as Forbidden 403 does not get converted into an Exception, we get the upstream code
       logException(method, s"[Forbidden / Not found]: [$body]", FORBIDDEN)
       respondNoMatch()
   }
 
-  def gatewayTimeoutPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def gatewayTimeoutPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, GATEWAY_TIMEOUT, _) =>
       logException(method, s"[Gateway timeout]: [$body]", GATEWAY_TIMEOUT)
       InternalServerErrorException(method, e, GATEWAY_TIMEOUT)
   }
 
-  def groConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def groConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
-      logException(method, s"[GRO down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
+      logException(method, s"[GRO down]: $body [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
-  def nrsConnectionDownPF(method: String)(implicit payload: Payload): PartialFunction[Throwable, Result] = {
+  def nrsConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == SCOTLAND =>
       logException(method, s"[NRS down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "[NRS down]", e, ErrorResponse.NRS_CONNECTION_DOWN)
@@ -154,12 +153,8 @@ private object Exception4xx {
   }
 }
 
-trait ExceptionMessage {
-  def message(message: String, status: String, statusCode: Int): String
-}
-
-object BrmExceptionMessage extends ExceptionMessage {
-  def message(method: String, body: String, statusCode: Int): String = {
-    s"[respond] [method]: $method, [body]: $body, [status]: $statusCode"
+object BrmExceptionMessage {
+  def message(method: String, body: String, statusCode: Int, requestId: Option[String] = None): String = {
+    s"[respond][$method] $body, status: $statusCode${if(requestId.isDefined) s", requestId: ${requestId.get}" else ""}"
   }
 }

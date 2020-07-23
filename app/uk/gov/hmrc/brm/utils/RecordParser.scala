@@ -31,10 +31,10 @@ sealed trait ResponseParser {
     //read-1 is list reads and reads_2 is single record read.
     val records = json.validate[List[T]](reads._1).fold(
       error => {
-        info("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
+        warn("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
         json.validate[T](reads._2).fold(
           e => {
-            info("RecordParser", "parse()", s"Failed to validate as[$name] $e")
+            warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
             List()
           },
           r => {

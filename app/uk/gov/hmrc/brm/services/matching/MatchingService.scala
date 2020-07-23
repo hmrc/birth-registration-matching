@@ -31,7 +31,7 @@ object MatchingService extends MatchingService {
 }
 
 trait MatchingService {
-  val CLASS_NAME: String = this.getClass.getCanonicalName
+  val CLASS_NAME: String = this.getClass.getSimpleName
 
   protected val matchOnMultiple: Boolean
   protected val auditor : MatchingAudit
@@ -50,10 +50,6 @@ trait MatchingService {
     }
 
     val result = algorithm.performMatch(input, records, matchOnMultiple)
-
-    info(CLASS_NAME, "performMatch", s"${result.audit}")
-    info(CLASS_NAME, "performMatch", s"hasMultipleRecords -> ${records.length > 1}")
-
     // audit match result
     auditor.audit(result.audit, Some(input))
 
