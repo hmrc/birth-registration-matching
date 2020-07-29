@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import play.api.mvc.Result
+import play.api.libs.json.JsValue
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
@@ -44,7 +45,8 @@ trait BRMBaseController extends BaseController with BRMException {
                       startTime:Long)
                      (implicit payload: Payload,
                       auditor: BRMDownstreamAPIAudit,
-                      hc: HeaderCarrier): PartialFunction[Throwable, Result] = {
+                      hc: HeaderCarrier,
+                      request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case t =>
       val allPfs = Seq(
         groProxyDownPF(method),

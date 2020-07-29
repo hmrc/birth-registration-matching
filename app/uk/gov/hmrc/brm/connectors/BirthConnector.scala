@@ -82,18 +82,12 @@ trait BirthConnector extends ServicesConfig {
   }
 
   def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BRMLogger.info(s"BirthConnector", "getReference", "calling request with reference number")
     val requestData = buildRequest(payload, ReferenceRequest())
     sendRequest(requestData)
   }
 
   def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
-    BRMLogger.info(s"BirthConnector", "getChildDetails", "calling request with child details")
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
   }
-
-
-
-
 }

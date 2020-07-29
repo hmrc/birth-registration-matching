@@ -31,8 +31,6 @@ case class Record(child: Child, status: Option[StatusInterface] = None) {
     val notFlagged = false
     if (processFlags) {
 
-      BRMLogger.info("Record", "isFlagged", "processFlags turned on")
-
       status match {
         case Some(flags) => !flags.determineFlagSeverity.canProcessRecord()
         case None => notFlagged

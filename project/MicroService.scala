@@ -44,7 +44,7 @@ trait MicroService {
     .settings(majorVersion := 2)
     .settings(
       targetJvm := "jvm-1.8",
-      scalaVersion := "2.11.11",
+      scalaVersion := "2.11.12",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,

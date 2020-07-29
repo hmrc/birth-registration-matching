@@ -45,7 +45,7 @@ object BirthEventsController extends BirthEventsController {
 
 trait BirthEventsController extends BRMBaseController {
 
-  override val CLASS_NAME : String = this.getClass.getCanonicalName
+  override val CLASS_NAME : String = this.getClass.getSimpleName
   override val METHOD_NAME: String = "BirthEventsController::post"
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,10 +56,8 @@ trait BirthEventsController extends BRMBaseController {
 
   private def handleInvalidRequest(request : Request[JsValue], errors: Seq[(JsPath, Seq[ValidationError])])(implicit hc : HeaderCarrier) : Future[Result] = {
     countryAuditor.auditCountryInRequest(request.body)
-    info(CLASS_NAME, "post()", s"error parsing request body as [Payload]")
-
     val response = ErrorResponses.getErrorResponseByField(errors)
-    info(CLASS_NAME, "post()", s"Response: $response")
+    warn(CLASS_NAME, "handleInvalidRequest", s"error parsing request body as [Payload]")
 
     Future.successful(respond(response))
   }
@@ -70,7 +68,7 @@ trait BirthEventsController extends BRMBaseController {
     // audit the request
     transactionAuditor.transaction(payload, Nil, MatchingResult.noMatch)
 
-    info(CLASS_NAME, "post()", s"Request was not processed due to failing filter(s) $filters. " +
+    warn(CLASS_NAME, "failedAtFilter", s"Request was not processed due to failing filter(s) $filters. " +
       s"Feature switches: ${BrmConfig.audit(Some(payload))}")
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
@@ -79,8 +77,9 @@ trait BirthEventsController extends BRMBaseController {
                                  (implicit payload: Payload,
                                   metrics : BRMMetrics,
                                   hc : HeaderCarrier,
-                                  downstream : BRMDownstreamAPIAudit) = {
-    info(CLASS_NAME, "post()", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
+                                  downstream : BRMDownstreamAPIAudit,
+                                  request: Request[JsValue]) = {
+    info(CLASS_NAME, "traceAndMatchRecord", s"Request was processed. Feature Switches: ${BrmConfig.audit(Some(payload))}")
 
     val beforeRequestTime = DateTime.now.getMillis
     val method = if(payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
@@ -89,7 +88,6 @@ trait BirthEventsController extends BRMBaseController {
       bm =>
         metrics.status(OK)
         val response = Json.toJson(bm)
-        info(CLASS_NAME, "post()", s"Response: $response")
         logTime(beforeRequestTime)
         respond(Ok(response))
     } recover {

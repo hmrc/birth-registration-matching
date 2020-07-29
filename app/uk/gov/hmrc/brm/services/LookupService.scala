@@ -65,7 +65,7 @@ trait LookupService extends LookupServiceBinder {
 
   protected val transactionAuditor : TransactionAuditor
 
-  val CLASS_NAME: String = this.getClass.getCanonicalName
+  val CLASS_NAME: String = this.getClass.getSimpleName
 
   /**
     * connects to groconnector and return match if match input details.
@@ -82,7 +82,7 @@ trait LookupService extends LookupServiceBinder {
                auditor: BRMDownstreamAPIAudit) = {
     getRecord(hc, payload, metrics).map {
       response =>
-        info(CLASS_NAME, "lookup()", s"response received ${getConnector().getClass.getCanonicalName}")
+        info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
         val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
         audit(records, matchResult)
@@ -128,13 +128,13 @@ trait LookupService extends LookupServiceBinder {
 
   private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload : Payload if payload.birthReferenceNumber.isEmpty =>
-      info(CLASS_NAME, "lookup()", s"reference number not provided, search by details")
+      info(CLASS_NAME, "noReferenceNumberPF", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
   }
 
   private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload : Payload if payload.birthReferenceNumber.isDefined =>
-      info(CLASS_NAME, "lookup()", s"reference number provided, search by reference")
+      info(CLASS_NAME, "referenceNumberIncludedPF", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
   }
 

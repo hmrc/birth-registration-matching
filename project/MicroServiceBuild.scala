@@ -20,7 +20,7 @@ private object AppDependencies {
   private val microserviceBootstrapVersion = "10.6.0"
   private val playuiVersion = "7.27.0-play-25"
   private val hmrcTestVersion = "3.3.0"
-  private val mockito = "1.10.9"
+  private val mockito = "1.10.19"
   private val specs2 = "2.3.13"
 
   val compile = Seq(
@@ -42,7 +42,7 @@ private object AppDependencies {
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.mockito" % "mockito-all" % mockito,
         "org.specs2" % "specs2_2.10" % specs2,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0"
+        "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1"
       )
     }.test
   }
