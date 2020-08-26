@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.words.EmptyWord
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.http.Status
@@ -25,7 +26,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.utils.Mocks.{MockController, _}
+import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
@@ -67,70 +68,69 @@ trait BaseUnitSpec extends UnitSpec  {
     header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
   }
 
-  def mockReferenceResponse(jsonResponse:JsValue) = {
-    mockRefResponse(MockController.service.groConnector,jsonResponse)
+  def mockReferenceResponse(jsonResponse:JsValue): Unit = {
+    mockRefResponse(mockGroConnector,jsonResponse)
   }
 
-  def mockReferenceResponse(exception:Exception) = {
-    mockRefResponse(MockController.service.groConnector, exception)
+  def mockReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+    mockRefResponse(mockGroConnector, exception)
   }
 
   private def mockRefResponse(connector : BirthConnector,exception:Exception) = {
-    when(connector.getReference(Matchers.any())(Matchers.any()))
+    when(connector.getReference(any())(any()))
       .thenReturn(Future.failed(exception))
   }
 
-  private def mockRefResponse(connector : BirthConnector,jsonResponse:JsValue ): Unit ={
-    when(connector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  private def mockRefResponse(connector: BirthConnector,jsonResponse:JsValue ): Unit ={
+    when(connector.getReference(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockNrsReferenceResponse(jsonResponse:JsValue) = {
-    mockRefResponse(MockController.service.nrsConnector,jsonResponse)
+  def mockNrsReferenceResponse(jsonResponse:JsValue): Unit = {
+    mockRefResponse(mockNrsConnector,jsonResponse)
   }
 
-  def mockNrsReferenceResponse(exception:Exception) = {
-    mockRefResponse(MockController.service.nrsConnector, exception)
+  def mockNrsReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+    mockRefResponse(mockNrsConnector, exception)
   }
 
-  def mockGroNiReferenceResponse(exception:Exception) = {
-    mockRefResponse(MockController.service.groniConnector, exception)
+  def mockGroNiReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+    mockRefResponse(mockGroniConnector, exception)
   }
 
-  def mockDetailsResponse(jsonResponse:JsValue) = {
-    when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  def mockDetailsResponse(jsonResponse:JsValue): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockGroConnector.getChildDetails(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockNrsDetailsResponse(jsonResponse:JsValue) = {
-    when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  def mockNrsDetailsResponse(jsonResponse:JsValue): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockNrsConnector.getChildDetails(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockDetailsResponse(exception:Exception) = {
-    when(MockController.service.groConnector.getChildDetails(Matchers.any())(Matchers.any()))
+  def mockDetailsResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockGroConnector.getChildDetails(any())(any()))
       .thenReturn(Future.failed(exception))
   }
 
-  def mockNrsDetailsResponse(exception:Exception) = {
-    when(MockController.service.nrsConnector.getChildDetails(Matchers.any())(Matchers.any()))
+  def mockNrsDetailsResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockNrsConnector.getChildDetails(any())(any()))
       .thenReturn(Future.failed(exception))
   }
 
-  def mockGroNiDetailsResponse(exception:Exception) = {
-    when(MockController.service.groniConnector.getChildDetails(Matchers.any())(Matchers.any()))
+  def mockGroNiDetailsResponse(exception:Exception): OngoingStubbing[Future[Nothing]] = {
+    when(mockGroniConnector.getChildDetails(any())(any()))
       .thenReturn(Future.failed(exception))
   }
 
-  def mockAuditSuccess = {
-    when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+  def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] = {
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
   }
 
-  def mockAuditFailure = {
-    when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.failed(AuditResult.Failure("")))
+  def mockAuditFailure: OngoingStubbing[Future[AuditResult]] = {
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
   }
 
-  def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]) = {
+  def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
-    when(mockHttpPost.POST[JsValue, HttpResponse]( Matchers.any(), argumentCapture.capture, Matchers.any())
-      (Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+    when(mockHttp.POST[JsValue, HttpResponse]( any(), argumentCapture.capture, any())(any(), any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
     argumentCapture
   }

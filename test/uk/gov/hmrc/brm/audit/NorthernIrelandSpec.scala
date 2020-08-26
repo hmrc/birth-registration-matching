@@ -17,29 +17,29 @@
 package uk.gov.hmrc.brm.audit
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class NorthernIrelandSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
+class NorthernIrelandSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val connector = mockAuditConnector
-  val auditor = auditorFixtures.northernIrelandAudit
+  val connector: AuditConnector = mockAuditConnector
+  val auditor: NorthernIrelandAudit = auditorFixtures.northernIrelandAudit
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "NorthernIrelandAudit" should {
 
@@ -47,7 +47,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with OneAppPerSuite
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
-      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }
@@ -56,7 +56,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with OneAppPerSuite
       val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
-      when(connector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success

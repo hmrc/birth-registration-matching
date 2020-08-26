@@ -16,82 +16,69 @@
 
 package uk.gov.hmrc.brm.services
 
+import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
-import uk.gov.hmrc.brm.implicits.Implicits.ReadsFactory
+import uk.gov.hmrc.brm.implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.MatchingResult
+import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.matching.MatchingService
-import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, BirthResponseBuilder, RecordParser}
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuilder, RecordParser}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
-object LookupService extends LookupService {
-  override val groConnector = new GROConnector
-  override val nrsConnector = new NRSConnector
-  override val groniConnector = new GRONIConnector
-  override val matchingService = MatchingService
-  override val transactionAuditor = new TransactionAuditor()
-}
 
-trait LookupServiceBinder {
-  self: LookupService =>
+class LookupService @Inject()(groConnector: GROConnector,
+                              nrsConnector: NRSConnector,
+                              groniConnector: GRONIConnector,
+                              matchingService: MatchingService,
+                              transactionAuditor: TransactionAuditor,
+                              logger: BRMLogger,
+                              recordParser: RecordParser,
+                              matchMetric: MatchCountMetric,
+                              noMatchMetric: NoMatchCountMetric){
 
-  protected def getConnector()(implicit payload: Payload): BirthConnector = {
+  val CLASS_NAME: String = this.getClass.getSimpleName
+
+  def getConnector()(implicit payload: Payload): BirthConnector = {
     payload.whereBirthRegistered match {
-      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-        groConnector
-      case BirthRegisterCountry.NORTHERN_IRELAND =>
-        groniConnector
-      case BirthRegisterCountry.SCOTLAND =>
-        nrsConnector
+      case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES => groConnector
+      case BirthRegisterCountry.NORTHERN_IRELAND => groniConnector
+      case BirthRegisterCountry.SCOTLAND => nrsConnector
     }
   }
 
-}
-
-trait LookupService extends LookupServiceBinder {
-
-  protected val groConnector: BirthConnector
-  protected val nrsConnector: BirthConnector
-  protected val groniConnector: BirthConnector
-  protected val matchingService: MatchingService
-
-  protected val transactionAuditor : TransactionAuditor
-
-  val CLASS_NAME: String = this.getClass.getSimpleName
 
   /**
     * connects to groconnector and return match if match input details.
     *
     * @param hc
-    * @param payload
     * @param metrics
+    * @param payload
     * @return
     */
 
   def lookup()(implicit hc: HeaderCarrier,
-               payload: Payload,
                metrics: BRMMetrics,
-               auditor: BRMDownstreamAPIAudit) = {
+               payload: Payload,
+               auditor: BRMDownstreamAPIAudit): Future[BirthMatchResponse] = {
     getRecord(hc, payload, metrics).map {
       response =>
-        info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
-        val records = RecordParser.parse[Record](response.json,ReadsFactory.getReads())
+        logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
+        val records = recordParser.parse[Record](response.json, ReadsFactory.getReads())
         val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
-        audit(records, matchResult)
 
+        audit(records, matchResult)
         if(matchResult.matched) {
-          MatchCountMetric.count()
+          matchMetric.count()
           BirthResponseBuilder.getResponse(matchResult.matched)
         } else {
-          NoMatchCountMetric.count()
+          noMatchMetric.count()
           BirthResponseBuilder.withNoMatch()
         }
     }
@@ -101,7 +88,7 @@ trait LookupService extends LookupServiceBinder {
   private[LookupService] def audit(records : List[Record], matchResult : MatchingResult)
                                   (implicit payload : Payload,
                                    hc: HeaderCarrier,
-                                   downstreamAPIAuditor: BRMDownstreamAPIAudit) = {
+                                   downstreamAPIAuditor: BRMDownstreamAPIAudit): Future[AuditResult] = {
     /**
       * Audit the response from APIs:
       * - if a record was found
@@ -118,23 +105,24 @@ trait LookupService extends LookupServiceBinder {
   }
 
   private[LookupService] def getRecord(implicit hc: HeaderCarrier, payload: Payload, metrics: BRMMetrics): Future[HttpResponse] = {
-    val allPartials = Seq(noReferenceNumberPF, referenceNumberIncludedPF).reduce(_ orElse _)
+    val allPartials: PartialFunction[Payload, Future[HttpResponse]] = Seq(noReferenceNumberPF, referenceNumberIncludedPF).reduce(_ orElse _)
+
     val start = metrics.startTimer()
     // return the correct PF to execute based on the payload
-    val httpResponse = allPartials.apply(payload)
+    val httpResponse: Future[HttpResponse] = allPartials.apply(payload)
     metrics.endTimer(start)
     httpResponse
   }
 
   private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload : Payload if payload.birthReferenceNumber.isEmpty =>
-      info(CLASS_NAME, "noReferenceNumberPF", s"reference number not provided, search by details")
+    case payload: Payload if payload.birthReferenceNumber.isEmpty =>
+      logger.info(CLASS_NAME, "noReferenceNumberPF", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
   }
 
   private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
-    case payload : Payload if payload.birthReferenceNumber.isDefined =>
-      info(CLASS_NAME, "referenceNumberIncludedPF", s"reference number provided, search by reference")
+    case payload: Payload if payload.birthReferenceNumber.isDefined =>
+      logger.info(CLASS_NAME, "referenceNumberIncludedPF", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)
   }
 

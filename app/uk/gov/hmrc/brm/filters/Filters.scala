@@ -16,19 +16,30 @@
 
 package uk.gov.hmrc.brm.filters
 
+import javax.inject.Inject
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
 import scala.annotation.tailrec
 
-object Filters {
+class Filters @Inject()(logger: BRMLogger,
+                        dobFilter: DateOfBirthFilter,
+                        groFilter: GROFilter,
+                        groniFilter: GRONIFilter,
+                        groRefFilter: GROReferenceFilter,
+                        groDetailsFilter: GRODetailsFilter,
+                        nrsFilter: NRSFilter,
+                        nrsRefFilter: NRSReferenceFilter,
+                        nrsDetailsFilter: NRSDetailsFilter,
+                        groniRefFilter: GRONIReferenceFilter,
+                        groniDetailsFilter: GRONIDetailsFilter) {
 
-  private val groFilters = List(GROFilter, GROReferenceFilter, GRODetailsFilter)
-  private val nrsFilters = List(NRSFilter, NRSReferenceFilter, NRSDetailsFilter)
-  private val groniFilters = List(GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
+  private val groFilters = List(groFilter, groRefFilter, groDetailsFilter)
+  private val nrsFilters = List(nrsFilter, nrsRefFilter, nrsDetailsFilter)
+  private val groniFilters = List(groniFilter, groniRefFilter, groniDetailsFilter)
 
-  private val baseFilters = List(DateOfBirthFilter)
+  private val baseFilters = List(dobFilter)
 
   /**
     * Should the current filter be processed, is the Payload a reference or details request
@@ -59,7 +70,7 @@ object Filters {
     // Filter out registry filters by request type
     val baseWithFilters = baseFilters ::: filters.filter(f => shouldProcessFilter(f, payload))
 
-    BRMLogger.info("Filters", "getFilters", s"processing the following filters: $baseWithFilters")
+    logger.info("Filters", "getFilters", s"processing the following filters: $baseWithFilters")
 
     baseWithFilters
   }
@@ -68,12 +79,12 @@ object Filters {
     * @param payload request transformed into Payload
     * @return List[Filter], list of failed filters
     */
-  def process(payload : Payload) : List[Filter] = {
+  def process(payload: Payload) : List[Filter] = {
 
     @tailrec
-    def filterHelper(uncheckedFilters : List[Filter], failedFilters : List[Filter]) : List[Filter] = {
+    def filterHelper(uncheckedFilters: List[Filter], failedFilters: List[Filter]): List[Filter] = {
       if (failedFilters.nonEmpty && uncheckedFilters.isEmpty) {
-        BRMLogger.info("Filters", "process", s"Stopping due to failing a Filter, failed: $failedFilters")
+        logger.info("Filters", "process", s"Stopping due to failing a Filter, failed: $failedFilters")
         failedFilters
       } else {
         uncheckedFilters match {

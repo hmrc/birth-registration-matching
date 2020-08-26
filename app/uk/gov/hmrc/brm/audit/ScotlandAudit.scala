@@ -17,15 +17,20 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import uk.gov.hmrc.brm.config.MicroserviceGlobal
+import javax.inject.Inject
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
-class ScotlandAudit(connector: AuditConnector = MicroserviceGlobal.auditConnector)
+class ScotlandAudit @Inject()(connector: AuditConnector,
+                              val config: BrmConfig,
+                              val keyGen: KeyGenerator,
+                              val logger: BRMLogger)
   extends BRMDownstreamAPIAudit(connector) {
 
   /**

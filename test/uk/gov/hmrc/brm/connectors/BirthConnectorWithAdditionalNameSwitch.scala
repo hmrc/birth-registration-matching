@@ -17,39 +17,41 @@
 package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{eq => mockEq}
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.specs2.mock.mockito.ArgumentCapture
+import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.http.HeaderCarrier
 
-class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
-  with OneAppPerSuite
-  with MockitoSugar
-  with BaseUnitSpec {
+import scala.concurrent.Future
 
-  implicit val hc = HeaderCarrier()
+class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val FORNAMES: String = "forenames"
   val LASTNAME: String = "lastname"
   val DATE_OF_BIRTH: String = "dateofbirth"
 
-  val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
-  val nrsJsonResponseObjectWithotuAdditionalName = JsonUtils.getJsonFromFile("nrs", "2017350006")
+  val nrsJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val nrsJsonResponseObjectWithoutAdditionalName: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350006")
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  override lazy val app = new GuiceApplicationBuilder()
+  override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(config)
     .build()
 
@@ -58,9 +60,16 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
     "getChildDetails called" should {
 
       "pass additionalNames to gro" in {
+        when(mockConfig.serviceUrl)
+          .thenReturn("test")
+        when(mockConfig.desUrl)
+          .thenReturn("test")
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("Adam test")
+
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
-        val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-          BirthRegisterCountry.ENGLAND)
+
+        val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
         val result = await(connectorFixtures.groConnector.getChildDetails(payload))
         checkResponse(result, 200)
 
@@ -82,6 +91,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
       }
 
       "pass additionalNames to gro in proper format when multiple additional names are present" in {
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("Adam test david")
+
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
         val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
           BirthRegisterCountry.ENGLAND)
@@ -94,6 +106,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
       }
 
       "pass only firstName when additionalNames value is empty" in {
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("Adam")
+
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
         val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
           BirthRegisterCountry.ENGLAND)
@@ -111,6 +126,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
 
     "getChildDetails called" should {
       "pass additionalNames to nrs" in {
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("Adam test")
+
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
@@ -135,6 +153,9 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
       }
 
       "pass additionalNames to gro in proper format when multiple additional names are present" in {
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("Adam test david")
+
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
           BirthRegisterCountry.SCOTLAND)
@@ -147,7 +168,10 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec
       }
 
       "pass only firstName when additionalNames value is empty" in {
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithotuAdditionalName))
+        when(mockCommonUtil.forenames(any(), any()))
+          .thenReturn("ANTHONY")
+
+        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithoutAdditionalName))
         val requestWithoutAdditionalName = Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"),
           BirthRegisterCountry.SCOTLAND)
         val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName))

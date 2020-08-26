@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.brm.utils
 
+import javax.inject.Inject
 import org.joda.time.DateTime
 import uk.gov.hmrc.brm.config.BrmConfig
 
-object CommonUtil {
+class CommonUtil @Inject()(config: BrmConfig,
+                           logger: BRMLogger){
 
   def forenames(firstName: String, additionalName: Option[String]): String = {
-    val forenames = if(BrmConfig.ignoreAdditionalNames) {
+    val forenames = if(config.ignoreAdditionalNames) {
       NameFormat(firstName)
     } else {
       s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
@@ -33,7 +35,7 @@ object CommonUtil {
   //log the time diff in milliseconds.
   def logTime(startTime:Long): Unit ={
     def diffInMillis = DateTime.now.getMillis-startTime
-    BRMLogger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: ${diffInMillis}")
+    logger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: $diffInMillis")
   }
 
 }

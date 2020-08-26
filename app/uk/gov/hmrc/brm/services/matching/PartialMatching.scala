@@ -16,40 +16,42 @@
 
 package uk.gov.hmrc.brm.services.matching
 
+import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.services.parser.NameParser.{Names, _}
+import uk.gov.hmrc.brm.services.parser.NameParser
+import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-object PartialMatching extends MatchingAlgorithm {
+class PartialMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm {
 
-  private def lastNames()(implicit payload: Payload, record: Record) = {
-    if (BrmConfig.matchLastName) {
+  private def lastNames()(implicit payload: Payload, record: Record): Match = {
+    if (config.matchLastName) {
       stringMatch(Some(payload.lastName), Some(record.child.lastName))
     } else {
       Good()
     }
   }
 
-  private def firstNames(names: Names)(implicit payload: Payload, record: Record) = {
-    if (BrmConfig.matchFirstName) {
+  private def firstNames(names: Names)(implicit payload: Payload, record: Record): Match = {
+    if (config.matchFirstName) {
       stringMatch(Some(payload.firstNames), Some(names.firstNames))
     } else {
       Good()
     }
   }
 
-  private def additionalNames(names: Names)(implicit payload: Payload, record: Record) = {
-    if (!BrmConfig.ignoreAdditionalNames) {
+  private def additionalNames(names: Names)(implicit payload: Payload, record: Record): Match = {
+    if (!config.ignoreAdditionalNames) {
       stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {
       Good()
     }
   }
 
-  private def dateOfBirth()(implicit payload: Payload, record: Record) = {
-    if (BrmConfig.matchDateOfBirth) {
+  private def dateOfBirth()(implicit payload: Payload, record: Record): Match = {
+    if (config.matchDateOfBirth) {
       dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
     } else {
       Good()
@@ -58,10 +60,10 @@ object PartialMatching extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
     case (payload, record) =>
-      implicit val p = payload
-      implicit val r = record
+      implicit val p: Payload = payload
+      implicit val r: Record = record
 
-      val namesOnRecord : Names = parseNames(payload, record)
+      val namesOnRecord: Names = NameParser.parseNames(payload, record, config.ignoreAdditionalNames)
 
       val (f, a, l, d) = (firstNames(namesOnRecord), additionalNames(namesOnRecord), lastNames(), dateOfBirth())
 

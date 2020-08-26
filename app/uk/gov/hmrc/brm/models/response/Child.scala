@@ -18,19 +18,7 @@ package uk.gov.hmrc.brm.models.response
 
 import org.joda.time.LocalDate
 
-case class Child(
-                  birthReferenceNumber: Int,
-                  private val _forenames: String,
-                  private val _lastName: String,
-                  dateOfBirth: Option[LocalDate]
-                ) {
-
-  import uk.gov.hmrc.brm.services.parser.NameParser._
-
-  def forenames : String = _forenames.names.listToString
-
-  def lastName : String = _lastName.names.listToString
-
-}
-
-object Child
+case class Child(birthReferenceNumber: Int,
+                 forenames: String,
+                 lastName: String,
+                 dateOfBirth: Option[LocalDate])

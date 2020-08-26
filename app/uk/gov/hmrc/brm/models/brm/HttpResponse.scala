@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.models.brm
 
 import play.api.data.validation.ValidationError
 import play.api.http.Status
-import play.api.libs.json.{JsPath, Json}
+import play.api.libs.json.{JsPath, Json, JsonValidationError}
 import play.api.mvc.{Result, Results}
 
 
@@ -45,7 +45,7 @@ trait HttpResponse {
 
   def getHttpResponse(key: String, error: String): Result
 
-  def getErrorResponseByField(field: Seq[(JsPath, Seq[ValidationError])]): Result = {
+  def getErrorResponseByField(field: Seq[(JsPath, Seq[JsonValidationError])]): Result = {
 
     val fields = field.map { case (key, validationError) =>
       (key.toString.stripPrefix("/"), validationError.head.message)

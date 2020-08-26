@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 import uk.gov.hmrc.play.test.UnitSpec
 
-class MatchingResultSpec extends UnitSpec with OneAppPerSuite {
+class MatchingResultSpec extends UnitSpec with GuiceOneAppPerSuite {
 
   val ignoreAdditionalNamesDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
-  override lazy val app = GuiceApplicationBuilder()
+  override lazy val app: Application = GuiceApplicationBuilder()
     .configure(ignoreAdditionalNamesDisabled)
     .build()
 

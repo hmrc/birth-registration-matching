@@ -16,23 +16,25 @@
 
 package uk.gov.hmrc.brm.services.matching
 
+import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.services.parser.NameParser
+import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-object FullMatching extends MatchingAlgorithm {
+class FullMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm {
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
     case (payload, record) =>
 
       val mp = payload.copy(
-        _additionalNames = if(BrmConfig.ignoreAdditionalNames) None else Some(payload.additionalNames)
+        _additionalNames = if(config.ignoreAdditionalNames) None else Some(payload.additionalNames)
       )
 
       // Split names on record into firstNames and AdditionalNames
-      val namesOnRecord : Names = parseNames(mp, record)
+      val namesOnRecord: Names = NameParser.parseNames(mp, record, config.ignoreAdditionalNames)
 
       // Match each property
       val firstNamesMatched = stringMatch(Some(mp.firstNames), Some(namesOnRecord.firstNames))

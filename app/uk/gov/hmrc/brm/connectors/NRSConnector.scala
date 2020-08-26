@@ -18,32 +18,26 @@ package uk.gov.hmrc.brm.connectors
 
 
 import com.google.inject.Singleton
-import play.api.Mode.Mode
+import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.brm.audit.ScotlandAudit
-import uk.gov.hmrc.brm.config.{BrmConfig, WSHttp}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil._
-import uk.gov.hmrc.brm.utils.{CommonUtil, KeyGenerator, NameFormat}
-import uk.gov.hmrc.http.HttpPost
+import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 /**
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new ScotlandAudit()) extends BirthConnector {
+class NRSConnector @Inject()(val http: HttpClient,
+                             brmConf: BrmConfig,
+                             commonUtil: CommonUtil,
+                             keyGen: KeyGenerator,
+                             val logger: BRMLogger) extends BirthConnector {
 
-  // $COVERAGE-OFF$
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  // $COVERAGE-ON$
-
-  override val serviceUrl = baseUrl("des")
+  override val serviceUrl: String = brmConf.desUrl
   private val baseUri = "national-records/births"
   private val detailsUri = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
@@ -52,15 +46,15 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
 
   override def headers =
     Seq(
-      QUERY_ID_HEADER -> KeyGenerator.getKey(),
+      QUERY_ID_HEADER -> keyGen.getKey(),
       CONTENT_TYPE -> CONTENT_TYPE_JSON,
-      ENVIRONMENT_HEADER -> BrmConfig.desEnv,
-      TOKEN_HEADER -> s"Bearer ${BrmConfig.desToken}",
+      ENVIRONMENT_HEADER -> brmConf.desEnv,
+      TOKEN_HEADER -> s"Bearer ${brmConf.desToken}",
       DATETIME_HEADER -> getCurrentDateString(DATE_FORMAT)
    )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), fName, aName, lName, dob, _) =>
+    case Payload(Some(brn), fName, _, lName, dob, _) =>
 
       (referenceUri, Json.parse(
         s"""
@@ -78,7 +72,7 @@ class NRSConnector(var httpPost: HttpPost = WSHttp, auditor: ScotlandAudit = new
       (detailsUri, Json.parse(
         s"""
            |{
-           | "$JSON_FIRSTNAME_PATH" : "${CommonUtil.forenames(fName,aName)}",
+           | "$JSON_FIRSTNAME_PATH" : "${commonUtil.forenames(fName,aName)}",
            | "$JSON_LASTNAME_PATH" : "${NameFormat(lName)}",
            | "$JSON_DATEOFBIRTH_PATH" : "$dob"
            |}

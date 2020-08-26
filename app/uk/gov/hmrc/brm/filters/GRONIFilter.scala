@@ -16,18 +16,37 @@
 
 package uk.gov.hmrc.brm.filters
 
+import javax.inject.Inject
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, GeneralFilter, ReferenceFilter}
-import uk.gov.hmrc.brm.switches.{GRONIDetailsSwitch, GRONIReferenceSwitch, GRONISwitch}
+import uk.gov.hmrc.brm.switches.Switch
 
 /**
   * Created by mew on 19/05/2017.
   */
-object GRONIFilter extends Filter(GRONISwitch, GeneralFilter) {
+class GRONIFilter @Inject()(conf: BrmConfig) extends Filter(GeneralFilter) {
+  class GroniSwitch extends Switch {
+    override val config: BrmConfig = conf
+    override val name = "groni"
+  }
+  val switch = new GroniSwitch
   override def toString = "GRONIFilter"
 }
-object GRONIDetailsFilter extends Filter(GRONIDetailsSwitch, DetailsFilter) {
+
+class GRONIDetailsFilter @Inject()(conf: BrmConfig) extends Filter(DetailsFilter) {
+  class GRONIDetailsSwitch extends Switch {
+    override val config: BrmConfig = conf
+    override val name = "groni.details"
+  }
+  val switch = new GRONIDetailsSwitch
   override def toString = "GRONIDetailsFilter"
 }
-object GRONIReferenceFilter extends Filter(GRONIReferenceSwitch, ReferenceFilter) {
+
+class GRONIReferenceFilter @Inject()(conf: BrmConfig) extends Filter(ReferenceFilter) {
+  class GRONIReferenceSwitch extends Switch {
+    override val config: BrmConfig = conf
+    override val name = "groni.reference"
+  }
+  val switch = new GRONIReferenceSwitch
   override def toString = "GRONIReferenceFilter"
 }

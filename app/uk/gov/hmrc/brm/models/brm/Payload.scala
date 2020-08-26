@@ -17,23 +17,20 @@
 package uk.gov.hmrc.brm.models.brm
 
 import org.joda.time.LocalDate
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
-import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.metrics.{EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{BirthRegisterCountry, apply => _, _}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
 
-case class Payload(
-                    birthReferenceNumber: Option[String] = None,
-                    private val _firstName: String,
-                    private val _additionalNames: Option[String] = None,
-                    private val _lastName: String,
-                    dateOfBirth: LocalDate,
-                    whereBirthRegistered : BirthRegisterCountry
-                  ){
+case class Payload(birthReferenceNumber: Option[String] = None,
+                   private val _firstName: String,
+                   private val _additionalNames: Option[String] = None,
+                   private val _lastName: String,
+                   dateOfBirth: LocalDate,
+                   whereBirthRegistered: BirthRegisterCountry.Value){
 
   import uk.gov.hmrc.brm.services.parser.NameParser._
 
@@ -68,6 +65,9 @@ case class DetailsRequest() extends RequestType
 
 object Payload {
 
+  val minimumDateOfBirthYear = 1900
+  val nameMaxLength = 250
+
   val birthReferenceNumber = "birthReferenceNumber"
   val firstName = "firstName"
   val additionalNames = "additionalNames"
@@ -82,9 +82,9 @@ object Payload {
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
   private val invalidNameCharsRegEx =  "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
 
-  private val validationError = ValidationError("")
+  private val validationError = JsonValidationError("")
 
-  private def validBirthReferenceNumber(country: BirthRegisterCountry, referenceNumber: Option[String]): Boolean = (country, referenceNumber) match {
+  private def validBirthReferenceNumber(country: BirthRegisterCountry.Value, referenceNumber: Option[String]): Boolean = (country, referenceNumber) match {
     case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
     case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
     case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
@@ -94,12 +94,12 @@ object Payload {
 
   private val nameValidation: Reads[String] =
     Reads.StringReads.filter(validationError)(
-      !invalidNameCharsRegEx.findFirstIn(_).isDefined
+      invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
   private val isAfterDate: Reads[LocalDate] =
     jodaLocalDateReads(datePattern).filter(validationError)(
-      _.getYear >= BrmConfig.minimumDateOfBirthYear
+      _.getYear >= minimumDateOfBirthYear
     )
 
   implicit val PayloadWrites: Writes[Payload] = (
@@ -108,18 +108,21 @@ object Payload {
       (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate](jodaLocalDateWrites(datePattern)) and
-      (JsPath \ whereBirthRegistered).write[BirthRegisterCountry](birthRegisterWrites)
+      (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
     )(unlift(Payload.unapply))
 
-  implicit val requestFormat: Reads[Payload] = (
+  implicit def requestFormat(implicit engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+                             northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+                             scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+                             invalidRegMetrics: InvalidBirthRegisteredCountMetrics): Reads[Payload] = (
       (JsPath \ birthReferenceNumber).readNullable[String] and
-      (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
-      (JsPath \ additionalNames).readNullable[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
-      (JsPath \ lastName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](BrmConfig.nameMaxLength)) and
+      (JsPath \ firstName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)) and
+      (JsPath \ additionalNames).readNullable[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)) and
+      (JsPath \ lastName).read[String](nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)) and
       (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
-      (JsPath \ whereBirthRegistered).read[BirthRegisterCountry](birthRegisterReads)
+      (JsPath \ whereBirthRegistered).read[BirthRegisterCountry.Value](birthRegisterReads)
     ) (Payload.apply _)
-    .filter(ValidationError(InvalidBirthReferenceNumber.message))(
+    .filter(JsonValidationError(InvalidBirthReferenceNumber.message))(
       x =>
         validBirthReferenceNumber(x.whereBirthRegistered, x.birthReferenceNumber)
   )

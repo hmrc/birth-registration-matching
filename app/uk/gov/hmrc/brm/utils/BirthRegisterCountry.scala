@@ -17,17 +17,21 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json._
-import uk.gov.hmrc.brm.metrics.{InvalidBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, EnglandAndWalesBirthRegisteredCountMetrics}
+import uk.gov.hmrc.brm.metrics._
+
 
 object BirthRegisterCountry extends Enumeration {
 
-  type BirthRegisterCountry = Value
-  val ENGLAND = Value("england")
-  val WALES = Value("wales")
-  val NORTHERN_IRELAND = Value("northern ireland")
-  val SCOTLAND  = Value("scotland")
+  val ENGLAND: BirthRegisterCountry.Value = Value("england")
+  val WALES: BirthRegisterCountry.Value = Value("wales")
+  val NORTHERN_IRELAND: BirthRegisterCountry.Value = Value("northern ireland")
+  val SCOTLAND: BirthRegisterCountry.Value = Value("scotland")
 
-  def birthRegisterReads: Reads[BirthRegisterCountry] = new Reads[BirthRegisterCountry] {
+  def birthRegisterReads(implicit engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+                         northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+                         scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+                         invalidRegMetrics: InvalidBirthRegisteredCountMetrics): Reads[BirthRegisterCountry.Value] = new Reads[BirthRegisterCountry.Value] {
+
     override def reads(json: JsValue): JsResult[BirthRegisterCountry.Value] =
       json match {
         case JsString(s) =>
@@ -36,25 +40,25 @@ object BirthRegisterCountry extends Enumeration {
             val enum = BirthRegisterCountry.withName(s.trim.toLowerCase)
             enum match {
               case ENGLAND | WALES =>
-                EnglandAndWalesBirthRegisteredCountMetrics.count()
+                engAndWalesMetrics.count()
               case NORTHERN_IRELAND =>
-                NorthernIrelandBirthRegisteredCountMetrics.count()
+                northIreMetrics.count()
               case SCOTLAND =>
-                ScotlandBirthRegisteredCountMetrics.count()
+                scotlandMetrics.count()
             }
 
             JsSuccess(BirthRegisterCountry.withName(s.trim.toLowerCase))
           } catch {
             case _: NoSuchElementException =>
-              InvalidBirthRegisteredCountMetrics.count()
+              invalidRegMetrics.count()
               JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value:$s")
           }
         case _ => JsError("String value expected")
       }
   }
 
-  def birthRegisterWrites = new Writes[BirthRegisterCountry] {
-    def writes(d: BirthRegisterCountry): JsValue = JsString(d.toString)
+  def birthRegisterWrites: Writes[BirthRegisterCountry.Value] = new Writes[BirthRegisterCountry.Value] {
+    def writes(d: BirthRegisterCountry.Value): JsValue = JsString(d.toString)
   }
 
 }

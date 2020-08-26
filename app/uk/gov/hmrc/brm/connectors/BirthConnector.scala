@@ -20,18 +20,19 @@ import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
-trait BirthConnector extends ServicesConfig {
+trait BirthConnector {
 
   private type BRMHeaders = Seq[(String, String)]
 
   val serviceUrl: String
-  var httpPost: HttpPost
+  val http: HttpClient
+  val logger: BRMLogger
 
   protected def headers: BRMHeaders
 
@@ -43,7 +44,7 @@ trait BirthConnector extends ServicesConfig {
   /**
     * RequestType, reference or details
     */
-  abstract class RequestType
+  trait RequestType
 
   case class ReferenceRequest() extends RequestType
 
@@ -60,34 +61,36 @@ trait BirthConnector extends ServicesConfig {
     Request(request._1, request._2)
   }
 
-  private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
+  private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val newHc = hc.copy(authorization = None).withExtraHeaders(headers: _*)
 
-    val response = httpPost.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
+    val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
       wts = Writes.JsValueWrites,
       rds = HttpReads.readRaw,
       hc = newHc,
-      ec)
+      ec
+    )
 
-    BRMLogger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
+    logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 
     response.onComplete(r =>
-      BRMLogger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
+      logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
     )
 
     response
   }
 
-  def getReference(payload: Payload)(implicit hc: HeaderCarrier) = {
+  def getReference(payload: Payload)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val requestData = buildRequest(payload, ReferenceRequest())
     sendRequest(requestData)
   }
 
-  def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier) = {
+  def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
+
   }
 }

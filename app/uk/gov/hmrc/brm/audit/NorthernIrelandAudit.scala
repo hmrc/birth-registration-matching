@@ -17,16 +17,20 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import uk.gov.hmrc.brm.config.MicroserviceGlobal
+import javax.inject.Inject
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
-class NorthernIrelandAudit(connector : AuditConnector = MicroserviceGlobal.auditConnector)
-  extends BRMDownstreamAPIAudit(connector) {
+class NorthernIrelandAudit @Inject()(connector: AuditConnector,
+                                     val config: BrmConfig,
+                                     val keyGen: KeyGenerator,
+                                     val logger: BRMLogger) extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * NorthernIrelandAuditEvent
@@ -42,7 +46,7 @@ class NorthernIrelandAudit(connector : AuditConnector = MicroserviceGlobal.audit
       transactionName = "brm-northern-ireland-match",
       path)
 
-  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier): Future[AuditResult] = {
     payload match {
       case Some(p) =>
         p.requestType match {

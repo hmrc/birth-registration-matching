@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.audit
 
 import java.util.concurrent.TimeUnit
 
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.play.audit.http.connector.AuditResult

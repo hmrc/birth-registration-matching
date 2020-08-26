@@ -17,29 +17,32 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Controller, Request, Result}
-import uk.gov.hmrc.brm.implicits.Implicits._
+import play.api.mvc.{Request, Result}
+import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
-import uk.gov.hmrc.brm.utils.BRMLogger._
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
-import uk.gov.hmrc.http.{BadGatewayException, BadRequestException, NotFoundException, NotImplementedException, Upstream4xxResponse, Upstream5xxResponse}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
-trait BRMException extends Controller {
+trait BRMException extends BackendController {
+
+  val metrics: MetricsFactory
+  val logger: BRMLogger
 
   val CLASS_NAME: String = "BRMException"
   val METHOD_NAME: String = "handleException"
 
   private def logException(method: String, body: String, statusCode: Int)(implicit payload: Payload, request: Request[JsValue]) = {
-    MetricsFactory.getMetrics().status(statusCode)
+    metrics.getMetrics().status(statusCode)
     statusCode match {
-      case Exception5xx() => error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
-      case Exception4xx() => warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
-      case _ => info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
+      case Exception5xx() => logger.error(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
+      case Exception4xx() => logger.warn(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
+      case _ => logger.info(CLASS_NAME, METHOD_NAME, BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID")))
     }
   }
 
   private def InternalServerErrorException(method: String, e : Throwable,
-                                           upstreamCode : Int = INTERNAL_SERVER_ERROR)(implicit payload: Payload, request: Request[JsValue]) = {
+                                           upstreamCode : Int = INTERNAL_SERVER_ERROR)(implicit payload: Payload, request: Request[JsValue]): Status = {
     logException(method, s"[InternalServerError]: ${e.getMessage}", upstreamCode)
     InternalServerError
   }

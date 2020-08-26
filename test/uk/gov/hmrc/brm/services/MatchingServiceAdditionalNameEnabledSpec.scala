@@ -17,13 +17,14 @@
 package uk.gov.hmrc.brm.services
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.matching.MatchingService
+import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,26 +33,42 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BaseUnitSpec {
+class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val ignoreAdditionalNamesEnabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
-  )
+//  val ignoreAdditionalNamesEnabled: Map[String, _] = Map(
+//    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+//  )
 
-  override lazy val app = GuiceApplicationBuilder()
-    .configure(ignoreAdditionalNamesEnabled)
-    .build()
+//  override lazy val app: Application = GuiceApplicationBuilder()
+//    .configure(ignoreAdditionalNamesEnabled)
+//    .build()
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  "configuring" should {
+  val mockFull: FullMatching = new FullMatching(mockConfig)
 
-    "set match-on-multiple switch" in {
-      MatchingService.matchOnMultiple.isInstanceOf[Boolean] shouldBe true
-    }
+  val testMatchingService: MatchingService = new MatchingService(
+    mockConfig,
+    mockMatchingAudit,
+    mockFull,
+    mockPartialMatching,
+    mockBrmLogger
+  ){
+    override val matchOnMultiple: Boolean = true
   }
+
+  val testMatchingServiceNoMultiple: MatchingService = new MatchingService(
+    mockConfig,
+    mockMatchingAudit,
+    mockFull,
+    mockPartialMatching,
+    mockBrmLogger
+  ){
+    override val matchOnMultiple: Boolean = false
+  }
+
 
   "Matching" when {
 
@@ -65,26 +82,26 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
       "matching on multiple is true" should {
 
         "should return true if a minimum of one record matches" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
+          val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
 
         "return false if no records match" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
+          val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
         "return false result match when List is empty" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingService.performMatch(payload, List(), MatchingType.FULL)
+          val resultMatch = testMatchingService.performMatch(payload, List(), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
@@ -93,34 +110,34 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
       "matching on multiple is false" should {
 
         "return false for more than 1 record" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
+          val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
         "return true for a match on a single record" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord), MatchingType.FULL)
+          val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
 
         "return false for a no match on a single record" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(validRecord), MatchingType.FULL)
+          val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
         "return false result match when List is empty" in {
-          when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+          when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = MockMatchingServiceMatchMultipleFalse.performMatch(payload, List(), MatchingType.FULL)
+          val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
@@ -146,7 +163,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
         reference => {
 
           val name = reference match {
-            case Some(x) => "with reference"
+            case Some(_) => "with reference"
             case None => "without reference"
           }
 
@@ -155,7 +172,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has all middle names on input that are on the record" in {
 
                 val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -163,10 +180,11 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             }
 
 
-            s"($name) match when firstName argument has all middle names on input that are on the record and ignore any additional name provided in payload." in {
-
+            s"($name) match when firstName argument has all middle names on input that are " +
+              s"on the record and ignore any additional name provided in payload." in {
+                when(mockConfig.ignoreAdditionalNames).thenReturn(true)
                 val payload = Payload(reference, "Adam David", Some("test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -176,7 +194,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
 
                 val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -186,7 +204,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
 
                 val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -196,7 +214,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has middle names with punctuation, with additional names on record" in {
 
                 val payload = Payload(reference, "   Jamie  Mary-Ann'é ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Jamie Mary-Ann'é"
                 resultMatch.names.additionalNames shouldBe empty
@@ -206,7 +224,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has no middle names on input that are on the record" in {
 
                 val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam"
                 resultMatch.names.additionalNames shouldBe empty
@@ -216,7 +234,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
             s"($name) match when firstName argument has no middle names on input that are on the record, with additional spaces" in {
 
                 val payload = Payload(reference, "    Adam     ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Adam"
                 resultMatch.names.additionalNames shouldBe empty
@@ -225,11 +243,11 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
 
             s"($name) not match when firstName argument has too many names not on the record" in {
 
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                when(mockAuditConnector.sendEvent(any())(any(), any()))
                   .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe false
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -238,11 +256,11 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
 
             s"($name) not match when firstName argument has too many names not on the record, with additional spaces" in {
 
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                when(mockAuditConnector.sendEvent(any())(any(), any()))
                   .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "   Adam  David     James  ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
                 resultMatch.matched shouldBe false
                 resultMatch.names.firstNames shouldBe "Adam David"
                 resultMatch.names.additionalNames shouldBe empty
@@ -251,11 +269,11 @@ class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSuga
 
             s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
 
-                when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+                when(mockAuditConnector.sendEvent(any())(any(), any()))
                   .thenReturn(Future.successful(AuditResult.Success))
 
                 val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = MockMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
+                val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
                 resultMatch.matched shouldBe true
                 resultMatch.names.firstNames shouldBe "Chris"
                 resultMatch.names.additionalNames shouldBe empty

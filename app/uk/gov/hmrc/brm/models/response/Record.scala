@@ -25,14 +25,14 @@ import uk.gov.hmrc.brm.utils.BRMLogger
 
 case class Record(child: Child, status: Option[StatusInterface] = None) {
 
-  private def processFlags = BrmConfig.processFlags
+  private def processFlags = true
 
-  def isFlagged: Boolean = {
+  def isFlagged(implicit config: BrmConfig): Boolean = {
     val notFlagged = false
     if (processFlags) {
 
       status match {
-        case Some(flags) => !flags.determineFlagSeverity.canProcessRecord()
+        case Some(flags) => !flags.determineFlagSeverity.canProcessRecord(config)
         case None => notFlagged
       }
     }
@@ -44,9 +44,9 @@ case class Record(child: Child, status: Option[StatusInterface] = None) {
 
 object Record {
 
-  def audit(r: Record, p: Payload, c: Int): Map[String, String] = {
+  def audit(r: Record, p: Payload, c: Int)(implicit logger: BRMLogger, config: BrmConfig): Map[String, String] = {
 
-    val recordNames = NameParser.parseNames(p, r)
+    val recordNames = NameParser.parseNames(p, r, config.ignoreAdditionalNames)
 
     val words = wordCount(recordNames, c)
     val characters = characterCount(recordNames, c)
@@ -74,20 +74,20 @@ object Record {
   }
 
   private def statusFlags(s: Option[StatusInterface], c: Int) = s match {
-    case Some(x) if BrmConfig.logFlags =>
+    case Some(x) =>
       x.flags.map {
         case (key, value) => s"records.record$c.flags.$key" -> value
       }
     case _ => Map()
   }
 
-  private def logNameCount(p: Payload, auditWordsPerNameOnRecords: Map[String, String]): Unit = {
+  private def logNameCount(p: Payload, auditWordsPerNameOnRecords: Map[String, String])(implicit logger: BRMLogger): Unit = {
 
     val payloadCount = Map(
       s"payload.numberOfForenames" -> s"${p.firstNames.names.count(_.nonEmpty) + p.additionalNames.names.count(_.nonEmpty)}",
       s"payload.numberOfLastnames" -> s"${p.lastName.names.count(_.nonEmpty)}"
     )
 
-    BRMLogger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(payloadCount ++ auditWordsPerNameOnRecords)}")
+    logger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(payloadCount ++ auditWordsPerNameOnRecords)}")
   }
 }

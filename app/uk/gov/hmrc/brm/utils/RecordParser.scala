@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.brm.utils
 
+import javax.inject.Inject
 import play.api.libs.json.{JsValue, Reads}
-import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.http.HeaderCarrier
 
-sealed trait ResponseParser {
-
-  import uk.gov.hmrc.brm.utils.BRMLogger._
+class RecordParser @Inject()(logger: BRMLogger) {
 
   def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[T] = {
     val name = manifest.toString()
@@ -31,28 +29,26 @@ sealed trait ResponseParser {
     //read-1 is list reads and reads_2 is single record read.
     val records = json.validate[List[T]](reads._1).fold(
       error => {
-        warn("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
+        logger.warn("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
         json.validate[T](reads._2).fold(
           e => {
-            warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
+            logger.warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
             List()
           },
           r => {
-            info("RecordParser", "parse()", s"Successfully validated as[$name]")
+            logger.info("RecordParser", "parse()", s"Successfully validated as[$name]")
             List(r)
           }
         )
       },
       success => {
-        info("RecordParser", "parse()", s"Successfully validated as[List[$name]]")
+        logger.info("RecordParser", "parse()", s"Successfully validated as[List[$name]]")
         success
       }
     )
 
-    if (records.isEmpty) warn("RecordParser", "parse()", s"Failed to parse response as[List[$name]] and as[$name]")
+    if (records.isEmpty) logger.warn("RecordParser", "parse()", s"Failed to parse response as[List[$name]] and as[$name]")
     records
   }
 
 }
-
-object RecordParser extends ResponseParser
