@@ -17,24 +17,24 @@
 package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
-import org.scalatestplus.play.OneAppPerSuite
-import play.api.libs.json.Json
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
+class NRSResponseSpec extends UnitSpec with GuiceOneAppPerSuite {
 
-  lazy val emptyJson = Json.parse(
+  lazy val emptyJson: JsValue = Json.parse(
     """
       |{
       |}
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8 = Json.parse(
+  lazy val jsonValidWithUTF8: JsValue = Json.parse(
     """
       |{  "births": [
       |    {
@@ -53,7 +53,7 @@ class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8Deceased = Json.parse(
+  lazy val jsonValidWithUTF8Deceased: JsValue = Json.parse(
     """
       |{  "births": [
       |    {
@@ -72,7 +72,7 @@ class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8Corrections = Json.parse(
+  lazy val jsonValidWithUTF8Corrections: JsValue = Json.parse(
     """
       |{  "births": [
       |    {
@@ -91,7 +91,7 @@ class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8Incomplete = Json.parse(
+  lazy val jsonValidWithUTF8Incomplete: JsValue = Json.parse(
     """
       |{  "births": [
       |    {
@@ -110,7 +110,7 @@ class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8Cancelled = Json.parse(
+  lazy val jsonValidWithUTF8Cancelled: JsValue = Json.parse(
     """
       |{  "births": [
       |    {
@@ -129,7 +129,7 @@ class NRSResponseSpec extends UnitSpec with OneAppPerSuite {
     """.stripMargin
   )
 
-  lazy val jsonValidWithUTF8Unknown = Json.parse(
+  lazy val jsonValidWithUTF8Unknown: JsValue = Json.parse(
     """
       |{  "births": [
       |    {

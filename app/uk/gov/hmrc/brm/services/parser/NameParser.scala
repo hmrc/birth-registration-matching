@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.brm.services.parser
 
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BRMLogger
 
 /**
   * Created by adamconder on 02/02/2017.
@@ -35,17 +33,15 @@ object NameParser {
                    private val _additionalNames : List[String] = Nil,
                    private val _lastNames : List[String]) {
 
-    def firstNames : String = _firstNames.listToString
+    def firstNames: String = _firstNames.listToString
 
-    def additionalNames : String = _additionalNames.listToString
+    def additionalNames: String = _additionalNames.listToString
 
-    def lastNames : String = _lastNames.listToString
+    def lastNames: String = _lastNames.listToString
 
   }
 
-  private[NameParser] def ignoreAdditionalNames : Boolean = BrmConfig.ignoreAdditionalNames
-
-  def parseNames(payload: Payload, record: Record) : Names = {
+  def parseNames(payload: Payload, record: Record, ignoreAdditionalNames: Boolean = false) : Names = {
     val inputLength = payload.firstNames.names.length
 
     val (firstNames, additionalNames) = record.child.forenames.names.splitAt(inputLength)
@@ -59,17 +55,11 @@ object NameParser {
   }
 
   implicit class NameParserImplicit(val s: String) {
-
-    lazy val regex = BrmConfig.ignoreMiddleNamesRegex
-
-    private def toList(x: Array[String], key: String) = {
-      x.toList
-    }
+    lazy val regex = "\\s+"
 
     def names: List[String] = {
-      toList(s.trim.split(regex), "names")
+      s.trim.split(regex).toList
     }
-
   }
 
   implicit class FilterList[T](left : List[T]) {
@@ -88,7 +78,7 @@ object NameParser {
   }
 
   implicit class StringListToString(left: List[String]) {
-    def listToString : String = left.foldLeft("")((x, acc) => s"$x $acc").trim
+    def listToString: String = left.mkString(" ")
   }
 
 }

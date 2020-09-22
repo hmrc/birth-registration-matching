@@ -17,9 +17,9 @@
 package uk.gov.hmrc.brm.audit
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
@@ -36,9 +36,9 @@ class ScotlandAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val auditor = auditorFixtures.scotlandAudit
+  val auditor: ScotlandAudit = auditorFixtures.scotlandAudit
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "ScotlandAudit" should {
 
@@ -46,7 +46,7 @@ class ScotlandAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }
@@ -55,7 +55,7 @@ class ScotlandAuditSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
       val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       val event = Map("match" -> "true")
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = await(auditor.audit(event, Some(payload)))
       result shouldBe AuditResult.Success
     }

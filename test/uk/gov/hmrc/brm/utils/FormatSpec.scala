@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.play.test.UnitSpec
 
-class FormatSpec extends UnitSpec with OneAppPerSuite {
+class FormatSpec extends UnitSpec with GuiceOneAppPerSuite {
 
   "NameFormat" should {
 

@@ -26,7 +26,7 @@ case class MatchingResult(private val _matched: Match,
                           dateOfBirthMatched: Match,
                           names: Names) {
 
-  def matched : Boolean = {
+  def matched: Boolean = {
     getBoolean(_matched)
   }
 
@@ -51,6 +51,6 @@ case class MatchingResult(private val _matched: Match,
 
 object MatchingResult {
 
-  val noMatch = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
+  val noMatch: MatchingResult = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
 
 }

@@ -16,18 +16,37 @@
 
 package uk.gov.hmrc.brm.filters
 
+import javax.inject.Inject
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter._
-import uk.gov.hmrc.brm.switches.{GRODetailsSwitch, GROReferenceSwitch, GROSwitch}
+import uk.gov.hmrc.brm.switches.Switch
 
 /**
   * Created by mew on 15/05/2017.
   */
-object GROFilter extends Filter(GROSwitch, GeneralFilter) {
+class GROFilter @Inject()(conf: BrmConfig) extends Filter(GeneralFilter) {
+  class GROSwitch extends Switch {
+    override val name = "gro"
+    override val config: BrmConfig = conf
+  }
+  val switch = new GROSwitch
   override def toString = "GROFilter"
 }
-object GRODetailsFilter extends Filter(GRODetailsSwitch, DetailsFilter) {
+
+class GRODetailsFilter @Inject()(conf: BrmConfig) extends Filter(DetailsFilter) {
+  class GRODetailsSwitch extends Switch {
+    override val name = "gro.details"
+    override val config: BrmConfig = conf
+  }
+  val switch = new GRODetailsSwitch
   override def toString = "GRODetailsFilter"
 }
-object GROReferenceFilter extends Filter(GROReferenceSwitch, ReferenceFilter) {
+
+class GROReferenceFilter @Inject()(conf: BrmConfig) extends Filter(ReferenceFilter) {
+  class GROReferenceSwitch extends Switch {
+    override val name = "gro.reference"
+    override val config: BrmConfig = conf
+  }
+  val switch = new GROReferenceSwitch
   override def toString = "GROReferenceFilter"
 }

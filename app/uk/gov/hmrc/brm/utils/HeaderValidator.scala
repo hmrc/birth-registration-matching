@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.brm.utils
 
+import javax.inject.Inject
 import play.api.http.HeaderNames
-import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import play.api.mvc._
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
 import uk.gov.hmrc.brm.models.brm._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
@@ -29,33 +30,70 @@ private object HeaderNames extends HeaderNames {
   val AUDIT_SOURCE = "Audit-Source"
 }
 
-object HeaderValidator extends HeaderValidator {
+class HeaderValidator @Inject()(apiVersionMetrics: APIVersionMetrics,
+                                auditSourceMetrics: AuditSourceMetrics,
+                                keyGenerator: KeyGenerator) {
 
-  override val validVersions = List("1.0")
-  override val groupNames = Seq("version", "contenttype")
-  override val regEx = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
+  val validContentType: String = "json"
+  val versionKey: String = "version"
 
-  override val matchAuditSource = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
-  override val matchHeader = new Regex(regEx, groupNames: _*) findFirstMatchIn _
+  val validVersions = List("1.0")
+  val groupNames = Seq("version", "contenttype")
+  val regEx = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
 
-  def validateVersion = {
+  val matchAuditSource: CharSequence => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
+  val matchHeader: CharSequence => Option[Match] = new Regex(regEx, groupNames: _*) findFirstMatchIn _
+
+  def validateVersion(s: String): Boolean = s match {
     case x : String =>
-      APIVersionMetrics(x).count()
+      apiVersionMetrics.count()
       validVersions.contains(x)
   }
 
-  def validateAuditSource = {
+  def validateAuditSource(s: String): Boolean = s match {
     case x : String =>
-      AuditSourceMetrics(x).count()
+      auditSourceMetrics.count(x)
       !x.isEmpty
   }
 
-  def validateContentType = {
-    _ == validContentType
+  def validateContentType(s: String): Boolean = {
+    s == validContentType
   }
 
-  override def validateAccept() = new ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) =
+  def validateValue[A](request: Request[A],
+                       headerKey: String,
+                       groupName: String,
+                       searchF: String => Boolean,
+                       matchF: String => Option[Match]): Boolean = {
+
+    request.headers.get(headerKey).flatMap(
+      a => {
+        matchF(a.toLowerCase) map (
+          res => {
+            val response = res.group(groupName)
+            searchF(response)
+          }
+          )
+      }
+    ) getOrElse false
+
+  }
+
+  def getApiVersion[A](request: Request[A]): String = {
+    val accept = request.headers.get(HeaderNames.ACCEPT)
+    accept.flatMap(
+      a =>
+        matchHeader(a.toLowerCase) map (
+          res => res.group(versionKey)
+          )
+    ) getOrElse ""
+  }
+
+  def validateAccept(cc: ControllerComponents): ActionBuilder[Request, AnyContent] = new ActionBuilder[Request, AnyContent] {
+    override val parser: BodyParser[AnyContent] = cc.parsers.default
+    override val executionContext: ExecutionContext = cc.executionContext
+
+    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
       (validateValue(request, HeaderNames.ACCEPT, "version", validateVersion, matchHeader),
         validateValue(request, HeaderNames.AUDIT_SOURCE, "auditsource", validateAuditSource, matchAuditSource),
         validateValue(request, HeaderNames.ACCEPT, "contenttype", validateContentType, matchHeader))
@@ -67,58 +105,9 @@ object HeaderValidator extends HeaderValidator {
         case (_, _, false) =>
           Future.successful(InvalidContentType.status)
         case (_, _, _) =>
-          KeyGenerator.generateAndSetKey(request)
+          keyGenerator.generateAndSetKey(request, getApiVersion(request))
           block(request)
       }
   }
 }
 
-trait HeaderValidator extends Results {
-
-  val validContentType: String = "json"
-  val versionKey: String = "version"
-
-  val validVersions: List[String]
-  val groupNames: Seq[String]
-  val regEx: String
-
-  val matchAuditSource: String => Option[Match]
-  val matchHeader: String => Option[Match]
-
-  def validateVersion: PartialFunction[String, Boolean]
-  def validateAuditSource: PartialFunction[String, Boolean]
-  def validateContentType: String => Boolean
-
-  def getApiVersion[A](request: Request[A]): String = {
-    val accept = request.headers.get(HeaderNames.ACCEPT)
-    accept.flatMap(
-      a =>
-        matchHeader(a.toLowerCase) map (
-            res => res.group(versionKey)
-          )
-    ) getOrElse ""
-  }
-
-  def validateValue[A](
-                        request: Request[A],
-                        headerKey: String,
-                        groupName: String,
-                        searchF: String => Boolean,
-                        matchF: String => Option[Match]): Boolean = {
-
-    request.headers.get(headerKey).flatMap(
-      a => {
-        matchF(a.toLowerCase) map (
-          res => {
-              val response = res.group(groupName)
-              searchF(response)
-            }
-          )
-      }
-    ) getOrElse false
-
-  }
-
-  def validateAccept(): ActionBuilder[Request]
-
-}

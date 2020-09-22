@@ -52,20 +52,23 @@ abstract class BRMAudit(connector : AuditConnector) {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  val keyGen: KeyGenerator
+  val logger: BRMLogger
+
   def audit(result : Map[String, String], payload: Option[Payload] = None)(implicit hc : HeaderCarrier) : Future[AuditResult]
 
   protected def event(event: AuditEvent) : Future[AuditResult] = {
     // get unique key
-    val uniqueKey = Map("brmKey" -> KeyGenerator.getKey())
+    val uniqueKey = Map("brmKey" -> keyGen.getKey())
     val eventWithKey = event.copy(detail = event.detail ++ uniqueKey)
 
     connector.sendEvent(eventWithKey) map {
       success =>
-        BRMLogger.debug(super.getClass.getCanonicalName, s"event", "event successfully audited")
+        logger.debug(super.getClass.getCanonicalName, s"event", "event successfully audited")
         success
     } recover {
       case e @ AuditResult.Failure(msg, _) =>
-        BRMLogger.error(super.getClass.getSimpleName, s"event", s"event failed to audit")
+        logger.error(super.getClass.getSimpleName, s"event", s"event failed to audit, msg: $msg")
         e
     }
   }
@@ -74,11 +77,13 @@ abstract class BRMAudit(connector : AuditConnector) {
 
 abstract class BRMDownstreamAPIAudit(connector: AuditConnector) extends BRMAudit(connector) {
 
+  implicit val config: BrmConfig
+  implicit val logger: BRMLogger
+
   def transaction(payload: Payload,
                   records : List[Record],
                   result : MatchingResult)
-                 (implicit hc : HeaderCarrier) = {
-
+                 (implicit hc : HeaderCarrier): Future[AuditResult] = {
     // did the search return results
     val searchSummary = searchResults(records)
 
@@ -89,7 +94,7 @@ abstract class BRMDownstreamAPIAudit(connector: AuditConnector) extends BRMAudit
     val recordDetails = listToMap(records, payload, Record.audit)
 
     // audit application feature switches
-    val featuresStatus = BrmConfig.audit(Some(payload))
+    val featuresStatus = config.audit(Some(payload))
 
     // audit payload
     val payloadDetails = payload.audit
@@ -103,7 +108,7 @@ abstract class BRMDownstreamAPIAudit(connector: AuditConnector) extends BRMAudit
     audit(toAudit, Some(payload))
   }
 
-  private def searchResults(x : List[Record]) = {
+  private def searchResults(x : List[Record]): Map[String, String] = {
     Map(
       "recordFound" -> x.nonEmpty.toString,
       "multipleRecords" -> {x.length > 1}.toString,

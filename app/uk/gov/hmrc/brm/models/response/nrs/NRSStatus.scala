@@ -17,20 +17,16 @@
 package uk.gov.hmrc.brm.models.response.nrs
 
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.filters.flags.{Green, Severity}
 
-case class NRSStatus(
-  status: Int = 1,
-  deathCode: Int = 0
-) extends StatusInterface {
+case class NRSStatus(status: Int = 1, deathCode: Int = 0) extends StatusInterface {
 
-  case class NRSFlagSeverity(
-                              status: Severity,
-                              deathCode: Severity
-                            ) extends FlagSeverity {
-    def canProcessRecord = {
+  case class NRSFlagSeverity(status: Severity,
+                             deathCode: Severity) extends FlagSeverity {
+    def canProcessRecord(config: BrmConfig): Boolean = {
       true
     }
   }
@@ -49,7 +45,7 @@ case class NRSStatus(
     "deathCode" -> s"$deathCodeReason"
   )
 
-  def determineFlagSeverity() : FlagSeverity = {
+  def determineFlagSeverity(): FlagSeverity = {
     NRSFlagSeverity(
       status = Green,
       deathCode = Green

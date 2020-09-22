@@ -17,14 +17,16 @@
 package uk.gov.hmrc.brm.filters.flags
 
 import org.scalatest.{Tag, TestData}
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerTest
-import org.specs2.specification.TagFragments.TaggedAs
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.brm.models.response.gro.{FlagSeverity, GROStatus}
+import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.play.test.UnitSpec
 
-trait GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest {
+trait GROFlagSeveritySpec extends UnitSpec with MockitoSugar with GuiceOneAppPerTest {
+
+  val config: BrmConfig = app.injector.instanceOf[BrmConfig]
 
   val allEnabledConfig: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
@@ -195,91 +197,91 @@ trait GROFlagSeveritySpec extends UnitSpec with MockitoSugar with OneAppPerTest 
     "all flags are green" should {
       "return true " in {
         val groFlags = allFlagsGreen.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "all flags are red" should {
       "return false when all individual flags are set to true" taggedAs Tag("allEnabled") in {
         val groFlags = allFlagsRed.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when all individual flags are set to  false" taggedAs Tag("allDisabled") in {
         val groFlags = allFlagsRed.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "potentiallyFictitiousBirthFlag exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("potentiallyFictitiousBirth") in {
         val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "blockedRegistration exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("blockedRegistration") in {
         val groFlags = blockedRegistration.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = blockedRegistration.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "correction exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("correction") in {
         val groFlags = correctionFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = correctionFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "cancelled exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("cancelled") in {
         val groFlags = cancelledFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = cancelledFlag.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "marginalNote exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("marginalNote") in {
         val groFlags = marginalNote.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = marginalNote.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
     }
 
     "reRegistered exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("reRegistered") in {
         val groFlags = reRegistered.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe false
+        groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val groFlags = reRegistered.determineFlagSeverity()
-        groFlags.canProcessRecord() shouldBe true
+        groFlags.canProcessRecord(config) shouldBe true
       }
 
     }

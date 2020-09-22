@@ -17,9 +17,9 @@
 package uk.gov.hmrc.brm.connectors
 
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{any, eq => mockEq}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,7 +29,7 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.ws.WSPost
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -91,6 +91,9 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
     }
 
     "getChildDetails call should not pass additional name to gro." in {
+      when(mockCommonUtil.forenames(any(), any()))
+        .thenReturn("Adam")
+
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
       val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
@@ -184,7 +187,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
     "GRONIConnector" should {
 
       "initialise with correct properties" in {
-        connectorFixtures.groniConnector.httpPost shouldBe a[WSPost]
+        connectorFixtures.groniConnector.http shouldBe a[HttpClient]
       }
 
       "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {

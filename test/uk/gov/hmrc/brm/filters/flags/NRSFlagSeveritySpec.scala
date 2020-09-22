@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.brm.filters.flags
 
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.play.test.UnitSpec
 
-class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar {
+class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
-  val allFlagsGreen = NRSStatus(status = 1, deathCode = 0)
+  val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
+  val conf: BrmConfig = app.injector.instanceOf[BrmConfig]
 
   "determineFlagSeverity" should {
 
@@ -32,9 +35,8 @@ class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar {
     }
 
     "return true when all flags are default value" in {
-
       val groFlags = allFlagsGreen.determineFlagSeverity()
-      groFlags.canProcessRecord() shouldBe true
+      groFlags.canProcessRecord(conf) shouldBe true
     }
   }
 }

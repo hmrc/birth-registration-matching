@@ -17,20 +17,25 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import uk.gov.hmrc.brm.config.MicroserviceGlobal
+import javax.inject.Inject
+import org.bouncycastle.jcajce.provider.symmetric.TEA.KeyGen
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * TODO: should this be deprecated?
   */
 
 @Singleton
-class EnglandAndWalesAudit(connector : AuditConnector = MicroserviceGlobal.auditConnector)
-  extends BRMDownstreamAPIAudit(connector) {
+class EnglandAndWalesAudit @Inject()(connector: AuditConnector,
+                                     val keyGen: KeyGenerator,
+                                     val config: BrmConfig,
+                                     val logger: BRMLogger) extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * EnglandAndWalesAuditEvent
@@ -45,7 +50,7 @@ class EnglandAndWalesAudit(connector : AuditConnector = MicroserviceGlobal.audit
       transactionName = "brm-england-and-wales-match",
       path)
 
-  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier) = {
+  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier): Future[AuditResult] = {
     payload match {
       case Some(p) =>
         p.requestType match {

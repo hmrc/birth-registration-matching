@@ -16,22 +16,24 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, MockErrorResponses}
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator, MockErrorResponses}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
-class BirthEventsControllerValidationLengthSpec extends UnitSpec
-  with OneAppPerSuite
-  with MockitoSugar
-  with BeforeAndAfter
-  with BaseUnitSpec {
+import scala.concurrent.Future
+
+class BirthEventsControllerValidationLengthSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -39,35 +41,66 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
   )
 
-  override lazy val app = new GuiceApplicationBuilder()
+  val testController: BirthEventsController = new BirthEventsController(
+    mockLookupService,
+    auditorFixtures.whereBirthRegisteredAudit,
+    MockAuditFactory,
+    app.injector.instanceOf[BrmConfig],
+    auditorFixtures.transactionAudit,
+    auditorFixtures.matchingAudit,
+    app.injector.instanceOf[HeaderValidator],
+    stubControllerComponents(),
+    mockCommonUtil,
+    mockBrmLogger,
+    mockMetricsFactory,
+    mockFilters,
+    mockEngWalesMetric,
+    mockIreMetric,
+    mockScotMetric,
+    mockInvalidMetric
+  )
+
+  override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(config)
     .build()
 
   before {
-    reset(MockController.service.groConnector)
+    reset(mockGroConnector)
   }
 
   "validating max length change" should {
 
     "return OK if firstName < 250 characters" in {
+      when(mockLookupService.lookup()(any(), any(), any(), any()))
+        .thenReturn(Future.successful(BirthMatchResponse()))
+
+      when(mockFilters.process(any()))
+        .thenReturn(List())
+
+      when(mockAuditor.audit(any(),any())(any()))
+        .thenReturn(Future.successful(AuditResult.Success))
+
+      when(mockMetricsFactory.getMetrics()(any()))
+        .thenReturn(mockEngWalesMetric)
+      mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
       val request = postRequest(firstNameWithMoreThan100Characters)
-      val result = await(MockController.post().apply(request))
-      checkResponse(result,OK, false)
+      val result = await(testController.post().apply(request))
+      checkResponse(result,OK, matchResonse = false)
     }
 
     "return BAD_REQUEST if firstName > 250 characters" in {
       val request = postRequest(firstNameWithMoreThan250Characters)
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
-      verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
+      verify(mockGroConnector, never).getReference(any())(any())
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
       val request = postRequest(lastNameWithMoreThan250Characters)
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
-      verify(MockController.service.groConnector, never).getReference(Matchers.any())(Matchers.any())
+      verify(mockGroConnector, never).getReference(any())(any())
     }
 
   }

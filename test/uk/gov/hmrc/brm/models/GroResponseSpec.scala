@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.models
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
@@ -47,21 +47,21 @@ class GroResponseSpec extends UnitSpec {
    * - should return an JsonMappingException from an invalid json object
    */
 
-  lazy val jsonFullRecord = JsonUtils.getJsonFromFile("gro", "500035710")
+  lazy val jsonFullRecord: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
-  lazy val jsonFullRecordCollection = JsonUtils.getJsonFromFile("gro", "500035710-array")
+  lazy val jsonFullRecordCollection: JsValue = JsonUtils.getJsonFromFile("gro", "500035710-array")
 
-  lazy val jsonRecordKeysNoValues = JsonUtils.getJsonFromFile("gro", "key-no-value")
+  lazy val jsonRecordKeysNoValues: JsValue = JsonUtils.getJsonFromFile("gro", "key-no-value")
 
   lazy val maxLengthString = "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
 
-  lazy val jsonValidWithUTF8 = Json.parse(
+  lazy val jsonValidWithUTF8: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
       |  "child" : {
       |   "name" : {
-      |    "givenName" : "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ'  ÐÐġġġÐÐÐÐœœœÐÐÐ  ÐÐÆġÆÆÅÅƼƼƼıııÅÅ",
+      |    "givenName" : "JohͿͿŀŀŀnƷȸȸȸ- ƷġÊÊÊÊÊƂƂƂ' ÐÐġġġÐÐÐÐœœœÐÐÐ ÐÐÆġÆÆÅÅƼƼƼıııÅÅ",
       |    "surname" : "JonesƷġÊÊÊÊÊƂƂƂ-'"
       |   },
       |   "dateOfBirth" : "2007-02-18"
@@ -72,7 +72,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonValid = Json.parse(
+  lazy val jsonValid: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -89,7 +89,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonValidWithASCIIExtended = Json.parse(
+  lazy val jsonValidWithASCIIExtended: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -111,7 +111,7 @@ class GroResponseSpec extends UnitSpec {
    * x3 Max Length strings for middle names
    * x1 Max Length string for lastName
    */
-  lazy val jsonValidMaxLength = Json.parse(
+  lazy val jsonValidMaxLength: JsValue = Json.parse(
     s"""
        |{
        | "subjects" : {
@@ -128,7 +128,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingGivenNameKey = Json.parse(
+  lazy val jsonMissingGivenNameKey: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -144,7 +144,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingSurnameKey = Json.parse(
+  lazy val jsonMissingSurnameKey: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -160,7 +160,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingObjectsProperties = Json.parse(
+  lazy val jsonMissingObjectsProperties: JsValue = Json.parse(
     """
     |{
     |  "location": {
@@ -202,7 +202,7 @@ class GroResponseSpec extends UnitSpec {
   """.stripMargin
   )
 
-  lazy val jsonMissingSystemNumberKey = Json.parse(
+  lazy val jsonMissingSystemNumberKey: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -218,7 +218,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingDateOfBirthKey = Json.parse(
+  lazy val jsonMissingDateOfBirthKey: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -234,7 +234,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingNameKey = Json.parse(
+  lazy val jsonMissingNameKey: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -247,7 +247,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingSubjectsKey = Json.parse(
+  lazy val jsonMissingSubjectsKey: JsValue = Json.parse(
     """
       |{
       | "systemNumber" : 500035710
@@ -255,14 +255,14 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonMissingEmptyObject = Json.parse(
+  lazy val jsonMissingEmptyObject: JsValue = Json.parse(
     """
       |{
       |}
     """.stripMargin
   )
 
-  lazy val jsonInavlidDateOfBirthFormat = Json.parse(
+  lazy val jsonInavlidDateOfBirthFormat: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -279,7 +279,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonInvalidSystemNumberType = Json.parse(
+  lazy val jsonInvalidSystemNumberType: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -296,11 +296,11 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonNoObject = Json.parse("")
+  lazy val jsonNoObject: JsValue = Json.parse("")
 
-  lazy val jsonBrokenObject = Json.parse("{")
+  lazy val jsonBrokenObject: JsValue = Json.parse("{")
 
-  lazy val jsonAllStatusFlags = Json.parse(
+  lazy val jsonAllStatusFlags: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -325,7 +325,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsPotentiallyFictious = Json.parse(
+  lazy val jsonAllStatusFlagsPotentiallyFictious: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -350,7 +350,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsCorrection = Json.parse(
+  lazy val jsonAllStatusFlagsCorrection: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -375,7 +375,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsCancelled = Json.parse(
+  lazy val jsonAllStatusFlagsCancelled: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -400,7 +400,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsBlocked = Json.parse(
+  lazy val jsonAllStatusFlagsBlocked: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -425,7 +425,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsMarginalNote = Json.parse(
+  lazy val jsonAllStatusFlagsMarginalNote: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -450,7 +450,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonAllStatusFlagsReregistered = Json.parse(
+  lazy val jsonAllStatusFlagsReregistered: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -475,7 +475,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingPotentiallyFicticiousBirth = Json.parse(
+  lazy val jsonStatusFlagsExcludingPotentiallyFicticiousBirth: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -499,7 +499,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingCorrection = Json.parse(
+  lazy val jsonStatusFlagsExcludingCorrection: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -523,7 +523,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingCancelled = Json.parse(
+  lazy val jsonStatusFlagsExcludingCancelled: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -547,7 +547,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingBlockedRegistration = Json.parse(
+  lazy val jsonStatusFlagsExcludingBlockedRegistration: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -571,7 +571,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingMarginalNote = Json.parse(
+  lazy val jsonStatusFlagsExcludingMarginalNote: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -595,7 +595,7 @@ class GroResponseSpec extends UnitSpec {
     """.stripMargin
   )
 
-  lazy val jsonStatusFlagsExcludingReRegistered = Json.parse(
+  lazy val jsonStatusFlagsExcludingReRegistered: JsValue = Json.parse(
     """
       |{
       | "subjects" : {
@@ -731,7 +731,7 @@ class GroResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is valid and complete (ASCII)" in {
       val result = jsonValid.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -740,8 +740,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) =>
+        case JsError(_) =>
           throw new Exception
       }
     }
@@ -749,7 +748,7 @@ class GroResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is valid and complete with ASCII-Extended characters" in {
       val result = jsonValidWithASCIIExtended.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -758,8 +757,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) =>
+        case JsError(_) =>
           throw new Exception
       }
     }
@@ -767,7 +765,7 @@ class GroResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is valid and complete with UTF-8 characters" in {
       val result = jsonValidWithUTF8.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -776,8 +774,7 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) =>
+        case JsError(_) =>
           throw new Exception
       }
     }
@@ -785,17 +782,22 @@ class GroResponseSpec extends UnitSpec {
     "return Record object with all Child attributes when json is valid and complete max length" in {
       val result = jsonValidMaxLength.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
-          x.child.forenames shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
-          x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
+          x.child.forenames shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQL" +
+            "RXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtM" +
+            "rVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVx" +
+            "NdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak XuLEjzWm" +
+            "ZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLRXScwAhCWkndDQeAVRpTDbbkzDYxWHAMt" +
+            "YDBRDDHFHGwRQak"
+          x.child.lastName shouldBe "XuLEjzWmZGzHbzVwxWhHjKBdGorAZNVxNdXHfwXemCXkfYPoeWbBJvtMrVuEfSfVZEkmNzhMQsscKFQLR" +
+            "XScwAhCWkndDQeAVRpTDbbkzDYxWHAMtYDBRDDHFHGwRQak"
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) =>
+        case JsError(_) =>
           throw new Exception
       }
     }
@@ -803,21 +805,19 @@ class GroResponseSpec extends UnitSpec {
     "return Record object with null Child attributes when json is empty" in {
       val result = jsonMissingEmptyObject.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(_, _) =>
           throw new Exception
-        }
-        case JsError(x) => {
+        case JsError(x) =>
           x.length shouldBe 1
           x.head._2.length shouldBe 1
           x.head._1.toString() shouldBe "/systemNumber"
-        }
       }
     }
 
     "return Record object with Child and Status objects when json contains subjects and status keys but no values exist" in {
       val result = jsonRecordKeysNoValues.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 999999926
@@ -831,24 +831,20 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote shouldBe None
           x.status.get.asInstanceOf[GROStatus].reRegistered shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
     "return Record object with Child object when systemNumber is a string" in {
       val result = jsonInvalidSystemNumberType.validate[Record](ReadsUtil.groReadRecord)
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(_, _) =>
           throw new Exception
-        }
-        case JsError(x) => {
+        case JsError(x) =>
           x.length shouldBe 1
           x.head._2.length shouldBe 1
           x.head._1.toString() shouldBe "/systemNumber"
-        }
       }
     }
 
@@ -856,14 +852,12 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingSystemNumberKey.validate[Record](ReadsUtil.groReadRecord)
       result should not be a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(_, _) =>
           throw new Exception
-        }
-        case JsError(x) => {
+        case JsError(x) =>
           x.length shouldBe 1
           x.head._2.length shouldBe 1
           x.head._1.toString() shouldBe "/systemNumber"
-        }
       }
     }
 
@@ -878,8 +872,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.forenames shouldBe empty
           x.child.lastName shouldBe empty
           x.child.dateOfBirth shouldBe None
-          x.status shouldBe Some(GROStatus(false, None, false, false, None, None))
-        case JsError(x) =>
+          x.status shouldBe Some(GROStatus(potentiallyFictitiousBirth = false, None, cancelled = false, blockedRegistration = false, None, None))
+        case JsError(_) =>
           throw new Exception
       }
     }
@@ -888,7 +882,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingGivenNameKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -897,10 +891,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -908,7 +900,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingSurnameKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -917,10 +909,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.dateOfBirth.get.toString shouldBe "2007-02-18"
           x.child.dateOfBirth.get shouldBe a[LocalDate]
           x.status shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -928,7 +918,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingDateOfBirthKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -936,10 +926,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -947,7 +935,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonMissingSubjectsKey.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -955,10 +943,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe ""
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -966,7 +952,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonInavlidDateOfBirthFormat.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -974,10 +960,8 @@ class GroResponseSpec extends UnitSpec {
           x.child.lastName shouldBe "Jones"
           x.child.dateOfBirth shouldBe None
           x.status shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -985,7 +969,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonAllStatusFlags.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1011,10 +995,8 @@ class GroResponseSpec extends UnitSpec {
                |  "reRegistered": "None"
                |}
              """.stripMargin)
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1022,7 +1004,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1037,10 +1019,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1048,7 +1028,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingCorrection.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1063,10 +1043,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1074,7 +1052,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingCancelled.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1089,10 +1067,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1100,7 +1076,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingBlockedRegistration.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1115,10 +1091,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1126,7 +1100,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingMarginalNote.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1141,10 +1115,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote shouldBe None
           x.status.get.asInstanceOf[GROStatus].reRegistered.get shouldBe "None"
-        }
-        case JsError(x) => {
+        case JsError(_) =>
           throw new Exception
-        }
       }
     }
 
@@ -1152,7 +1124,7 @@ class GroResponseSpec extends UnitSpec {
       val result = jsonStatusFlagsExcludingReRegistered.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
-        case JsSuccess(x, _) => {
+        case JsSuccess(x, _) =>
           x shouldBe a[Record]
           x.child shouldBe a[Child]
           x.child.birthReferenceNumber shouldBe 500035710
@@ -1167,10 +1139,8 @@ class GroResponseSpec extends UnitSpec {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered shouldBe None
-        }
-        case JsError(x) => {
+        case JsError(x) =>
           throw new Exception
-        }
       }
     }
 

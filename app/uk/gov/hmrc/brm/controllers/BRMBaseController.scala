@@ -17,23 +17,23 @@
 package uk.gov.hmrc.brm.controllers
 
 import play.api.libs.json.JsValue
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{ControllerComponents, Request, Result}
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
-import uk.gov.hmrc.brm.utils.CommonUtil._
-import uk.gov.hmrc.brm.utils.{BRMException, HeaderValidator}
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.brm.utils.{BRMException, CommonUtil, HeaderValidator}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
-trait BRMBaseController extends BaseController with BRMException {
+abstract class BRMBaseController(cc: ControllerComponents) extends BackendController(cc) with BRMException {
 
+  val commonUtils: CommonUtil
   lazy val contentType: String = "application/json; charset=utf-8"
   lazy val headers: (String, String)  = (ACCEPT, "application/vnd.hmrc.1.0+json")
 
-  protected val transactionAuditor : TransactionAuditor
-  protected val matchingAuditor : MatchingAudit
-  protected val headerValidator : HeaderValidator
+  protected val transactionAuditor: TransactionAuditor
+  protected val matchingAuditor: MatchingAudit
+  protected val headerValidator: HeaderValidator
 
   def respond(response: Result): Result = {
     response
@@ -63,7 +63,7 @@ trait BRMBaseController extends BaseController with BRMException {
 
       // audit the transaction when there was an exception with default arguments
        auditTransaction()
-       logTime(startTime)
+       commonUtils.logTime(startTime)
 
       respond(allPfs.apply(t))
   }

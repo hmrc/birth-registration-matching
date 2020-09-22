@@ -16,49 +16,56 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.play.test.UnitSpec
 
-class CommonUtilSpec extends UnitSpec {
+class CommonUtilSpec extends UnitSpec with MockitoSugar {
 
-  lazy val ignoreAdditionalNamesEnabled: Map[String, Boolean] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+  val mockConfig: BrmConfig = mock[BrmConfig]
+  val mockLogger: BRMLogger = mock[BRMLogger]
+
+  val commonUtil: CommonUtil = new CommonUtil(
+    mockConfig,
+    mockLogger
   )
-
-  lazy val ignoreAdditionalNamesDisabled: Map[String, Boolean] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
-  )
-
-  val ignoreAdditionalNamesOnAppEnabled = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
-    .configure(ignoreAdditionalNamesEnabled)
-    .build()
-  val ignoreAdditionalNamesOnAppDisabled = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
-    .configure(ignoreAdditionalNamesDisabled)
-    .build()
 
   "forenames" should {
 
-    "ignore additionalNames argument if ignoreAdditionalNames is set to true" in running(ignoreAdditionalNamesOnAppEnabled){
-      CommonUtil.forenames("John", Some("Jones")) shouldBe "John"
+    "ignore additionalNames argument if ignoreAdditionalNames is set to true" in {
+      when(mockConfig.ignoreAdditionalNames)
+        .thenReturn(true)
+
+      commonUtil.forenames("John", Some("Jones")) shouldBe "John"
     }
 
-    "return additionalNames argument if ignoreAdditionalNames is set to false" in running(ignoreAdditionalNamesOnAppDisabled) {
-      CommonUtil.forenames("John", Some("Jones")) shouldBe "John Jones"
+    "return additionalNames argument if ignoreAdditionalNames is set to false" in {
+      when(mockConfig.ignoreAdditionalNames)
+        .thenReturn(false)
+
+      commonUtil.forenames("John", Some("Jones")) shouldBe "John Jones"
     }
 
-    "return string with trailing and ending space trimmed when ignoreAdditionalNames is set to true" in running(ignoreAdditionalNamesOnAppEnabled){
-      CommonUtil.forenames(" John   ", Some("  Jones  Smith  ")) shouldBe "John"
+    "return string with trailing and ending space trimmed when ignoreAdditionalNames is set to true" in {
+      when(mockConfig.ignoreAdditionalNames)
+        .thenReturn(true)
+
+      commonUtil.forenames(" John   ", Some("  Jones  Smith  ")) shouldBe "John"
     }
 
-    "return string with trailing and ending space trimmed when ignoreAdditionalNames is set to false" in running(ignoreAdditionalNamesOnAppDisabled) {
-      CommonUtil.forenames(" John   ", Some("  Jones Smith  ")) shouldBe "John Jones Smith"
+    "return string with trailing and ending space trimmed when ignoreAdditionalNames is set to false" in {
+      when(mockConfig.ignoreAdditionalNames)
+        .thenReturn(false)
+
+      commonUtil.forenames(" John   ", Some("  Jones Smith  ")) shouldBe "John Jones Smith"
     }
 
-    "convert multiple space separated words to single space separated words" in running(ignoreAdditionalNamesOnAppDisabled) {
-      CommonUtil.forenames("  John   ", Some("  Jones  Smith  ")) shouldBe "John Jones Smith"
+    "convert multiple space separated words to single space separated words" in {
+      when(mockConfig.ignoreAdditionalNames)
+        .thenReturn(false)
+
+      commonUtil.forenames("  John   ", Some("  Jones  Smith  ")) shouldBe "John Jones Smith"
     }
 
   }

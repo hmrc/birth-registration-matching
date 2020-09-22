@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.services.matching
 
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
@@ -26,7 +27,9 @@ import scala.annotation.tailrec
 trait MatchingIterator {
   this: MatchingAlgorithm =>
 
-  private def noMatch() = MatchingResult.noMatch
+  implicit val config: BrmConfig
+
+  private def noMatch(): MatchingResult = MatchingResult.noMatch
 
   def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean): MatchingResult = {
     @tailrec

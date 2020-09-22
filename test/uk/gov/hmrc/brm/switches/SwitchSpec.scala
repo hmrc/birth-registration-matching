@@ -17,24 +17,30 @@
 package uk.gov.hmrc.brm.switches
 
 import org.scalatest.{BeforeAndAfter, Tag, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.brm.config.BrmConfig
+import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.play.test.UnitSpec
 
 /**
   * Created by mew on 15/05/2017.
   */
-trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
+trait SwitchSpec extends UnitSpec with BeforeAndAfter with GuiceOneAppPerTest {
 
   object TestSwitch extends Switch {
+    val config: BrmConfig = app.injector.instanceOf[BrmConfig]
     override val name = "test"
   }
 
   object NonExistingSwitch extends Switch {
+    val config: BrmConfig = app.injector.instanceOf[BrmConfig]
     override val name = "invalid"
   }
 
   object NonExistingValue extends SwitchValue {
+    val config: BrmConfig = app.injector.instanceOf[BrmConfig]
     override val name: String = "invalid"
   }
 
@@ -48,7 +54,7 @@ trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true
   )
 
-  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
     .configure {
     if (testData.tags.contains("enabled")) {
       switchEnabled
@@ -92,15 +98,15 @@ trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
   "GRO" should {
 
     "be enabled for GRO" in {
-      GROSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[GROFilter].switch.isEnabled shouldBe true
     }
 
     "be enabled for GRO Reference" in {
-      GROReferenceSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[GROReferenceFilter].switch.isEnabled shouldBe true
     }
 
     "be enabled for GRO Details" in {
-      GRODetailsSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[GRODetailsFilter].switch.isEnabled shouldBe true
     }
 
   }
@@ -108,30 +114,30 @@ trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
   "NRS" should {
 
     "be enabled for NRS" in {
-      NRSSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[GRODetailsFilter].switch.isEnabled shouldBe true
     }
 
     "be enabled for NRS Reference" in {
-      NRSReferenceSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[NRSReferenceFilter].switch.isEnabled shouldBe true
     }
 
     "be enabled for NRS Details" in {
-      NRSDetailsSwitch.isEnabled shouldBe true
+      app.injector.instanceOf[NRSDetailsFilter].switch.isEnabled shouldBe true
     }
 
   }
 
   "GRO-NI" should {
     "be disabled for GRO-NI" in {
-      GRONISwitch.isEnabled shouldBe false
+      app.injector.instanceOf[GRONIFilter].switch.isEnabled shouldBe false
     }
 
     "be disabled for GRO-NI Reference" in {
-      GRONIReferenceSwitch.isEnabled shouldBe false
+      app.injector.instanceOf[GRONIReferenceFilter].switch.isEnabled shouldBe false
     }
 
     "be disabled for GRO-NI Details" in {
-      GRONIDetailsSwitch.isEnabled shouldBe false
+      app.injector.instanceOf[GRONIDetailsFilter].switch.isEnabled shouldBe false
     }
   }
 
@@ -139,21 +145,21 @@ trait SwitchSpec extends UnitSpec with BeforeAndAfter with OneAppPerTest {
 
     "enabled" should {
       "have a switch" taggedAs Tag("enabled") in {
-        DateOfBirthSwitch.isEnabled shouldBe true
+        app.injector.instanceOf[DateOfBirthFilter].switch.isEnabled shouldBe true
       }
 
       "have a value" taggedAs Tag("enabled") in {
-        DateOfBirthSwitchValue.value should not be empty
+        app.injector.instanceOf[DateOfBirthFilter].switchValue should not be empty
       }
     }
 
     "disabled" should {
       "have a switch" taggedAs Tag("disabled") in {
-        DateOfBirthSwitch.isEnabled shouldBe false
+        app.injector.instanceOf[DateOfBirthFilter].switch.isEnabled shouldBe false
       }
 
       "have a value" taggedAs Tag("disabled") in {
-        DateOfBirthSwitchValue.value should not be empty
+        app.injector.instanceOf[DateOfBirthFilter].switchValue should not be empty
       }
     }
 

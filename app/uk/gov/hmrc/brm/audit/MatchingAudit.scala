@@ -17,19 +17,23 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-import uk.gov.hmrc.brm.config.MicroserviceGlobal
+import javax.inject.Inject
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
-import uk.gov.hmrc.brm.utils.BRMLogger
+import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * Created by adamconder on 08/02/2017.
   */
 @Singleton
-class MatchingAudit(connector : AuditConnector = MicroserviceGlobal.auditConnector) extends BRMAudit(connector) {
+class MatchingAudit @Inject()(connector : AuditConnector,
+                              val logger: BRMLogger,
+                              val config: BrmConfig,
+                              val keyGen: KeyGenerator) extends BRMAudit(connector) {
 
   /**
     * MatchingEvent
@@ -42,7 +46,7 @@ class MatchingAudit(connector : AuditConnector = MicroserviceGlobal.auditConnect
     extends AuditEvent("BRM-Matching-Results", detail = result, transactionName = "brm-match", path)
 
   override def audit(result : Map[String, String], payload : Option[Payload])(implicit hc : HeaderCarrier) = {
-    BRMLogger.debug("MatchingAudit", "audit", "auditing match event")
+    logger.debug("MatchingAudit", "audit", "auditing match event")
     payload match {
       case Some(p) =>
         p.requestType match {

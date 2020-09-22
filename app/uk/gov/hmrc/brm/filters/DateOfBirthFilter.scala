@@ -16,27 +16,43 @@
 
 package uk.gov.hmrc.brm.filters
 
+import javax.inject.Inject
 import org.joda.time.LocalDate
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.GeneralFilter
 import uk.gov.hmrc.brm.metrics.DateofBirthFeatureCountMetric
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.switches.{DateOfBirthSwitch, DateOfBirthSwitchValue}
+import uk.gov.hmrc.brm.switches.{Switch, SwitchValue}
 
 /**
   * Created by mew on 15/05/2017.
   */
-object DateOfBirthFilter extends Filter(DateOfBirthSwitch, GeneralFilter) {
+class DateOfBirthFilter @Inject()(dobCount: DateofBirthFeatureCountMetric,
+                                 conf: BrmConfig) extends Filter(GeneralFilter) {
+
+  class DateOfBirthSwitch extends Switch {
+    override val name = "dobValidation"
+    override val config: BrmConfig = conf
+  }
+
+  class DateOfBirthSwitchValue extends SwitchValue {
+    override val name = "dobValidation"
+    override val config: BrmConfig = conf
+  }
+
+  val switch = new DateOfBirthSwitch
+  val switchValue: String = (new DateOfBirthSwitchValue).value
 
   override def process(payload: Payload): Boolean = {
     val isEnabled = super.process(payload)
 
     if(isEnabled) {
-      val config = DateOfBirthSwitchValue.value
+      val config = switchValue
       // validate date of birth
       val configDate = LocalDate.parse(config).toDate
       val isValid = !payload.dateOfBirth.toDate.before(configDate)
       if(!isValid){
-        DateofBirthFeatureCountMetric.count()
+        dobCount.count()
       }
       isValid
     } else {
