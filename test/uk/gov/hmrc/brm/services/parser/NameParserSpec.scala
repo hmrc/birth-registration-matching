@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.services.parser
 
 import org.joda.time.LocalDate
 import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 /**
   * Created by adamconder on 02/02/2017.
   */
-trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEachTestData {
+trait NameParserSpec extends UnitSpec with GuiceOneAppPerTest with BeforeAndAfterEachTestData {
 
   lazy val ignoreAdditionalNamesFalse: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
@@ -169,8 +169,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam David",
-          _lastName = "Smith",
+          forenames = "Adam David",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -193,8 +193,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam TEST David ",
-          _lastName = "Smith",
+          forenames = "Adam TEST David ",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -218,8 +218,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam David TEST ",
-          _lastName = "Smith",
+          forenames = "Adam David TEST ",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -243,8 +243,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam TEST David test",
-          _lastName = "Smith",
+          forenames = "Adam TEST David test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -268,8 +268,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam David TEST test",
-          _lastName = "Smith",
+          forenames = "Adam David TEST test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -293,8 +293,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam Test",
-          _lastName = "Smith",
+          forenames = "Adam Test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -317,8 +317,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam Test",
-          _lastName = "Smith",
+          forenames = "Adam Test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -341,8 +341,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam Test",
-          _lastName = "Smith",
+          forenames = "Adam Test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -365,8 +365,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam Test",
-          _lastName = "Smith",
+          forenames = "Adam Test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 
@@ -389,8 +389,8 @@ trait NameParserSpec extends UnitSpec with OneAppPerTest with BeforeAndAfterEach
 
         val record = Record(child = Child(
           birthReferenceNumber = 123456789,
-          _forenames = "Adam Test",
-          _lastName = "Smith",
+          forenames = "Adam Test",
+          lastName = "Smith",
           dateOfBirth = Some(date)
         ))
 

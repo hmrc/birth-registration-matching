@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.brm.filters
 
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
 import uk.gov.hmrc.brm.filters.Filter.FilterType
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.Switch
-import uk.gov.hmrc.play.config.ServicesConfig
 
 /**
   * Created by mew on 15/05/2017.
@@ -33,18 +30,11 @@ object Filter {
   object GeneralFilter extends FilterType
 }
 
-abstract class Filter(switch : Switch, val filterType : FilterType) extends ServicesConfig {
+abstract class Filter(val filterType: FilterType) {
+  val switch: Switch
 
   def process(payload : Payload) : Boolean = {
     switch.isEnabled
   }
-
-  // $COVERAGE-OFF$
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  // $COVERAGE-ON$
 
 }

@@ -17,42 +17,50 @@
 package uk.gov.hmrc.brm.audit
 
 
+import com.kenshoo.play.metrics.PlayModule
 import org.joda.time.LocalDate
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
+import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
-/**
-  * Created by anuja on 16/02/17.
-  */
-class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAppPerSuite with BeforeAndAfterAll {
+class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterAll {
 
-  val connector = mock[AuditConnector]
-  val auditor = new TransactionAuditor(connector)
-  implicit val hc = HeaderCarrier()
+	class TestAuditor(configuration: Configuration) {
+		implicit lazy val app: Application = new GuiceApplicationBuilder().disable[PlayModule].configure(configuration).build()
+		val connector: AuditConnector = mock[AuditConnector]
+		val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
+		val config: BrmConfig = app.injector.instanceOf[BrmConfig]
+		val logger: BRMLogger = app.injector.instanceOf[BRMLogger]
+		val auditor = new TransactionAuditor(connector, keyGen, config, logger)
+	}
 
-  val auditConfigOnForDefault: Map[String, _] = Map(
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  val auditConfigOnForDefault: Configuration = Configuration(
+    "metrics.jvm" -> false,
     "microservice.services.birth-registration-matching.features.flags.logging" -> true,
     "microservice.services.birth-registration-matching.features.flags.process" -> true,
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
   )
 
-  val auditConfigOnForAlternate: Map[String, _] = Map(
+   val auditConfigOnForAlternate: Configuration = Configuration(
+    "metrics.jvm" -> false,
     "microservice.services.birth-registration-matching.matching.firstName" -> false,
     "microservice.services.birth-registration-matching.matching.lastName" -> false,
     "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false,
@@ -63,41 +71,26 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
     "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false
-
   )
-
-  val auditConfigOnAppForDefault = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
-    .configure(auditConfigOnForDefault)
-    .build()
-  val auditConfigOnAppForAlternate = GuiceApplicationBuilder()
-    .disable[com.kenshoo.play.metrics.PlayModule]
-    .configure(auditConfigOnForAlternate)
-    .build()
 
   val child: Child = Child(123456789: Int, "Adam", "Test1", Some(LocalDate.now()))
 
-  val status  = GROStatus(
-    potentiallyFictitiousBirth = false,
+  val status: GROStatus = GROStatus(
     correction = Some("Correction on record"),
-    cancelled = false,
     blockedRegistration = true,
     marginalNote = None,
     reRegistered = None)
 
-  val record = Record(child, Option(status))
+  val record: Record = Record(child, Option(status))
 
   "RequestsAndResultsAudit" should {
 
-    "return correct default settings for audit config" in running(
-      auditConfigOnAppForDefault
-    ) {
-
-      val payload = Payload(Some("123456789"), "Adam", None, "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+    "return correct default settings for audit config" in new TestAuditor(auditConfigOnForDefault){
+      val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test1", LocalDate.now(), BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val event = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
+      when(connector.sendEvent(argumentCapture.capture)(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      val event: AuditResult = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
       event shouldBe AuditResult.Success
 
       argumentCapture.value.detail("features.matchFirstName") shouldBe "true"
@@ -119,17 +112,15 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
     }
 
 
-    "return correct settings when audit config is overridden" in running(
-      auditConfigOnAppForAlternate
-    ) {
-      val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+    "return correct settings when audit config is overridden" in new TestAuditor(auditConfigOnForAlternate) {
+      val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
-      when(connector.sendEvent(argumentCapture.capture)(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
-      val event = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
+      when(connector.sendEvent(argumentCapture.capture)(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      val event: AuditResult = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
       event shouldBe AuditResult.Success
 
-      argumentCapture.value.detail("features.matchFirstName") shouldBe "false"
+			argumentCapture.value.detail("features.matchFirstName") shouldBe "false"
       argumentCapture.value.detail("features.matchLastName") shouldBe "false"
       argumentCapture.value.detail("features.matchDateOfBirth") shouldBe "false"
       argumentCapture.value.detail("features.matchOnMultiple") shouldBe "true"
@@ -139,7 +130,6 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with OneAp
       argumentCapture.value.detail("features.downstream.enabled") shouldBe "false"
       argumentCapture.value.detail("features.flags.logging") shouldBe "false"
       argumentCapture.value.detail("features.flags.process") shouldBe "false"
-      argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.marginalNote") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration") shouldBe false
       argumentCapture.value.detail.contains("records.record1.flags.reRegistered") shouldBe false

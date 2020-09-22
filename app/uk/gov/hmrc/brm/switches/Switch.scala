@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.brm.switches
 
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.brm.config.BrmConfig
 
 /**
   * Created by mew on 12/05/2017.
@@ -35,28 +33,14 @@ trait SwitchException {
   final def exception(key : String) = throw FeatureSwitchException(key)
 }
 
-trait Switch extends ServicesConfig with SwitchException {
-  val name : String
-  final def isEnabled : Boolean = getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
-
-  // $COVERAGE-OFF$
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  // $COVERAGE-ON$
+trait Switch extends SwitchException {
+  val config: BrmConfig
+  val name: String
+  final def isEnabled : Boolean = config.conf.getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
 }
 
-trait SwitchValue extends ServicesConfig with SwitchException {
-  val name : String
-  final def value : String = getConfString(s"birth-registration-matching.features.$name.value", exception(name))
-
-  // $COVERAGE-OFF$
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  // $COVERAGE-ON$
+trait SwitchValue extends SwitchException {
+  val config: BrmConfig
+  val name: String
+  final def value : String = config.conf.getConfString(s"birth-registration-matching.features.$name.value", exception(name))
 }

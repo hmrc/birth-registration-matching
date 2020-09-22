@@ -16,27 +16,47 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.brm.controllers.BirthEventsController
+import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http
-import uk.gov.hmrc.http.HttpResponse
 
-class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
+class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
+  val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
-  val payload = Json.parse(
+  val testController = new BirthEventsController (
+    mockLookupService,
+    auditorFixtures.whereBirthRegisteredAudit,
+    MockAuditFactory,
+    mockConfig,
+    auditorFixtures.transactionAudit,
+    auditorFixtures.matchingAudit,
+    app.injector.instanceOf[HeaderValidator],
+    stubControllerComponents(),
+    mockCommonUtil,
+    mockBrmLogger,
+    mockMetricsFactory,
+    mockFilters,
+    mockEngWalesMetric,
+    mockIreMetric,
+    mockScotMetric,
+    mockInvalidMetric
+  )
+
+  val payload: JsValue = Json.parse(
     s"""
        |{
        | "firstName" : "Chris",
@@ -47,7 +67,7 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
        |}
     """.stripMargin)
 
-  def httpResponse(js: JsValue) = HttpResponse(200: Int, Some(js))
+  def httpResponse(js: JsValue): HttpResponse = HttpResponse(200: Int, Some(js))
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
@@ -55,10 +75,16 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockConnector.getReference(Matchers.any())(Matchers.any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockConnector.getReference(any())(any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockFilters.process(any()))
+        .thenReturn(List())
+      when(mockMetricsFactory.getMetrics()(any()))
+        .thenReturn(mockScotMetric)
+      when(mockLookupService.lookup()(any(), any(), any(), any()))
+        .thenReturn(Future.successful(BirthMatchResponse(true)))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe OK
     }
 
@@ -67,11 +93,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
     }
 
     "return response code 406 for invalid version in Accept header" in {
@@ -79,11 +105,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 406 for excluded Accept header" in {
@@ -91,11 +117,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders(("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 401 for excluded Audit-Source value" in {
@@ -103,11 +129,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe UNAUTHORIZED
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 401 for excluded Audit-Source header" in {
@@ -115,11 +141,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe UNAUTHORIZED
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 406 for excluded Audit-Source and Accept values" in {
@@ -127,11 +153,11 @@ class HeaderValidatorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar
         .withHeaders(("Audit-Source", ""), (ACCEPT, ""))
         .withBody(payload)
 
-      when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(MockController.post().apply(request))
+      val result = await(testController.post().apply(request))
       status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result).toString shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
   }

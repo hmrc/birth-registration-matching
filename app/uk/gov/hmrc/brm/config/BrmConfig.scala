@@ -16,48 +16,38 @@
 
 package uk.gov.hmrc.brm.config
 
-import play.api.{Configuration, Play}
-import play.api.Mode.Mode
+import javax.inject.Inject
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.SwitchException
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-trait BrmConfig extends ServicesConfig with SwitchException {
+
+class BrmConfig @Inject()(val conf: ServicesConfig) extends SwitchException {
 
   case class DesException(switch: String) extends RuntimeException(s"des.$switch configuration not found")
+  def matchFirstName: Boolean = conf.getConfBool("birth-registration-matching.matching.firstName",  defBool = true)
+  def matchLastName: Boolean = conf.getConfBool("birth-registration-matching.matching.lastName",  defBool = true)
+  def matchDateOfBirth: Boolean = conf.getConfBool("birth-registration-matching.matching.dateOfBirth",  defBool = true)
+  def matchOnMultiple: Boolean = conf.getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
 
-  private val defaultDate: Int = 1900
-  private val characterMaxLength: Int = 250
+  def logFlags: Boolean = conf.getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
+  def processFlags: Boolean = conf.getConfBool("birth-registration-matching.features.flags.process", defBool = true)
+  def validateFlag(api: String, flag: String): Boolean = conf.getConfBool(s"birth-registration-matching.features.$api.flags.$flag.process", defBool = false)
 
-  def minimumDateOfBirthYear: Int = getConfInt("birth-registration-matching.minimumDateOfBirthYear", defaultDate)
-  def nameMaxLength : Int = getConfInt("birth-registration-matching.validation.maxNameLength", characterMaxLength)
-  
-  def matchFirstName : Boolean = getConfBool("birth-registration-matching.matching.firstName",  defBool = true)
-  def matchLastName : Boolean = getConfBool("birth-registration-matching.matching.lastName",  defBool = true)
-  def matchDateOfBirth : Boolean = getConfBool("birth-registration-matching.matching.dateOfBirth",  defBool = true)
-  def matchOnMultiple : Boolean = getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
-
-  def logFlags : Boolean = getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
-  def processFlags : Boolean = getConfBool("birth-registration-matching.features.flags.process", defBool = true)
-  def validateFlag(api: String, flag: String) : Boolean = getConfBool(s"birth-registration-matching.features.$api.flags.$flag.process", defBool = false)
-
-  val ignoreMiddleNamesRegex : String = getConfString("birth-registration-matching.matching.ignoreMiddleNamesRegex",
-    throw MatchingConfigurationException("ignoreMiddleNames"))
-
-  def ignoreAdditionalNames : Boolean = getConfBool("birth-registration-matching.matching.ignoreAdditionalNames",
+  def ignoreAdditionalNames: Boolean = conf.getConfBool("birth-registration-matching.matching.ignoreAdditionalNames",
     throw MatchingConfigurationException("ignoreAdditionalNames"))
 
-  private def featureEnabled(api : String, requestType : Option[RequestType] = None)  = {
+  private def featureEnabled(api: String, requestType: Option[RequestType] = None)  = {
     val path = requestType.fold(s"birth-registration-matching.features.$api.enabled") { x => s"birth-registration-matching.features.$api.${x.value}.enabled" }
-    getConfBool(path, throw FeatureSwitchException(api))
+    conf.getConfBool(path, throw FeatureSwitchException(api))
   }
 
-  abstract class RequestType(val value : String)
+  abstract class RequestType(val value: String)
   object ReferenceRequest extends RequestType("reference")
   object DetailsRequest extends RequestType("details")
 
-  private def isDownstreamEnabled(payload: Option[Payload] = None, requestType: Option[RequestType] = None) : Boolean = payload match {
+  private def isDownstreamEnabled(payload: Option[Payload] = None, requestType: Option[RequestType] = None): Boolean = payload match {
     case Some(p) =>
       p.whereBirthRegistered match {
         case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
@@ -71,32 +61,29 @@ trait BrmConfig extends ServicesConfig with SwitchException {
       false
   }
 
-  def audit(p: Option[Payload] = None) : Map[String, String] = {
+  def audit(p: Option[Payload] = None): Map[String, String] = {
     val featuresPrefix = "features"
 
     Map(
-      s"$featuresPrefix.matchFirstName" -> BrmConfig.matchFirstName.toString,
-      s"$featuresPrefix.matchLastName" -> BrmConfig.matchLastName.toString,
-      s"$featuresPrefix.matchDateOfBirth" -> BrmConfig.matchDateOfBirth.toString,
-      s"$featuresPrefix.matchOnMultiple" -> BrmConfig.matchOnMultiple.toString,
-      s"$featuresPrefix.ignoreMiddleNames" -> BrmConfig.ignoreAdditionalNames.toString,
+      s"$featuresPrefix.matchFirstName" -> matchFirstName.toString,
+      s"$featuresPrefix.matchLastName" -> matchLastName.toString,
+      s"$featuresPrefix.matchDateOfBirth" -> matchDateOfBirth.toString,
+      s"$featuresPrefix.matchOnMultiple" -> matchOnMultiple.toString,
+      s"$featuresPrefix.ignoreMiddleNames" -> ignoreAdditionalNames.toString,
       s"$featuresPrefix.downstream.enabled" -> isDownstreamEnabled(p, None).toString,
       s"$featuresPrefix.reference.enabled" -> isDownstreamEnabled(p, Some(ReferenceRequest)).toString,
       s"$featuresPrefix.details.enabled" -> isDownstreamEnabled(p, Some(DetailsRequest)).toString,
-      s"$featuresPrefix.flags.logging" -> BrmConfig.logFlags.toString,
-      s"$featuresPrefix.flags.process" -> BrmConfig.processFlags.toString
+      s"$featuresPrefix.flags.logging" -> logFlags.toString,
+      s"$featuresPrefix.flags.process" -> processFlags.toString
     )
   }
 
-  def desHost: String = getConfString("des.host", throw DesException("host"))
-  def desPort: String = getConfString("des.port", throw DesException("port"))
-  def desEnv: String = getConfString("des.env", throw DesException("env"))
-  def desToken: String = getConfString("des.auth-token", throw DesException("auth-token"))
+  def desHost: String = conf.getConfString("des.host", throw DesException("host"))
+  def desPort: String = conf.getConfString("des.port", throw DesException("port"))
+  def desEnv: String = conf.getConfString("des.env", throw DesException("env"))
+  def desToken: String = conf.getConfString("des.auth-token", throw DesException("auth-token"))
 
-}
+  val serviceUrl: String = conf.baseUrl("birth-registration-matching")
+  val desUrl: String = conf.baseUrl("des")
 
-object BrmConfig extends BrmConfig {
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

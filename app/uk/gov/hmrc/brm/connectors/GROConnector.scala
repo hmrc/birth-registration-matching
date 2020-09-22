@@ -17,30 +17,26 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
+import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.config.WSHttp
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonUtil._
-import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator, NameFormat}
+import uk.gov.hmrc.brm.services.parser.NameParser
+import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.HttpPost
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 /**
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
+class GROConnector @Inject()(val http: HttpClient,
+                             brmConf: BrmConfig,
+                             keyGen: KeyGenerator,
+                             val logger: BRMLogger,
+                             commonUtil: CommonUtil) extends BirthConnector {
 
-  // $COVERAGE-OFF$
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  // $COVERAGE-ON$
-
-  override val serviceUrl = baseUrl("birth-registration-matching")
+  override val serviceUrl: String = brmConf.serviceUrl
 
   private val baseUri = "birth-registration-matching-proxy"
   private val detailsUri = s"$serviceUrl/$baseUri/match/details"
@@ -48,7 +44,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
 
   override def headers =
     Seq(
-      BRMLogger.BRM_KEY -> KeyGenerator.getKey(),
+      logger.BRM_KEY -> keyGen.getKey(),
       "Content-Type" -> "application/json; charset=utf-8"
     )
 
@@ -68,7 +64,7 @@ class GROConnector(var httpPost: HttpPost = WSHttp) extends BirthConnector {
       (detailsUri, Json.parse(
         s"""
            |{
-           | "forenames" : "${forenames(f, a)}",
+           | "forenames" : "${commonUtil.forenames(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}

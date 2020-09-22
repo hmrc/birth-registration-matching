@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
@@ -38,7 +38,7 @@ import scala.concurrent.Future
   * Created by adamconder on 02/12/2016.
   */
 trait FeatureSwitchSpec extends UnitSpec
-  with OneAppPerTest
+  with GuiceOneAppPerTest
   with MockitoSugar
   with BeforeAndAfterEachTestData {
 
@@ -107,27 +107,27 @@ trait FeatureSwitchSpec extends UnitSpec
     "enabled for GRO" should {
 
       "search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKey)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
     }
@@ -135,25 +135,25 @@ trait FeatureSwitchSpec extends UnitSpec
     "disabled for GRO" should {
 
       "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchIncludingReferenceNumber)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKey)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
     }
@@ -161,27 +161,27 @@ trait FeatureSwitchSpec extends UnitSpec
     "enabled for NRS" should {
 
       "search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(BirthMatchResponse(true)))
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userWhereBirthRegisteredScotland)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe true
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
     }
@@ -189,25 +189,25 @@ trait FeatureSwitchSpec extends UnitSpec
     "disabled for NRS" should {
 
       "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
-        when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userWhereBirthRegisteredScotland)
         val result = await(MockControllerMockedLookup.post().apply(request))
         status(result) shouldBe OK
         (contentAsJson(result) \ "matched").as[Boolean] shouldBe false
         header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
     }

@@ -17,14 +17,11 @@ object MicroServiceBuild extends Build with MicroService {
 private object AppDependencies {
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "10.6.0"
-  private val playuiVersion = "7.27.0-play-25"
-  private val hmrcTestVersion = "3.3.0"
-  private val mockito = "1.10.19"
-  private val specs2 = "2.3.13"
+  private val bootstrapVersion = "1.9.0"
+  private val playuiVersion = "7.27.0-play-26"
 
   val compile = Seq(
-    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "bootstrap-play-26" % bootstrapVersion,
     "uk.gov.hmrc" %% "play-ui" % playuiVersion
   )
 
@@ -34,35 +31,19 @@ private object AppDependencies {
   }
 
   object Test {
-    def apply() = new TestDependencies {
+    def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test = Seq(
-        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
+        "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
         "org.scalatest" %% "scalatest" % "2.2.6" % scope,
         "org.pegdown" % "pegdown" % "1.5.0" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito,
-        "org.specs2" % "specs2_2.10" % specs2,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1"
+        "org.mockito" % "mockito-core" % "3.3.3",
+        "org.specs2" % "specs2_2.10" % "2.3.13",
+        "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3"
       )
     }.test
   }
 
-  object IntegrationTest {
-    def apply() = new TestDependencies {
-
-      override lazy val scope: String = "it"
-
-      override lazy val test = Seq(
-        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % "2.2.6" % scope,
-        "org.pegdown" % "pegdown" % "1.5.0" % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % mockito,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1"
-      )
-    }.test
-  }
-
-  def apply() = compile ++ Test() ++ IntegrationTest()
+  def apply(): Seq[ModuleID] = compile ++ Test()
 }
 

@@ -16,49 +16,51 @@
 
 package uk.gov.hmrc.brm.services.matching
 
+import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.MatchingAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.brm.utils.BRMLogger._
-import uk.gov.hmrc.brm.utils.MatchingType
+import uk.gov.hmrc.brm.utils.{BRMLogger, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 
-object MatchingService extends MatchingService {
-  override val matchOnMultiple: Boolean = BrmConfig.matchOnMultiple
-  override val auditor = new MatchingAudit()
-}
 
-trait MatchingService {
+class MatchingService @Inject()(config: BrmConfig,
+                                auditor: MatchingAudit,
+                                fullMatching: FullMatching,
+                                partialMatching: PartialMatching,
+                                logger: BRMLogger){
+
   val CLASS_NAME: String = this.getClass.getSimpleName
 
-  protected val matchOnMultiple: Boolean
-  protected val auditor : MatchingAudit
+  val matchOnMultiple: Boolean = config.matchOnMultiple
 
   def performMatch(input: Payload,
                    records: List[Record],
                    matchingType: MatchingType.Value)
                   (implicit hc: HeaderCarrier): MatchingResult = {
 
-    info(CLASS_NAME, "MatchingType", s"$matchingType")
+    logger.info(CLASS_NAME, "MatchingType", s"$matchingType")
 
     val algorithm = matchingType match {
-      case MatchingType.FULL => FullMatching
-      case MatchingType.PARTIAL => PartialMatching
-      case _ => FullMatching
+      case MatchingType.FULL => fullMatching
+      case MatchingType.PARTIAL => partialMatching
+      case _ => fullMatching
+    }
+    val result = {
+      algorithm.performMatch(input, records, matchOnMultiple)
     }
 
-    val result = algorithm.performMatch(input, records, matchOnMultiple)
     // audit match result
     auditor.audit(result.audit, Some(input))
 
     result
   }
 
-  def getMatchingType : MatchingType.Value = {
-    val fullMatch = BrmConfig.matchFirstName && BrmConfig.matchLastName && BrmConfig.matchDateOfBirth
-    info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
+  def getMatchingType: MatchingType.Value = {
+    val fullMatch = config.matchFirstName && config.matchLastName && config.matchDateOfBirth
+    logger.info(CLASS_NAME, "getMatchType()", s"isFullMatching: $fullMatch configuration")
     if (fullMatch) MatchingType.FULL else MatchingType.PARTIAL
   }
 

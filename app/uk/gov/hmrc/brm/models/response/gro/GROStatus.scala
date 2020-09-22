@@ -24,33 +24,30 @@ import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.filters.flags.{Green, Red, Severity}
 
 trait FlagSeverity {
-  def canProcessRecord(): Boolean
+  def canProcessRecord(config: BrmConfig): Boolean
 }
 
-case class GROStatus(
-                      potentiallyFictitiousBirth: Boolean = false,
-                      correction: Option[String] = None,
-                      cancelled: Boolean = false,
-                      blockedRegistration: Boolean = false,
-                      marginalNote: Option[String] = None,
-                      reRegistered: Option[String] = None
-                    ) extends StatusInterface {
+case class GROStatus(potentiallyFictitiousBirth: Boolean = false,
+                     correction: Option[String] = None,
+                     cancelled: Boolean = false,
+                     blockedRegistration: Boolean = false,
+                     marginalNote: Option[String] = None,
+                     reRegistered: Option[String] = None) extends StatusInterface {
 
-  case class GROFlagSeverity(
-                              potentiallyFictitiousBirth: Severity,
-                              correction: Severity,
-                              cancelled: Severity,
-                              blockedRegistration: Severity,
-                              marginalNote: Severity,
-                              reRegistered: Severity
-                            ) extends FlagSeverity {
-    def canProcessRecord = {
-      isGreen(this.potentiallyFictitiousBirth, BrmConfig.validateFlag("gro", "potentiallyFictitiousBirth")) &&
-        isGreen(this.blockedRegistration, BrmConfig.validateFlag("gro", "blockedRegistration")) &&
-        isGreen(this.correction, BrmConfig.validateFlag("gro", "correction")) &&
-        isGreen(this.cancelled, BrmConfig.validateFlag("gro", "cancelled")) &&
-        isGreen(this.marginalNote, BrmConfig.validateFlag("gro", "marginalNote")) &&
-        isGreen(this.reRegistered, BrmConfig.validateFlag("gro", "reRegistered"))
+  case class GROFlagSeverity(potentiallyFictitiousBirth: Severity,
+                             correction: Severity,
+                             cancelled: Severity,
+                             blockedRegistration: Severity,
+                             marginalNote: Severity,
+                             reRegistered: Severity) extends FlagSeverity {
+
+    def canProcessRecord(config: BrmConfig): Boolean = {
+      isGreen(this.potentiallyFictitiousBirth, config.validateFlag("gro", "potentiallyFictitiousBirth")) &&
+        isGreen(this.blockedRegistration, config.validateFlag("gro", "blockedRegistration")) &&
+        isGreen(this.correction, config.validateFlag("gro", "correction")) &&
+        isGreen(this.cancelled, config.validateFlag("gro", "cancelled")) &&
+        isGreen(this.marginalNote, config.validateFlag("gro", "marginalNote")) &&
+        isGreen(this.reRegistered, config.validateFlag("gro", "reRegistered"))
     }
 
     private def isGreen(flag: Severity, turnedOn: Boolean): Boolean = {

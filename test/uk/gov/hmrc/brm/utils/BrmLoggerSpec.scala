@@ -16,61 +16,65 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mock.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
-import org.specs2.mock.mockito.ArgumentCapture
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.concurrent.{Eventually, IntegrationPatience}
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import ch.qos.logback.classic.Level.{DEBUG, ERROR, INFO, WARN}
+import play.api.Logger
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
-class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with OneAppPerSuite {
+class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite with LogCapturing with Eventually with IntegrationPatience {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
+  val mockBrmLogger: BRMLogger = new BRMLogger(keyGen)
 
-  before {
-    reset(mockLogger)
-  }
+  val testLogger: Logger = mockBrmLogger.logger
 
   "BrmLogger" should {
+
+    keyGen.setKey("somekey")
+    val expected = List("methodName", "message", "somekey")
+
     "info call Logger info" in {
-      KeyGenerator.setKey("somekey")
-      MockBRMLogger.info(this, "methodName", "message")
-      val argumentCapture = new ArgumentCapture[String]
-      verify(mockLogger, times(1)).info(argumentCapture.capture)
-      argumentCapture.value.contains("methodName") shouldBe true
-      argumentCapture.value.contains("message") shouldBe true
-      argumentCapture.value.contains("somekey") shouldBe true
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        mockBrmLogger.info(this, "methodName", "message")
+
+        logs.size shouldBe 1
+        logs.head.getLevel shouldBe INFO
+        expected.forall(logs.head.getMessage.contains) shouldBe true
+      }
     }
 
     "warn call Logger warn" in {
-      MockBRMLogger.warn(this, "methodName", "message")
-      val argumentCapture = new ArgumentCapture[String]
-      verify(mockLogger, times(1)).warn(argumentCapture.capture)
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        mockBrmLogger.warn(this, "methodName", "message")
 
-      argumentCapture.value.contains("methodName") shouldBe true
-      argumentCapture.value.contains("message") shouldBe true
-      argumentCapture.value.contains("somekey") shouldBe true
+        logs.size shouldBe 1
+        logs.head.getLevel shouldBe WARN
+        expected.forall(logs.head.getMessage.contains) shouldBe true
+      }
     }
 
     "debug call Logger debug" in {
-      MockBRMLogger.debug(this, "methodName", "message")
-      val argumentCapture = new ArgumentCapture[String]
-      verify(mockLogger, times(1)).debug(argumentCapture.capture)
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        mockBrmLogger.debug(this, "methodName", "message")
 
-      argumentCapture.value.contains("methodName") shouldBe true
-      argumentCapture.value.contains("message") shouldBe true
-      argumentCapture.value.contains("somekey") shouldBe true
+        logs.size shouldBe 1
+        logs.head.getLevel shouldBe DEBUG
+        expected.forall(logs.head.getMessage.contains) shouldBe true
+      }
     }
 
     "error call Logger error" in {
-      MockBRMLogger.error(this, "methodNameForError", "errorMessage")
-      val argumentCapture = new ArgumentCapture[String]
-      verify(mockLogger, times(1)).error(argumentCapture.capture)
+      val expectedError = List("methodNameForError", "message", "somekey")
+      withCaptureOfLoggingFrom(testLogger) { logs =>
+        mockBrmLogger.error(this, "methodNameForError", "message")
 
-      argumentCapture.value.contains("methodNameForError") shouldBe true
-      argumentCapture.value.contains("errorMessage") shouldBe true
-      argumentCapture.value.contains("somekey") shouldBe true
+        logs.size shouldBe 1
+        logs.head.getLevel shouldBe ERROR
+        expectedError.forall(logs.head.getMessage.contains) shouldBe true
+      }
     }
-
   }
 }

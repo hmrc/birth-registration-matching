@@ -18,14 +18,28 @@ package uk.gov.hmrc.brm.switches
 
 import org.joda.time.LocalDate
 import org.scalatest.{Tag, TestData}
-import org.scalatestplus.play.OneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.test.UnitSpec
 
-trait FiltersSpec extends UnitSpec with OneAppPerTest {
+trait FiltersSpec extends UnitSpec with GuiceOneAppPerTest {
+
+  val groFilter: GROFilter = app.injector.instanceOf[GROFilter]
+  val groReferenceFilter: GROReferenceFilter = app.injector.instanceOf[GROReferenceFilter]
+  val groDetailsFilter: GRODetailsFilter = app.injector.instanceOf[GRODetailsFilter]
+  val dateOfBirthFilter: DateOfBirthFilter = app.injector.instanceOf[DateOfBirthFilter]
+  val nrsFilter: NRSFilter = app.injector.instanceOf[NRSFilter]
+  val nrsReferenceFilter: NRSReferenceFilter = app.injector.instanceOf[NRSReferenceFilter]
+  val nrsDetailsFilter: NRSDetailsFilter = app.injector.instanceOf[NRSDetailsFilter]
+  val groniFilter: GRONIFilter = app.injector.instanceOf[GRONIFilter]
+  val groniReferenceFilter: GRONIReferenceFilter = app.injector.instanceOf[GRONIReferenceFilter]
+  val groniDetailsFilter: GRONIDetailsFilter = app.injector.instanceOf[GRONIDetailsFilter]
+
+  val testFilters: Filters = app.injector.instanceOf[Filters]
 
   def switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.enabled" -> true,
@@ -44,7 +58,7 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false
   )
 
-  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
     .configure {
     if (testData.tags.contains("enabled")) {
       switchEnabled
@@ -56,21 +70,21 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
   }
     .build()
 
-  val payloadWithReference = Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-  val nrsPayloadWithReference = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
-  val nrsPayloadWithoutReference = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
-  val groNIPayloadWithReference = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
-  val groNIPayloadWithoutReference = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
+  val payloadWithReference: Payload = Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+  val nrsPayloadWithReference: Payload = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+  val nrsPayloadWithoutReference: Payload = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+  val groNIPayloadWithReference: Payload = Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
+  val groNIPayloadWithoutReference: Payload = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
 
-  val payloadWithoutReference = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-  val payloadInvalidDateOfBirth = Payload(None, "Adam", None, "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
+  val payloadWithoutReference: Payload = Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+  val payloadInvalidDateOfBirth: Payload = Payload(None, "Adam", None, "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
 
   "Filters" when {
 
     "processing DateOfBirthFilter" should {
 
       "skip filter if not enabled" taggedAs Tag("disabled") in {
-        DateOfBirthFilter.process(payloadWithReference) shouldBe true
+        dateOfBirthFilter.process(payloadWithReference) shouldBe true
       }
 
     }
@@ -78,9 +92,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "gro" should {
 
       "contain GRO reference filters" in {
-        val filters = List(GROFilter, GROReferenceFilter, DateOfBirthFilter)
-        val excluded = List(GRODetailsFilter, NRSFilter, NRSReferenceFilter, NRSDetailsFilter, GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
-        val toProcess = Filters.getFilters(payloadWithReference)
+        val filters = List(groFilter, groReferenceFilter, dateOfBirthFilter)
+        val excluded = List(groDetailsFilter, nrsFilter, nrsReferenceFilter, nrsDetailsFilter, groniFilter, groniReferenceFilter, groniDetailsFilter)
+        val toProcess = testFilters.getFilters(payloadWithReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -88,9 +102,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
       }
 
       "contain GRO details filters" in {
-        val filters = List(GROFilter, GRODetailsFilter, DateOfBirthFilter)
-        val excluded = List(GROReferenceFilter, NRSFilter, NRSReferenceFilter, NRSDetailsFilter, GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
-        val toProcess = Filters.getFilters(payloadWithoutReference)
+        val filters = List(groFilter, groDetailsFilter, dateOfBirthFilter)
+        val excluded = List(groReferenceFilter, nrsFilter, nrsReferenceFilter, nrsDetailsFilter, groniFilter, groniReferenceFilter, groniDetailsFilter)
+        val toProcess = testFilters.getFilters(payloadWithoutReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -102,9 +116,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "nrs" should {
 
       "contain NRS reference filters" in {
-        val filters = List(NRSFilter, NRSReferenceFilter, DateOfBirthFilter)
-        val excluded = List(NRSDetailsFilter, GROFilter, GROReferenceFilter, GRODetailsFilter, GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
-        val toProcess = Filters.getFilters(nrsPayloadWithReference)
+        val filters = List(nrsFilter, nrsReferenceFilter, dateOfBirthFilter)
+        val excluded = List(nrsDetailsFilter, groFilter, groReferenceFilter, groDetailsFilter, groniFilter, groniReferenceFilter, groniDetailsFilter)
+        val toProcess = testFilters.getFilters(nrsPayloadWithReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -112,9 +126,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
       }
 
       "contain NRS details filters" in {
-        val filters = List(NRSFilter, NRSDetailsFilter, DateOfBirthFilter)
-        val excluded = List(NRSReferenceFilter, GROFilter, GROReferenceFilter, GRODetailsFilter, GRONIFilter, GRONIReferenceFilter, GRONIDetailsFilter)
-        val toProcess = Filters.getFilters(nrsPayloadWithoutReference)
+        val filters = List(nrsFilter, nrsDetailsFilter, dateOfBirthFilter)
+        val excluded = List(nrsReferenceFilter, groFilter, groReferenceFilter, groDetailsFilter, groniFilter, groniReferenceFilter, groniDetailsFilter)
+        val toProcess = testFilters.getFilters(nrsPayloadWithoutReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -126,9 +140,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "gro-ni" should {
 
       "contain GRO-NI reference filters" in {
-        val filters = List(DateOfBirthFilter, GRONIFilter, GRONIReferenceFilter)
-        val excluded = List(GRONIDetailsFilter, GROFilter, GROReferenceFilter, GRODetailsFilter, NRSFilter, NRSReferenceFilter, NRSDetailsFilter)
-        val toProcess = Filters.getFilters(groNIPayloadWithReference)
+        val filters = List(dateOfBirthFilter, groniFilter, groniReferenceFilter)
+        val excluded = List(groniDetailsFilter, groFilter, groReferenceFilter, groDetailsFilter, nrsFilter, nrsReferenceFilter, nrsDetailsFilter)
+        val toProcess = testFilters.getFilters(groNIPayloadWithReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -136,9 +150,9 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
       }
 
       "contain GRO-NI details filters" in {
-        val filters = List(DateOfBirthFilter, GRONIFilter, GRONIDetailsFilter)
-        val excluded = List(GRONIReferenceFilter, GROFilter, GROReferenceFilter, GRODetailsFilter, NRSFilter, NRSReferenceFilter, NRSDetailsFilter)
-        val toProcess = Filters.getFilters(groNIPayloadWithoutReference)
+        val filters = List(dateOfBirthFilter, groniFilter, groniDetailsFilter)
+        val excluded = List(groniReferenceFilter, groFilter, groReferenceFilter, groDetailsFilter, nrsFilter, nrsReferenceFilter, nrsDetailsFilter)
+        val toProcess = testFilters.getFilters(groNIPayloadWithoutReference)
 
         for(filter <- excluded) yield toProcess should not contain filter
         for(filter <- filters) yield toProcess should contain(filter)
@@ -150,27 +164,27 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "processing a filter" should {
 
       "process BRN specific filters when the request has a Birth Reference Number" in {
-        Filters.shouldProcessFilter(GROReferenceFilter, payloadWithReference) shouldBe true
+        testFilters.shouldProcessFilter(groReferenceFilter, payloadWithReference) shouldBe true
       }
 
       "not process BRN specific filters when the request does not have a Birth Reference Number" in {
-        Filters.shouldProcessFilter(GROReferenceFilter, payloadWithoutReference) shouldBe false
+        testFilters.shouldProcessFilter(groReferenceFilter, payloadWithoutReference) shouldBe false
       }
 
       "process Details specific filters when the request does not have a Birth Reference Number" in {
-        Filters.shouldProcessFilter(GRODetailsFilter, payloadWithoutReference) shouldBe true
+        testFilters.shouldProcessFilter(groDetailsFilter, payloadWithoutReference) shouldBe true
       }
 
       "not process Details specific filters when the request has a Birth Reference Number" in {
-        Filters.shouldProcessFilter(GRODetailsFilter, payloadWithReference) shouldBe false
+        testFilters.shouldProcessFilter(groDetailsFilter, payloadWithReference) shouldBe false
       }
 
       "process a GeneralFilter when request has a Birth Reference Number" in {
-        Filters.shouldProcessFilter(DateOfBirthFilter, payloadWithReference) shouldBe true
+        testFilters.shouldProcessFilter(dateOfBirthFilter, payloadWithReference) shouldBe true
       }
 
       "process a GeneralFilter when request does not have a Birth Reference Number" in {
-        Filters.shouldProcessFilter(DateOfBirthFilter, payloadWithoutReference) shouldBe true
+        testFilters.shouldProcessFilter(dateOfBirthFilter, payloadWithoutReference) shouldBe true
       }
 
     }
@@ -178,11 +192,11 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "for all requests" should {
 
       "process filters for a request with a valid date of birth" in {
-        Filters.process(payloadWithReference) shouldBe Nil
+        testFilters.process(payloadWithReference) shouldBe Nil
       }
 
       "process filters for a request with a failure due to date of birth" in {
-        Filters.process(payloadInvalidDateOfBirth) shouldBe List(DateOfBirthFilter)
+        testFilters.process(payloadInvalidDateOfBirth) shouldBe List(dateOfBirthFilter)
       }
 
     }
@@ -190,7 +204,7 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "request has BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithReference) shouldBe Nil
+        testFilters.process(payloadWithReference) shouldBe Nil
       }
 
     }
@@ -198,7 +212,7 @@ trait FiltersSpec extends UnitSpec with OneAppPerTest {
     "request does not have BRN" should {
 
       "process filters for a request" in {
-        Filters.process(payloadWithoutReference) shouldBe Nil
+        testFilters.process(payloadWithoutReference) shouldBe Nil
       }
 
     }
