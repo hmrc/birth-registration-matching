@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,14 +77,14 @@ trait BRMException extends BackendController {
   def groProxyDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
-    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
+    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _, _) if payload.whereBirthRegistered == ENGLAND  || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def desConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
-    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _) if payload.whereBirthRegistered == SCOTLAND =>
+    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _, _) if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
   }
 
@@ -125,19 +125,19 @@ trait BRMException extends BackendController {
   }
 
   def gatewayTimeoutPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, GATEWAY_TIMEOUT, _) =>
+    case e @ Upstream5xxResponse(body, GATEWAY_TIMEOUT, _, _) =>
       logException(method, s"[Gateway timeout]: [$body]", GATEWAY_TIMEOUT)
       InternalServerErrorException(method, e, GATEWAY_TIMEOUT)
   }
 
   def groConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
+    case e @ Upstream5xxResponse(body, upstream, _, _) if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
       logException(method, s"[GRO down]: $body [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
 
   def nrsConnectionDownPF(method: String)(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, upstream, _) if payload.whereBirthRegistered == SCOTLAND =>
+    case e @ Upstream5xxResponse(body, upstream, _, _) if payload.whereBirthRegistered == SCOTLAND =>
       logException(method, s"[NRS down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "[NRS down]", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }
