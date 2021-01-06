@@ -63,8 +63,6 @@ trait BirthConnector {
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val newHc = hc.copy(authorization = None).withExtraHeaders(headers: _*)
 
     val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
@@ -78,7 +76,7 @@ trait BirthConnector {
 
     response.onComplete(r =>
       logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
-    )
+    )(ec)
 
     response
   }
