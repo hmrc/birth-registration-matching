@@ -1,6 +1,5 @@
 # birth-registration-matching
 
-[![Build Status](https://travis-ci.org/hmrc/birth-registration-matching.svg)](https://travis-ci.org/hmrc/birth-registration-matching) [![Download](https://api.bintray.com/packages/hmrc/releases/birth-registration-matching/images/download.svg)](https://bintray.com/hmrc/releases/birth-registration-matching/_latestVersion)
 
 This microservice retrieves a child's birth record from one of the following services:
 
