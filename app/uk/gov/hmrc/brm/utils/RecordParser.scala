@@ -19,11 +19,10 @@ package uk.gov.hmrc.brm.utils
 import javax.inject.Inject
 import play.api.libs.json.{JsValue, Reads}
 import uk.gov.hmrc.brm.models.response.Record
-import uk.gov.hmrc.http.HeaderCarrier
 
 class RecordParser @Inject()(logger: BRMLogger) {
 
-  def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit hc : HeaderCarrier, manifest: reflect.Manifest[Record]) : List[T] = {
+  def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit manifest: reflect.Manifest[Record]) : List[T] = {
     val name = manifest.toString()
 
     //read-1 is list reads and reads_2 is single record read.

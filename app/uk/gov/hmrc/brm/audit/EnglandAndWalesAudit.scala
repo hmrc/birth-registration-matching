@@ -18,7 +18,6 @@ package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import org.bouncycastle.jcajce.provider.symmetric.TEA.KeyGen
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}

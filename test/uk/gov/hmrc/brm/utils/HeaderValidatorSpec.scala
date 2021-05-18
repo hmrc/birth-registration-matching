@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
@@ -27,11 +28,11 @@ import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import play.api.Play.materializer
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.Future
-
-class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
+class HeaderValidatorSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -67,7 +68,7 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
        |}
     """.stripMargin)
 
-  def httpResponse(js: JsValue): HttpResponse = HttpResponse(200: Int, Some(js))
+  def httpResponse(js: JsValue): HttpResponse = HttpResponse(200: Int, js, Map.empty[String, Seq[String]])
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
@@ -75,7 +76,7 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockConnector.getReference(any())(any())).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      when(mockConnector.getReference(any())(any(), any[ExecutionContext])).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       when(mockFilters.process(any()))
         .thenReturn(List())
@@ -84,8 +85,8 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
       when(mockLookupService.lookup()(any(), any(), any(), any()))
         .thenReturn(Future.successful(BirthMatchResponse(true)))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe OK
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe OK
     }
 
     "return response code 406 for invalid content-type in Accept header" in {
@@ -95,9 +96,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe NOT_ACCEPTABLE
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
     }
 
     "return response code 406 for invalid version in Accept header" in {
@@ -107,9 +108,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe NOT_ACCEPTABLE
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 406 for excluded Accept header" in {
@@ -119,9 +120,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe NOT_ACCEPTABLE
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
     "return response code 401 for excluded Audit-Source value" in {
@@ -131,9 +132,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe UNAUTHORIZED
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe UNAUTHORIZED
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 401 for excluded Audit-Source header" in {
@@ -143,9 +144,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe UNAUTHORIZED
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe UNAUTHORIZED
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
     "return response code 406 for excluded Audit-Source and Accept values" in {
@@ -155,9 +156,9 @@ class HeaderValidatorSpec extends UnitSpec with GuiceOneAppPerSuite with Mockito
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(testController.post().apply(request))
-      status(result) shouldBe NOT_ACCEPTABLE
-      bodyOf(result) shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
+      val result = testController.post().apply(request).futureValue
+      result.header.status shouldBe NOT_ACCEPTABLE
+      result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
   }

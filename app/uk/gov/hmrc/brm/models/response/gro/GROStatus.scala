@@ -85,7 +85,7 @@ case class GROStatus(potentiallyFictitiousBirth: Boolean = false,
     "reRegistered" -> obfuscateReason(reRegistered, "Re-registration on record")
   )
 
-  def determineFlagSeverity(): FlagSeverity = {
+  def determineFlagSeverity: FlagSeverity = {
     GROFlagSeverity(
       potentiallyFictitiousBirth = potentiallyFictitiousBirthP(this.potentiallyFictitiousBirth),
       correction = correctionP(this.correction),

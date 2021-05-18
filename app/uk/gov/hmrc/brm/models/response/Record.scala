@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.models.response
 
-import play.api.Logger
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload

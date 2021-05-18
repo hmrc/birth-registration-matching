@@ -34,7 +34,7 @@ class PartialMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm
     }
   }
 
-  private def firstNames(names: Names)(implicit payload: Payload, record: Record): Match = {
+  private def firstNames(names: Names)(implicit payload: Payload): Match = {
     if (config.matchFirstName) {
       stringMatch(Some(payload.firstNames), Some(names.firstNames))
     } else {
@@ -42,7 +42,7 @@ class PartialMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm
     }
   }
 
-  private def additionalNames(names: Names)(implicit payload: Payload, record: Record): Match = {
+  private def additionalNames(names: Names)(implicit payload: Payload): Match = {
     if (!config.ignoreAdditionalNames) {
       stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {

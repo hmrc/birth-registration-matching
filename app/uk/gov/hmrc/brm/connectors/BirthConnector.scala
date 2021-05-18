@@ -19,12 +19,11 @@ package uk.gov.hmrc.brm.connectors
 import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 
 trait BirthConnector {
 
@@ -63,11 +62,11 @@ trait BirthConnector {
 
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
-    val newHc = hc.copy(authorization = None).withExtraHeaders(headers: _*)
+    val newHc = hc.copy(authorization = None)
 
-    val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody)(
-      wts = Writes.JsValueWrites,
-      rds = HttpReads.readRaw,
+    val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody, headers)(
+      wts = Writes.jsValueWrites,
+      rds = implicitly,
       hc = newHc,
       ec
     )
@@ -75,18 +74,18 @@ trait BirthConnector {
     logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 
     response.onComplete(r =>
-      logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.allHeaders)}")
+      logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.headers)}")
     )(ec)
 
     response
   }
 
-  def getReference(payload: Payload)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def getReference(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val requestData = buildRequest(payload, ReferenceRequest())
     sendRequest(requestData)
   }
 
-  def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val requestData = buildRequest(payload, DetailsRequest())
     sendRequest(requestData)
 

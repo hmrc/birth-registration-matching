@@ -19,20 +19,21 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import scala.concurrent.Future
 
 /**
   * Created by adamconder on 09/02/2017.
   */
-class NorthernIrelandSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
+class NorthernIrelandSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -48,7 +49,7 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with GuiceOneAppPer
       val event = Map("match" -> "true")
 
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      val result = await(auditor.audit(event, Some(payload)))
+      val result = auditor.audit(event, Some(payload)).futureValue
       result shouldBe AuditResult.Success
     }
 
@@ -58,15 +59,13 @@ class NorthernIrelandSpec extends UnitSpec with MockitoSugar with GuiceOneAppPer
 
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-      val result = await(auditor.audit(event, Some(payload)))
+      val result = auditor.audit(event, Some(payload)).futureValue
       result shouldBe AuditResult.Success
     }
 
     "throw Illegal argument exception when no payload is provided" in {
       val event = Map("match" -> "true")
-      intercept[IllegalArgumentException] {
-        await(auditor.audit(event, None))
-      }
+      assert(auditor.audit(event, None).failed.futureValue.isInstanceOf[IllegalArgumentException])
     }
 
   }

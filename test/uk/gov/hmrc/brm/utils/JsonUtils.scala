@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 
 import scala.io.Source

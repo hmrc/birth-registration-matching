@@ -19,6 +19,7 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import org.scalatestplus.mockito.MockitoSugar
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.Application
@@ -32,11 +33,10 @@ import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpec {
+class TransactionAuditorSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -74,7 +74,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpe
       val payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
 
-      val result = await(auditor.transaction(payload, List(child), MatchingResult.noMatch))
+      val result = auditor.transaction(payload, List(child), MatchingResult.noMatch).futureValue
       result shouldBe AuditResult.Success
 
       argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
@@ -94,7 +94,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpe
       val localDate = new LocalDate("2017-02-17")
       val payload = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val result = await(auditor.transaction(payload, Nil, MatchingResult.noMatch))
+      val result = auditor.transaction(payload, Nil, MatchingResult.noMatch).futureValue
       result shouldBe AuditResult.Success
 
       argumentCapture.value.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
@@ -107,9 +107,7 @@ class TransactionAuditorSpec extends UnitSpec with MockitoSugar with BaseUnitSpe
     "throw Illegal argument exception when no payload is provided" in {
 			when(mockConfig.ignoreAdditionalNames).thenReturn(false)
 			val event = Map("match" -> "true")
-        intercept[IllegalArgumentException] {
-          await(auditor.audit(event, None))
-				}
+      assert(auditor.audit(event, None).failed.futureValue.isInstanceOf[IllegalArgumentException])
 		}
   }
 

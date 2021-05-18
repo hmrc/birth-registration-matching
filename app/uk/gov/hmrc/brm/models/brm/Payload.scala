@@ -98,7 +98,7 @@ object Payload {
     )
 
   private val isAfterDate: Reads[LocalDate] =
-    jodaLocalDateReads(datePattern).filter(validationError)(
+    JodaReads.jodaLocalDateReads(datePattern).filter(validationError)(
       _.getYear >= minimumDateOfBirthYear
     )
 
@@ -107,7 +107,7 @@ object Payload {
       (JsPath \ firstName).write[String] and
       (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
-      (JsPath \ dateOfBirth).write[LocalDate](jodaLocalDateWrites(datePattern)) and
+      (JsPath \ dateOfBirth).write[LocalDate](JodaWrites.jodaLocalDateWrites(datePattern)) and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
     )(unlift(Payload.unapply))
 

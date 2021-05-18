@@ -45,7 +45,7 @@ case class NRSStatus(status: Int = 1, deathCode: Int = 0) extends StatusInterfac
     "deathCode" -> s"$deathCodeReason"
   )
 
-  def determineFlagSeverity(): FlagSeverity = {
+  def determineFlagSeverity: FlagSeverity = {
     NRSFlagSeverity(
       status = Green,
       deathCode = Green

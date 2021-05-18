@@ -22,12 +22,12 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters._
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 /**
   * Created by mew on 15/05/2017.
   */
-trait SwitchSpec extends UnitSpec with BeforeAndAfter with GuiceOneAppPerTest {
+trait SwitchSpec extends WordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
 
   object TestSwitch extends Switch {
     val config: BrmConfig = app.injector.instanceOf[BrmConfig]

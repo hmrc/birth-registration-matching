@@ -20,24 +20,23 @@ import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
-import org.scalatest.{BeforeAndAfterAll, Tag, TestData}
+import org.scalatest._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.{GuiceOneAppPerSuite, GuiceOneAppPerTest}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.matching.{Bad, FullMatching, Good, MatchingService, PartialMatching}
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.services.matching.{FullMatching, Good, MatchingService, PartialMatching}
 import uk.gov.hmrc.brm.utils.FlagsHelper._
+import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
-class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfterAll with GuiceOneAppPerSuite {
+class PartialMatchingSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with BeforeAndAfterAll with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -202,7 +201,7 @@ class PartialMatchingSpec extends UnitSpec with MockitoSugar with BeforeAndAfter
 }
 
 //TODO Just FYI, this spec doesn't run because it's a trait
-trait MatchingServiceSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerTest {
+trait MatchingServiceSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

@@ -25,12 +25,12 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 /**
   * Created by adamconder on 02/02/2017.
   */
-trait NameParserSpec extends UnitSpec with GuiceOneAppPerTest with BeforeAndAfterEachTestData {
+trait NameParserSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest with BeforeAndAfterEachTestData {
 
   lazy val ignoreAdditionalNamesFalse: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false

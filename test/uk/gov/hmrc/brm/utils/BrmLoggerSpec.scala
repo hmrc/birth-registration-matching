@@ -22,9 +22,11 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import ch.qos.logback.classic.Level.{DEBUG, ERROR, INFO, WARN}
 import play.api.Logger
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
-class BrmLoggerSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite with LogCapturing with Eventually with IntegrationPatience {
+class BrmLoggerSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar
+  with BeforeAndAfter with GuiceOneAppPerSuite with LogCapturing with Eventually with IntegrationPatience {
 
   val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
   val mockBrmLogger: BRMLogger = new BRMLogger(keyGen)

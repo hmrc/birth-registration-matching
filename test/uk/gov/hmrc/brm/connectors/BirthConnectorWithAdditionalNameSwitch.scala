@@ -21,7 +21,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.specs2.mock.mockito.ArgumentCapture
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,12 +30,12 @@ import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class BirthConnectorWithAdditionalNameSwitch extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -70,7 +69,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
 
         val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
-        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, 200)
 
         (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
@@ -82,7 +81,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
         val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"),
           BirthRegisterCountry.ENGLAND)
-        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, 200)
 
         (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test"
@@ -97,7 +96,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
         val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
           BirthRegisterCountry.ENGLAND)
-        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, 200)
 
         (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam test david"
@@ -112,7 +111,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
         val payload = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
           BirthRegisterCountry.ENGLAND)
-        val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+        val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, 200)
         (argumentCapture.value \ FORNAMES).as[String] shouldBe "Adam"
         (argumentCapture.value \ LASTNAME).as[String] shouldBe "SMITH"
@@ -132,7 +131,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
+        val result = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, 200)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
@@ -144,7 +143,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
+        val result = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, 200)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
@@ -159,7 +158,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val payload = Payload(None, " Adam ", Some(" test    david "), " SMITH ", new LocalDate("2009-07-01"),
           BirthRegisterCountry.SCOTLAND)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(payload))
+        val result = connectorFixtures.nrsConnector.getChildDetails(payload).futureValue
         checkResponse(result, 200)
 
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam test david"
@@ -174,7 +173,7 @@ class BirthConnectorWithAdditionalNameSwitch extends UnitSpec with GuiceOneAppPe
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithoutAdditionalName))
         val requestWithoutAdditionalName = Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"),
           BirthRegisterCountry.SCOTLAND)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName))
+        val result = connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue
         checkResponse(result, 200)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "ANTHONY"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "ANDREWS"

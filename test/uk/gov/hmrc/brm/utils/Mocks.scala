@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import akka.stream.Materializer
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.Logger
-import play.api.Play
 import play.api.libs.json.JsValue
 import play.api.mvc.{Headers, Request}
 import play.api.test.Helpers.stubControllerComponents
@@ -33,15 +31,13 @@ import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, PartialMatching}
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 /**
   * Created by adamconder on 24/02/2017.
   */
 object Mocks extends MockitoSugar {
-
-  implicit lazy val materializer: Materializer = Play.current.injector.instanceOf[Materializer]
 
   val mockConnector: BirthConnector      = mock[BirthConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

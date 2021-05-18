@@ -21,9 +21,9 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
-class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
+class NRSFlagSeveritySpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite {
 
   val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
   val conf: BrmConfig = app.injector.instanceOf[BrmConfig]
@@ -31,11 +31,11 @@ class NRSFlagSeveritySpec extends UnitSpec with MockitoSugar with GuiceOneAppPer
   "determineFlagSeverity" should {
 
     "return FlagSeverity" in {
-      allFlagsGreen.determineFlagSeverity() shouldBe a[FlagSeverity]
+      allFlagsGreen.determineFlagSeverity shouldBe a[FlagSeverity]
     }
 
     "return true when all flags are default value" in {
-      val groFlags = allFlagsGreen.determineFlagSeverity()
+      val groFlags = allFlagsGreen.determineFlagSeverity
       groFlags.canProcessRecord(conf) shouldBe true
     }
   }

@@ -19,104 +19,107 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.words.EmptyWord
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.http.Status
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Play.materializer
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HttpResponse
+
 /**
   * Created by user on 04/05/17.
   */
-trait BaseUnitSpec extends UnitSpec  {
-
-  def checkResponse(result: Result, responseStatus:Int , matchResonse:Boolean): Unit = {
-    status(result) shouldBe responseStatus
-    (contentAsJson(result) \ "matched").as[Boolean] shouldBe matchResonse
+trait BaseUnitSpec extends WordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
+  def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
+    result.header.status shouldBe responseStatus
+    (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe matchResponse
     checkHeaders(result)
   }
 
-  def checkResponse(result: Result, responseStatus:Int , responseString:String): Unit = {
-    status(result) shouldBe responseStatus
-    jsonBodyOf(result).toString() shouldBe responseString
+  def checkResponse(result: Result, responseStatus: Int, responseString: String): Unit = {
+    result.header.status shouldBe responseStatus
+    Json.parse(result.body.consumeData.futureValue.utf8String).toString() shouldBe responseString
     checkHeaders(result)
   }
 
-  def checkResponse(result: Result, responseStatus:Int , responseBody:EmptyWord): Unit = {
-    status(result) shouldBe responseStatus
-    bodyOf(result) shouldBe responseBody
+  def checkResponse(result: Result, responseStatus: Int, responseBody: EmptyWord): Unit = {
+    result.header.status shouldBe responseStatus
+    result.body.consumeData.futureValue.utf8String shouldBe responseBody
     checkHeaders(result)
   }
 
-  def checkResponse(result: Result, responseStatus:Int , code:String, message: String): Unit = {
-    status(result) shouldBe responseStatus
+  def checkResponse(result: Result, responseStatus: Int, code: String, message: String): Unit = {
+    result.header.status shouldBe responseStatus
     checkHeaders(result)
-    (contentAsJson(result) \ "code").as[String] shouldBe code
-    (contentAsJson(result) \ "message").as[String] shouldBe message
+    (Json.parse(result.body.consumeData.futureValue.utf8String) \ "code").as[String] shouldBe code
+    (Json.parse(result.body.consumeData.futureValue.utf8String) \ "message").as[String] shouldBe message
   }
 
   private def checkHeaders(result: Result): Unit = {
-    contentType(result).get shouldBe "application/json"
-    header(ACCEPT, result).get shouldBe "application/vnd.hmrc.1.0+json"
+    result.body.contentType.get should startWith("application/json")
+    result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
   }
 
-  def mockReferenceResponse(jsonResponse:JsValue): Unit = {
-    mockRefResponse(mockGroConnector,jsonResponse)
+  def mockReferenceResponse(jsonResponse: JsValue): Unit = {
+    mockRefResponse(mockGroConnector, jsonResponse)
   }
 
-  def mockReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
     mockRefResponse(mockGroConnector, exception)
   }
 
-  private def mockRefResponse(connector : BirthConnector,exception:Exception) = {
-    when(connector.getReference(any())(any()))
+  private def mockRefResponse(connector: BirthConnector, exception: Exception) = {
+    when(connector.getReference(any())(any(), any()))
       .thenReturn(Future.failed(exception))
   }
 
-  private def mockRefResponse(connector: BirthConnector,jsonResponse:JsValue ): Unit ={
-    when(connector.getReference(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  private def mockRefResponse(connector: BirthConnector, jsonResponse: JsValue): Unit = {
+    when(connector.getReference(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockNrsReferenceResponse(jsonResponse:JsValue): Unit = {
-    mockRefResponse(mockNrsConnector,jsonResponse)
+  def mockNrsReferenceResponse(jsonResponse: JsValue): Unit = {
+    mockRefResponse(mockNrsConnector, jsonResponse)
   }
 
-  def mockNrsReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockNrsReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
     mockRefResponse(mockNrsConnector, exception)
   }
 
-  def mockGroNiReferenceResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockGroNiReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
     mockRefResponse(mockGroniConnector, exception)
   }
 
-  def mockDetailsResponse(jsonResponse:JsValue): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockGroConnector.getChildDetails(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockGroConnector.getChildDetails(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockNrsDetailsResponse(jsonResponse:JsValue): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockNrsConnector.getChildDetails(any())(any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+  def mockNrsDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockNrsConnector.getChildDetails(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
   }
 
-  def mockDetailsResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockGroConnector.getChildDetails(any())(any()))
+  def mockDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockGroConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
   }
 
-  def mockNrsDetailsResponse(exception:Exception): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockNrsConnector.getChildDetails(any())(any()))
+  def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+    when(mockNrsConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
   }
 
-  def mockGroNiDetailsResponse(exception:Exception): OngoingStubbing[Future[Nothing]] = {
-    when(mockGroniConnector.getChildDetails(any())(any()))
+  def mockGroNiDetailsResponse(exception: Exception): OngoingStubbing[Future[Nothing]] = {
+    when(mockGroniConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
   }
 
@@ -128,14 +131,14 @@ trait BaseUnitSpec extends UnitSpec  {
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
   }
 
-  def mockHttpPostResponse(responseStatus:Int = Status.OK, responseJson : scala.Option[play.api.libs.json.JsValue]): ArgumentCapture[JsValue] = {
+  def mockHttpPostResponse(responseStatus: Int = Status.OK, responseJson: scala.Option[play.api.libs.json.JsValue]): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
-    when(mockHttp.POST[JsValue, HttpResponse]( any(), argumentCapture.capture, any())(any(), any(), any(), any()))
-      .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson)))
+    when(mockHttp.POST[JsValue, HttpResponse](any(), argumentCapture.capture, any())(any(), any(), any(), any()))
+      .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])))
     argumentCapture
   }
 
-  def checkResponse(result: HttpResponse, responseCode:Int): Unit = {
+  def checkResponse(result: HttpResponse, responseCode: Int): Unit = {
     result shouldBe a[HttpResponse]
     result.status shouldBe responseCode
   }

@@ -19,31 +19,21 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class MatchingServiceAdditionalNameEnabledSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec {
+class MatchingServiceAdditionalNameEnabledSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
-
-//  val ignoreAdditionalNamesEnabled: Map[String, _] = Map(
-//    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
-//  )
-
-//  override lazy val app: Application = GuiceApplicationBuilder()
-//    .configure(ignoreAdditionalNamesEnabled)
-//    .build()
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

@@ -18,18 +18,16 @@ package uk.gov.hmrc.brm.services
 
 import org.joda.time.LocalDate
 import org.mockito.Mockito.when
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 
-class MatchingServiceAdditionalNameDisabledSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class MatchingServiceAdditionalNameDisabledSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

@@ -19,14 +19,14 @@ package uk.gov.hmrc.brm.metrics.MetricsSpec
 import com.kenshoo.play.metrics.Metrics
 import org.joda.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class MetricsSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
+class MetricsSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar {
 
   "MetricsFactory" should {
 

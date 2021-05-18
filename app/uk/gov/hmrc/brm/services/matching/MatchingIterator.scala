@@ -40,7 +40,7 @@ trait MatchingIterator {
           noMatch()
         case head :: Nil =>
           // 1 record returned therefore we will attempt to match
-          val matchResult = f(payload, head)
+          val matchResult = f((payload, head))
           if(head.isFlagged) {
             matchResult.copy(_matched = Bad())
           } else {
