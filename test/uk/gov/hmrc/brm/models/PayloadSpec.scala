@@ -23,9 +23,9 @@ import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, _}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
-class PayloadSpec extends UnitSpec with GuiceOneAppPerSuite {
+class PayloadSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
   implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics = app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
   implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics = app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]

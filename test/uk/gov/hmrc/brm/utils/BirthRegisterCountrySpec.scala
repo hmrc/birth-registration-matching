@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
-class BirthRegisterCountrySpec extends UnitSpec {
+class BirthRegisterCountrySpec extends WordSpecLike with Matchers with OptionValues {
 
   "BirthRegisterCountry" should {
 

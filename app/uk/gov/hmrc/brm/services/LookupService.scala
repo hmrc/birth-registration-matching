@@ -114,13 +114,13 @@ class LookupService @Inject()(groConnector: GROConnector,
     httpResponse
   }
 
-  private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+  private[LookupService] def noReferenceNumberPF(implicit hc: HeaderCarrier): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isEmpty =>
       logger.info(CLASS_NAME, "noReferenceNumberPF", s"reference number not provided, search by details")
       getConnector()(payload).getChildDetails(payload)
   }
 
-  private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier, payload: Payload): PartialFunction[Payload, Future[HttpResponse]] = {
+  private[LookupService] def referenceNumberIncludedPF(implicit hc: HeaderCarrier): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isDefined =>
       logger.info(CLASS_NAME, "referenceNumberIncludedPF", s"reference number provided, search by reference")
       getConnector()(payload).getReference(payload)

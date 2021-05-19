@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
+import play.api.http.{HeaderNames => PlayHeaderNames}
+
 import javax.inject.Inject
-import play.api.http.HeaderNames
 import play.api.mvc._
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
 import uk.gov.hmrc.brm.models.brm._
@@ -26,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
-private object HeaderNames extends HeaderNames {
+private object HeaderNames extends PlayHeaderNames {
   val AUDIT_SOURCE = "Audit-Source"
 }
 
@@ -53,7 +54,7 @@ class HeaderValidator @Inject()(apiVersionMetrics: APIVersionMetrics,
   def validateAuditSource(s: String): Boolean = s match {
     case x : String =>
       auditSourceMetrics.count(x)
-      !x.isEmpty
+      x.nonEmpty
   }
 
   def validateContentType(s: String): Boolean = {

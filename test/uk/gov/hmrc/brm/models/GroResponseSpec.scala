@@ -21,12 +21,12 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 /**
  * Created by chrisianson on 09/08/16.
  */
-class GroResponseSpec extends UnitSpec {
+class GroResponseSpec extends WordSpecLike with Matchers with OptionValues {
 
   /**
    * Should

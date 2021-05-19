@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.models.brm
 
-import play.api.data.validation.ValidationError
 import play.api.http.Status
 import play.api.libs.json.{JsPath, Json, JsonValidationError}
 import play.api.mvc.{Result, Results}

@@ -19,8 +19,8 @@ package uk.gov.hmrc.brm.connectors
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -29,13 +29,14 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HttpClient
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class BirthConnectorSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -61,32 +62,31 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
   "GROConnector" should {
 
     "getReference returns json response" in {
-      val argumentCapture = mockHttpPostResponse(Status.OK,Some(groJsonResponseObject))
-      val result = await(connectorFixtures.groConnector.getReference(payload))
+      val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 200)
     }
 
     "getReference returns http 500 when GRO is offline" in {
       mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
+      val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 500)
     }
 
     "getReference returns http 400 for BadRequest" in {
       mockHttpPostResponse(Status.BAD_REQUEST,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
+      val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 400)
     }
 
     "getReference returns http 404 when GRO has not found data" in {
       mockHttpPostResponse(Status.NOT_FOUND,None)
-      val result = await(connectorFixtures.groConnector.getReference(payload))
+      val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 404)
     }
 
     "getChildDetails returns json response" in {
       mockHttpPostResponse(Status.OK, Some(groJsonResponseObject))
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
+      val result = connectorFixtures.groConnector.getChildDetails(payloadNoReference).futureValue
       checkResponse(result, 200)
     }
 
@@ -97,7 +97,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
       val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
         BirthRegisterCountry.ENGLAND)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payload))
+      val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
       checkResponse(result, 200)
       argumentCapture.value.toString().contains("test") shouldBe false
       (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
@@ -105,19 +105,19 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
 
     "getChildDetails returns http 500 when GRO is offline" in {
       mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
+      val result = connectorFixtures.groConnector.getChildDetails(payloadNoReference).futureValue
       checkResponse(result, 500)
     }
 
     "getChildDetails returns http 400 for BadRequest" in {
       mockHttpPostResponse(Status.BAD_REQUEST, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
+      val result = connectorFixtures.groConnector.getChildDetails(payloadNoReference).futureValue
       checkResponse(result, 400)
     }
 
     "getChildDetails returns http 404 when GRO has not found data" in {
       mockHttpPostResponse(Status.NOT_FOUND, None)
-      val result = await(connectorFixtures.groConnector.getChildDetails(payloadNoReference))
+      val result = connectorFixtures.groConnector.getChildDetails(payloadNoReference).futureValue
       checkResponse(result, 404)
     }
 
@@ -125,31 +125,31 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
 
       "getReference returns 200 status with json response when record was found. " in {
         mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        val result = connectorFixtures.nrsConnector.getReference(nrsRequestPayload).futureValue
         checkResponse(result, 200)
       }
 
       "getReference returns 403 forbidden response when record was not found." in {
         mockHttpPostResponse(Status.FORBIDDEN, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        val result = connectorFixtures.nrsConnector.getReference(nrsRequestPayload).futureValue
         checkResponse(result, 403)
       }
 
       "getReference returns 503 when NRS is down." in {
         mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        val result = connectorFixtures.nrsConnector.getReference(nrsRequestPayload).futureValue
         checkResponse(result, 503)
       }
 
       "getReference returns http 500 when DES is offline" in {
         mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-        val result = await(connectorFixtures.nrsConnector.getReference(nrsRequestPayload))
+        val result = connectorFixtures.nrsConnector.getReference(nrsRequestPayload).futureValue
         checkResponse(result, 500)
       }
 
       "getChildDetails returns json response" in {
         mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        val result = connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue
         checkResponse(result, 200)
       }
 
@@ -157,7 +157,7 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
           BirthRegisterCountry.SCOTLAND)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName))
+        val result = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, 200)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
@@ -166,19 +166,19 @@ class BirthConnectorSpec extends UnitSpec with OneAppPerSuite with MockitoSugar 
 
       "getChildDetails returns 403 forbidden response when record was not found." in {
         mockHttpPostResponse(Status.FORBIDDEN, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        val result = connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue
         checkResponse(result, 403)
       }
 
       "getChildDetails returns 503 (SERVICE_UNAVAILABLE) when NRS is down." in {
         mockHttpPostResponse(Status.SERVICE_UNAVAILABLE, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        val result = connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue
         checkResponse(result, 503)
       }
 
       "getChildDetails returns http 500 when DES is offline" in {
         mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
-        val result = await(connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn))
+        val result = connectorFixtures.nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue
         checkResponse(result, 500)
       }
 

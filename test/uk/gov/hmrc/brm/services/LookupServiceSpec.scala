@@ -19,7 +19,8 @@ package uk.gov.hmrc.brm.services
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfter, Matchers, OptionValues, WordSpecLike}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
@@ -34,12 +35,10 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 
-class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter {
+class LookupServiceSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -103,8 +102,8 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getReference(any())(any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
 
         when(mockAuditor.audit(any(), any())(any()))
           .thenReturn(Future.successful(AuditResult.Success))
@@ -117,7 +116,7 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
         val service = MockLookupService
         implicit val payload: Payload = Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = await(service.lookup)(Duration.create(FIVE, "seconds"))
+        val result: BirthMatchResponse = service.lookup.futureValue
         result shouldBe BirthMatchResponse()
       }
 
@@ -162,7 +161,8 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getReference(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -170,7 +170,7 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
         val service = MockLookupService
         implicit val payload: Payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse(true)
       }
 
@@ -216,7 +216,8 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getChildDetails(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseInvalid))))
+        when(mockGroConnector.getChildDetails(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -224,7 +225,7 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
         val service = MockLookupService
         implicit val payload: Payload = Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = await(service.lookup)(Duration.create(FIVE, "seconds"))
+        val result: BirthMatchResponse = service.lookup.futureValue
         result shouldBe BirthMatchResponse()
       }
 
@@ -269,7 +270,8 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getChildDetails(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(groResponseValid))))
+        when(mockGroConnector.getChildDetails(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -277,7 +279,7 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
         val service = MockLookupService
         implicit val payload: Payload = Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse(true)
       }
 
@@ -287,20 +289,22 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
       "accept Payload as an argument" in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockNrsConnector.getReference(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]])))
         val service = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
 
         result shouldBe BirthMatchResponse(true)
       }
 
       "accept payload without reference number as argument" in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockNrsConnector.getChildDetails(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+        when(mockNrsConnector.getChildDetails(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]])))
         val service = MockLookupService
         implicit val payload: Payload = nrsRequestPayloadWithoutBrn
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
@@ -308,27 +312,30 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
 
       "accept payload with reference number as argument and returns true as matched." in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockNrsConnector.getReference(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponseObject))))
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]])))
         val service = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
 
       "accept payload with special character and returns match true as matched." in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockNrsConnector.getReference(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]])))
         val service = MockLookupService
         implicit val payload: Payload = nrsRequestPayloadWithSpecialChar
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
 
       "accept payload with special character and returns match false as first name doesn't match." in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockNrsConnector.getReference(any())(any())).thenReturn(Future.successful(HttpResponse(Status.OK, Some(validNrsJsonResponse2017350007))))
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
@@ -336,7 +343,7 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
         val service = MockLookupService
 
         implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong
-        val result = await(service.lookup)
+        val result = service.lookup.futureValue
         result shouldBe BirthMatchResponse()
 
       }
@@ -346,25 +353,21 @@ class LookupServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSu
     "requesting Northern Ireland" should {
 
       "accept Payload as an argument" in {
-        intercept[NotImplementedException] {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-          when(mockGroniConnector.getReference(any())(any()))
+          when(mockGroniConnector.getReference(any())(any(), any()))
             .thenReturn(Future.failed(new NotImplementedException("No getReference method available for GRONI connector.")))
           val service = MockLookupService
           implicit val payload: Payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-          await(service.lookup)
-        }
+          assert(service.lookup.failed.futureValue.isInstanceOf[NotImplementedException])
       }
 
       "accept payload without reference number as argument" in {
-        intercept[NotImplementedException] {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-          when(mockGroniConnector.getChildDetails(any())(any()))
+          when(mockGroniConnector.getChildDetails(any())(any(), any()))
             .thenReturn(Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector.")))
           val service = MockLookupService
           implicit val payload: Payload = Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-          await(service.lookup)
-        }
+          assert(service.lookup.failed.futureValue.isInstanceOf[NotImplementedException])
       }
 
     }

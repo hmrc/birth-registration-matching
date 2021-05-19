@@ -29,11 +29,12 @@ import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import scala.concurrent.Future
 
-class BirthEventsControllerValidationLengthSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthEventsControllerValidationLengthSpec extends WordSpecLike with Matchers with OptionValues
+  with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -85,22 +86,22 @@ class BirthEventsControllerValidationLengthSpec extends UnitSpec with GuiceOneAp
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
       val request = postRequest(firstNameWithMoreThan100Characters)
-      val result = await(testController.post().apply(request))
-      checkResponse(result,OK, matchResonse = false)
+      val result = testController.post().apply(request).futureValue
+      checkResponse(result,OK, matchResponse = false)
     }
 
     "return BAD_REQUEST if firstName > 250 characters" in {
       val request = postRequest(firstNameWithMoreThan250Characters)
-      val result = await(testController.post().apply(request))
+      val result = testController.post().apply(request).futureValue
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any())
+      verify(mockGroConnector, never).getReference(any())(any(), any())
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
       val request = postRequest(lastNameWithMoreThan250Characters)
-      val result = await(testController.post().apply(request))
+      val result = testController.post().apply(request).futureValue
       checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any())
+      verify(mockGroConnector, never).getReference(any())(any(), any())
     }
 
   }

@@ -23,7 +23,7 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.utils.{BRMException, CommonUtil, HeaderValidator}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 abstract class BRMBaseController(cc: ControllerComponents) extends BackendController(cc) with BRMException {
 

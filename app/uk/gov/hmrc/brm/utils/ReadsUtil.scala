@@ -34,7 +34,7 @@ object ReadsUtil {
     (JsPath  \ "systemNumber").read[Int] and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
 
@@ -42,7 +42,7 @@ object ReadsUtil {
     (JsPath  \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
     )(Child.apply _)
 
   val groReadRecord : Reads[Record] = (

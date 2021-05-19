@@ -17,15 +17,16 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
+
 import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.http.{HeaderCarrier, NotImplementedException}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by adamconder on 07/02/2017.
@@ -58,7 +59,7 @@ class GRONIConnector @Inject()(val http: HttpClient,
          """.stripMargin))
   }
 
-  override def getReference(payload: Payload)(implicit hc: HeaderCarrier): Future[Nothing] = {
+  override def getReference(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nothing] = {
     logger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     referenceBody.apply(payload)
@@ -69,7 +70,7 @@ class GRONIConnector @Inject()(val http: HttpClient,
     Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
   }
 
-  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier): Future[Nothing] = {
+  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nothing] = {
     logger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     detailsBody.apply(payload)

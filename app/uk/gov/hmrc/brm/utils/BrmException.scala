@@ -18,13 +18,14 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Request, Result}
+import play.api.mvc.Results._
+import play.api.http.{Status => StatusCodes}
 import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry._
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
-trait BRMException extends BackendController {
+trait BRMException extends StatusCodes {
 
   val metrics: MetricsFactory
   val logger: BRMLogger

@@ -38,7 +38,7 @@ class BrmConfig @Inject()(val conf: ServicesConfig) extends SwitchException {
   def ignoreAdditionalNames: Boolean = conf.getConfBool("birth-registration-matching.matching.ignoreAdditionalNames",
     throw MatchingConfigurationException("ignoreAdditionalNames"))
 
-  private def featureEnabled(api: String, requestType: Option[RequestType] = None)  = {
+  private def featureEnabled(api: String, requestType: Option[RequestType])  = {
     val path = requestType.fold(s"birth-registration-matching.features.$api.enabled") { x => s"birth-registration-matching.features.$api.${x.value}.enabled" }
     conf.getConfBool(path, throw FeatureSwitchException(api))
   }
@@ -47,7 +47,7 @@ class BrmConfig @Inject()(val conf: ServicesConfig) extends SwitchException {
   object ReferenceRequest extends RequestType("reference")
   object DetailsRequest extends RequestType("details")
 
-  private def isDownstreamEnabled(payload: Option[Payload] = None, requestType: Option[RequestType] = None): Boolean = payload match {
+  private def isDownstreamEnabled(payload: Option[Payload], requestType: Option[RequestType]): Boolean = payload match {
     case Some(p) =>
       p.whereBirthRegistered match {
         case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
@@ -78,8 +78,6 @@ class BrmConfig @Inject()(val conf: ServicesConfig) extends SwitchException {
     )
   }
 
-  def desHost: String = conf.getConfString("des.host", throw DesException("host"))
-  def desPort: String = conf.getConfString("des.port", throw DesException("port"))
   def desEnv: String = conf.getConfString("des.env", throw DesException("env"))
   def desToken: String = conf.getConfString("des.auth-token", throw DesException("auth-token"))
 

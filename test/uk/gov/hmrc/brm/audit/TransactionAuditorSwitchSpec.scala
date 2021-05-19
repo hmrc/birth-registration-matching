@@ -22,6 +22,7 @@ import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
@@ -35,11 +36,12 @@ import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import scala.concurrent.Future
 
-class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterAll {
+class TransactionAuditorSwitchSpec extends WordSpecLike with Matchers with OptionValues
+  with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterAll with ScalaFutures {
 
 	class TestAuditor(configuration: Configuration) {
 		implicit lazy val app: Application = new GuiceApplicationBuilder().disable[PlayModule].configure(configuration).build()
@@ -90,7 +92,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with Guice
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      val event: AuditResult = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
+      val event: AuditResult = auditor.transaction(payload, List(record), MatchingResult.noMatch).futureValue
       event shouldBe AuditResult.Success
 
       argumentCapture.value.detail("features.matchFirstName") shouldBe "true"
@@ -117,7 +119,7 @@ class TransactionAuditorSwitchSpec extends UnitSpec with MockitoSugar with Guice
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(connector.sendEvent(argumentCapture.capture)(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      val event: AuditResult = await(auditor.transaction(payload, List(record), MatchingResult.noMatch))
+      val event: AuditResult = auditor.transaction(payload, List(record), MatchingResult.noMatch).futureValue
       event shouldBe AuditResult.Success
 
 			argumentCapture.value.detail("features.matchFirstName") shouldBe "false"

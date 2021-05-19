@@ -77,9 +77,9 @@ class AuditFactory @Inject()(engWalesAudit: EnglandAndWalesAudit,
 
 object ReadsFactory {
   private lazy val set: Map[BirthRegisterCountry.Value, (Reads[List[Record]], Reads[Record])] = Map(
-    BirthRegisterCountry.ENGLAND -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
-    BirthRegisterCountry.WALES -> (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord),
-    BirthRegisterCountry.SCOTLAND -> (ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead)
+    BirthRegisterCountry.ENGLAND -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
+    BirthRegisterCountry.WALES -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
+    BirthRegisterCountry.SCOTLAND -> ((ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead))
   )
 
   def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) = {

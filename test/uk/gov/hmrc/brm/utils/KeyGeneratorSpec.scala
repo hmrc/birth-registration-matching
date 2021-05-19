@@ -22,9 +22,9 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
-class KeyGeneratorSpec extends UnitSpec with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite {
+class KeyGeneratorSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

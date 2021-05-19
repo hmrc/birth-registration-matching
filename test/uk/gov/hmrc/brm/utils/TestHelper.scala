@@ -124,11 +124,11 @@ object TestHelper {
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  def httpResponse(responseCode: Int, js: JsValue): AnyRef with HttpResponse = HttpResponse(responseCode, Some(js))
+  def httpResponse(responseCode: Int, js: JsValue): HttpResponse = HttpResponse(responseCode, js, Map.empty[String, Seq[String]])
 
-  def httpResponse(js: JsValue): AnyRef with HttpResponse = HttpResponse(OK, Some(js))
+  def httpResponse(js: JsValue): HttpResponse = HttpResponse(OK, js, Map.empty[String, Seq[String]])
 
-  def httpResponse(responseCode: Int): AnyRef with HttpResponse = HttpResponse(responseCode)
+  def httpResponse(responseCode: Int): HttpResponse = HttpResponse(responseCode, "")
 
   def getRecord(foreNames: String, lastName: String): Record = {
     val child = Child(referenceNumber, foreNames, lastName, Some(birthDate))
