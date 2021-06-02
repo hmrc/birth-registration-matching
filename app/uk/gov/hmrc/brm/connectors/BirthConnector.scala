@@ -73,9 +73,14 @@ trait BirthConnector {
 
     logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 
-    response.onComplete(r =>
+    response.onComplete { r =>
       logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.headers)}")
-    )(ec)
+
+    }(ec)
+
+    response.map {res =>
+      if(res.status == 403)  logger.info("BirthConnector", "sendRequest", s"[HttpResponse]: $res, body: ${res.body} and maybe json: ${res.json}")
+    }
 
     response
   }
