@@ -31,6 +31,7 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, HeaderValidator}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -54,6 +55,7 @@ class BirthEventsController @Inject()(val service: LookupService,
 
   override val CLASS_NAME : String = this.getClass.getSimpleName
   override val METHOD_NAME: String = "BirthEventsController::post"
+  private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
 
   private def handleInvalidRequest(request : Request[JsValue], errors: Seq[(JsPath, Seq[JsonValidationError])])
                                   (implicit hc : HeaderCarrier) : Future[Result] = {
@@ -96,8 +98,14 @@ class BirthEventsController @Inject()(val service: LookupService,
      }
   }
 
+  private def getOrCreateCorrelationID(request: Request[_]): String = {
+    logger.debug(CLASS_NAME, "getOrCreateCorrelationID", "Checking for Upstream x-correlation-id, returning new id if none.")
+    request.headers.get(HEADER_X_CORRELATION_ID).getOrElse(UUID.randomUUID().toString)
+  }
+
   def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) {
     implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders((HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)))
       request.body.validate[Payload].fold(errors => handleInvalidRequest(request, errors),
         implicit payload => {
 
