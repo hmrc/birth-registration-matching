@@ -26,7 +26,9 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,7 +36,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 /**
   * Created by adamconder on 09/02/2017.
   */
-class MatchingAuditSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
+class MatchingAuditSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
   val connector: AuditConnector = mockAuditConnector
   val auditor: MatchingAudit = auditorFixtures.matchingAudit

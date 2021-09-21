@@ -34,11 +34,13 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerSpec extends WordSpecLike with Matchers
+class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
   with OptionValues with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec with IntegrationPatience {
 
   import uk.gov.hmrc.brm.utils.TestHelper._

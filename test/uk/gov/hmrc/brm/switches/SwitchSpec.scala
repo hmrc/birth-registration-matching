@@ -22,12 +22,14 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters._
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 /**
   * Created by mew on 15/05/2017.
   */
-trait SwitchSpec extends WordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
+trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
 
   object TestSwitch extends Switch {
     val config: BrmConfig = app.injector.instanceOf[BrmConfig]

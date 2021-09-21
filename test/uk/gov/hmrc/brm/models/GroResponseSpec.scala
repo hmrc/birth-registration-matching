@@ -21,12 +21,14 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 /**
  * Created by chrisianson on 09/08/16.
  */
-class GroResponseSpec extends WordSpecLike with Matchers with OptionValues {
+class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
   /**
    * Should

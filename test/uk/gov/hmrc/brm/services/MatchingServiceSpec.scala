@@ -33,10 +33,13 @@ import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class PartialMatchingSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with BeforeAndAfterAll with GuiceOneAppPerSuite {
+class PartialMatchingSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with BeforeAndAfterAll with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -201,7 +204,7 @@ class PartialMatchingSpec extends WordSpecLike with Matchers with OptionValues w
 }
 
 //TODO Just FYI, this spec doesn't run because it's a trait
-trait MatchingServiceSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
+trait MatchingServiceSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

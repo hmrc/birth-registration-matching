@@ -31,7 +31,9 @@ import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 import play.api.Play.materializer
 
 import scala.concurrent.Future
@@ -39,7 +41,7 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 02/12/2016.
   */
-trait FeatureSwitchSpec extends WordSpecLike with Matchers with OptionValues
+trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
   with GuiceOneAppPerTest
   with MockitoSugar
   with BeforeAndAfterEachTestData
