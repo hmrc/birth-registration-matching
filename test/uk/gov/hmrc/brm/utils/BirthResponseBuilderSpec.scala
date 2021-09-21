@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-class BirthResponseBuilderSpec extends WordSpecLike with Matchers with OptionValues {
+class BirthResponseBuilderSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
   "BirthResponseBuilder" should {
 

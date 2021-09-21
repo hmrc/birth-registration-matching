@@ -22,10 +22,12 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import ch.qos.logback.classic.Level.{DEBUG, ERROR, INFO, WARN}
 import play.api.Logger
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
-import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
+import uk.gov.hmrc.brm.utils.LogCapturing
 
-class BrmLoggerSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar
+class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar
   with BeforeAndAfter with GuiceOneAppPerSuite with LogCapturing with Eventually with IntegrationPatience {
 
   val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]

@@ -21,9 +21,11 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-class NRSFlagSeveritySpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite {
+class NRSFlagSeveritySpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite {
 
   val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
   val conf: BrmConfig = app.injector.instanceOf[BrmConfig]

@@ -19,12 +19,12 @@ package uk.gov.hmrc.brm.audit
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 import org.scalatestplus.mockito.MockitoSugar
-import org.specs2.mock.mockito.ArgumentCapture
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
@@ -33,10 +33,11 @@ import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import org.specs2.mock.mockito.ArgumentCapture
 
 import scala.concurrent.Future
 
-class TransactionAuditorSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with BaseUnitSpec {
+class TransactionAuditorSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

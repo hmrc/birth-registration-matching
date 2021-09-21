@@ -17,14 +17,16 @@
 package uk.gov.hmrc.brm.models
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.models.brm._
 
-class ErrorResponseSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with ScalaFutures {
+class ErrorResponseSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with ScalaFutures {
 
   "ErrorResponses" should {
 

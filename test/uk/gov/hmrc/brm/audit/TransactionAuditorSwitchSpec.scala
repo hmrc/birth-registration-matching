@@ -36,11 +36,13 @@ import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class TransactionAuditorSwitchSpec extends WordSpecLike with Matchers with OptionValues
+class TransactionAuditorSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
   with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfterAll with ScalaFutures {
 
 	class TestAuditor(configuration: Configuration) {

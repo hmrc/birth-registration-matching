@@ -30,7 +30,9 @@ import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
 
@@ -40,7 +42,7 @@ import uk.gov.hmrc.http.HttpResponse
 /**
   * Created by user on 04/05/17.
   */
-trait BaseUnitSpec extends WordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
+trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status shouldBe responseStatus
     (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe matchResponse

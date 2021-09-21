@@ -19,9 +19,11 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.brm.config.BrmConfig
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-class CommonUtilSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
+class CommonUtilSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   val mockConfig: BrmConfig = mock[BrmConfig]
   val mockLogger: BRMLogger = mock[BRMLogger]

@@ -23,9 +23,11 @@ import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-class NRSResponseSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
+class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
   lazy val emptyJson: JsValue = Json.parse(
     """

@@ -24,9 +24,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.filters._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-trait FiltersSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
+trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
 
   val groFilter: GROFilter = app.injector.instanceOf[GROFilter]
   val groReferenceFilter: GROReferenceFilter = app.injector.instanceOf[GROReferenceFilter]

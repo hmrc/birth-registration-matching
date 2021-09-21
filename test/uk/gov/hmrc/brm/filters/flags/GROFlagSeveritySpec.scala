@@ -22,9 +22,11 @@ import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-trait GROFlagSeveritySpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
+trait GROFlagSeveritySpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   val config: BrmConfig = app.injector.instanceOf[BrmConfig]
 

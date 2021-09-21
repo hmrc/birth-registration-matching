@@ -17,9 +17,11 @@
 package uk.gov.hmrc.brm.utils
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.OptionValues
 
-class FormatSpec extends WordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
+class FormatSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
   "NameFormat" should {
 
