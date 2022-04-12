@@ -4,7 +4,7 @@ import sbt.{ModuleID, _}
 object AppDependencies {
 
   private val silencerVersion = "1.7.1"
-  private val bootstrapPlayVersion = "5.14.0"
+  private val bootstrapPlayVersion = "5.22.0"
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc" %% "bootstrap-backend-play-28" % bootstrapPlayVersion,
