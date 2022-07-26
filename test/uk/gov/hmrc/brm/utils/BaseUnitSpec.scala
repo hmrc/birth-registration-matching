@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.words.EmptyWord
+import org.scalatest.matchers.dsl.EmptyWord
 import org.specs2.mock.mockito.ArgumentCapture
 import play.api.http.Status
 import play.api.libs.json.{JsObject, JsValue, Json}

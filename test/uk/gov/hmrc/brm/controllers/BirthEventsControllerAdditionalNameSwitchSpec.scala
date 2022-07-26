@@ -38,7 +38,8 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
+  with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
