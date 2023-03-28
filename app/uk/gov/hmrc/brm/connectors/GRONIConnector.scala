@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,31 +32,31 @@ import scala.concurrent.{ExecutionContext, Future}
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class GRONIConnector @Inject()(val http: HttpClient,
-                               auditor: NorthernIrelandAudit,
-                               val logger: BRMLogger) extends BirthConnector {
+class GRONIConnector @Inject() (val http: HttpClient, auditor: NorthernIrelandAudit, val logger: BRMLogger)
+    extends BirthConnector {
 
-  override val serviceUrl = ""
-  private val baseUri = ""
-  private val detailsUri = s"$serviceUrl/$baseUri"
+  override val serviceUrl  = ""
+  private val baseUri      = ""
+  private val detailsUri   = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
-
-  override def headers = Seq()
-  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _, _) =>
-      (referenceUri, Json.parse(
-        s"""
+  override def headers                                                    = Seq()
+  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(Some(brn), _, _, _, _, _) =>
+    (
+      referenceUri,
+      Json.parse(s"""
            |{}
-         """.stripMargin))
+         """.stripMargin)
+    )
   }
 
-  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, a, l, d, _) =>
-      (detailsUri, Json.parse(
-        s"""
+  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(None, f, a, l, d, _) =>
+    (
+      detailsUri,
+      Json.parse(s"""
            |{}
-         """.stripMargin))
+         """.stripMargin)
+    )
   }
 
   override def getReference(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nothing] = {
@@ -80,6 +80,5 @@ class GRONIConnector @Inject()(val http: HttpClient,
 
     Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
   }
-
 
 }

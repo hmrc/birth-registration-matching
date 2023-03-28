@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,32 +24,31 @@ import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-class FullMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm {
+class FullMatching @Inject() (val config: BrmConfig) extends MatchingAlgorithm {
 
-  override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
-    case (payload, record) =>
+  override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = { case (payload, record) =>
+    val mp = payload.copy(
+      _additionalNames = if (config.ignoreAdditionalNames) None else Some(payload.additionalNames)
+    )
 
-      val mp = payload.copy(
-        _additionalNames = if(config.ignoreAdditionalNames) None else Some(payload.additionalNames)
-      )
+    // Split names on record into firstNames and AdditionalNames
+    val namesOnRecord: Names = NameParser.parseNames(mp, record, config.ignoreAdditionalNames)
 
-      // Split names on record into firstNames and AdditionalNames
-      val namesOnRecord: Names = NameParser.parseNames(mp, record, config.ignoreAdditionalNames)
+    // Match each property
+    val firstNamesMatched      = stringMatch(Some(mp.firstNames), Some(namesOnRecord.firstNames))
+    val additionalNamesMatched = stringMatch(Some(mp.additionalNames), Some(namesOnRecord.additionalNames))
+    val lastNameMatched        = stringMatch(Some(mp.lastName), Some(namesOnRecord.lastNames))
+    val dateOfBirthMatched     = dateMatch(Some(mp.dateOfBirth), record.child.dateOfBirth)
 
-      // Match each property
-      val firstNamesMatched = stringMatch(Some(mp.firstNames), Some(namesOnRecord.firstNames))
-      val additionalNamesMatched = stringMatch(Some(mp.additionalNames), Some(namesOnRecord.additionalNames))
-      val lastNameMatched = stringMatch(Some(mp.lastName), Some(namesOnRecord.lastNames))
-      val dateOfBirthMatched = dateMatch(Some(mp.dateOfBirth), record.child.dateOfBirth)
+    val matched = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
 
-      val matched = firstNamesMatched and additionalNamesMatched and lastNameMatched and dateOfBirthMatched
-
-      MatchingResult(
-        matched,
-        firstNamesMatched,
-        additionalNamesMatched,
-        lastNameMatched,
-        dateOfBirthMatched,
-        namesOnRecord)
+    MatchingResult(
+      matched,
+      firstNamesMatched,
+      additionalNamesMatched,
+      lastNameMatched,
+      dateOfBirthMatched,
+      namesOnRecord
+    )
   }
 }

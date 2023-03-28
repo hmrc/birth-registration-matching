@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,64 +25,62 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, ReadsUtil}
 
-
-
-class MetricsFactory @Inject()(groMetrics: GROReferenceMetrics,
-                               nrsMetrics: NRSMetrics,
-                               groniMetrics: GRONIMetrics,
-                               groDetailsMetrics: GRODetailsMetrics) {
+class MetricsFactory @Inject() (
+  groMetrics: GROReferenceMetrics,
+  nrsMetrics: NRSMetrics,
+  groniMetrics: GRONIMetrics,
+  groDetailsMetrics: GRODetailsMetrics
+) {
 
   private lazy val referenceSet: Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
-    BirthRegisterCountry.ENGLAND -> groMetrics,
-    BirthRegisterCountry.WALES -> groMetrics,
-    BirthRegisterCountry.SCOTLAND -> nrsMetrics,
+    BirthRegisterCountry.ENGLAND          -> groMetrics,
+    BirthRegisterCountry.WALES            -> groMetrics,
+    BirthRegisterCountry.SCOTLAND         -> nrsMetrics,
     BirthRegisterCountry.NORTHERN_IRELAND -> groniMetrics
   )
 
   private lazy val detailsSet: Map[BirthRegisterCountry.Value, BRMMetrics] = Map(
-    BirthRegisterCountry.ENGLAND -> groDetailsMetrics,
-    BirthRegisterCountry.WALES -> groDetailsMetrics,
-    BirthRegisterCountry.SCOTLAND -> nrsMetrics,
+    BirthRegisterCountry.ENGLAND          -> groDetailsMetrics,
+    BirthRegisterCountry.WALES            -> groDetailsMetrics,
+    BirthRegisterCountry.SCOTLAND         -> nrsMetrics,
     BirthRegisterCountry.NORTHERN_IRELAND -> groniMetrics
   )
 
-  def getMetrics()(implicit payload: Payload): BRMMetrics = {
+  def getMetrics()(implicit payload: Payload): BRMMetrics =
     payload.birthReferenceNumber match {
       case Some(_) =>
         referenceSet(payload.whereBirthRegistered)
-      case None =>
+      case None    =>
         detailsSet(payload.whereBirthRegistered)
     }
-  }
 
 }
 
 @Singleton
-class AuditFactory @Inject()(engWalesAudit: EnglandAndWalesAudit,
-                             scotAudit: ScotlandAudit,
-                             northIreAudit: NorthernIrelandAudit) {
+class AuditFactory @Inject() (
+  engWalesAudit: EnglandAndWalesAudit,
+  scotAudit: ScotlandAudit,
+  northIreAudit: NorthernIrelandAudit
+) {
 
   private lazy val set: Map[BirthRegisterCountry.Value, BRMDownstreamAPIAudit] = Map(
-    BirthRegisterCountry.ENGLAND -> engWalesAudit,
-    BirthRegisterCountry.WALES -> engWalesAudit,
-    BirthRegisterCountry.SCOTLAND -> scotAudit,
+    BirthRegisterCountry.ENGLAND          -> engWalesAudit,
+    BirthRegisterCountry.WALES            -> engWalesAudit,
+    BirthRegisterCountry.SCOTLAND         -> scotAudit,
     BirthRegisterCountry.NORTHERN_IRELAND -> northIreAudit
   )
 
-  def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit = {
+  def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit =
     set(payload.whereBirthRegistered)
-  }
 }
-
 
 object ReadsFactory {
   private lazy val set: Map[BirthRegisterCountry.Value, (Reads[List[Record]], Reads[Record])] = Map(
-    BirthRegisterCountry.ENGLAND -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
-    BirthRegisterCountry.WALES -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
+    BirthRegisterCountry.ENGLAND  -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
+    BirthRegisterCountry.WALES    -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
     BirthRegisterCountry.SCOTLAND -> ((ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead))
   )
 
-  def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) = {
+  def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) =
     set(payload.whereBirthRegistered)
-  }
 }

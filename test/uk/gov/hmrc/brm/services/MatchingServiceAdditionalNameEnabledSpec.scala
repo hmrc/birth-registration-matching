@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,13 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.Future
 
-class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec {
+class MatchingServiceAdditionalNameEnabledSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -47,7 +53,7 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
     mockFull,
     mockPartialMatching,
     mockBrmLogger
-  ){
+  ) {
     override val matchOnMultiple: Boolean = true
   }
 
@@ -57,10 +63,9 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
     mockFull,
     mockPartialMatching,
     mockBrmLogger
-  ){
+  ) {
     override val matchOnMultiple: Boolean = false
   }
-
 
   "Matching" when {
 
@@ -76,23 +81,46 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
         "should return true if a minimum of one record matches" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
+          val resultMatch =
+            testMatchingService.performMatch(payload, List(invalidRecord, validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
 
         "return false if no records match" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
+          val resultMatch =
+            testMatchingService.performMatch(payload, List(invalidRecord, invalidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
 
         "return false result match when List is empty" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
           val resultMatch = testMatchingService.performMatch(payload, List(), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -104,15 +132,33 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
         "return false for more than 1 record" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-          val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord, validRecord, validRecord), MatchingType.FULL)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
+          val resultMatch = testMatchingServiceNoMultiple.performMatch(
+            payload,
+            List(validRecord, validRecord, validRecord),
+            MatchingType.FULL
+          )
           resultMatch.matched shouldBe false
         }
 
         "return true for a match on a single record" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
           val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -120,7 +166,14 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
         "return false for a no match on a single record" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val payload     = Payload(
+            Some("123456789"),
+            "Christopher",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
           val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -128,7 +181,14 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
         "return false result match when List is empty" in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-          val payload = Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          val payload     = Payload(
+            Some("123456789"),
+            "Chris",
+            None,
+            "Jones",
+            new LocalDate("2012-02-16"),
+            BirthRegisterCountry.ENGLAND
+          )
           val resultMatch = testMatchingServiceNoMultiple.performMatch(payload, List(), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -151,130 +211,188 @@ class MatchingServiceAdditionalNameEnabledSpec extends AnyWordSpecLike with Matc
 
       val references = List(Some("123456789"), None)
 
-      references.foreach(
-        reference => {
-
-          val name = reference match {
-            case Some(_) => "with reference"
-            case None => "without reference"
-          }
-
-          "ignore middle names with feature toggle enabled" should {
-
-            s"($name) match when firstName argument has all middle names on input that are on the record" in {
-
-                val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-
-            s"($name) match when firstName argument has all middle names on input that are " +
-              s"on the record and ignore any additional name provided in payload." in {
-                when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-                val payload = Payload(reference, "Adam David", Some("test"), "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
-
-                val payload = Payload(reference, " Adam    David   ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
-
-                val payload = Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when firstName argument has middle names with punctuation, with additional names on record" in {
-
-                val payload = Payload(reference, "   Jamie  Mary-Ann'é ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpacesAndPunctuation), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Jamie Mary-Ann'é"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when firstName argument has no middle names on input that are on the record" in {
-
-                val payload = Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when firstName argument has no middle names on input that are on the record, with additional spaces" in {
-
-                val payload = Payload(reference, "    Adam     ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Adam"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) not match when firstName argument has too many names not on the record" in {
-
-                when(mockAuditConnector.sendEvent(any())(any(), any()))
-                  .thenReturn(Future.successful(AuditResult.Success))
-
-                val payload = Payload(reference, "Adam David James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe false
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) not match when firstName argument has too many names not on the record, with additional spaces" in {
-
-                when(mockAuditConnector.sendEvent(any())(any(), any()))
-                  .thenReturn(Future.successful(AuditResult.Success))
-
-                val payload = Payload(reference, "   Adam  David     James  ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
-                resultMatch.matched shouldBe false
-                resultMatch.names.firstNames shouldBe "Adam David"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones"
-            }
-
-            s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
-
-                when(mockAuditConnector.sendEvent(any())(any(), any()))
-                  .thenReturn(Future.successful(AuditResult.Success))
-
-                val payload = Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-                val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpaceBeginningTrailing), MatchingType.FULL)
-                resultMatch.matched shouldBe true
-                resultMatch.names.firstNames shouldBe "Chris"
-                resultMatch.names.additionalNames shouldBe empty
-                resultMatch.names.lastNames shouldBe "Jones Smith"
-            }
-
-          }
+      references.foreach { reference =>
+        val name = reference match {
+          case Some(_) => "with reference"
+          case None    => "without reference"
         }
-      )
+
+        "ignore middle names with feature toggle enabled" should {
+
+          s"($name) match when firstName argument has all middle names on input that are on the record" in {
+
+            val payload     =
+              Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Adam David"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when firstName argument has all middle names on input that are " +
+            s"on the record and ignore any additional name provided in payload." in {
+              when(mockConfig.ignoreAdditionalNames).thenReturn(true)
+              val payload     = Payload(
+                reference,
+                "Adam David",
+                Some("test"),
+                "Jones",
+                new LocalDate("2012-02-16"),
+                BirthRegisterCountry.ENGLAND
+              )
+              val resultMatch =
+                testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+              resultMatch.matched               shouldBe true
+              resultMatch.names.firstNames      shouldBe "Adam David"
+              resultMatch.names.additionalNames shouldBe empty
+              resultMatch.names.lastNames       shouldBe "Jones"
+            }
+
+          s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces" in {
+
+            val payload     = Payload(
+              reference,
+              " Adam    David   ",
+              None,
+              "Jones",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Adam David"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
+
+            val payload     =
+              Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            val resultMatch =
+              testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Adam David"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when firstName argument has middle names with punctuation, with additional names on record" in {
+
+            val payload     = Payload(
+              reference,
+              "   Jamie  Mary-Ann'é ",
+              None,
+              "Jones",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(
+              payload,
+              List(validRecordMiddleNamesWithSpacesAndPunctuation),
+              MatchingType.FULL
+            )
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Jamie Mary-Ann'é"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when firstName argument has no middle names on input that are on the record" in {
+
+            val payload     =
+              Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Adam"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when firstName argument has no middle names on input that are on the record, with additional spaces" in {
+
+            val payload     = Payload(
+              reference,
+              "    Adam     ",
+              None,
+              "Jones",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Adam"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) not match when firstName argument has too many names not on the record" in {
+
+            when(mockAuditConnector.sendEvent(any())(any(), any()))
+              .thenReturn(Future.successful(AuditResult.Success))
+
+            val payload     = Payload(
+              reference,
+              "Adam David James",
+              None,
+              "Jones",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe false
+            resultMatch.names.firstNames      shouldBe "Adam David"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) not match when firstName argument has too many names not on the record, with additional spaces" in {
+
+            when(mockAuditConnector.sendEvent(any())(any(), any()))
+              .thenReturn(Future.successful(AuditResult.Success))
+
+            val payload     = Payload(
+              reference,
+              "   Adam  David     James  ",
+              None,
+              "Jones",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
+            resultMatch.matched               shouldBe false
+            resultMatch.names.firstNames      shouldBe "Adam David"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones"
+          }
+
+          s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
+
+            when(mockAuditConnector.sendEvent(any())(any(), any()))
+              .thenReturn(Future.successful(AuditResult.Success))
+
+            val payload     = Payload(
+              reference,
+              "Chris",
+              None,
+              "Jones Smith",
+              new LocalDate("2012-02-16"),
+              BirthRegisterCountry.ENGLAND
+            )
+            val resultMatch = testMatchingService.performMatch(
+              payload,
+              List(validRecordLastNameMultipleSpaceBeginningTrailing),
+              MatchingType.FULL
+            )
+            resultMatch.matched               shouldBe true
+            resultMatch.names.firstNames      shouldBe "Chris"
+            resultMatch.names.additionalNames shouldBe empty
+            resultMatch.names.lastNames       shouldBe "Jones Smith"
+          }
+
+        }
+      }
     }
   }
 }

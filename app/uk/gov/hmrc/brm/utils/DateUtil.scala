@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,10 @@ import org.joda.time.format.DateTimeFormat
   */
 object DateUtil {
 
+  def getCurrentDateString(DATE_FORMAT: String) = {
 
-  def getCurrentDateString(DATE_FORMAT : String) = {
-
-    val dateTime = new DateTime()
-    val formatter = DateTimeFormat.forPattern(DATE_FORMAT)
+    val dateTime              = new DateTime()
+    val formatter             = DateTimeFormat.forPattern(DATE_FORMAT)
     val formattedDate: String = formatter.print(dateTime)
     formattedDate
   }

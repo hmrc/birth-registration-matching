@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ import javax.inject.Inject
 import org.joda.time.DateTime
 import uk.gov.hmrc.brm.config.BrmConfig
 
-class CommonUtil @Inject()(config: BrmConfig,
-                           logger: BRMLogger){
+class CommonUtil @Inject() (config: BrmConfig, logger: BRMLogger) {
 
   def forenames(firstName: String, additionalName: Option[String]): String = {
-    val forenames = if(config.ignoreAdditionalNames) {
+    val forenames = if (config.ignoreAdditionalNames) {
       NameFormat(firstName)
     } else {
       s"${NameFormat(firstName)} ${NameFormat(additionalName.getOrElse(""))}".trim
@@ -33,8 +32,8 @@ class CommonUtil @Inject()(config: BrmConfig,
   }
 
   //log the time diff in milliseconds.
-  def logTime(startTime:Long): Unit ={
-    def diffInMillis = DateTime.now.getMillis-startTime
+  def logTime(startTime: Long): Unit = {
+    def diffInMillis = DateTime.now.getMillis - startTime
     logger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: $diffInMillis")
   }
 

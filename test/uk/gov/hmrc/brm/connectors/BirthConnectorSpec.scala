@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,14 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec with ScalaFutures {
+class BirthConnectorSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with MockitoSugar
+    with BaseUnitSpec
+    with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -69,19 +76,19 @@ class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues
     }
 
     "getReference returns http 500 when GRO is offline" in {
-      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR,None)
+      mockHttpPostResponse(Status.INTERNAL_SERVER_ERROR, None)
       val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 500)
     }
 
     "getReference returns http 400 for BadRequest" in {
-      mockHttpPostResponse(Status.BAD_REQUEST,None)
+      mockHttpPostResponse(Status.BAD_REQUEST, None)
       val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 400)
     }
 
     "getReference returns http 404 when GRO has not found data" in {
-      mockHttpPostResponse(Status.NOT_FOUND,None)
+      mockHttpPostResponse(Status.NOT_FOUND, None)
       val result = connectorFixtures.groConnector.getReference(payload).futureValue
       checkResponse(result, 404)
     }
@@ -97,12 +104,12 @@ class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues
         .thenReturn("Adam")
 
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
-      val payload = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND)
-      val result = connectorFixtures.groConnector.getChildDetails(payload).futureValue
+      val payload         =
+        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
       checkResponse(result, 200)
       argumentCapture.value.toString().contains("test") shouldBe false
-      (argumentCapture.value \ "forenames").as[String] shouldBe "Adam"
+      (argumentCapture.value \ "forenames").as[String]  shouldBe "Adam"
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
@@ -156,13 +163,13 @@ class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues
       }
 
       "getChildDetails call should not pass additional name to nrs." in {
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"),
-          BirthRegisterCountry.SCOTLAND)
-        val result = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
+        val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+        val requestWithAdditionalName =
+          Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+        val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, 200)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String] shouldBe "Adam"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String] shouldBe "SMITH"
+        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam"
+        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
         (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
       }
 
@@ -197,7 +204,7 @@ class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues
         future.onComplete {
           case Failure(e) =>
             connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage shouldBe "No getReference method available for GRONI connector."
+            e.getMessage                                     shouldBe "No getReference method available for GRONI connector."
           case Success(_) =>
             throw new Exception
         }
@@ -208,7 +215,7 @@ class BirthConnectorSpec extends AnyWordSpecLike with Matchers with OptionValues
         future.onComplete {
           case Failure(e) =>
             connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage shouldBe "No getChildDetails method available for GRONI connector."
+            e.getMessage                                     shouldBe "No getChildDetails method available for GRONI connector."
           case Success(_) =>
             throw new Exception
         }

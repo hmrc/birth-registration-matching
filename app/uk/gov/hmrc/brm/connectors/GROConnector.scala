@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,18 @@ import uk.gov.hmrc.http.HttpClient
   * Created by adamconder on 07/02/2017.
   */
 @Singleton
-class GROConnector @Inject()(val http: HttpClient,
-                             brmConf: BrmConfig,
-                             keyGen: KeyGenerator,
-                             val logger: BRMLogger,
-                             commonUtil: CommonUtil) extends BirthConnector {
+class GROConnector @Inject() (
+  val http: HttpClient,
+  brmConf: BrmConfig,
+  keyGen: KeyGenerator,
+  val logger: BRMLogger,
+  commonUtil: CommonUtil
+) extends BirthConnector {
 
   override val serviceUrl: String = brmConf.serviceUrl
 
-  private val baseUri = "birth-registration-matching-proxy"
-  private val detailsUri = s"$serviceUrl/$baseUri/match/details"
+  private val baseUri      = "birth-registration-matching-proxy"
+  private val detailsUri   = s"$serviceUrl/$baseUri/match/details"
   private val referenceUri = s"$serviceUrl/$baseUri/match/reference"
 
   override def headers =
@@ -46,29 +48,28 @@ class GROConnector @Inject()(val http: HttpClient,
       "Content-Type" -> "application/json; charset=utf-8"
     )
 
-
-  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(Some(brn), _, _, _, _, _) =>
-      (referenceUri, Json.parse(
-        s"""
+  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(Some(brn), _, _, _, _, _) =>
+    (
+      referenceUri,
+      Json.parse(s"""
            |{
            |  "reference" : "$brn"
            |}
-         """.stripMargin))
+         """.stripMargin)
+    )
   }
 
-  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = {
-    case Payload(None, f, a, l, d, _) =>
-      (detailsUri, Json.parse(
-        s"""
+  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(None, f, a, l, d, _) =>
+    (
+      detailsUri,
+      Json.parse(s"""
            |{
            | "forenames" : "${commonUtil.forenames(f, a)}",
            | "lastname" : "${NameFormat(l)}",
            | "dateofbirth" : "$d"
            |}
-        """.stripMargin))
+        """.stripMargin)
+    )
   }
-
-
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,22 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
 import scala.annotation.tailrec
 
-class Filters @Inject()(logger: BRMLogger,
-                        dobFilter: DateOfBirthFilter,
-                        groFilter: GROFilter,
-                        groniFilter: GRONIFilter,
-                        groRefFilter: GROReferenceFilter,
-                        groDetailsFilter: GRODetailsFilter,
-                        nrsFilter: NRSFilter,
-                        nrsRefFilter: NRSReferenceFilter,
-                        nrsDetailsFilter: NRSDetailsFilter,
-                        groniRefFilter: GRONIReferenceFilter,
-                        groniDetailsFilter: GRONIDetailsFilter) {
+class Filters @Inject() (
+  logger: BRMLogger,
+  dobFilter: DateOfBirthFilter,
+  groFilter: GROFilter,
+  groniFilter: GRONIFilter,
+  groRefFilter: GROReferenceFilter,
+  groDetailsFilter: GRODetailsFilter,
+  nrsFilter: NRSFilter,
+  nrsRefFilter: NRSReferenceFilter,
+  nrsDetailsFilter: NRSDetailsFilter,
+  groniRefFilter: GRONIReferenceFilter,
+  groniDetailsFilter: GRONIDetailsFilter
+) {
 
-  private val groFilters = List(groFilter, groRefFilter, groDetailsFilter)
-  private val nrsFilters = List(nrsFilter, nrsRefFilter, nrsDetailsFilter)
+  private val groFilters   = List(groFilter, groRefFilter, groDetailsFilter)
+  private val nrsFilters   = List(nrsFilter, nrsRefFilter, nrsDetailsFilter)
   private val groniFilters = List(groniFilter, groniRefFilter, groniDetailsFilter)
 
   private val baseFilters = List(dobFilter)
@@ -46,25 +48,24 @@ class Filters @Inject()(logger: BRMLogger,
     * @param filter current Filter being processed
     * @param payload Payload
     */
-  def shouldProcessFilter(filter: Filter, payload: Payload) : Boolean = {
+  def shouldProcessFilter(filter: Filter, payload: Payload): Boolean =
     filter.filterType match {
       case ReferenceFilter =>
         payload.birthReferenceNumber.isDefined
-      case DetailsFilter =>
+      case DetailsFilter   =>
         payload.birthReferenceNumber.isEmpty
-      case _ =>
+      case _               =>
         // general filter
         true
     }
-  }
 
-  def getFilters(payload: Payload) : List[Filter] = {
-    val filters = payload.whereBirthRegistered match {
+  def getFilters(payload: Payload): List[Filter] = {
+    val filters         = payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         groFilters
-      case BirthRegisterCountry.SCOTLAND =>
+      case BirthRegisterCountry.SCOTLAND                             =>
         nrsFilters
-      case BirthRegisterCountry.NORTHERN_IRELAND =>
+      case BirthRegisterCountry.NORTHERN_IRELAND                     =>
         groniFilters
     }
     // Filter out registry filters by request type
@@ -79,16 +80,16 @@ class Filters @Inject()(logger: BRMLogger,
     * @param payload request transformed into Payload
     * @return List[Filter], list of failed filters
     */
-  def process(payload: Payload) : List[Filter] = {
+  def process(payload: Payload): List[Filter] = {
 
     @tailrec
-    def filterHelper(uncheckedFilters: List[Filter], failedFilters: List[Filter]): List[Filter] = {
+    def filterHelper(uncheckedFilters: List[Filter], failedFilters: List[Filter]): List[Filter] =
       if (failedFilters.nonEmpty && uncheckedFilters.isEmpty) {
         logger.info("Filters", "process", s"Stopping due to failing a Filter, failed: $failedFilters")
         failedFilters
       } else {
         uncheckedFilters match {
-          case Nil => Nil
+          case Nil          => Nil
           case head :: tail =>
             // check if the filter is correct for request type
             val passed = head.process(payload)
@@ -99,7 +100,6 @@ class Filters @Inject()(logger: BRMLogger,
             }
         }
       }
-    }
 
     // Start with a FailedFilters and check this value at the end
     filterHelper(getFilters(payload), Nil)

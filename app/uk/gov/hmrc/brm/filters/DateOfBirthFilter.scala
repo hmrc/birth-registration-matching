@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,31 +27,31 @@ import uk.gov.hmrc.brm.switches.{Switch, SwitchValue}
 /**
   * Created by mew on 15/05/2017.
   */
-class DateOfBirthFilter @Inject()(dobCount: DateofBirthFeatureCountMetric,
-                                 conf: BrmConfig) extends Filter(GeneralFilter) {
+class DateOfBirthFilter @Inject() (dobCount: DateofBirthFeatureCountMetric, conf: BrmConfig)
+    extends Filter(GeneralFilter) {
 
   class DateOfBirthSwitch extends Switch {
-    override val name = "dobValidation"
+    override val name              = "dobValidation"
     override val config: BrmConfig = conf
   }
 
   class DateOfBirthSwitchValue extends SwitchValue {
-    override val name = "dobValidation"
+    override val name              = "dobValidation"
     override val config: BrmConfig = conf
   }
 
-  val switch = new DateOfBirthSwitch
+  val switch              = new DateOfBirthSwitch
   val switchValue: String = (new DateOfBirthSwitchValue).value
 
   override def process(payload: Payload): Boolean = {
     val isEnabled = super.process(payload)
 
-    if(isEnabled) {
-      val config = switchValue
+    if (isEnabled) {
+      val config     = switchValue
       // validate date of birth
       val configDate = LocalDate.parse(config).toDate
-      val isValid = !payload.dateOfBirth.toDate.before(configDate)
-      if(!isValid){
+      val isValid    = !payload.dateOfBirth.toDate.before(configDate)
+      if (!isValid) {
         dobCount.count()
       }
       isValid

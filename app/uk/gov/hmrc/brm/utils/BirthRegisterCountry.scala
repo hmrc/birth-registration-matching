@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,31 +19,31 @@ package uk.gov.hmrc.brm.utils
 import play.api.libs.json._
 import uk.gov.hmrc.brm.metrics._
 
-
 object BirthRegisterCountry extends Enumeration {
 
-  val ENGLAND: BirthRegisterCountry.Value = Value("england")
-  val WALES: BirthRegisterCountry.Value = Value("wales")
+  val ENGLAND: BirthRegisterCountry.Value          = Value("england")
+  val WALES: BirthRegisterCountry.Value            = Value("wales")
   val NORTHERN_IRELAND: BirthRegisterCountry.Value = Value("northern ireland")
-  val SCOTLAND: BirthRegisterCountry.Value = Value("scotland")
+  val SCOTLAND: BirthRegisterCountry.Value         = Value("scotland")
 
-  def birthRegisterReads(implicit engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
-                         northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
-                         scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
-                         invalidRegMetrics: InvalidBirthRegisteredCountMetrics): Reads[BirthRegisterCountry.Value] = new Reads[BirthRegisterCountry.Value] {
+  def birthRegisterReads(implicit
+    engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+    northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+    scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+    invalidRegMetrics: InvalidBirthRegisteredCountMetrics
+  ): Reads[BirthRegisterCountry.Value] = new Reads[BirthRegisterCountry.Value] {
 
     override def reads(json: JsValue): JsResult[BirthRegisterCountry.Value] =
       json match {
         case JsString(s) =>
           try {
             // increase count metrics
-            val enum = BirthRegisterCountry.withName(s.trim.toLowerCase)
-            enum match {
-              case ENGLAND | WALES =>
+            BirthRegisterCountry.withName(s.trim.toLowerCase) match {
+              case ENGLAND | WALES  =>
                 engAndWalesMetrics.count()
               case NORTHERN_IRELAND =>
                 northIreMetrics.count()
-              case SCOTLAND =>
+              case SCOTLAND         =>
                 scotlandMetrics.count()
             }
 
@@ -51,9 +51,11 @@ object BirthRegisterCountry extends Enumeration {
           } catch {
             case _: NoSuchElementException =>
               invalidRegMetrics.count()
-              JsError(s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value:$s")
+              JsError(
+                s"Enumeration expected of type: '${BirthRegisterCountry.getClass}', but it does not appear to contain the value:$s"
+              )
           }
-        case _ => JsError("String value expected")
+        case _           => JsError("String value expected")
       }
   }
 

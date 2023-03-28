@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import scala.concurrent.Future
 
 @Singleton
-class NorthernIrelandAudit @Inject()(connector: AuditConnector,
-                                     val config: BrmConfig,
-                                     val keyGen: KeyGenerator,
-                                     val logger: BRMLogger) extends BRMDownstreamAPIAudit(connector) {
+class NorthernIrelandAudit @Inject() (
+  connector: AuditConnector,
+  val config: BrmConfig,
+  val keyGen: KeyGenerator,
+  val logger: BRMLogger
+) extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * NorthernIrelandAuditEvent
@@ -39,27 +41,27 @@ class NorthernIrelandAudit @Inject()(connector: AuditConnector,
     * @param path endpoint path
     * @param hc implicit headerCarrier
     */
-  final private class NorthernIrelandAuditEvent(result : Map[String, String], path: String)
-                                               (implicit hc: HeaderCarrier)
-    extends AuditEvent(auditType = "BRM-GRONorthernIreland-Results",
-      detail = result,
-      transactionName = "brm-northern-ireland-match",
-      path)
+  final private class NorthernIrelandAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+      extends AuditEvent(
+        auditType = "BRM-GRONorthernIreland-Results",
+        detail = result,
+        transactionName = "brm-northern-ireland-match",
+        path
+      )
 
-  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier): Future[AuditResult] = {
+  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+    hc: HeaderCarrier
+  ): Future[AuditResult] =
     payload match {
       case Some(p) =>
         p.requestType match {
-          case DetailsRequest() =>
+          case DetailsRequest()   =>
             event(new NorthernIrelandAuditEvent(result, "gro-ni-details"))
           case ReferenceRequest() =>
             event(new NorthernIrelandAuditEvent(result, "gro-ni-reference"))
         }
-      case _ =>
+      case _       =>
         Future.failed(new IllegalArgumentException("[NorthernIreland] payload argument not specified"))
     }
-
-  }
-
 
 }

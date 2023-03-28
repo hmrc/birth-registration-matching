@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,44 +27,45 @@ trait FlagSeverity {
   def canProcessRecord(config: BrmConfig): Boolean
 }
 
-case class GROStatus(potentiallyFictitiousBirth: Boolean = false,
-                     correction: Option[String] = None,
-                     cancelled: Boolean = false,
-                     blockedRegistration: Boolean = false,
-                     marginalNote: Option[String] = None,
-                     reRegistered: Option[String] = None) extends StatusInterface {
+case class GROStatus(
+  potentiallyFictitiousBirth: Boolean = false,
+  correction: Option[String] = None,
+  cancelled: Boolean = false,
+  blockedRegistration: Boolean = false,
+  marginalNote: Option[String] = None,
+  reRegistered: Option[String] = None
+) extends StatusInterface {
 
-  case class GROFlagSeverity(potentiallyFictitiousBirth: Severity,
-                             correction: Severity,
-                             cancelled: Severity,
-                             blockedRegistration: Severity,
-                             marginalNote: Severity,
-                             reRegistered: Severity) extends FlagSeverity {
+  case class GROFlagSeverity(
+    potentiallyFictitiousBirth: Severity,
+    correction: Severity,
+    cancelled: Severity,
+    blockedRegistration: Severity,
+    marginalNote: Severity,
+    reRegistered: Severity
+  ) extends FlagSeverity {
 
-    def canProcessRecord(config: BrmConfig): Boolean = {
+    def canProcessRecord(config: BrmConfig): Boolean =
       isGreen(this.potentiallyFictitiousBirth, config.validateFlag("gro", "potentiallyFictitiousBirth")) &&
         isGreen(this.blockedRegistration, config.validateFlag("gro", "blockedRegistration")) &&
         isGreen(this.correction, config.validateFlag("gro", "correction")) &&
         isGreen(this.cancelled, config.validateFlag("gro", "cancelled")) &&
         isGreen(this.marginalNote, config.validateFlag("gro", "marginalNote")) &&
         isGreen(this.reRegistered, config.validateFlag("gro", "reRegistered"))
-    }
 
-    private def isGreen(flag: Severity, turnedOn: Boolean): Boolean = {
+    private def isGreen(flag: Severity, turnedOn: Boolean): Boolean =
       if (turnedOn) {
         flag == Green
       } else {
         true
       }
-    }
   }
 
   private val invalidMarginalNote = List("other", "re-registered", "court order in place")
   private val invalidReRegistered = List("other")
 
-  override def toJson: JsValue = {
-    Json.parse(
-      s"""
+  override def toJson: JsValue =
+    Json.parse(s"""
          |{
          |"potentiallyFictitiousBirth": "$potentiallyFictitiousBirth",
          |"correction": "${correction.getOrElse("")}",
@@ -74,18 +75,17 @@ case class GROStatus(potentiallyFictitiousBirth: Boolean = false,
          |"reRegistered": "${reRegistered.getOrElse("")}"
          |}
      """.stripMargin)
-  }
 
   override def flags: Map[String, String] = Map(
     "potentiallyFictitiousBirth" -> s"$potentiallyFictitiousBirth",
-    "correction" -> obfuscateReason(correction, "Correction on record"),
-    "cancelled" -> s"$cancelled",
-    "blockedRegistration" -> s"$blockedRegistration",
-    "marginalNote" -> obfuscateReason(marginalNote, "Marginal note on record"),
-    "reRegistered" -> obfuscateReason(reRegistered, "Re-registration on record")
+    "correction"                 -> obfuscateReason(correction, "Correction on record"),
+    "cancelled"                  -> s"$cancelled",
+    "blockedRegistration"        -> s"$blockedRegistration",
+    "marginalNote"               -> obfuscateReason(marginalNote, "Marginal note on record"),
+    "reRegistered"               -> obfuscateReason(reRegistered, "Re-registration on record")
   )
 
-  def determineFlagSeverity: FlagSeverity = {
+  def determineFlagSeverity: FlagSeverity =
     GROFlagSeverity(
       potentiallyFictitiousBirth = potentiallyFictitiousBirthP(this.potentiallyFictitiousBirth),
       correction = correctionP(this.correction),
@@ -94,36 +94,35 @@ case class GROStatus(potentiallyFictitiousBirth: Boolean = false,
       marginalNote = marginalNoteP(this.marginalNote),
       reRegistered = reRegisteredP(this.reRegistered)
     )
-  }
 
   private def potentiallyFictitiousBirthP: PartialFunction[Boolean, Severity] = {
     case true => Red
-    case _ => Green
+    case _    => Green
   }
 
   private def correctionP[A]: PartialFunction[Option[A], Severity] = {
     case Some(_) => Red
-    case _ => Green
+    case _       => Green
   }
 
   private def cancelledP: PartialFunction[Boolean, Severity] = {
     case true => Red
-    case _ => Green
+    case _    => Green
   }
 
   private def blockedRegistrationP: PartialFunction[Boolean, Severity] = {
     case true => Red
-    case _ => Green
+    case _    => Green
   }
 
   private def marginalNoteP[A]: PartialFunction[Option[A], Severity] = {
     case Some(x: String) if invalidMarginalNote.contains(x.trim.toLowerCase) => Red
-    case _ => Green
+    case _                                                                   => Green
   }
 
   private def reRegisteredP[A]: PartialFunction[Option[A], Severity] = {
     case Some(x: String) if invalidReRegistered.contains(x.trim.toLowerCase()) => Red
-    case _ => Green
+    case _                                                                     => Green
   }
 
 }
@@ -137,5 +136,5 @@ object GROStatus {
       (JsPath \ "blockedRegistration").read[Boolean].orElse(Reads.pure(false)) and
       (JsPath \ "marginalNote").readNullable[String] and
       (JsPath \ "reRegistered").readNullable[String]
-    ) (GROStatus.apply _)
+  )(GROStatus.apply _)
 }

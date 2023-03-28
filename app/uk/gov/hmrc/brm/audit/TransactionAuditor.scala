@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,12 @@ import scala.concurrent.Future
   * Created by adamconder on 15/02/2017.
   */
 @Singleton
-class TransactionAuditor @Inject()(connector: AuditConnector,
-                                   val keyGen: KeyGenerator,
-                                   val config: BrmConfig,
-                                   val logger: BRMLogger) extends BRMDownstreamAPIAudit(connector) {
+class TransactionAuditor @Inject() (
+  connector: AuditConnector,
+  val keyGen: KeyGenerator,
+  val config: BrmConfig,
+  val logger: BRMLogger
+) extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * Audit event for the result of MatchingService and data submitted to the API
@@ -41,25 +43,27 @@ class TransactionAuditor @Inject()(connector: AuditConnector,
     * @param result map of key value results
     * @param hc implicit headerCarrier
     */
-  final private class RequestsAndResultsAuditEvent(result : Map[String, String], path : String)
-                                                  (implicit hc : HeaderCarrier)
-    extends AuditEvent(
-      auditType = "BRM-RequestsAndResults",
-      detail = result,
-      transactionName = "brm-customer-information-and-results",
-      path = path
-    )
+  final private class RequestsAndResultsAuditEvent(result: Map[String, String], path: String)(implicit
+    hc: HeaderCarrier
+  ) extends AuditEvent(
+        auditType = "BRM-RequestsAndResults",
+        detail = result,
+        transactionName = "brm-customer-information-and-results",
+        path = path
+      )
 
-  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier): Future[AuditResult] = payload match {
-      case Some(p) =>
-        p.requestType match {
-          case DetailsRequest() =>
-            event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/details"))
-          case ReferenceRequest() =>
-            event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/reference"))
-        }
-      case _ =>
-        Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
+  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+    hc: HeaderCarrier
+  ): Future[AuditResult] = payload match {
+    case Some(p) =>
+      p.requestType match {
+        case DetailsRequest()   =>
+          event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/details"))
+        case ReferenceRequest() =>
+          event(new RequestsAndResultsAuditEvent(result, "birth-registration-matching/match/reference"))
+      }
+    case _       =>
+      Future.failed(new IllegalArgumentException("[TransactionAuditor] payload argument not specified"))
   }
 
 }

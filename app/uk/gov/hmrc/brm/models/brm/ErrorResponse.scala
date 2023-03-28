@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,18 @@ package uk.gov.hmrc.brm.models.brm
 
 import play.api.libs.json.Json
 
-trait ErrorResponse {
-
-}
+trait ErrorResponse {}
 
 object ErrorResponse extends ErrorResponse {
 
-  private def error(code: String, message: String) = Json.parse(
-    s"""
+  private def error(code: String, message: String) = Json
+    .parse(s"""
        |{
        |  "code": "$code",
        |  "message": "$message"
        |}
-     """.stripMargin).toString()
+     """.stripMargin)
+    .toString()
 
   val GRO_CONNECTION_DOWN = error("GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
   val NRS_CONNECTION_DOWN = error("NRS_CONNECTION_DOWN", "National Records Scotland: Scotland is unavailable")

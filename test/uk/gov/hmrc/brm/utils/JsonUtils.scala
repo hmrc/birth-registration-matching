@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,20 @@ import scala.io.Source
 
 object JsonUtils {
 
-  def getJsonFromFile[A](path:String, filename : A) = loadResource(s"/resources/$path/$filename.json")
+  def getJsonFromFile[A](path: String, filename: A) = loadResource(s"/resources/$path/$filename.json")
 
-  def loadResource(path : String) = {
+  def loadResource(path: String) = {
 
-    def resourceAsString(resourcePath: String): Option[String] = {
+    def resourceAsString(resourcePath: String): Option[String] =
       Option(getClass.getResourceAsStream(resourcePath)) map { is =>
         Source.fromInputStream(is).getLines.mkString("\n")
       }
-    }
 
     resourceAsString(path) match {
       case Some(x) =>
-        val json : JsValue = Json.parse(x)
+        val json: JsValue = Json.parse(x)
         json
-      case _ =>
+      case _       =>
         throw new RuntimeException("cannot load json")
     }
   }

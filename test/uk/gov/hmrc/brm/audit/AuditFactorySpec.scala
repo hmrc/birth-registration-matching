@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,18 @@ import org.scalatest.OptionValues
 /**
   * Created by adamconder on 09/02/2017.
   */
-class AuditFactorySpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite {
+class AuditFactorySpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val mockEngWalesAudit: EnglandAndWalesAudit = mock[EnglandAndWalesAudit]
-  val mockScotAudit: ScotlandAudit = mock[ScotlandAudit]
-  val mockIreAudit: NorthernIrelandAudit = mock[NorthernIrelandAudit]
+  val mockScotAudit: ScotlandAudit            = mock[ScotlandAudit]
+  val mockIreAudit: NorthernIrelandAudit      = mock[NorthernIrelandAudit]
 
   val testAuditor = new AuditFactory(
     mockEngWalesAudit,
@@ -47,25 +52,29 @@ class AuditFactorySpec extends AnyWordSpecLike with Matchers with OptionValues w
   "AuditFactory" should {
 
     "return EnglandAndWalesAudit for england birth registered request." in {
-      implicit val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      implicit val payload: Payload =
+        Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
 
-      testAuditor.getAuditor().isInstanceOf[EnglandAndWalesAudit]  shouldBe true
+      testAuditor.getAuditor().isInstanceOf[EnglandAndWalesAudit] shouldBe true
     }
 
     "return EnglandAndWalesAudit for wales birth registered request." in {
-      implicit val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.WALES)
+      implicit val payload: Payload =
+        Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.WALES)
 
       testAuditor.getAuditor().isInstanceOf[EnglandAndWalesAudit] shouldBe true
     }
 
     "return ScotlandAudit for wales birth registered request." in {
-      implicit val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.SCOTLAND)
+      implicit val payload: Payload =
+        Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.SCOTLAND)
 
       testAuditor.getAuditor().isInstanceOf[ScotlandAudit] shouldBe true
     }
 
     "return NorthernIrelandAudit for NORTHERN IRELAND birth registered request." in {
-      implicit val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.NORTHERN_IRELAND)
+      implicit val payload: Payload =
+        Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.NORTHERN_IRELAND)
 
       testAuditor.getAuditor().isInstanceOf[NorthernIrelandAudit] shouldBe true
     }

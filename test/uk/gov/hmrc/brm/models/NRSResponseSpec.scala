@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,18 +160,18 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
-      record.status.get.toJson shouldBe
+      record.status.get.toJson                            shouldBe
         Json.parse(s"""
            |{
            |  "status": "1",
@@ -222,16 +222,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -243,16 +243,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -264,16 +264,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -285,16 +285,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -306,16 +306,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -327,16 +327,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -348,15 +348,15 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe ""
-      record.child.lastName shouldBe ""
-      record.child.dateOfBirth shouldBe None
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe ""
+      record.child.lastName                               shouldBe ""
+      record.child.dateOfBirth                            shouldBe None
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -368,15 +368,15 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe ""
-      record.child.lastName shouldBe ""
-      record.child.dateOfBirth shouldBe None
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe ""
+      record.child.lastName                               shouldBe ""
+      record.child.dateOfBirth                            shouldBe None
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -388,16 +388,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -409,16 +409,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -430,16 +430,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -451,32 +451,32 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
     "return Record object without child details like firstname, lastname, dob when json does not have child details" in {
       val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017350003")
-      val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
-      val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017350003
-      record.child.forenames shouldBe ""
-      record.child.lastName shouldBe ""
-      record.child.dateOfBirth shouldBe None
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe -4
+      val listOfRecords         = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
+      val record                = listOfRecords.head
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017350003
+      record.child.forenames                              shouldBe ""
+      record.child.lastName                               shouldBe ""
+      record.child.dateOfBirth                            shouldBe None
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe -4
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -490,28 +490,28 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
 
       val record = listOfRecords.head
 
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "Adam TEST"
-      record.child.lastName shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "Adam TEST"
+      record.child.lastName                               shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
 
       val recordTwo = listOfRecords(1)
 
-      recordTwo shouldBe a[Record]
-      recordTwo.child shouldBe a[Child]
-      recordTwo.child.birthReferenceNumber shouldBe 2017734004
-      recordTwo.child.forenames shouldBe "Adam TEST"
-      recordTwo.child.lastName shouldBe "SMITH"
-      recordTwo.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      recordTwo.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      recordTwo                                           shouldBe a[Record]
+      recordTwo.child                                     shouldBe a[Child]
+      recordTwo.child.birthReferenceNumber                shouldBe 2017734004
+      recordTwo.child.forenames                           shouldBe "Adam TEST"
+      recordTwo.child.lastName                            shouldBe "SMITH"
+      recordTwo.child.dateOfBirth.get.toString            shouldBe "2009-11-12"
+      recordTwo.child.dateOfBirth.get                     shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -529,16 +529,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = jsonValidWithUTF8.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-      record.child.lastName shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--"
-      record.child.dateOfBirth.get.toString shouldBe "2007-02-18"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe "»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+      record.child.lastName                               shouldBe "ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ''--"
+      record.child.dateOfBirth.get.toString               shouldBe "2007-02-18"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -550,16 +550,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames.length shouldBe 250
-      record.child.lastName.length shouldBe 250
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames.length                       shouldBe 250
+      record.child.lastName.length                        shouldBe 250
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -572,16 +572,16 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames.length shouldBe 1
-      record.child.lastName.length shouldBe 1
-      record.child.dateOfBirth.get.toString shouldBe "2009-11-12"
-      record.child.dateOfBirth.get shouldBe a[LocalDate]
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames.length                       shouldBe 1
+      record.child.lastName.length                        shouldBe 1
+      record.child.dateOfBirth.get.toString               shouldBe "2009-11-12"
+      record.child.dateOfBirth.get                        shouldBe a[LocalDate]
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 
@@ -594,15 +594,15 @@ class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues wi
       val listOfRecords = nrsJsonResponseObject.as[List[Record]](ReadsUtil.nrsRecordsListRead)
 
       val record = listOfRecords.head
-      listOfRecords.length shouldBe 1
-      record shouldBe a[Record]
-      record.child shouldBe a[Child]
-      record.child.birthReferenceNumber shouldBe 2017734003
-      record.child.forenames shouldBe ""
-      record.child.lastName shouldBe ""
-      record.child.dateOfBirth shouldBe None
-      record.status.get shouldBe a[StatusInterface]
-      record.status.get.asInstanceOf[NRSStatus].status shouldBe 1
+      listOfRecords.length                                shouldBe 1
+      record                                              shouldBe a[Record]
+      record.child                                        shouldBe a[Child]
+      record.child.birthReferenceNumber                   shouldBe 2017734003
+      record.child.forenames                              shouldBe ""
+      record.child.lastName                               shouldBe ""
+      record.child.dateOfBirth                            shouldBe None
+      record.status.get                                   shouldBe a[StatusInterface]
+      record.status.get.asInstanceOf[NRSStatus].status    shouldBe 1
       record.status.get.asInstanceOf[NRSStatus].deathCode shouldBe 0
     }
 

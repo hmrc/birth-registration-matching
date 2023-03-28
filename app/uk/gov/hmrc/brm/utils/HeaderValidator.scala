@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,84 +31,79 @@ private object HeaderNames extends PlayHeaderNames {
   val AUDIT_SOURCE = "Audit-Source"
 }
 
-class HeaderValidator @Inject()(apiVersionMetrics: APIVersionMetrics,
-                                auditSourceMetrics: AuditSourceMetrics,
-                                keyGenerator: KeyGenerator) {
+class HeaderValidator @Inject() (
+  apiVersionMetrics: APIVersionMetrics,
+  auditSourceMetrics: AuditSourceMetrics,
+  keyGenerator: KeyGenerator
+) {
 
   val validContentType: String = "json"
-  val versionKey: String = "version"
+  val versionKey: String       = "version"
 
   val validVersions = List("1.0")
-  val groupNames = Seq("version", "contenttype")
-  val regEx = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
+  val groupNames    = Seq("version", "contenttype")
+  val regEx         = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
 
   val matchAuditSource: CharSequence => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
-  val matchHeader: CharSequence => Option[Match] = new Regex(regEx, groupNames: _*) findFirstMatchIn _
+  val matchHeader: CharSequence => Option[Match]      = new Regex(regEx, groupNames: _*) findFirstMatchIn _
 
   def validateVersion(s: String): Boolean = s match {
-    case x : String =>
+    case x: String =>
       apiVersionMetrics.count()
       validVersions.contains(x)
   }
 
   def validateAuditSource(s: String): Boolean = s match {
-    case x : String =>
+    case x: String =>
       auditSourceMetrics.count(x)
       x.nonEmpty
   }
 
-  def validateContentType(s: String): Boolean = {
+  def validateContentType(s: String): Boolean =
     s == validContentType
-  }
 
-  def validateValue[A](request: Request[A],
-                       headerKey: String,
-                       groupName: String,
-                       searchF: String => Boolean,
-                       matchF: String => Option[Match]): Boolean = {
-
-    request.headers.get(headerKey).flatMap(
-      a => {
-        matchF(a.toLowerCase) map (
-          res => {
-            val response = res.group(groupName)
-            searchF(response)
-          }
-          )
+  def validateValue[A](
+    request: Request[A],
+    headerKey: String,
+    groupName: String,
+    searchF: String => Boolean,
+    matchF: String => Option[Match]
+  ): Boolean =
+    request.headers
+      .get(headerKey)
+      .flatMap { a =>
+        matchF(a.toLowerCase) map (res => {
+          val response = res.group(groupName)
+          searchF(response)
+        })
       }
-    ) getOrElse false
-
-  }
+      .getOrElse(false)
 
   def getApiVersion[A](request: Request[A]): String = {
     val accept = request.headers.get(HeaderNames.ACCEPT)
-    accept.flatMap(
-      a =>
-        matchHeader(a.toLowerCase) map (
-          res => res.group(versionKey)
-          )
-    ) getOrElse ""
+    accept.flatMap(a => matchHeader(a.toLowerCase) map (res => res.group(versionKey))) getOrElse ""
   }
 
-  def validateAccept(cc: ControllerComponents): ActionBuilder[Request, AnyContent] = new ActionBuilder[Request, AnyContent] {
-    override val parser: BodyParser[AnyContent] = cc.parsers.default
-    override val executionContext: ExecutionContext = cc.executionContext
+  def validateAccept(cc: ControllerComponents): ActionBuilder[Request, AnyContent] =
+    new ActionBuilder[Request, AnyContent] {
+      override val parser: BodyParser[AnyContent]     = cc.parsers.default
+      override val executionContext: ExecutionContext = cc.executionContext
 
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
-      (validateValue(request, HeaderNames.ACCEPT, "version", validateVersion, matchHeader),
-        validateValue(request, HeaderNames.AUDIT_SOURCE, "auditsource", validateAuditSource, matchAuditSource),
-        validateValue(request, HeaderNames.ACCEPT, "contenttype", validateContentType, matchHeader))
-      match {
-        case (false, _, _) =>
-          Future.successful(InvalidAcceptHeader.status)
-        case (_, false, _) =>
-          Future.successful(InvalidAuditSource.status)
-        case (_, _, false) =>
-          Future.successful(InvalidContentType.status)
-        case (_, _, _) =>
-          keyGenerator.generateAndSetKey(request, getApiVersion(request))
-          block(request)
-      }
-  }
+      def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
+        (
+          validateValue(request, HeaderNames.ACCEPT, "version", validateVersion, matchHeader),
+          validateValue(request, HeaderNames.AUDIT_SOURCE, "auditsource", validateAuditSource, matchAuditSource),
+          validateValue(request, HeaderNames.ACCEPT, "contenttype", validateContentType, matchHeader)
+        ) match {
+          case (false, _, _) =>
+            Future.successful(InvalidAcceptHeader.status)
+          case (_, false, _) =>
+            Future.successful(InvalidAuditSource.status)
+          case (_, _, false) =>
+            Future.successful(InvalidContentType.status)
+          case (_, _, _)     =>
+            keyGenerator.generateAndSetKey(request, getApiVersion(request))
+            block(request)
+        }
+    }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.joda.time.LocalDate
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 
-object FlagsHelper  {
+object FlagsHelper {
 
   private val referenceNumber: Int = 123456789
 
@@ -34,7 +34,8 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = false,
       marginalNote = None,
-      reRegistered = None)
+      reRegistered = None
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
@@ -48,7 +49,8 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = true,
       marginalNote = None,
-      reRegistered = None)
+      reRegistered = None
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
@@ -62,7 +64,8 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = false,
       marginalNote = None,
-      reRegistered = None)
+      reRegistered = None
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
@@ -76,7 +79,8 @@ object FlagsHelper  {
       cancelled = true,
       blockedRegistration = false,
       marginalNote = None,
-      reRegistered = None)
+      reRegistered = None
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
@@ -90,7 +94,8 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = false,
       marginalNote = Some(value),
-      reRegistered = None)
+      reRegistered = None
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
@@ -104,7 +109,8 @@ object FlagsHelper  {
       cancelled = false,
       blockedRegistration = false,
       marginalNote = None,
-      reRegistered = Some(value))
+      reRegistered = Some(value)
+    )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))

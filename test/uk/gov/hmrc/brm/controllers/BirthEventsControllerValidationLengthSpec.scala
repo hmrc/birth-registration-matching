@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,14 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerValidationLengthSpec extends AnyWordSpecLike with Matchers with OptionValues
-  with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with BaseUnitSpec {
+class BirthEventsControllerValidationLengthSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with MockitoSugar
+    with BeforeAndAfter
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -80,7 +86,7 @@ class BirthEventsControllerValidationLengthSpec extends AnyWordSpecLike with Mat
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(),any())(any()))
+      when(mockAuditor.audit(any(), any())(any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       when(mockMetricsFactory.getMetrics()(any()))
@@ -88,21 +94,21 @@ class BirthEventsControllerValidationLengthSpec extends AnyWordSpecLike with Mat
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
       val request = postRequest(firstNameWithMoreThan100Characters)
-      val result = testController.post().apply(request).futureValue
-      checkResponse(result,OK, matchResponse = false)
+      val result  = testController.post().apply(request).futureValue
+      checkResponse(result, OK, matchResponse = false)
     }
 
     "return BAD_REQUEST if firstName > 250 characters" in {
       val request = postRequest(firstNameWithMoreThan250Characters)
-      val result = testController.post().apply(request).futureValue
-      checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+      val result  = testController.post().apply(request).futureValue
+      checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       verify(mockGroConnector, never).getReference(any())(any(), any())
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
       val request = postRequest(lastNameWithMoreThan250Characters)
-      val result = testController.post().apply(request).futureValue
-      checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+      val result  = testController.post().apply(request).futureValue
+      checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       verify(mockGroConnector, never).getReference(any())(any(), any())
     }
 

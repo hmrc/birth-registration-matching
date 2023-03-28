@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,13 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with BeforeAndAfter with GuiceOneAppPerSuite {
+class KeyGeneratorSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with BeforeAndAfter
+    with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -56,10 +62,10 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
 
       val key = keyGen.generateKey(mockRequest, "1.0")
-      key shouldBe "20160915:05101000-0-dfs-1.0"
-      key.contains("dfs") shouldBe true
+      key                             shouldBe "20160915:05101000-0-dfs-1.0"
+      key.contains("dfs")             shouldBe true
       key.contains("20160915:051010") shouldBe true
-      key.contains("1.0") shouldBe true
+      key.contains("1.0")             shouldBe true
     }
 
     "return key when audio source is empty" in {
@@ -68,8 +74,8 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = keyGen.generateKey(mockRequest, "1.0")
-      key shouldBe "20160915:05101000-0--1.0"
+      val key  = keyGen.generateKey(mockRequest, "1.0")
+      key                 shouldBe "20160915:05101000-0--1.0"
       key.contains("dfs") shouldBe false
       key.contains("1.0") shouldBe true
     }
@@ -80,11 +86,10 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = keyGen.generateKey(mockRequest, "1.0")
+      val key  = keyGen.generateKey(mockRequest, "1.0")
       key shouldBe "20160915:05101000-0-dfs-1.0"
 
     }
-
 
     "return key when version is empty" in {
       when(mockRequest.headers).thenReturn(headers)
@@ -92,11 +97,10 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = keyGen.generateKey(mockRequest, "")
+      val key  = keyGen.generateKey(mockRequest, "")
       key shouldBe "20160915:05101000-0-dfs-"
 
     }
-
 
     "return key when audit source length is more than 20" in {
       when(mockRequest.headers).thenReturn(headers)
@@ -105,10 +109,10 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = keyGen.generateKey(mockRequest, "2.0")
-      key.contains("this--is--30--charac") shouldBe true
+      val key  = keyGen.generateKey(mockRequest, "2.0")
+      key.contains("this--is--30--charac")  shouldBe true
       key.contains("this--is--30--charact") shouldBe false
-      key.length <= 50 shouldBe true
+      key.length <= 50                      shouldBe true
 
     }
 
@@ -118,7 +122,7 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with OptionValues w
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.2.0+json"))
       val date = new DateTime(2016, 9, 15, 5, 10, 10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key = keyGen.generateKey(mockRequest, "2.0")
+      val key  = keyGen.generateKey(mockRequest, "2.0")
       key.contains("2.0") shouldBe true
 
     }

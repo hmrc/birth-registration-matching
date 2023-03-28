@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
   "MetricsFactory" should {
 
     "return England and Wales metrics for reference" in {
-      implicit val payload = Payload(Some("123456789"), "Adam", None, "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
+      implicit val payload =
+        Payload(Some("123456789"), "Adam", None, "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
       app.injector.instanceOf[MetricsFactory].getMetrics()
     }
 
@@ -44,7 +45,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[GROReferenceMetrics]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "proxy"
     }
 
@@ -96,7 +97,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[GRODetailsMetrics]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "proxy-details"
     }
     "have a timer for the proxy-details connection" in {
@@ -146,7 +147,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[NRSMetrics]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "nrs"
     }
 
@@ -198,7 +199,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[GRONIMetrics]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "gro-ni"
     }
 
@@ -250,7 +251,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[MatchCountMetric]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "match"
     }
 
@@ -266,7 +267,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[NoMatchCountMetric]
 
     "initialise" in {
-      metrics shouldBe a[BRMMetrics]
+      metrics        shouldBe a[BRMMetrics]
       metrics.prefix shouldBe "no-match"
     }
 
@@ -275,7 +276,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 1
       metrics.count()
       metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 2
-      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount should not be 2
+      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount      should not be 2
     }
 
   }
@@ -312,7 +313,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
     val metrics = app.injector.instanceOf[GROReferenceMetrics]
 
-    "increment for version 1.0" in{
+    "increment for version 1.0" in {
       new APIVersionMetrics(app.injector.instanceOf[Metrics]).count()
       metrics.metrics.defaultRegistry.getCounters.get("api-version-1.0").getCount shouldBe 1
     }

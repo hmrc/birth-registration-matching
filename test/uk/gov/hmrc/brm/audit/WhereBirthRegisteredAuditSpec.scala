@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,17 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 /**
   * Created by adamconder on 09/02/2017.
   */
-class WhereBirthRegisteredAuditSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec {
+class WhereBirthRegisteredAuditSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val auditor = auditorFixtures.whereBirthRegisteredAudit
+  val auditor     = auditorFixtures.whereBirthRegisteredAudit
   implicit val hc = HeaderCarrier()
 
   "WhereBirthRegisteredAudit" should {

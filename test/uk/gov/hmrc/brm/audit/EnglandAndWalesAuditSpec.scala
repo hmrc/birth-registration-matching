@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,16 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class EnglandAndWalesAuditSpec extends AnyWordSpecLike with Matchers with OptionValues
-  with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfter with ScalaFutures {
+class EnglandAndWalesAuditSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with BeforeAndAfter
+    with ScalaFutures {
 
-  val connector: AuditConnector = mockAuditConnector
+  val connector: AuditConnector     = mockAuditConnector
   val auditor: EnglandAndWalesAudit = auditorFixtures.englandAndWalesAudit
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -49,7 +55,7 @@ class EnglandAndWalesAuditSpec extends AnyWordSpecLike with Matchers with Option
 
     "audit requests when using reference number" in {
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = auditor.audit(event, Some(payload)).futureValue
@@ -59,7 +65,7 @@ class EnglandAndWalesAuditSpec extends AnyWordSpecLike with Matchers with Option
     "audit requests when using child's details" in {
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       val result = auditor.audit(event, Some(payload)).futureValue
       result shouldBe AuditResult.Success

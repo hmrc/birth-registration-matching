@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,17 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 09/02/2017.
   */
-class NorthernIrelandSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
+class NorthernIrelandSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val connector: AuditConnector = mockAuditConnector
+  val connector: AuditConnector     = mockAuditConnector
   val auditor: NorthernIrelandAudit = auditorFixtures.northernIrelandAudit
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -48,7 +54,7 @@ class NorthernIrelandSpec extends AnyWordSpecLike with Matchers with OptionValue
 
     "audit requests when using reference number" in {
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = auditor.audit(event, Some(payload)).futureValue
@@ -57,7 +63,7 @@ class NorthernIrelandSpec extends AnyWordSpecLike with Matchers with OptionValue
 
     "audit requests when using child's details" in {
       val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       when(connector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 

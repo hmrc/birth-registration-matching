@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,13 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
-  with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class BirthEventsControllerAdditionalNameSwitchSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with MockitoSugar
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -72,7 +77,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
   def makeRequest(jsonRequest: JsValue): Result = {
     val request = postRequest(jsonRequest)
-    val result = testController.post().apply(request).futureValue
+    val result  = testController.post().apply(request).futureValue
     result
   }
 
@@ -85,7 +90,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(),any())(any()))
+      when(mockAuditor.audit(any(), any())(any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       when(mockMetricsFactory.getMetrics()(any()))
@@ -93,27 +98,51 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035710"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035710"),
+          "Adam",
+          Some("test"),
+          "SMITH",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when reference request has  more than one additional names and record has same value" in {
       mockAuditSuccess
       mockReferenceResponse(groResponseWithMoreAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035712"), "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035712"),
+          "Adam",
+          Some("test david"),
+          "SMITH",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when reference request has  more than one additional names with space and record has same value without space" in {
       mockAuditSuccess
       mockReferenceResponse(groResponseWithMoreAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035712"), "Adam", Some(" test david "), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035712"),
+          "Adam",
+          Some(" test david "),
+          "SMITH",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
@@ -122,9 +151,17 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
         .thenReturn(Future.successful(BirthMatchResponse()))
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035711"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035711"),
+          "Adam",
+          Some("test"),
+          "SMITH",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
@@ -134,9 +171,10 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035711"), "Adam", None, "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(Some("500035711"), "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
@@ -146,9 +184,17 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(Some("500035711"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035711"),
+          "Adam",
+          Some("test"),
+          "SMITH",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
@@ -158,27 +204,51 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithSpecialCharacter)
-      val payload = Json.toJson(Payload(Some("500035713"), "Mary-Ann ", Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035713"),
+          "Mary-Ann ",
+          Some("O'Leary"),
+          "Smith-Johnson",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when reference request firstname has additional name with special character and record has same value" in {
       mockAuditSuccess
       mockReferenceResponse(groResponseWithSpecialCharacter)
-      val payload = Json.toJson(Payload(Some("500035713"), "Mary-Ann O'Leary ", None, "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500035713"),
+          "Mary-Ann O'Leary ",
+          None,
+          "Smith-Johnson",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when reference request firstname and additional names has more space seprated names and record has same name on it." in {
       mockAuditSuccess
       mockReferenceResponse(groResponse500036682)
-      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ", Some("Welcome In The Valleys Grand Slam"), "WILLIAMS JONES",
-        new LocalDate("2009-11-23"), BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500036682"),
+          "Ivor Test Hywel Tom Jones ",
+          Some("Welcome In The Valleys Grand Slam"),
+          "WILLIAMS JONES",
+          new LocalDate("2009-11-23"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
@@ -188,18 +258,34 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockReferenceResponse(groResponse500036682)
-      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ", None, "WILLIAMS JONES", new LocalDate("2009-11-23"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500036682"),
+          "Ivor Test Hywel Tom Jones ",
+          None,
+          "WILLIAMS JONES",
+          new LocalDate("2009-11-23"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
     "return matched value of false when reference request firstname has multiple names and  additional name and record does not have same name on it." in {
       mockAuditSuccess
       mockReferenceResponse(groResponse500036682)
-      val payload = Json.toJson(Payload(Some("500036682"), "Ivor Test Hywel Tom Jones ", Some("Welcome In The Valleys Grand"), "WILLIAMS JONES",
-        new LocalDate("2009-11-23"), BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          Some("500036682"),
+          "Ivor Test Hywel Tom Jones ",
+          Some("Welcome In The Valleys Grand"),
+          "WILLIAMS JONES",
+          new LocalDate("2009-11-23"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
@@ -209,18 +295,20 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when detail request has more that one additional names and record has same value" in {
       mockAuditSuccess
       mockDetailsResponse(groResponseWithMoreAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(None, "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
@@ -230,18 +318,20 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithMoreAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
     "return matched value of false when detail request has additional names and record does not have middle name in it." in {
       mockAuditSuccess
       mockDetailsResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", Some("david"), "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(None, "Adam", Some("david"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
     }
 
@@ -251,51 +341,83 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithoutAdditionalName)
-      val payload = Json.toJson(Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload =
+        Json.toJson(Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND))
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when details request has additional name with special character and record has same value" in {
       mockAuditSuccess
       mockDetailsResponse(groResponseWithSpecialCharacter)
-      val payload = Json.toJson(Payload(None, "Mary-Ann  ", Some("O'Leary"), "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          None,
+          "Mary-Ann  ",
+          Some("O'Leary"),
+          "Smith-Johnson",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when details request fistname has additiona name with special character  and record has same value" in {
       mockAuditSuccess
       mockDetailsResponse(groResponseWithSpecialCharacter)
-      val payload = Json.toJson(Payload(None, "Mary-Ann O'Leary ", None, "Smith-Johnson", new LocalDate("2009-07-01"),
-        BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          None,
+          "Mary-Ann O'Leary ",
+          None,
+          "Smith-Johnson",
+          new LocalDate("2009-07-01"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when details request firstname and additional names has more space seprated names and record has same name on it." in {
       mockAuditSuccess
       mockDetailsResponse(groResponse500036682)
-      val payload = Json.toJson(Payload(None, "Ivor Test Hywel Tom Jones ", Some("Welcome In The Valleys Grand Slam"), "WILLIAMS JONES",
-        new LocalDate("2009-11-23"), BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
+      val payload = Json.toJson(
+        Payload(
+          None,
+          "Ivor Test Hywel Tom Jones ",
+          Some("Welcome In The Valleys Grand Slam"),
+          "WILLIAMS JONES",
+          new LocalDate("2009-11-23"),
+          BirthRegisterCountry.ENGLAND
+        )
+      )
+      val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of false when details request firstname and additional names " +
       "has more space seprated names and record has same different name on it." in {
-      when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        when(mockLookupService.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(BirthMatchResponse()))
 
-      mockAuditSuccess
-      mockDetailsResponse(groResponse500036682)
-      val payload = Json.toJson(Payload(None, "Ivor Test Hywel Tom Jones ", Some("Welcome In The Valleys Grand"),
-        "WILLIAMS JONES", new LocalDate("2009-11-23"), BirthRegisterCountry.ENGLAND))
-      val result = makeRequest(payload)
-      checkResponse(result, OK, matchResponse = false)
-    }
+        mockAuditSuccess
+        mockDetailsResponse(groResponse500036682)
+        val payload = Json.toJson(
+          Payload(
+            None,
+            "Ivor Test Hywel Tom Jones ",
+            Some("Welcome In The Valleys Grand"),
+            "WILLIAMS JONES",
+            new LocalDate("2009-11-23"),
+            BirthRegisterCountry.ENGLAND
+          )
+        )
+        val result  = makeRequest(payload)
+        checkResponse(result, OK, matchResponse = false)
+      }
 
   }
 
@@ -304,21 +426,21 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends AnyWordSpecLike with
     "return response code 400 if request contains additionalName key but no value" in {
       mockAuditSuccess
       val request = postRequest(additionalNamesKeyNoValue)
-      val result = testController.post().apply(request).futureValue
+      val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
     }
 
     "return response code 400 if request contains special characters in additionalName" in {
       mockAuditSuccess
       val request = postRequest(additionalNameWithSpecialCharacters)
-      val result = testController.post().apply(request).futureValue
+      val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
     }
 
     "return response code 400 if request contains more than 250 characters in additionalName" in {
       mockAuditSuccess
       val request = postRequest(additionalNameWithMoreThan250Characters)
-      val result = testController.post().apply(request).futureValue
+      val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
     }
   }

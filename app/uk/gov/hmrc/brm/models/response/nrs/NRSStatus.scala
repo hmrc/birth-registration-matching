@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,48 +24,42 @@ import uk.gov.hmrc.brm.filters.flags.{Green, Severity}
 
 case class NRSStatus(status: Int = 1, deathCode: Int = 0) extends StatusInterface {
 
-  case class NRSFlagSeverity(status: Severity,
-                             deathCode: Severity) extends FlagSeverity {
-    def canProcessRecord(config: BrmConfig): Boolean = {
+  case class NRSFlagSeverity(status: Severity, deathCode: Severity) extends FlagSeverity {
+    def canProcessRecord(config: BrmConfig): Boolean =
       true
-    }
   }
 
-  override def toJson: JsValue = {
+  override def toJson: JsValue =
     Json.parse(s"""
       |{
       | "status": "$status",
       | "deathCode": "$deathCode"
       |}
     """.stripMargin)
-  }
 
   override def flags: Map[String, String] = Map(
-    "status" -> s"$statusReason",
+    "status"    -> s"$statusReason",
     "deathCode" -> s"$deathCodeReason"
   )
 
-  def determineFlagSeverity: FlagSeverity = {
+  def determineFlagSeverity: FlagSeverity =
     NRSFlagSeverity(
       status = Green,
       deathCode = Green
     )
-  }
 
-  private def statusReason = {
+  private def statusReason =
     status match {
-      case 1 => "Valid"
+      case 1  => "Valid"
       case -4 => "Corrections"
       case -5 => "Incomplete"
       case -6 => "Cancelled"
-      case _ => "Unknown"
+      case _  => "Unknown"
     }
-  }
 
-  private def deathCodeReason = {
+  private def deathCodeReason =
     deathCode match {
       case 0 => "Not deceased"
       case _ => "Potentially deceased"
     }
-  }
 }

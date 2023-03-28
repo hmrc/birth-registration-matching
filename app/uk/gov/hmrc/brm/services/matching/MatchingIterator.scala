@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import uk.gov.hmrc.brm.models.response.Record
 
 import scala.annotation.tailrec
 
-
 trait MatchingIterator {
   this: MatchingAlgorithm =>
 
@@ -33,15 +32,15 @@ trait MatchingIterator {
 
   def performMatch(payload: Payload, records: List[Record], matchOnMultiple: Boolean): MatchingResult = {
     @tailrec
-    def matchHelper(records: List[Record], f: ((Payload, Record)) => MatchingResult): MatchingResult = {
+    def matchHelper(records: List[Record], f: ((Payload, Record)) => MatchingResult): MatchingResult =
       records match {
-        case Nil =>
+        case Nil          =>
           // no records returned therefore no match was found
           noMatch()
-        case head :: Nil =>
+        case head :: Nil  =>
           // 1 record returned therefore we will attempt to match
           val matchResult = f((payload, head))
-          if(head.isFlagged) {
+          if (head.isFlagged) {
             matchResult.copy(_matched = Bad())
           } else {
             matchResult
@@ -51,7 +50,6 @@ trait MatchingIterator {
           //val r = f(payload, head)
           matchHelper(tail, f)
       }
-    }
 
     if (matchOnMultiple || records.length == 1) {
       // one record returned, attempt to match

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,24 @@ import uk.gov.hmrc.brm.config.BrmConfig
 trait SwitchException {
 
   final case class MatchingConfigurationException(switch: String)
-    extends RuntimeException(s"birth-registration-matching.matching.$switch configuration not found")
+      extends RuntimeException(s"birth-registration-matching.matching.$switch configuration not found")
 
-  final case class FeatureSwitchException(switch : String)
-    extends RuntimeException(s"birth-registration-matching.features.$switch.enabled configuration not found")
+  final case class FeatureSwitchException(switch: String)
+      extends RuntimeException(s"birth-registration-matching.features.$switch.enabled configuration not found")
 
-  final def exception(key : String) = throw FeatureSwitchException(key)
+  final def exception(key: String) = throw FeatureSwitchException(key)
 }
 
 trait Switch extends SwitchException {
   val config: BrmConfig
   val name: String
-  final def isEnabled : Boolean = config.conf.getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
+  final def isEnabled: Boolean =
+    config.conf.getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
 }
 
 trait SwitchValue extends SwitchException {
   val config: BrmConfig
   val name: String
-  final def value : String = config.conf.getConfString(s"birth-registration-matching.features.$name.value", exception(name))
+  final def value: String =
+    config.conf.getConfString(s"birth-registration-matching.features.$name.value", exception(name))
 }
