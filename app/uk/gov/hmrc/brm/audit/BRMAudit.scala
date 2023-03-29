@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import scala.annotation.tailrec
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.ExecutionContext
 
 /**
   * AuditEvent - Abstract class for auditing events
@@ -51,9 +52,7 @@ private abstract class AuditEvent(
       tags = hc.toAuditTags(transactionName, path)
     )
 
-abstract class BRMAudit(connector: AuditConnector) {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+abstract class BRMAudit(connector: AuditConnector)(implicit val ec: ExecutionContext) {
 
   val keyGen: KeyGenerator
   val logger: BRMLogger
@@ -78,7 +77,8 @@ abstract class BRMAudit(connector: AuditConnector) {
 
 }
 
-abstract class BRMDownstreamAPIAudit(connector: AuditConnector) extends BRMAudit(connector) {
+abstract class BRMDownstreamAPIAudit(connector: AuditConnector)(implicit ec: ExecutionContext)
+    extends BRMAudit(connector) {
 
   implicit val config: BrmConfig
   implicit val logger: BRMLogger

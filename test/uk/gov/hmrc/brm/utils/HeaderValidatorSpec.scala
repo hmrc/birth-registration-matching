@@ -46,6 +46,8 @@ class HeaderValidatorSpec
 
   val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val testController = new BirthEventsController(
     mockLookupService,
     auditorFixtures.whereBirthRegisteredAudit,

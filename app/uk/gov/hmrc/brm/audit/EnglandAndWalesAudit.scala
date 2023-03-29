@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
+
 import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
@@ -24,7 +25,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * TODO: should this be deprecated?
@@ -36,7 +37,8 @@ class EnglandAndWalesAudit @Inject() (
   val keyGen: KeyGenerator,
   val config: BrmConfig,
   val logger: BRMLogger
-) extends BRMDownstreamAPIAudit(connector) {
+)(implicit ec: ExecutionContext)
+    extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * EnglandAndWalesAuditEvent

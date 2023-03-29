@@ -28,7 +28,7 @@ object JsonUtils {
 
     def resourceAsString(resourcePath: String): Option[String] =
       Option(getClass.getResourceAsStream(resourcePath)) map { is =>
-        Source.fromInputStream(is).getLines.mkString("\n")
+        Source.fromInputStream(is).getLines().mkString("\n")
       }
 
     resourceAsString(path) match {

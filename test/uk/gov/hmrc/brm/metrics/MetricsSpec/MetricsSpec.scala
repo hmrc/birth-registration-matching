@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
+import akka.http.scaladsl.model.StatusCodes._
 import com.kenshoo.play.metrics.Metrics
 import org.joda.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
@@ -56,37 +57,37 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     }
 
     "have a 200 status count for proxy" in {
-      metrics.status(200)
+      metrics.status(OK.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for proxy" in {
-      metrics.status(400)
+      metrics.status(BadRequest.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
-      metrics.status(404)
+      metrics.status(NotFound.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for proxy" in {
-      metrics.status(500)
+      metrics.status(InternalServerError.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
-      metrics.status(502)
+      metrics.status(BadGateway.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
-      metrics.status(504)
+      metrics.status(GatewayTimeout.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(423)
+      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-423").getCount shouldBe 5
     }
 
@@ -106,37 +107,37 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       metrics.metrics.defaultRegistry.getTimers.get("proxy-details-timer").getCount shouldBe 1
     }
     "have a 200 status count for proxy-details" in {
-      metrics.status(200)
+      metrics.status(OK.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for proxy-details" in {
-      metrics.status(400)
+      metrics.status(BadRequest.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy-details" in {
-      metrics.status(404)
+      metrics.status(NotFound.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for proxy-details" in {
-      metrics.status(500)
+      metrics.status(InternalServerError.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy-details" in {
-      metrics.status(502)
+      metrics.status(BadGateway.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy-details" in {
-      metrics.status(504)
+      metrics.status(GatewayTimeout.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(423)
+      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
     }
 
@@ -158,37 +159,37 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     }
 
     "have a 200 status count for nrs" in {
-      metrics.status(200)
+      metrics.status(OK.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for nrs" in {
-      metrics.status(400)
+      metrics.status(BadRequest.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
-      metrics.status(404)
+      metrics.status(NotFound.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for nrs" in {
-      metrics.status(500)
+      metrics.status(InternalServerError.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
-      metrics.status(502)
+      metrics.status(BadGateway.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
-      metrics.status(504)
+      metrics.status(GatewayTimeout.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(423)
+      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-423").getCount shouldBe 5
     }
 
@@ -210,37 +211,37 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     }
 
     "have a 200 status count for gro-ni" in {
-      metrics.status(200)
+      metrics.status(OK.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for gro-ni" in {
-      metrics.status(400)
+      metrics.status(BadRequest.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
-      metrics.status(404)
+      metrics.status(NotFound.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for gro-ni" in {
-      metrics.status(500)
+      metrics.status(InternalServerError.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
-      metrics.status(502)
+      metrics.status(BadGateway.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
-      metrics.status(504)
+      metrics.status(GatewayTimeout.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(423)
+      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-423").getCount shouldBe 5
     }
 

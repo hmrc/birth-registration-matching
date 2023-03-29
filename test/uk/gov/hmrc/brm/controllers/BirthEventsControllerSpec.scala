@@ -70,6 +70,8 @@ class BirthEventsControllerSpec
 
   val birthEventsController: BirthEventsController = app.injector.instanceOf[BirthEventsController]
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
     auditorFixtures.whereBirthRegisteredAudit,

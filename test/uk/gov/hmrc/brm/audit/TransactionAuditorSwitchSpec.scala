@@ -41,6 +41,8 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class TransactionAuditorSwitchSpec
     extends AnyWordSpecLike
     with Matchers

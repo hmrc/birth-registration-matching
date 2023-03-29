@@ -52,6 +52,8 @@ class BirthEventsControllerAdditionalNameSwitchSpec
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
     auditorFixtures.whereBirthRegisteredAudit,

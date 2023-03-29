@@ -167,6 +167,8 @@ trait NameParserSpec
 
     "not filtering middle names" should {
 
+      val birthRefNumber = 123456789
+
       "return two lists of names where List 1 has 1 name and List 2 has 1 name due to firstName having 1 name" taggedAs Tag(
         "dontIgnoreAdditionalNames"
       ) in {
@@ -183,7 +185,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam David",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -213,7 +215,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam TEST David ",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -244,7 +246,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam David TEST ",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -275,7 +277,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam TEST David test",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -306,7 +308,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam David TEST test",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -337,7 +339,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam Test",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -367,7 +369,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam Test",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -397,7 +399,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam Test",
             lastName = "Smith",
             dateOfBirth = Some(date)
@@ -457,7 +459,7 @@ trait NameParserSpec
 
         val record = Record(child =
           Child(
-            birthReferenceNumber = 123456789,
+            birthReferenceNumber = birthRefNumber,
             forenames = "Adam Test",
             lastName = "Smith",
             dateOfBirth = Some(date)

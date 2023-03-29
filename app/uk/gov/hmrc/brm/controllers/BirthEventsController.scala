@@ -32,8 +32,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, Heade
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class BirthEventsController @Inject() (
   val service: LookupService,
@@ -52,7 +51,8 @@ class BirthEventsController @Inject() (
   implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
   implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
   implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics
-) extends BRMBaseController(cc) {
+)(implicit val ec: ExecutionContext)
+    extends BRMBaseController(cc) {
 
   override val CLASS_NAME: String     = this.getClass.getSimpleName
   override val METHOD_NAME: String    = "BirthEventsController::post"

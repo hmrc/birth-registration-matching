@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import akka.http.scaladsl.model.StatusCodes._
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -79,7 +80,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val payload =
           Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
         val result  = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
 
         (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test"
         (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
@@ -91,7 +92,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val payload         =
           Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
 
         (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test"
         (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
@@ -112,7 +113,7 @@ class BirthConnectorWithAdditionalNameSwitch
           BirthRegisterCountry.ENGLAND
         )
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
 
         (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test david"
         (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
@@ -126,7 +127,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
         val payload         = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
         (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam"
         (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
         (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
@@ -146,7 +147,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val requestWithAdditionalName =
           Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
         (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
@@ -158,7 +159,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val requestWithAdditionalName =
           Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
         (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
@@ -179,7 +180,7 @@ class BirthConnectorWithAdditionalNameSwitch
           BirthRegisterCountry.SCOTLAND
         )
         val result          = connectorFixtures.nrsConnector.getChildDetails(payload).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
 
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test david"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
@@ -194,7 +195,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val requestWithoutAdditionalName =
           Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"), BirthRegisterCountry.SCOTLAND)
         val result                       = connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue
-        checkResponse(result, 200)
+        checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "ANTHONY"
         (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "ANDREWS"
         (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2016-11-08"

@@ -26,6 +26,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
+import java.time.Month._
+
 class KeyGeneratorSpec
     extends AnyWordSpecLike
     with Matchers
@@ -43,13 +45,16 @@ class KeyGeneratorSpec
     reset(headers)
   }
 
+  private val (year2009, year2016)            = (2009, 2016)
+  private val (num5, num10, num15, num123456) = (5, 10, 15, 123456)
+
   "KeyGenerator" should {
 
     "returns key" in {
-      when(mockRequest.id).thenReturn(10)
+      when(mockRequest.id).thenReturn(num10)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(any())).thenReturn(Some("dfs"))
-      val date = new DateTime(2009, 10, 10, 5, 10, 10)
+      val date = new DateTime(year2009, OCTOBER.getValue, num10, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       keyGen.generateKey(mockRequest, "1.0").isEmpty shouldBe false
     }
@@ -58,7 +63,7 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
 
       val key = keyGen.generateKey(mockRequest, "1.0")
@@ -72,7 +77,7 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(None)
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key  = keyGen.generateKey(mockRequest, "1.0")
       key                 shouldBe "20160915:05101000-0--1.0"
@@ -84,7 +89,7 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key  = keyGen.generateKey(mockRequest, "1.0")
       key shouldBe "20160915:05101000-0-dfs-1.0"
@@ -95,7 +100,7 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key  = keyGen.generateKey(mockRequest, "")
       key shouldBe "20160915:05101000-0-dfs-"
@@ -104,10 +109,10 @@ class KeyGeneratorSpec
 
     "return key when audit source length is more than 20" in {
       when(mockRequest.headers).thenReturn(headers)
-      when(mockRequest.id).thenReturn(123456)
+      when(mockRequest.id).thenReturn(num123456)
       when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key  = keyGen.generateKey(mockRequest, "2.0")
       key.contains("this--is--30--charac")  shouldBe true
@@ -120,7 +125,7 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.2.0+json"))
-      val date = new DateTime(2016, 9, 15, 5, 10, 10)
+      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
       DateTimeUtils.setCurrentMillisFixed(date.getMillis)
       val key  = keyGen.generateKey(mockRequest, "2.0")
       key.contains("2.0") shouldBe true

@@ -29,8 +29,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuil
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class LookupService @Inject() (
   groConnector: GROConnector,
@@ -42,7 +41,7 @@ class LookupService @Inject() (
   recordParser: RecordParser,
   matchMetric: MatchCountMetric,
   noMatchMetric: NoMatchCountMetric
-) {
+)(implicit val executionContext: ExecutionContext) {
 
   val CLASS_NAME: String = this.getClass.getSimpleName
 
