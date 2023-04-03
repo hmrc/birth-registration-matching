@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 /**
   * Created by adamconder on 09/02/2017.
   */
-class ScotlandAuditSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
+class ScotlandAuditSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -47,7 +53,7 @@ class ScotlandAuditSpec extends AnyWordSpecLike with Matchers with OptionValues 
 
     "audit requests when using reference number" in {
       val payload = Payload(Some("123456789"), "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = auditor.audit(event, Some(payload)).futureValue
@@ -56,7 +62,7 @@ class ScotlandAuditSpec extends AnyWordSpecLike with Matchers with OptionValues 
 
     "audit requests when using child's details" in {
       val payload = Payload(None, "Adam", None, "Test", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      val event = Map("match" -> "true")
+      val event   = Map("match" -> "true")
 
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       val result = auditor.audit(event, Some(payload)).futureValue

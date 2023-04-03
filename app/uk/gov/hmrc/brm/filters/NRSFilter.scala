@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,29 +24,29 @@ import uk.gov.hmrc.brm.switches.Switch
 /**
   * Created by mew on 19/05/2017.
   */
-class NRSFilter @Inject()(conf: BrmConfig) extends Filter(GeneralFilter) {
+class NRSFilter @Inject() (conf: BrmConfig) extends Filter(GeneralFilter) {
   class NRSSwitch extends Switch {
     override val config: BrmConfig = conf
-    override val name = "nrs"
+    override val name              = "nrs"
   }
-  val switch = new NRSSwitch
+  val switch            = new NRSSwitch
   override def toString = "NRSFilter"
 }
 
-class NRSDetailsFilter @Inject()(conf: BrmConfig) extends Filter(DetailsFilter) {
+class NRSDetailsFilter @Inject() (conf: BrmConfig) extends Filter(DetailsFilter) {
   class NRSDetailsSwitch extends Switch {
     override val config: BrmConfig = conf
-    override val name = "nrs.details"
+    override val name              = "nrs.details"
   }
-  val switch = new NRSDetailsSwitch
+  val switch            = new NRSDetailsSwitch
   override def toString = "NRSDetailsFilter"
 }
 
-class NRSReferenceFilter @Inject()(conf: BrmConfig) extends Filter(ReferenceFilter) {
+class NRSReferenceFilter @Inject() (conf: BrmConfig) extends Filter(ReferenceFilter) {
   class NRSReferenceSwitch extends Switch {
     override val config: BrmConfig = conf
-    override val name = "nrs.reference"
+    override val name              = "nrs.reference"
   }
-  val switch = new NRSReferenceSwitch
+  val switch            = new NRSReferenceSwitch
   override def toString = "NRSReferenceFilter"
 }

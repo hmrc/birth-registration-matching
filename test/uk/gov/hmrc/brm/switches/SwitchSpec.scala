@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,39 +33,39 @@ trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with Be
 
   object TestSwitch extends Switch {
     val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-    override val name = "test"
+    override val name     = "test"
   }
 
   object NonExistingSwitch extends Switch {
     val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-    override val name = "invalid"
+    override val name     = "invalid"
   }
 
   object NonExistingValue extends SwitchValue {
-    val config: BrmConfig = app.injector.instanceOf[BrmConfig]
+    val config: BrmConfig     = app.injector.instanceOf[BrmConfig]
     override val name: String = "invalid"
   }
 
   def switchDisabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.test.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.test.enabled"          -> false,
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false
   )
 
   def switchEnabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.test.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.test.enabled"          -> true,
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true
   )
 
   override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
     .configure {
-    if (testData.tags.contains("enabled")) {
-      switchEnabled
-    } else if (testData.tags.contains("disabled")) {
-      switchDisabled
-    } else {
-      Map.empty[String, Any]
+      if (testData.tags.contains("enabled")) {
+        switchEnabled
+      } else if (testData.tags.contains("disabled")) {
+        switchDisabled
+      } else {
+        Map.empty[String, Any]
+      }
     }
-  }
     .disable[com.kenshoo.play.metrics.PlayModule]
     .build()
 

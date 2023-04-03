@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,42 +19,33 @@ package uk.gov.hmrc.brm.utils
 import javax.inject.Inject
 import play.api.Logger
 
-class BRMLogger @Inject()(keyGen: KeyGenerator) {
+class BRMLogger @Inject() (keyGen: KeyGenerator) {
 
   val logger: Logger = Logger(this.getClass)
 
   val BRM_KEY: String = s"BRM-Key"
 
-  def info(className: String, methodName: String, message: String): Unit = {
+  def info(className: String, methodName: String, message: String): Unit =
     logger.info(s"[$BRM_KEY:${keyGen.getKey()}], [$className][$methodName] : $message")
-  }
 
-  def warn(className: String, methodName: String, message: String): Unit = {
+  def warn(className: String, methodName: String, message: String): Unit =
     logger.warn(s"[$BRM_KEY:${keyGen.getKey()}],[$className][$methodName] : $message")
-  }
 
-  def error(className: String, methodName: String, message: String): Unit = {
+  def error(className: String, methodName: String, message: String): Unit =
     logger.error(s"[$BRM_KEY:${keyGen.getKey()}],[$className][$methodName] : $message")
-  }
 
-  def debug(className: String, methodName: String, message: String): Unit = {
+  def debug(className: String, methodName: String, message: String): Unit =
     logger.debug(s"[$BRM_KEY:${keyGen.getKey()}],[$className][$methodName] : $message")
-  }
 
-  def info(objectName: Object, methodName: String, message: String): Unit = {
+  def info(objectName: Object, methodName: String, message: String): Unit =
     info(objectName.getClass.getCanonicalName, methodName: String, message: String)
-  }
 
-  def warn(objectName: Object, methodName: String, message: String): Unit = {
+  def warn(objectName: Object, methodName: String, message: String): Unit =
     warn(objectName.getClass.getCanonicalName, methodName: String, message: String)
-  }
 
-  def error(objectName: Object, methodName: String, message: String): Unit = {
+  def error(objectName: Object, methodName: String, message: String): Unit =
     error(objectName.getClass.getCanonicalName, methodName: String, message: String)
-  }
 
-  def debug(objectName: Object, methodName: String, message: String): Unit = {
+  def debug(objectName: Object, methodName: String, message: String): Unit =
     debug(objectName.getClass.getCanonicalName, methodName: String, message: String)
-  }
 }
-

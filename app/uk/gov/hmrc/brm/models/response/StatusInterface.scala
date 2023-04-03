@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,21 @@ import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 
 trait StatusInterface {
 
-  def toJson : JsValue
+  def toJson: JsValue
 
-  def flags : Map[String, String]
+  def flags: Map[String, String]
 
-  protected def obfuscateReason(reason : Option[String], alternative : String) : String = {
+  protected def obfuscateReason(reason: Option[String], alternative: String): String = {
     val default = "None"
-    reason.fold(default){
-      flag =>
-        if (flag.trim.equalsIgnoreCase("none")) {
-          default
-        } else {
-          alternative
-        }
+    reason.fold(default) { flag =>
+      if (flag.trim.equalsIgnoreCase("none")) {
+        default
+      } else {
+        alternative
+      }
     }
   }
 
-  def determineFlagSeverity : FlagSeverity
+  def determineFlagSeverity: FlagSeverity
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,40 @@ import javax.inject.Inject
 import play.api.libs.json.{JsValue, Reads}
 import uk.gov.hmrc.brm.models.response.Record
 
-class RecordParser @Inject()(logger: BRMLogger) {
+class RecordParser @Inject() (logger: BRMLogger) {
 
-  def parse[T](json: JsValue, reads : (Reads[List[T]], Reads[T]))(implicit manifest: reflect.Manifest[Record]) : List[T] = {
+  def parse[T](json: JsValue, reads: (Reads[List[T]], Reads[T]))(implicit
+    manifest: reflect.Manifest[Record]
+  ): List[T] = {
     val name = manifest.toString()
 
     //read-1 is list reads and reads_2 is single record read.
-    val records = json.validate[List[T]](reads._1).fold(
-      error => {
-        logger.warn("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
-        json.validate[T](reads._2).fold(
-          e => {
-            logger.warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
-            List()
-          },
-          r => {
-            logger.info("RecordParser", "parse()", s"Successfully validated as[$name]")
-            List(r)
-          }
-        )
-      },
-      success => {
-        logger.info("RecordParser", "parse()", s"Successfully validated as[List[$name]]")
-        success
-      }
-    )
+    val records = json
+      .validate[List[T]](reads._1)
+      .fold(
+        error => {
+          logger.warn("RecordParser", "parse()", s"Failed to validate as[List[$name]] error $error")
+          json
+            .validate[T](reads._2)
+            .fold(
+              e => {
+                logger.warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
+                List()
+              },
+              r => {
+                logger.info("RecordParser", "parse()", s"Successfully validated as[$name]")
+                List(r)
+              }
+            )
+        },
+        success => {
+          logger.info("RecordParser", "parse()", s"Successfully validated as[List[$name]]")
+          success
+        }
+      )
 
-    if (records.isEmpty) logger.warn("RecordParser", "parse()", s"Failed to parse response as[List[$name]] and as[$name]")
+    if (records.isEmpty)
+      logger.warn("RecordParser", "parse()", s"Failed to parse response as[List[$name]] and as[$name]")
     records
   }
 

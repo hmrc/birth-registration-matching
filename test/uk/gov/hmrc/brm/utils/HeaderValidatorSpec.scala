@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,21 @@ import org.scalatest.OptionValues
 import play.api.Play.materializer
 import scala.concurrent.{ExecutionContext, Future}
 
-class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with ScalaFutures {
+class HeaderValidatorSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with MockitoSugar
+    with ScalaFutures {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
   val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
-  val testController = new BirthEventsController (
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  val testController = new BirthEventsController(
     mockLookupService,
     auditorFixtures.whereBirthRegisteredAudit,
     MockAuditFactory,
@@ -59,8 +67,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
     mockInvalidMetric
   )
 
-  val payload: JsValue = Json.parse(
-    s"""
+  val payload: JsValue = Json.parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -78,7 +85,8 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockConnector.getReference(any())(any(), any[ExecutionContext])).thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
+      when(mockConnector.getReference(any())(any(), any[ExecutionContext]))
+        .thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       when(mockFilters.process(any()))
         .thenReturn(List())
@@ -99,7 +107,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe NOT_ACCEPTABLE
+      result.header.status                           shouldBe NOT_ACCEPTABLE
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_CONTENT_TYPE.json
     }
 
@@ -111,7 +119,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe NOT_ACCEPTABLE
+      result.header.status                           shouldBe NOT_ACCEPTABLE
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
@@ -123,7 +131,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe NOT_ACCEPTABLE
+      result.header.status                           shouldBe NOT_ACCEPTABLE
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 
@@ -135,7 +143,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe UNAUTHORIZED
+      result.header.status                           shouldBe UNAUTHORIZED
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
@@ -147,7 +155,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe UNAUTHORIZED
+      result.header.status                           shouldBe UNAUTHORIZED
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_AUDITSOURCE.json
     }
 
@@ -159,7 +167,7 @@ class HeaderValidatorSpec extends AnyWordSpecLike with Matchers with OptionValue
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val result = testController.post().apply(request).futureValue
-      result.header.status shouldBe NOT_ACCEPTABLE
+      result.header.status                           shouldBe NOT_ACCEPTABLE
       result.body.consumeData.futureValue.utf8String shouldBe MockErrorResponses.INVALID_ACCEPT_HEADER.json
     }
 

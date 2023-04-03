@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,18 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 import uk.gov.hmrc.brm.utils.LogCapturing
 
-class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar
-  with BeforeAndAfter with GuiceOneAppPerSuite with LogCapturing with Eventually with IntegrationPatience {
+class BrmLoggerSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with BeforeAndAfter
+    with GuiceOneAppPerSuite
+    with LogCapturing
+    with Eventually
+    with IntegrationPatience {
 
-  val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
+  val keyGen: KeyGenerator     = app.injector.instanceOf[KeyGenerator]
   val mockBrmLogger: BRMLogger = new BRMLogger(keyGen)
 
   val testLogger: Logger = mockBrmLogger.logger
@@ -44,8 +52,8 @@ class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.info(this, "methodName", "message")
 
-        logs.size shouldBe 1
-        logs.head.getLevel shouldBe INFO
+        logs.size                                      shouldBe 1
+        logs.head.getLevel                             shouldBe INFO
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
     }
@@ -54,8 +62,8 @@ class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.warn(this, "methodName", "message")
 
-        logs.size shouldBe 1
-        logs.head.getLevel shouldBe WARN
+        logs.size                                      shouldBe 1
+        logs.head.getLevel                             shouldBe WARN
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
     }
@@ -64,8 +72,8 @@ class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.debug(this, "methodName", "message")
 
-        logs.size shouldBe 1
-        logs.head.getLevel shouldBe DEBUG
+        logs.size                                      shouldBe 1
+        logs.head.getLevel                             shouldBe DEBUG
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
     }
@@ -75,8 +83,8 @@ class BrmLoggerSpec extends AnyWordSpecLike with Matchers with OptionValues with
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.error(this, "methodNameForError", "message")
 
-        logs.size shouldBe 1
-        logs.head.getLevel shouldBe ERROR
+        logs.size                                           shouldBe 1
+        logs.head.getLevel                                  shouldBe ERROR
         expectedError.forall(logs.head.getMessage.contains) shouldBe true
       }
     }

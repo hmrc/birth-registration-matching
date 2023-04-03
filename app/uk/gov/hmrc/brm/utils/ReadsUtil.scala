@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,50 +25,52 @@ import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 
+import scala.language.postfixOps
+
 /**
   * Created by user on 06/03/17.
   */
 object ReadsUtil {
 
-  val groChildReads : Reads[Child] = (
-    (JsPath  \ "systemNumber").read[Int] and
+  val groChildReads: Reads[Child] = (
+    (JsPath \ "systemNumber").read[Int] and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
-    )(Child.apply _)
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
+        .readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern))
+        .orElse(Reads.pure(None))
+  )(Child.apply _)
 
-
-  val nrsChildReads : Reads[Child] = (
-    (JsPath  \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
+  val nrsChildReads: Reads[Child] = (
+    (JsPath \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern)).orElse(Reads.pure(None))
-    )(Child.apply _)
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
+        .readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern))
+        .orElse(Reads.pure(None))
+  )(Child.apply _)
 
-  val groReadRecord : Reads[Record] = (
+  val groReadRecord: Reads[Record] = (
     JsPath.read[Child](groChildReads) and
       (JsPath \ "status").readNullable[GROStatus]
-    )(Record.apply _)
+  )(Record.apply _)
 
-  val nrsRecordsRead : Reads[Record] = (
+  val nrsRecordsRead: Reads[Record] = (
     JsPath.read[Child](nrsChildReads) and
-        (JsPath).read(
+      JsPath
+        .read(
           (JsPath \ "status").read[Int] and
-            (JsPath \ "deathCode").read[Int]
-           tupled
-        ).map(status => Some(NRSStatus(status._1, status._2)))
-    )(Record.apply _)
+            (JsPath \ "deathCode").read[Int] tupled
+        )
+        .map(status => Some(NRSStatus(status._1, status._2)))
+  )(Record.apply _)
 
-  val nrsRecordsListRead : Reads[List[Record]] = {
-    (JsPath \ "births").read[JsArray].map(
-      (births: JsArray) => births.value.map(v => v.as[Record](nrsRecordsRead)).toList
-    )
-  }
+  val nrsRecordsListRead: Reads[List[Record]] =
+    (JsPath \ "births")
+      .read[JsArray]
+      .map((births: JsArray) => births.value.map(v => v.as[Record](nrsRecordsRead)).toList)
 
-  val groRecordsListRead : Reads[List[Record]] = {
-    (JsPath).read[JsArray].map(
-      (births: JsArray) => births.value.map(v => v.as[Record](groReadRecord)).toList
-    )
-  }
+  val groRecordsListRead: Reads[List[Record]] =
+    JsPath.read[JsArray].map((births: JsArray) => births.value.map(v => v.as[Record](groReadRecord)).toList)
 
 }

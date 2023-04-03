@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,51 +24,46 @@ import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-class PartialMatching @Inject()(val config: BrmConfig) extends MatchingAlgorithm {
+class PartialMatching @Inject() (val config: BrmConfig) extends MatchingAlgorithm {
 
-  private def lastNames()(implicit payload: Payload, record: Record): Match = {
+  private def lastNames()(implicit payload: Payload, record: Record): Match =
     if (config.matchLastName) {
       stringMatch(Some(payload.lastName), Some(record.child.lastName))
     } else {
       Good()
     }
-  }
 
-  private def firstNames(names: Names)(implicit payload: Payload): Match = {
+  private def firstNames(names: Names)(implicit payload: Payload): Match =
     if (config.matchFirstName) {
       stringMatch(Some(payload.firstNames), Some(names.firstNames))
     } else {
       Good()
     }
-  }
 
-  private def additionalNames(names: Names)(implicit payload: Payload): Match = {
+  private def additionalNames(names: Names)(implicit payload: Payload): Match =
     if (!config.ignoreAdditionalNames) {
       stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {
       Good()
     }
-  }
 
-  private def dateOfBirth()(implicit payload: Payload, record: Record): Match = {
+  private def dateOfBirth()(implicit payload: Payload, record: Record): Match =
     if (config.matchDateOfBirth) {
       dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
     } else {
       Good()
     }
-  }
 
-  override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = {
-    case (payload, record) =>
-      implicit val p: Payload = payload
-      implicit val r: Record = record
+  override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = { case (payload, record) =>
+    implicit val p: Payload = payload
+    implicit val r: Record  = record
 
-      val namesOnRecord: Names = NameParser.parseNames(payload, record, config.ignoreAdditionalNames)
+    val namesOnRecord: Names = NameParser.parseNames(payload, record, config.ignoreAdditionalNames)
 
-      val (f, a, l, d) = (firstNames(namesOnRecord), additionalNames(namesOnRecord), lastNames(), dateOfBirth())
+    val (f, a, l, d) = (firstNames(namesOnRecord), additionalNames(namesOnRecord), lastNames(), dateOfBirth())
 
-      val matched = f and a and l and d
+    val matched = f and a and l and d
 
-      MatchingResult(matched, f, a, l, d, namesOnRecord)
+    MatchingResult(matched, f, a, l, d, namesOnRecord)
   }
 }

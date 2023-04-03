@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,8 @@ trait BirthConnector {
 
   protected def headers: BRMHeaders
 
-
   protected val referenceBody: PartialFunction[Payload, (String, JsValue)]
   protected val detailsBody: PartialFunction[Payload, (String, JsValue)]
-
 
   /**
     * RequestType, reference or details
@@ -52,9 +50,9 @@ trait BirthConnector {
   case class Request(uri: String, jsonBody: JsValue)
 
   private def buildRequest(payload: Payload, operation: RequestType): Request = {
-    val f = operation match {
+    val f       = operation match {
       case ReferenceRequest() => referenceBody
-      case DetailsRequest() => detailsBody
+      case DetailsRequest()   => detailsBody
     }
     val request = f(payload)
     Request(request._1, request._2)
@@ -74,7 +72,11 @@ trait BirthConnector {
     logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 
     response.onComplete(r =>
-      logger.debug("BirthConnector", "sendRequest", s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.headers)}")
+      logger.debug(
+        "BirthConnector",
+        "sendRequest",
+        s"[HttpResponse]: [status] ${r.map(_.status)} [body] ${r.map(_.body)} [headers] ${r.map(_.headers)}"
+      )
     )(ec)
 
     response

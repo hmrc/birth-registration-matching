@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,33 +32,36 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, Heade
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
+class BirthEventsController @Inject() (
+  val service: LookupService,
+  countryAuditor: WhereBirthRegisteredAudit,
+  auditFactory: AuditFactory,
+  config: BrmConfig,
+  val transactionAuditor: TransactionAuditor,
+  val matchingAuditor: MatchingAudit,
+  val headerValidator: HeaderValidator,
+  cc: ControllerComponents,
+  val commonUtils: CommonUtil,
+  val logger: BRMLogger,
+  val metrics: MetricsFactory,
+  filters: Filters,
+  implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics
+)(implicit val ec: ExecutionContext)
+    extends BRMBaseController(cc) {
 
-class BirthEventsController @Inject()(val service: LookupService,
-                                      countryAuditor: WhereBirthRegisteredAudit,
-                                      auditFactory: AuditFactory,
-                                      config: BrmConfig,
-                                      val transactionAuditor: TransactionAuditor,
-                                      val matchingAuditor: MatchingAudit,
-                                      val headerValidator: HeaderValidator,
-                                      cc: ControllerComponents,
-                                      val commonUtils: CommonUtil,
-                                      val logger: BRMLogger,
-                                      val metrics: MetricsFactory,
-                                      filters: Filters,
-                                      implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
-                                      implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
-                                      implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
-                                      implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics) extends BRMBaseController(cc) {
-
-  override val CLASS_NAME : String = this.getClass.getSimpleName
-  override val METHOD_NAME: String = "BirthEventsController::post"
+  override val CLASS_NAME: String     = this.getClass.getSimpleName
+  override val METHOD_NAME: String    = "BirthEventsController::post"
   private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
 
-  private def handleInvalidRequest(request : Request[JsValue], errors: Seq[(JsPath, Seq[JsonValidationError])])
-                                  (implicit hc : HeaderCarrier) : Future[Result] = {
+  private def handleInvalidRequest(
+    request: Request[JsValue],
+    errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]
+  )(implicit hc: HeaderCarrier): Future[Result] = {
     countryAuditor.auditCountryInRequest(request.body)
     val response = ErrorResponses.getErrorResponseByField(errors)
     logger.warn(CLASS_NAME, "handleInvalidRequest", s"error parsing request body as [Payload]")
@@ -66,58 +69,72 @@ class BirthEventsController @Inject()(val service: LookupService,
     Future.successful(respond(response))
   }
 
-  private def failedAtFilter(filters : List[Filter])
-                            (implicit payload: Payload,
-                             hc : HeaderCarrier): Future[Result] = {
+  private def failedAtFilter(filters: List[Filter])(implicit payload: Payload, hc: HeaderCarrier): Future[Result] = {
     // audit the request
     transactionAuditor.transaction(payload, Nil, MatchingResult.noMatch)
 
-    logger.warn(CLASS_NAME, "failedAtFilter", s"Request was not processed due to failing filter(s) $filters. " +
-      s"Feature switches: ${config.audit(Some(payload))}")
+    logger.warn(
+      CLASS_NAME,
+      "failedAtFilter",
+      s"Request was not processed due to failing filter(s) $filters. " +
+        s"Feature switches: ${config.audit(Some(payload))}"
+    )
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
 
-  private def traceAndMatchRecord()(implicit payload: Payload,
-                                    hc: HeaderCarrier,
-                                    metrics: BRMMetrics,
-                                    downstream: BRMDownstreamAPIAudit,
-                                    request: Request[JsValue]): Future[Result] = {
-    logger.info(CLASS_NAME, "traceAndMatchRecord", s"Request was processed. Feature Switches: ${config.audit(Some(payload))}")
+  private def traceAndMatchRecord()(implicit
+    payload: Payload,
+    hc: HeaderCarrier,
+    metrics: BRMMetrics,
+    downstream: BRMDownstreamAPIAudit,
+    request: Request[JsValue]
+  ): Future[Result] = {
+    logger.info(
+      CLASS_NAME,
+      "traceAndMatchRecord",
+      s"Request was processed. Feature Switches: ${config.audit(Some(payload))}"
+    )
 
     val beforeRequestTime = DateTime.now.getMillis
-    val method = if(payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
+    val method            = if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
 
-    service.lookup()(implicitly, metrics, implicitly, implicitly) map {
-      bm =>
-        metrics.status(OK)
-        val response = Json.toJson(bm)
-        commonUtils.logTime(beforeRequestTime)
-        respond(Ok(response))
+    service.lookup()(implicitly, metrics, implicitly, implicitly) map { bm =>
+      metrics.status(OK)
+      val response = Json.toJson(bm)
+      commonUtils.logTime(beforeRequestTime)
+      respond(Ok(response))
     } recover {
       handleException(method, beforeRequestTime)
-     }
+    }
   }
 
   private def getOrCreateCorrelationID(request: Request[_]): String = {
-    logger.debug(CLASS_NAME, "getOrCreateCorrelationID", "Checking for Upstream x-correlation-id, returning new id if none.")
+    logger.debug(
+      CLASS_NAME,
+      "getOrCreateCorrelationID",
+      "Checking for Upstream x-correlation-id, returning new id if none."
+    )
     request.headers.get(HEADER_X_CORRELATION_ID).getOrElse(UUID.randomUUID().toString)
   }
 
-  def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) {
-    implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders((HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)))
-      request.body.validate[Payload].fold(errors => handleInvalidRequest(request, errors),
+  def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) { implicit request =>
+    implicit val hc: HeaderCarrier =
+      HeaderCarrier().withExtraHeaders((HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)))
+    request.body
+      .validate[Payload]
+      .fold(
+        errors => handleInvalidRequest(request, errors),
         implicit payload => {
 
-            implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
+          implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
 
-            val processed = filters.process(payload)
+          val processed = filters.process(payload)
 
-            if (processed.nonEmpty) {
-              failedAtFilter(processed)
-            } else {
-              val metric: BRMMetrics = metrics.getMetrics()
-              traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly, implicitly)
+          if (processed.nonEmpty) {
+            failedAtFilter(processed)
+          } else {
+            val metric: BRMMetrics = metrics.getMetrics()
+            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly, implicitly)
           }
         }
       )

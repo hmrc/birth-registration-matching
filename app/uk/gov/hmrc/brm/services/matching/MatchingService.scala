@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,32 +25,31 @@ import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BRMLogger, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 
-
-class MatchingService @Inject()(config: BrmConfig,
-                                auditor: MatchingAudit,
-                                fullMatching: FullMatching,
-                                partialMatching: PartialMatching,
-                                logger: BRMLogger){
+class MatchingService @Inject() (
+  config: BrmConfig,
+  auditor: MatchingAudit,
+  fullMatching: FullMatching,
+  partialMatching: PartialMatching,
+  logger: BRMLogger
+) {
 
   val CLASS_NAME: String = this.getClass.getSimpleName
 
   val matchOnMultiple: Boolean = config.matchOnMultiple
 
-  def performMatch(input: Payload,
-                   records: List[Record],
-                   matchingType: MatchingType.Value)
-                  (implicit hc: HeaderCarrier): MatchingResult = {
+  def performMatch(input: Payload, records: List[Record], matchingType: MatchingType.Value)(implicit
+    hc: HeaderCarrier
+  ): MatchingResult = {
 
     logger.info(CLASS_NAME, "MatchingType", s"$matchingType")
 
     val algorithm = matchingType match {
-      case MatchingType.FULL => fullMatching
+      case MatchingType.FULL    => fullMatching
       case MatchingType.PARTIAL => partialMatching
-      case _ => fullMatching
+      case _                    => fullMatching
     }
-    val result = {
+    val result    =
       algorithm.performMatch(input, records, matchOnMultiple)
-    }
 
     // audit match result
     auditor.audit(result.audit, Some(input))

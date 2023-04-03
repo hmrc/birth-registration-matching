@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,32 @@ package uk.gov.hmrc.brm.models.matching
 import uk.gov.hmrc.brm.services.matching.{Bad, Good, Match}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
 
-case class MatchingResult(private val _matched: Match,
-                          firstNamesMatched: Match,
-                          additionalNamesMatched: Match,
-                          lastNameMatched: Match,
-                          dateOfBirthMatched: Match,
-                          names: Names) {
+case class MatchingResult(
+  private val _matched: Match,
+  firstNamesMatched: Match,
+  additionalNamesMatched: Match,
+  lastNameMatched: Match,
+  dateOfBirthMatched: Match,
+  names: Names
+) {
 
-  def matched: Boolean = {
+  def matched: Boolean =
     getBoolean(_matched)
-  }
 
-  def audit: Map[String, String] = {
+  def audit: Map[String, String] =
     Map(
-      s"match" -> s"$matched",
-      s"matchFirstName" -> s"${getBoolean(firstNamesMatched)}",
+      s"match"                -> s"$matched",
+      s"matchFirstName"       -> s"${getBoolean(firstNamesMatched)}",
       s"matchAdditionalNames" -> s"${getBoolean(additionalNamesMatched)}",
-      s"matchLastName" -> s"${getBoolean(lastNameMatched)}",
-      s"matchDateOfBirth" -> s"${getBoolean(dateOfBirthMatched)}"
+      s"matchLastName"        -> s"${getBoolean(lastNameMatched)}",
+      s"matchDateOfBirth"     -> s"${getBoolean(dateOfBirthMatched)}"
     )
-  }
 
-  private def getBoolean(matchResult: Match): Boolean = {
+  private def getBoolean(matchResult: Match): Boolean =
     matchResult match {
       case Good() => true
-      case Bad() => false
+      case Bad()  => false
     }
-  }
 
 }
 

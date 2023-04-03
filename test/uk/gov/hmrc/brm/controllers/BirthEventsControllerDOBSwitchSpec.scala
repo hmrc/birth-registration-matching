@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,24 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerDOBSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar with BaseUnitSpec {
+class BirthEventsControllerDOBSwitchSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with MockitoSugar
+    with BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true,
-    "microservice.services.birth-registration-matching.matching.firstName" -> true,
-    "microservice.services.birth-registration-matching.matching.lastName" -> true,
-    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> false
+    "microservice.services.birth-registration-matching.matching.firstName"             -> true,
+    "microservice.services.birth-registration-matching.matching.lastName"              -> true,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth"           -> false
   )
+
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
@@ -70,17 +78,17 @@ class BirthEventsControllerDOBSwitchSpec extends AnyWordSpecLike with Matchers w
     .configure(config)
     .build()
 
-  def makeRequest(jsonRequest :JsValue): Result = {
+  def makeRequest(jsonRequest: JsValue): Result = {
     mockAuditSuccess
     val request = postRequest(jsonRequest)
-    val result = testController.post().apply(request).futureValue
+    val result  = testController.post().apply(request).futureValue
     result
   }
 
-  def makeRealRequest(jsonRequest :JsValue): Result = {
+  def makeRealRequest(jsonRequest: JsValue): Result = {
     mockAuditSuccess
     val request = postRequest(jsonRequest)
-    val result = app.injector.instanceOf[BirthEventsController].post().apply(request).futureValue
+    val result  = app.injector.instanceOf[BirthEventsController].post().apply(request).futureValue
     result
   }
 
@@ -96,14 +104,14 @@ class BirthEventsControllerDOBSwitchSpec extends AnyWordSpecLike with Matchers w
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(),any())(any()))
+      when(mockAuditor.audit(any(), any())(any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       when(mockMetricsFactory.getMetrics()(any()))
         .thenReturn(mockEngWalesMetric)
 
       val result = makeRequest(userValidDOB)
-      checkResponse(result, OK,  matchResponse = true)
+      checkResponse(result, OK, matchResponse = true)
     }
 
     "return matched value of true when the dateOfBirth is equal to 2009-07-01 and the gro record matches" in {
@@ -115,13 +123,13 @@ class BirthEventsControllerDOBSwitchSpec extends AnyWordSpecLike with Matchers w
     "return matched value of false when the dateOfBirth is invalid and the gro record matches" in {
       mockReferenceResponse(groJsonResponseObject)
       val result = makeRealRequest(userInvalidDOB)
-      checkResponse(result, OK,  matchResponse = false)
+      checkResponse(result, OK, matchResponse = false)
     }
 
     "return matched value of false when the dateOfBirth is one day earlier than 2009-07-01 and the gro record matches" in {
       mockReferenceResponse(groJsonResponseObject20090630)
       val result = makeRealRequest(userValidDOB20090630)
-      checkResponse(result, OK,  matchResponse = false)
+      checkResponse(result, OK, matchResponse = false)
     }
   }
 

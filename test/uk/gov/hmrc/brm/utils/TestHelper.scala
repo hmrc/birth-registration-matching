@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,55 +31,74 @@ object TestHelper {
     * GRO
     */
 
-  val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
-  val groJsonResponseObject400000001: JsValue = JsonUtils.getJsonFromFile("gro", "400000001")
-  val groJsonResponseObjectCollection: JsValue = JsonUtils.getJsonFromFile("gro", "500035710-array")
+  val groJsonResponseObject: JsValue                    = JsonUtils.getJsonFromFile("gro", "500035710")
+  val groJsonResponseObject400000001: JsValue           = JsonUtils.getJsonFromFile("gro", "400000001")
+  val groJsonResponseObjectCollection: JsValue          = JsonUtils.getJsonFromFile("gro", "500035710-array")
   val groJsonResponseObjectCollection400000001: JsValue = JsonUtils.getJsonFromFile("gro", "400000001-array")
-  val groJsonResponseObjectMultipleWithMatch: JsValue = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
-  val groJsonResponseObject20120216: JsValue = JsonUtils.getJsonFromFile("gro", "2012-02-16")
-  val groJsonResponseObject20090701: JsValue = JsonUtils.getJsonFromFile("gro", "2009-07-01")
-  val groJsonResponseObject20090630: JsValue = JsonUtils.getJsonFromFile("gro", "2009-06-30")
-  val groResponseWithAdditionalName: JsValue = JsonUtils.getJsonFromFile("gro", "with_additional_name")
-  val groResponseWithoutAdditionalName: JsValue = JsonUtils.getJsonFromFile("gro", "without_additional_name")
-  val groResponseWithMoreAdditionalName: JsValue = JsonUtils.getJsonFromFile("gro", "with_more_additional_name")
-  val groResponseWithSpecialCharacter: JsValue = JsonUtils.getJsonFromFile("gro", "with_special_character")
-  val groResponse500036682: JsValue = JsonUtils.getJsonFromFile("gro", "500036682")
+  val groJsonResponseObjectMultipleWithMatch: JsValue   = JsonUtils.getJsonFromFile("gro", "400000004-multiple-match")
+  val groJsonResponseObject20120216: JsValue            = JsonUtils.getJsonFromFile("gro", "2012-02-16")
+  val groJsonResponseObject20090701: JsValue            = JsonUtils.getJsonFromFile("gro", "2009-07-01")
+  val groJsonResponseObject20090630: JsValue            = JsonUtils.getJsonFromFile("gro", "2009-06-30")
+  val groResponseWithAdditionalName: JsValue            = JsonUtils.getJsonFromFile("gro", "with_additional_name")
+  val groResponseWithoutAdditionalName: JsValue         = JsonUtils.getJsonFromFile("gro", "without_additional_name")
+  val groResponseWithMoreAdditionalName: JsValue        = JsonUtils.getJsonFromFile("gro", "with_more_additional_name")
+  val groResponseWithSpecialCharacter: JsValue          = JsonUtils.getJsonFromFile("gro", "with_special_character")
+  val groResponse500036682: JsValue                     = JsonUtils.getJsonFromFile("gro", "500036682")
 
-
-  val payload: Payload = Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
-  val payloadNoReference: Payload = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+  val payload: Payload            =
+    Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+  val payloadNoReference: Payload =
+    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
 
   /**
     * NRS
     */
 
-  val validNrsJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("nrs", "2017734003")
-  val validNrsJsonResponseObjectRCE: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350003")
+  val validNrsJsonResponseObject: JsValue     = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val validNrsJsonResponseObjectRCE: JsValue  = JsonUtils.getJsonFromFile("nrs", "2017350003")
   val validNrsJsonResponse2017350007: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350007")
-  val nrsResponseWithMultiple: JsValue = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
-  val nrsRecord20090630: JsValue = JsonUtils.getJsonFromFile("nrs", "2017734100")
-  val nrsRecord2017350001: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350001")
+  val nrsResponseWithMultiple: JsValue        = JsonUtils.getJsonFromFile("nrs", "AdamTEST_multiple")
+  val nrsRecord20090630: JsValue              = JsonUtils.getJsonFromFile("nrs", "2017734100")
+  val nrsRecord2017350001: JsValue            = JsonUtils.getJsonFromFile("nrs", "2017350001")
 
-  val nrsRequestPayload: Payload = Payload(Some("2017734003"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
-  val nrsRequestPayload2017350001: Payload = Payload(Some("2017350001"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayload: Payload           =
+    Payload(Some("2017734003"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayload2017350001: Payload =
+    Payload(Some("2017350001"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
 
-  val nrsRequestPayloadWithoutBrn: Payload = Payload(None, "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
-  val nrsRequestPayloadWithSpecialChar: Payload =
-    Payload(Some("2017350007"), "Gab'iœ-Äæy", None, "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithoutBrn: Payload         =
+    Payload(None, "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+  val nrsRequestPayloadWithSpecialChar: Payload    =
+    Payload(
+      Some("2017350007"),
+      "Gab'iœ-Äæy",
+      None,
+      "HaÐ0ÄœÄæes",
+      new LocalDate("2011-10-01"),
+      BirthRegisterCountry.SCOTLAND
+    )
   val nrsRequestPayloadWithFirstNameWrong: Payload =
-    Payload(Some("2017350007"), "firstNameWrong", None, "HaÐ0ÄœÄæes", new LocalDate("2011-10-01"), BirthRegisterCountry.SCOTLAND)
+    Payload(
+      Some("2017350007"),
+      "firstNameWrong",
+      None,
+      "HaÐ0ÄœÄæes",
+      new LocalDate("2011-10-01"),
+      BirthRegisterCountry.SCOTLAND
+    )
 
-  val payloadNoReferenceScotland: Payload = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
+  val payloadNoReferenceScotland: Payload =
+    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
 
   /**
     * GRO-NI
     */
 
-  val payloadNoReferenceNorthernIreland: Payload = Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
+  val payloadNoReferenceNorthernIreland: Payload =
+    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
 
-  private val referenceNumber: Int = 123456789
-  val groResponseValidJson: JsValue = parse(
-    s"""
+  private val referenceNumber: Int  = 123456789
+  val groResponseValidJson: JsValue = parse(s"""
       |{
       |  "location": {
       |
@@ -124,7 +143,8 @@ object TestHelper {
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
     .withBody(v)
 
-  def httpResponse(responseCode: Int, js: JsValue): HttpResponse = HttpResponse(responseCode, js, Map.empty[String, Seq[String]])
+  def httpResponse(responseCode: Int, js: JsValue): HttpResponse =
+    HttpResponse(responseCode, js, Map.empty[String, Seq[String]])
 
   def httpResponse(js: JsValue): HttpResponse = HttpResponse(OK, js, Map.empty[String, Seq[String]])
 
@@ -246,18 +266,15 @@ object TestHelper {
     Record(child, None)
   }
 
-  val invalidResponse: JsValue = parse(
-    """
+  val invalidResponse: JsValue = parse("""
       |[]
     """.stripMargin)
 
-  val noJson: JsValue = parse(
-    s"""{
+  val noJson: JsValue = parse(s"""{
         }
     """.stripMargin)
 
-  val userWhereBirthRegisteredNI: JsValue = parse(
-    s"""
+  val userWhereBirthRegisteredNI: JsValue = parse(s"""
        |{
        | "birthReferenceNumber" : "$referenceNumber",
        | "firstName" : "Chris",
@@ -267,8 +284,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userWhereBirthRegisteredScotland: JsValue = parse(
-    s"""
+  val userWhereBirthRegisteredScotland: JsValue = parse(s"""
        |{
        | "birthReferenceNumber" : "1234567891",
        | "firstName" : "Chris",
@@ -278,8 +294,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingReferenceKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingReferenceKey: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -288,8 +303,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchScotlandExcludingReferenceKey: JsValue = parse(
-    s"""
+  val userNoMatchScotlandExcludingReferenceKey: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -298,8 +312,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchUTF8SpecialCharacters: JsValue = parse(
-    s"""
+  val userNoMatchUTF8SpecialCharacters: JsValue = parse(s"""
        |{
        | "firstName" : "Adàm TËST",
        | "lastName" : "SMÏTH",
@@ -308,8 +321,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val additionalNamesKeyNoValue: JsValue = parse(
-    s"""
+  val additionalNamesKeyNoValue: JsValue = parse(s"""
        |{
        | "firstName" : "Adàm TËST",
        | "additionalNames" : "",
@@ -319,8 +331,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingAdditionalNameKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingAdditionalNameKey: JsValue = parse(s"""
        |{
        | "firstName" : "Adàm TËST",
        |
@@ -330,8 +341,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val additionalNameWithSpecialCharacters: JsValue = parse(
-    s"""
+  val additionalNameWithSpecialCharacters: JsValue = parse(s"""
        |{
        | "firstName" : "Adàm TËST",
        | "additionalNames" : ",../WEB-INF/web.xml",
@@ -341,8 +351,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val additionalNameWithMoreThan250Characters: JsValue = parse(
-    s"""
+  val additionalNameWithMoreThan250Characters: JsValue = parse(s"""
        |{
        |"firstName" : "Adàm TËST",
        |"additionalNames" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
@@ -353,9 +362,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val additionalNameWithASingleSpace: JsValue
-  = parse(
-    s"""
+  val additionalNameWithASingleSpace: JsValue = parse(s"""
        |{
        |"firstName" : "Ronan",
        |"additionalNames" : " ",
@@ -366,8 +373,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val additionalNameWithMultipleSpaces: JsValue = parse(
-    s"""
+  val additionalNameWithMultipleSpaces: JsValue = parse(s"""
        |{
        |"firstName" : "Ronan",
        |"additionalNames" : "     ",
@@ -378,8 +384,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludingReferenceKeyScotland: JsValue = parse(
-    s"""
+  val userNoMatchExcludingReferenceKeyScotland: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -422,8 +427,7 @@ object TestHelper {
      """.stripMargin
   )
 
-  val userNoMatchExcludingReferenceKeyNorthernIreland: JsValue = parse(
-    s"""
+  val userNoMatchExcludingReferenceKeyNorthernIreland: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -432,8 +436,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMultipleMatchExcludingReferenceKey: JsValue = parse(
-    s"""
+  val userMultipleMatchExcludingReferenceKey: JsValue = parse(s"""
        |{
        |
        | "firstName" : "Gibby",
@@ -443,9 +446,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-
-  val user400000001: JsValue = parse(
-    s"""
+  val user400000001: JsValue = parse(s"""
        |{
        |  "birthReferenceNumber": "400000001",
        | "firstName" : "Gibby",
@@ -455,8 +456,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val user400000001WithoutReferenceNumber: JsValue = parse(
-    s"""
+  val user400000001WithoutReferenceNumber: JsValue = parse(s"""
        |{
        | "firstName" : "Gibby",
        | "lastName" : "Haynes",
@@ -465,8 +465,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingReferenceValue: JsValue = parse(
-    s"""
+  val userNoMatchExcludingReferenceValue: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -476,8 +475,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingFirstNameKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingFirstNameKey: JsValue = parse(s"""
        |{
        |"lastName" : "Jones",
        |"dateOfBirth" : "2012-04-18",
@@ -485,8 +483,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludingReferenceNumber: JsValue = parse(
-    s"""
+  val userNoMatchExcludingReferenceNumber: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -496,8 +493,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchIncludingReferenceNumber: JsValue = parse(
-    s"""
+  val userNoMatchIncludingReferenceNumber: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -507,8 +503,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchIncludingReferenceNumberCamelCase: JsValue = parse(
-    s"""
+  val userNoMatchIncludingReferenceNumberCamelCase: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -518,8 +513,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchIncludingReferenceCharacters: JsValue = parse(
-    s"""
+  val userNoMatchIncludingReferenceCharacters: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -529,8 +523,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchIncludingInvalidData: JsValue = parse(
-    s"""
+  val userNoMatchIncludingInvalidData: JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -540,8 +533,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  def userInvalidReference(country: String, referenceNumber: String): JsValue = parse(
-    s"""
+  def userInvalidReference(country: String, referenceNumber: String): JsValue = parse(s"""
        |{
        | "firstName" : "Chris",
        | "lastName" : "Jones",
@@ -551,8 +543,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchExcludingReferenceNumber: JsValue = parse(
-    s"""
+  val userMatchExcludingReferenceNumber: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -562,8 +553,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchIncludingReferenceNumber: JsValue = parse(
-    s"""
+  val userMatchIncludingReferenceNumber: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -573,8 +563,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchExcludingReferenceNumberKey: JsValue = parse(
-    s"""
+  val userMatchExcludingReferenceNumberKey: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -583,8 +572,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchExcludingReferenceNumberKeyForScotland: JsValue = parse(
-    s"""
+  val userMatchExcludingReferenceNumberKeyForScotland: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -593,8 +581,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchIncludingReferenceNumberKeyForScotland: JsValue = parse(
-    s"""
+  val userMatchIncludingReferenceNumberKeyForScotland: JsValue = parse(s"""
        |{
        | "birthReferenceNumber" : "2017734003",
        | "firstName" : "Adam TEST",
@@ -604,8 +591,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userDob20090630: JsValue = parse(
-    s"""
+  val userDob20090630: JsValue = parse(s"""
        |{
        | "birthReferenceNumber" : "2017734100",
        | "firstName" : "Adam TEST",
@@ -615,8 +601,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userMatchCountryNameInMixCase: JsValue = parse(
-    s"""
+  val userMatchCountryNameInMixCase: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -626,8 +611,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingDateOfBirthKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingDateOfBirthKey: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -636,8 +620,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingDateOfBirthValue: JsValue = parse(
-    s"""
+  val userNoMatchExcludingDateOfBirthValue: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -647,8 +630,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userNoMatchExcludingfirstNameKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingfirstNameKey: JsValue = parse(s"""
        |{
        |"lastName" : "Smith",
        |"dateOrBirth" : "2012-12-17",
@@ -657,9 +639,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-
-  val userInvalidWhereBirthRegistered: JsValue = parse(
-    s"""
+  val userInvalidWhereBirthRegistered: JsValue = parse(s"""
        |{
        |"firstName" : "Adam TEST",
        |"lastName" : "SMITH",
@@ -669,8 +649,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludingfirstNameValue: JsValue = parse(
-    s"""
+  val userNoMatchExcludingfirstNameValue: JsValue = parse(s"""
        |{
        |"firstName" : "",
        |"lastName" : "Jones",
@@ -680,8 +659,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val firstNameWithSpecialCharacters: JsValue = parse(
-    s"""
+  val firstNameWithSpecialCharacters: JsValue = parse(s"""
        |{
        |"firstName" : "../WEB-INF/web.xml",
        |"lastName" : "Jones",
@@ -691,8 +669,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val firstNameWithMoreThan250Characters: JsValue = parse(
-    s"""
+  val firstNameWithMoreThan250Characters: JsValue = parse(s"""
        |{
        |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
        |"lastName" : "Jones",
@@ -702,8 +679,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-   val firstNameWithEqualsCharacter: JsValue = parse(
-     s"""
+  val firstNameWithEqualsCharacter: JsValue = parse(s"""
         |{
         |"firstName" : "=",
         |"lastName" : "Jones",
@@ -713,8 +689,7 @@ object TestHelper {
         |}
       """.stripMargin)
 
-  val firstNameWithPlusCharacter: JsValue = parse(
-    s"""
+  val firstNameWithPlusCharacter: JsValue = parse(s"""
        |{
        |"firstName" : "+",
        |"lastName" : "Jones",
@@ -724,8 +699,7 @@ object TestHelper {
        |}
       """.stripMargin)
 
-  val firstNameWithAtCharacter: JsValue = parse(
-    s"""
+  val firstNameWithAtCharacter: JsValue = parse(s"""
        |{
        |"firstName" : "@",
        |"lastName" : "Jones",
@@ -735,8 +709,7 @@ object TestHelper {
        |}
       """.stripMargin)
 
-  val firstNameWithNullCharacter: JsValue = parse(
-    s"""
+  val firstNameWithNullCharacter: JsValue = parse(s"""
        |{
        |"firstName" : "\\u0000",
        |"lastName" : "Jones",
@@ -746,8 +719,7 @@ object TestHelper {
        |}
       """.stripMargin)
 
-  val firstNameWithMoreThan100Characters: JsValue = parse(
-    s"""
+  val firstNameWithMoreThan100Characters: JsValue = parse(s"""
        |{
        |"firstName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
        |"lastName" : "Jones",
@@ -757,8 +729,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val firstNameWithASingleSpace: JsValue = parse(
-    s"""
+  val firstNameWithASingleSpace: JsValue = parse(s"""
        |{
        |"firstName" : " ",
        |"lastName" : "Jones",
@@ -768,8 +739,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val firstNameWithMultipleSpaces: JsValue = parse(
-    s"""
+  val firstNameWithMultipleSpaces: JsValue = parse(s"""
        |{
        |"firstName" : "      ",
        |"lastName" : "Jones",
@@ -779,8 +749,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val lastNameWithMoreThan100Characters: JsValue = parse(
-    s"""
+  val lastNameWithMoreThan100Characters: JsValue = parse(s"""
        |{
        |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYidmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWL",
@@ -790,8 +759,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val lastNameWithMoreThan250Characters: JsValue = parse(
-    s"""
+  val lastNameWithMoreThan250Characters: JsValue = parse(s"""
        |{
        |"firstName" : "Adam",
        |"lastName" : "RAdmUElSgUkBKGXKQMGXlBCBktIJK UBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYid mRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagN CyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYRWPKeELQYC UtteeaftfvvdjaQqnFMg",
@@ -801,8 +769,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val lastNameWithSpecialCharacters: JsValue = parse(
-    s"""
+  val lastNameWithSpecialCharacters: JsValue = parse(s"""
        |{
        |"firstName" : "Adam TEST",
        |"lastName" : "Gibby&cat /etc/passwd&",
@@ -812,8 +779,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val lastNameWithASingleSpace: JsValue = parse(
-    s"""
+  val lastNameWithASingleSpace: JsValue = parse(s"""
        |{
        |"firstName" : "Ronan",
        |"lastName" : " ",
@@ -823,8 +789,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val lastNameWithMultipleSpaces: JsValue = parse(
-    s"""
+  val lastNameWithMultipleSpaces: JsValue = parse(s"""
        |{
        |"firstName" : "Ronan",
        |"lastName" : "      ",
@@ -834,8 +799,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludinglastNameKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludinglastNameKey: JsValue = parse(s"""
        |{
        |"firstName" : "John",
        |"dateOrBirth" : "2012-12-17",
@@ -844,8 +808,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludinglastNameValue: JsValue = parse(
-    s"""
+  val userNoMatchExcludinglastNameValue: JsValue = parse(s"""
        |{
        |"firstName" : "John",
        |"lastName" : "",
@@ -855,9 +818,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-
-  val userNoMatchExcludingWhereBirthRegisteredKey: JsValue = parse(
-    s"""
+  val userNoMatchExcludingWhereBirthRegisteredKey: JsValue = parse(s"""
        |{
        |"firstName" : "Manish",
        |"lastName" : "Varma",
@@ -866,8 +827,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userNoMatchExcludingWhereBirthRegisteredValue: JsValue = parse(
-    s"""
+  val userNoMatchExcludingWhereBirthRegisteredValue: JsValue = parse(s"""
        |{
        |"firstName" : "John",
        |"lastName" : "Jones",
@@ -877,8 +837,7 @@ object TestHelper {
        |}
      """.stripMargin)
 
-  val userInvalidDOB: JsValue = parse(
-    s"""
+  val userInvalidDOB: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -888,8 +847,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userInvalidDOBFormat: JsValue = parse(
-    s"""
+  val userInvalidDOBFormat: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -899,8 +857,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userValidDOB: JsValue = parse(
-    s"""
+  val userValidDOB: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -910,8 +867,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userValidDOB20090701: JsValue = parse(
-    s"""
+  val userValidDOB20090701: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -921,8 +877,7 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val userValidDOB20090630: JsValue = parse(
-    s"""
+  val userValidDOB20090630: JsValue = parse(s"""
        |{
        | "firstName" : "Adam TEST",
        | "lastName" : "SMITH",
@@ -932,56 +887,49 @@ object TestHelper {
        |}
     """.stripMargin)
 
-  val nrsNoRecordResponse: JsValue = parse(
-    s"""
+  val nrsNoRecordResponse: JsValue = parse(s"""
        |{
        |  "code": "BIRTH_REGISTRATION_NOT_FOUND",
        |  "reason": "No birth registration found that matched the search keys"
        |}
      """.stripMargin)
 
-  val nrsInvalidPayload: JsValue = parse(
-    s"""
+  val nrsInvalidPayload: JsValue = parse(s"""
        |{
        |  "code": "INVALID_PAYLOAD",
        |  "reason": "Submission has not passed validation. Invalid PAYLOAD"
        |}
      """.stripMargin)
 
-  val nrsInvalidHeaderResponse: JsValue = parse(
-    s"""
+  val nrsInvalidHeaderResponse: JsValue = parse(s"""
        |{
        |  "code": "INVALID_HEADER",
        |  "reason": "The HTTP header is invalid."
        |}
      """.stripMargin)
 
-  val nrsInvalidDistrict: JsValue = parse(
-    s"""
+  val nrsInvalidDistrict: JsValue = parse(s"""
        |{
        |  "code": "INVALID_DISTRICT_NUMBER",
        |  "reason": "The Registration District number does not represent a number for the informed year."
        |}
      """.stripMargin)
 
-  val nrsQueryLengthExcessive: JsValue = parse(
-    s"""
+  val nrsQueryLengthExcessive: JsValue = parse(s"""
        |{
        |  "code": "QUERY_LENGTH_EXCESSIVE",
        |  "reason": "Query message length is excessive."
        |}
      """.stripMargin)
 
-  val nrsServerErrorResponse: JsValue = parse(
-    s"""
+  val nrsServerErrorResponse: JsValue = parse(s"""
        |{
        |  "code": "SERVER_ERROR",
        |  "reason": "DES is currently experiencing problems that require live service intervention"
        |}
      """.stripMargin)
 
-  val nrsServiceUnavailableResponse: JsValue = parse(
-    s"""
+  val nrsServiceUnavailableResponse: JsValue = parse(s"""
        |{
        |  "code": "SERVICE_UNAVAILABLE",
        |  "reason": "Dependent systems are currently not responding"
@@ -990,46 +938,47 @@ object TestHelper {
 
   val referenceNumberScenario = List(
     Map(
-      "description" -> "return response code 400 if request contains birthReferenceNumber below minimum length for england",
-      "responseCode" -> BAD_REQUEST,
-      "country" -> "england",
+      "description"     -> "return response code 400 if request contains birthReferenceNumber below minimum length for england",
+      "responseCode"    -> BAD_REQUEST,
+      "country"         -> "england",
       "referenceNumber" -> "12345678"
     ),
     Map(
-      "description" -> "return response code 400 if request contains birthReferenceNumber above maximum length for england",
-      "responseCode" -> BAD_REQUEST,
-      "country" -> "england",
+      "description"     -> "return response code 400 if request contains birthReferenceNumber above maximum length for england",
+      "responseCode"    -> BAD_REQUEST,
+      "country"         -> "england",
       "referenceNumber" -> "1234567891"
     ),
     Map(
-      "description" -> "return response code 400 if request contains birthReferenceNumber below minimum length for scotland",
-      "responseCode" -> BAD_REQUEST,
-      "country" -> "scotland",
+      "description"     -> "return response code 400 if request contains birthReferenceNumber below minimum length for scotland",
+      "responseCode"    -> BAD_REQUEST,
+      "country"         -> "scotland",
       "referenceNumber" -> s"$referenceNumber"
     ),
     Map(
-      "description" -> "return response code 400 if request contains birthReferenceNumber above maximum length for scotland",
-      "responseCode" -> BAD_REQUEST,
-      "country" -> "scotland",
+      "description"     -> "return response code 400 if request contains birthReferenceNumber above maximum length for scotland",
+      "responseCode"    -> BAD_REQUEST,
+      "country"         -> "scotland",
       "referenceNumber" -> "12345678912"
     )
   )
 
+  def getNrsResponse(
+    fatherName: String = "Asdf",
+    fatherLastName: String = "ASDF",
+    fatherBirthPlace: String = "23 High Street, Perth, PA3 4TG",
+    informantName: String = "Mother",
+    qualification: String = "J Smith"
+  ): JsValue = {
 
-  def getNrsResponse(fatherName: String = "Asdf", fatherLastName: String = "ASDF",
-                     fatherBirthPlace: String = "23 High Street, Perth, PA3 4TG",
-                     informantName: String = "Mother", qualification: String = "J Smith"): JsValue = {
-
-    def buildKey(key: String, value: String, append: Option[String] = Some(",")): String = {
+    def buildKey(key: String, value: String, append: Option[String] = Some(",")): String =
       if (!value.isEmpty) {
         s""" "$key": "$value"${append.getOrElse("")}"""
       } else {
         """"""
       }
-    }
 
-    val nrsResponse: JsValue = parse(
-      s"""
+    val nrsResponse: JsValue = parse(s"""
          |{  "births": [
          |    {
          | "subjects" : {
@@ -1063,9 +1012,7 @@ object TestHelper {
          |}
     """.stripMargin)
 
-
     nrsResponse
   }
-
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
+
 import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
@@ -24,17 +25,20 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * TODO: should this be deprecated?
   */
 
 @Singleton
-class EnglandAndWalesAudit @Inject()(connector: AuditConnector,
-                                     val keyGen: KeyGenerator,
-                                     val config: BrmConfig,
-                                     val logger: BRMLogger) extends BRMDownstreamAPIAudit(connector) {
+class EnglandAndWalesAudit @Inject() (
+  connector: AuditConnector,
+  val keyGen: KeyGenerator,
+  val config: BrmConfig,
+  val logger: BRMLogger
+)(implicit ec: ExecutionContext)
+    extends BRMDownstreamAPIAudit(connector) {
 
   /**
     * EnglandAndWalesAuditEvent
@@ -43,24 +47,27 @@ class EnglandAndWalesAudit @Inject()(connector: AuditConnector,
     * @param path endpoint path
     * @param hc implicit headerCarrier
     */
-  final private class EnglandAndWalesAuditEvent(result : Map[String, String], path: String)(implicit hc: HeaderCarrier)
-    extends AuditEvent(auditType = "BRM-GROEnglandAndWales-Results",
-      detail =  result,
-      transactionName = "brm-england-and-wales-match",
-      path)
+  final private class EnglandAndWalesAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+      extends AuditEvent(
+        auditType = "BRM-GROEnglandAndWales-Results",
+        detail = result,
+        transactionName = "brm-england-and-wales-match",
+        path
+      )
 
-  override def audit(result : Map[String, String], payload: Option[Payload])(implicit hc : HeaderCarrier): Future[AuditResult] = {
+  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+    hc: HeaderCarrier
+  ): Future[AuditResult] =
     payload match {
       case Some(p) =>
         p.requestType match {
-          case DetailsRequest() =>
+          case DetailsRequest()   =>
             event(new EnglandAndWalesAuditEvent(result, "gro-details"))
           case ReferenceRequest() =>
             event(new EnglandAndWalesAuditEvent(result, "gro-reference"))
         }
-      case _ =>
+      case _       =>
         Future.failed(new IllegalArgumentException("[EnglandAndWalesAudit] payload argument not specified"))
     }
-  }
 
 }

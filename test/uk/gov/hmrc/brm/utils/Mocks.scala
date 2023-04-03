@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, Partial
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
+import scala.concurrent.ExecutionContext
+
 /**
   * Created by adamconder on 24/02/2017.
   */
@@ -48,7 +50,7 @@ object Mocks extends MockitoSugar {
   val mockRequest: Request[JsValue]      = mock[Request[JsValue]]
   val headers: Headers                   = mock[Headers]
 
-  val mockHeaderValidator: HeaderValidator = mock[HeaderValidator]
+  val mockHeaderValidator: HeaderValidator  = mock[HeaderValidator]
   val metrics: BRMMetrics                   = mock[BRMMetrics]
   val mockAuditor: BRMAudit                 = mock[BRMAudit]
   val mockAuditFactory: AuditFactory        = mock[AuditFactory]
@@ -60,8 +62,8 @@ object Mocks extends MockitoSugar {
   val mockFullMatching: FullMatching        = mock[FullMatching]
   val mockPartialMatching: PartialMatching  = mock[PartialMatching]
 
-  val mockGroConnector: GROConnector = mock[GROConnector]
-  val mockNrsConnector: NRSConnector = mock[NRSConnector]
+  val mockGroConnector: GROConnector     = mock[GROConnector]
+  val mockNrsConnector: NRSConnector     = mock[NRSConnector]
   val mockGroniConnector: GRONIConnector = mock[GRONIConnector]
 
   val mockTransactionAuditor: TransactionAuditor = mock[TransactionAuditor]
@@ -73,101 +75,110 @@ object Mocks extends MockitoSugar {
   val mockCommonUtil: CommonUtil                 = mock[CommonUtil]
   val mockFilters: Filters                       = mock[Filters]
 
-  val mockEngWalesAudit: EnglandAndWalesAudit = mock[EnglandAndWalesAudit]
+  val mockEngWalesAudit: EnglandAndWalesAudit                        = mock[EnglandAndWalesAudit]
   val mockEngWalesMetric: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
-  val mockScotAudit: ScotlandAudit = mock[ScotlandAudit]
-  val mockScotMetric: ScotlandBirthRegisteredCountMetrics = mock[ScotlandBirthRegisteredCountMetrics]
-  val mockIreAudit: NorthernIrelandAudit = mock[NorthernIrelandAudit]
-  val mockIreMetric: NorthernIrelandBirthRegisteredCountMetrics = mock[NorthernIrelandBirthRegisteredCountMetrics]
-  val mockInvalidMetric: InvalidBirthRegisteredCountMetrics = mock[InvalidBirthRegisteredCountMetrics]
+  val mockScotAudit: ScotlandAudit                                   = mock[ScotlandAudit]
+  val mockScotMetric: ScotlandBirthRegisteredCountMetrics            = mock[ScotlandBirthRegisteredCountMetrics]
+  val mockIreAudit: NorthernIrelandAudit                             = mock[NorthernIrelandAudit]
+  val mockIreMetric: NorthernIrelandBirthRegisteredCountMetrics      = mock[NorthernIrelandBirthRegisteredCountMetrics]
+  val mockInvalidMetric: InvalidBirthRegisteredCountMetrics          = mock[InvalidBirthRegisteredCountMetrics]
 
   val mockWhereBirthRegister: WhereBirthRegisteredAudit = mock[WhereBirthRegisteredAudit]
 
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   object MockBRMLogger extends BRMLogger(mockKeyGen)
 
-  object MockMatchingService extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, mockPartialMatching, mockBrmLogger) {
+  object MockMatchingService
+      extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, mockPartialMatching, mockBrmLogger) {
     override val matchOnMultiple: Boolean = true
   }
-  class MockMatchingService(partial: PartialMatching) extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, partial, mockBrmLogger) {
+  class MockMatchingService(partial: PartialMatching)
+      extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, partial, mockBrmLogger) {
     override val matchOnMultiple: Boolean = true
   }
 
-  object MockMatchingServiceMatchMultipleFalse extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, mockPartialMatching, mockBrmLogger) {
+  object MockMatchingServiceMatchMultipleFalse
+      extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, mockPartialMatching, mockBrmLogger) {
     override val matchOnMultiple: Boolean = false
   }
 
-  object MockLookupService extends LookupService(mockGroConnector,
-                                                 mockNrsConnector,
-                                                 mockGroniConnector,
-                                                 mockMatchingservice,
-                                                 mockTransactionAuditor,
-                                                 mockBrmLogger,
-                                                 mockRecordParser,
-                                                 mockMatchMetrics,
-                                                 mockNoMatchMetrics)
+  object MockLookupService
+      extends LookupService(
+        mockGroConnector,
+        mockNrsConnector,
+        mockGroniConnector,
+        mockMatchingservice,
+        mockTransactionAuditor,
+        mockBrmLogger,
+        mockRecordParser,
+        mockMatchMetrics,
+        mockNoMatchMetrics
+      )
 
   object MockAuditFactory extends AuditFactory(mockEngWalesAudit, mockScotAudit, mockIreAudit) {
     override def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
   }
 
-  object MockController extends BirthEventsController(
-    MockLookupService,
-    auditorFixtures.whereBirthRegisteredAudit,
-    MockAuditFactory,
-    mockConfig,
-    auditorFixtures.transactionAudit,
-    auditorFixtures.matchingAudit,
-    mockHeaderValidator,
-    stubControllerComponents(),
-    mockCommonUtil,
-    mockBrmLogger,
-    mockMetricsFactory,
-    mockFilters,
-    mockEngWalesMetric,
-    mockIreMetric,
-    mockScotMetric,
-    mockInvalidMetric
-  )
+  object MockController
+      extends BirthEventsController(
+        MockLookupService,
+        auditorFixtures.whereBirthRegisteredAudit,
+        MockAuditFactory,
+        mockConfig,
+        auditorFixtures.transactionAudit,
+        auditorFixtures.matchingAudit,
+        mockHeaderValidator,
+        stubControllerComponents(),
+        mockCommonUtil,
+        mockBrmLogger,
+        mockMetricsFactory,
+        mockFilters,
+        mockEngWalesMetric,
+        mockIreMetric,
+        mockScotMetric,
+        mockInvalidMetric
+      )
 
-  object MockControllerMockedLookup extends BirthEventsController(
-    mockLookupService,
-    auditorFixtures.whereBirthRegisteredAudit,
-    MockAuditFactory,
-    mockConfig,
-    auditorFixtures.transactionAudit,
-    auditorFixtures.matchingAudit,
-    mockHeaderValidator,
-    stubControllerComponents(),
-    mockCommonUtil,
-    mockBrmLogger,
-    mockMetricsFactory,
-    mockFilters,
-    mockEngWalesMetric,
-    mockIreMetric,
-    mockScotMetric,
-    mockInvalidMetric
-  )
+  object MockControllerMockedLookup
+      extends BirthEventsController(
+        mockLookupService,
+        auditorFixtures.whereBirthRegisteredAudit,
+        MockAuditFactory,
+        mockConfig,
+        auditorFixtures.transactionAudit,
+        auditorFixtures.matchingAudit,
+        mockHeaderValidator,
+        stubControllerComponents(),
+        mockCommonUtil,
+        mockBrmLogger,
+        mockMetricsFactory,
+        mockFilters,
+        mockEngWalesMetric,
+        mockIreMetric,
+        mockScotMetric,
+        mockInvalidMetric
+      )
 
-  def connectorFixtures = {
+  def connectorFixtures =
     new {
-      val groConnector = new GROConnector(mockHttp, mockConfig, mockKeyGen, mockBrmLogger, mockCommonUtil)
-      val nrsConnector = new NRSConnector(mockHttp, mockConfig, mockCommonUtil, mockKeyGen, mockBrmLogger)
+      val groConnector   = new GROConnector(mockHttp, mockConfig, mockKeyGen, mockBrmLogger, mockCommonUtil)
+      val nrsConnector   = new NRSConnector(mockHttp, mockConfig, mockCommonUtil, mockKeyGen, mockBrmLogger)
       val groniConnector = new GRONIConnector(
-        mockHttp, auditor = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger), mockBrmLogger
+        mockHttp,
+        auditor = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger),
+        mockBrmLogger
       )
     }
-  }
 
-  def auditorFixtures = {
+  def auditorFixtures =
     new {
       val whereBirthRegisteredAudit = new WhereBirthRegisteredAudit(mockAuditConnector, mockKeyGen, mockBrmLogger)
-      val englandAndWalesAudit = new EnglandAndWalesAudit(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
-      val scotlandAudit = new ScotlandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
-      val northernIrelandAudit = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
-      val matchingAudit = new MatchingAudit(mockAuditConnector, mockBrmLogger, mockConfig, mockKeyGen)
-      val transactionAudit = new TransactionAuditor(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
+      val englandAndWalesAudit      = new EnglandAndWalesAudit(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
+      val scotlandAudit             = new ScotlandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
+      val northernIrelandAudit      = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
+      val matchingAudit             = new MatchingAudit(mockAuditConnector, mockBrmLogger, mockConfig, mockKeyGen)
+      val transactionAudit          = new TransactionAuditor(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
     }
-  }
 
 }

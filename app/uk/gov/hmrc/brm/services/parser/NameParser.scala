@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,11 @@ object NameParser {
     * @param _firstNames getter for FirstNames
     * @param _additionalNames getter for AdditionalNames
     */
-  case class Names(private val _firstNames : List[String],
-                   private val _additionalNames : List[String] = Nil,
-                   private val _lastNames : List[String]) {
+  case class Names(
+    private val _firstNames: List[String],
+    private val _additionalNames: List[String] = Nil,
+    private val _lastNames: List[String]
+  ) {
 
     def firstNames: String = _firstNames.listToString
 
@@ -41,11 +43,11 @@ object NameParser {
 
   }
 
-  def parseNames(payload: Payload, record: Record, ignoreAdditionalNames: Boolean = false) : Names = {
+  def parseNames(payload: Payload, record: Record, ignoreAdditionalNames: Boolean = false): Names = {
     val inputLength = payload.firstNames.names.length
 
     val (firstNames, additionalNames) = record.child.forenames.names.splitAt(inputLength)
-    val lastNames = record.child.lastName.names
+    val lastNames                     = record.child.lastName.names
 
     if (ignoreAdditionalNames) {
       Names(firstNames, Nil, lastNames)
@@ -57,23 +59,20 @@ object NameParser {
   implicit class NameParserImplicit(val s: String) {
     lazy val regex = "\\s+"
 
-    def names: List[String] = {
+    def names: List[String] =
       s.trim.split(regex).toList
-    }
   }
 
-  implicit class FilterList[T](left : List[T]) {
+  implicit class FilterList[T](left: List[T]) {
 
-    def filter(right : List[T]) : List[T] = {
-
+    def filter(right: List[T]): List[T] =
       if (left.length > right.length || left.isEmpty || right.isEmpty) {
         right
       } else {
         val difference = right.length - left.length
-        val dropped = right.dropRight(difference)
+        val dropped    = right.dropRight(difference)
         dropped
       }
-    }
 
   }
 

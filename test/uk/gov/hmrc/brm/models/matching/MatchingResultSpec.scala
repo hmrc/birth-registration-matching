@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,59 +43,61 @@ class MatchingResultSpec extends AnyWordSpecLike with Matchers with OptionValues
 
     "audit if not matched" in {
       MatchingResult(Bad(), Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).matched shouldBe false
-      MatchingResult(Bad(), Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).audit shouldBe Map(
-        "match" -> "false",
-        "matchFirstName" -> "true",
+      MatchingResult(Bad(), Good(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil)).audit   shouldBe Map(
+        "match"                -> "false",
+        "matchFirstName"       -> "true",
         "matchAdditionalNames" -> "false",
-        "matchLastName" -> "false",
-        "matchDateOfBirth" -> "false"
+        "matchLastName"        -> "false",
+        "matchDateOfBirth"     -> "false"
       )
     }
 
     "audit if matched" in {
       MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).matched shouldBe true
-      MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).audit shouldBe Map(
-        "match" -> "true",
-        "matchFirstName" -> "true",
+      MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(Nil, Nil, Nil)).audit   shouldBe Map(
+        "match"                -> "true",
+        "matchFirstName"       -> "true",
         "matchAdditionalNames" -> "true",
-        "matchLastName" -> "true",
-        "matchDateOfBirth" -> "true"
+        "matchLastName"        -> "true",
+        "matchDateOfBirth"     -> "true"
       )
     }
 
     "cache Names without additionalNames" in {
       val result = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List("Adam"), Nil, List("Smith")))
       result.matched shouldBe true
-      result.audit shouldBe Map(
-        "match" -> "true",
-        "matchFirstName" -> "true",
+      result.audit   shouldBe Map(
+        "match"                -> "true",
+        "matchFirstName"       -> "true",
         "matchAdditionalNames" -> "true",
-        "matchLastName" -> "true",
-        "matchDateOfBirth" -> "true"
+        "matchLastName"        -> "true",
+        "matchDateOfBirth"     -> "true"
       )
     }
 
     "cache Names with additionalNames" in {
-      val result = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
+      val result =
+        MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
       result.matched shouldBe true
-      result.audit shouldBe Map(
-        "match" -> "true",
-        "matchFirstName" -> "true",
+      result.audit   shouldBe Map(
+        "match"                -> "true",
+        "matchFirstName"       -> "true",
         "matchAdditionalNames" -> "true",
-        "matchLastName" -> "true",
-        "matchDateOfBirth" -> "true"
+        "matchLastName"        -> "true",
+        "matchDateOfBirth"     -> "true"
       )
     }
 
     "cache Names with additionalNames where did not match additionalNames" in {
-      val result = MatchingResult(Bad(), Good(), Bad(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
+      val result =
+        MatchingResult(Bad(), Good(), Bad(), Good(), Good(), Names(List("Adam"), List("Test"), List("Smith")))
       result.matched shouldBe false
-      result.audit shouldBe Map(
-        "match" -> "false",
-        "matchFirstName" -> "true",
+      result.audit   shouldBe Map(
+        "match"                -> "false",
+        "matchFirstName"       -> "true",
         "matchAdditionalNames" -> "false",
-        "matchLastName" -> "true",
-        "matchDateOfBirth" -> "true"
+        "matchLastName"        -> "true",
+        "matchDateOfBirth"     -> "true"
       )
     }
 

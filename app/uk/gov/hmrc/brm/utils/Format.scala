@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ package uk.gov.hmrc.brm.utils
 import uk.gov.hmrc.brm.services.parser.NameParser._
 
 object Trim {
-  def apply(v: String): String = {
+  def apply(v: String): String =
     v.trim
-  }
 }
 
 object LeadingZeros {
@@ -34,20 +33,18 @@ object LeadingZeros {
 
     v.split("-")
       .map(formatDatePart(_))
-        .reduceLeft( (e, s) =>  String.format("%s-%s", e, s))
+      .reduceLeft((e, s) => String.format("%s-%s", e, s))
   }
 }
 
 object NameFormat {
 
-  def apply(v: String): String = {
+  def apply(v: String): String =
     v.names.listToString
-  }
 }
 
 object DateFormat {
 
-  def apply(v: String): String = {
+  def apply(v: String): String =
     LeadingZeros.apply(Trim.apply(v))
-  }
 }

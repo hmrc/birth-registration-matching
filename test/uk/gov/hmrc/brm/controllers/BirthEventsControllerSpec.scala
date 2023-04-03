@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,14 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
-  with OptionValues with MockitoSugar with GuiceOneAppPerSuite with BaseUnitSpec with IntegrationPatience {
+class BirthEventsControllerSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite
+    with BaseUnitSpec
+    with IntegrationPatience {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -52,16 +58,19 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
       "åæçèéêëìíîïðñòóôõö÷ø"
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(Map(
-        "microservice.services.birth-registration-matching.features.groni.enabled" -> true,
+    .configure(
+      Map(
+        "microservice.services.birth-registration-matching.features.groni.enabled"           -> true,
         "microservice.services.birth-registration-matching.features.groni.reference.enabled" -> true,
-        "microservice.services.birth-registration-matching.features.groni.details.enabled" -> true,
-        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true
+        "microservice.services.birth-registration-matching.features.groni.details.enabled"   -> true,
+        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames"   -> true
       )
     )
     .build()
 
   val birthEventsController: BirthEventsController = app.injector.instanceOf[BirthEventsController]
+
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
@@ -86,7 +95,7 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
     "initialising" should {
       "wire up dependencies correctly" in {
         birthEventsController.transactionAuditor shouldBe a[BRMAudit]
-        birthEventsController.matchingAuditor shouldBe a[BRMAudit]
+        birthEventsController.matchingAuditor    shouldBe a[BRMAudit]
       }
     }
 
@@ -99,7 +108,7 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
         when(mockFilters.process(any()))
           .thenReturn(List())
 
-        when(mockAuditor.audit(any(),any())(any()))
+        when(mockAuditor.audit(any(), any())(any()))
           .thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMetricsFactory.getMetrics()(any()))
@@ -107,27 +116,27 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
 
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingReferenceValue)
-        val result = testController.post().apply(request).futureValue
+        val result  = testController.post().apply(request).futureValue
         checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
       }
 
       "return response code 400 if request contains birthReferenceNumber with invalid characters" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchIncludingInvalidData)
-        val result = testController.post().apply(request).futureValue
+        val result  = testController.post().apply(request).futureValue
         checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
       }
 
-      for (scenario <- referenceNumberScenario) {
+      for (scenario <- referenceNumberScenario)
         s"${scenario("description")}" in {
           mockAuditSuccess
-          val request = postRequest(userInvalidReference(scenario("country").toString, scenario("referenceNumber").toString))
-          val result = testController.post().apply(request).futureValue
-          val response =  scenario("responseCode")
-          checkResponse(result,response.asInstanceOf[Int], MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
+          val request  =
+            postRequest(userInvalidReference(scenario("country").toString, scenario("referenceNumber").toString))
+          val result   = testController.post().apply(request).futureValue
+          val response = scenario("responseCode")
+          checkResponse(result, response.asInstanceOf[Int], MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
 
         }
-      }
 
     }
 
@@ -136,71 +145,71 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
       "return response code 400 if request contains missing firstName key" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingFirstNameKey)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 400 if request contains missing firstName value" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingfirstNameValue)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains special characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithSpecialCharacters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains more than 250 characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithMoreThan250Characters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains = characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithEqualsCharacter)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains + characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithPlusCharacter)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains @ characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithAtCharacter)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains \u0000 (NULL) characters in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithNullCharacter)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains a single space in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithASingleSpace)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
 
       "return response code 400 if request contains multiple spaces in firstName" in {
         mockAuditSuccess
         val request = postRequest(firstNameWithMultipleSpaces)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
       }
     }
 
@@ -209,36 +218,36 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
       "return response code 400 if request contains additionalNames key but no value" in {
         mockAuditSuccess
         val request = postRequest(additionalNamesKeyNoValue)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
       "return response code 400 if request contains special characters in additionalNames" in {
         mockAuditSuccess
         val request = postRequest(additionalNameWithSpecialCharacters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
       "return response code 400 if request contains more than 250 characters in additionalNames" in {
         mockAuditSuccess
         val request = postRequest(additionalNameWithMoreThan250Characters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
       "return response code 400 if request contains a single space in additionalNames" in {
         mockAuditSuccess
         val request = postRequest(additionalNameWithASingleSpace)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
 
       "return response code 400 if request contains multiple spaces in additionalNames" in {
         mockAuditSuccess
         val request = postRequest(additionalNameWithMultipleSpaces)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
       }
     }
 
@@ -247,43 +256,43 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
       "return response code 400 if request contains missing lastName key" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludinglastNameKey)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 400 if request contains missing lastName value" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludinglastNameValue)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains special character in lastName value" in {
         mockAuditSuccess
         val request = postRequest(lastNameWithSpecialCharacters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains more than 250 character in lastName value" in {
         mockAuditSuccess
         val request = postRequest(lastNameWithMoreThan250Characters)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains a single space in lastName" in {
         mockAuditSuccess
         val request = postRequest(lastNameWithASingleSpace)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
 
       "return response code 400 if request contains multiple spaces in lastName" in {
         mockAuditSuccess
         val request = postRequest(lastNameWithMultipleSpaces)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
       }
     }
 
@@ -292,22 +301,22 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
       "return response code 400 if request contains missing dateOfBirth key" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingDateOfBirthKey)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 400 if request contains missing dateOfBirth value" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingDateOfBirthValue)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
       }
 
       "return response code 400 if request contains invalid dateOfBirth format" in {
         mockAuditSuccess
         val request = postRequest(userInvalidDOBFormat)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
 
       }
 
@@ -322,29 +331,29 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
         mockAuditSuccess
         mockReferenceResponse(groJsonResponseObject)
         val request = postRequest(userNoMatchIncludingReferenceNumberCamelCase)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,OK, matchResponse = false)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, OK, matchResponse = false)
       }
 
       "return response code 400 if request contains missing whereBirthRegistered key" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredKey)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
       "return response code 403 if request contains missing whereBirthRegistered value" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingWhereBirthRegisteredValue)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,FORBIDDEN, MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, FORBIDDEN, MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json)
       }
 
       "return response code 403 if request contains invalid whereBirthRegistered value" in {
         mockAuditSuccess
         val request = postRequest(userInvalidWhereBirthRegistered)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,FORBIDDEN, MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, FORBIDDEN, MockErrorResponses.INVALID_WHERE_BIRTH_REGISTERED.json)
       }
 
     }
@@ -360,29 +369,44 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockReferenceResponse(groJsonResponseObject400000001)
           val request = postRequest(user400000001)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
-
 
         "return JSON response true and ignore additional name provided in request." in {
           mockAuditSuccess
           mockReferenceResponse(groResponseWithAdditionalName)
-          val payload = Json.toJson(Payload(Some("500035710"), "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-            BirthRegisterCountry.ENGLAND))
+          val payload = Json.toJson(
+            Payload(
+              Some("500035710"),
+              "Adam",
+              Some("test"),
+              "SMITH",
+              new LocalDate("2009-07-01"),
+              BirthRegisterCountry.ENGLAND
+            )
+          )
           val request = postRequest(payload)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return JSON response true and ignore additional name provided in request as ignoreAdditionalName is true." in {
           mockAuditSuccess
           mockReferenceResponse(groResponseWithAdditionalName)
-          val payload = Json.toJson(Payload(Some("500035710"), "Adam test", Some("test"), "SMITH", new LocalDate("2009-07-01"),
-            BirthRegisterCountry.ENGLAND))
+          val payload = Json.toJson(
+            Payload(
+              Some("500035710"),
+              "Adam test",
+              Some("test"),
+              "SMITH",
+              new LocalDate("2009-07-01"),
+              BirthRegisterCountry.ENGLAND
+            )
+          )
           val request = postRequest(payload)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return JSON response false when date of birth is before 2009-07-01" in {
@@ -391,24 +415,24 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
 
           mockAuditSuccess
           val request = postRequest(userMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return JSON response on unsuccessful birthReferenceNumber match" in {
           mockAuditSuccess
           mockReferenceResponse(noJson)
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return match false when GRO returns invalid json" in {
           mockAuditSuccess
           mockReferenceResponse(invalidResponse)
           val request = postRequest(userMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
       }
@@ -419,24 +443,24 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockDetailsResponse(groJsonResponseObjectMultipleWithMatch)
           val request = postRequest(userMultipleMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return JSON response on unsuccessful child detail match" in {
           mockAuditSuccess
           mockDetailsResponse(Json.parse("[]"))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return JSON response on when details contain valid UTF-8 special characters" in {
           mockAuditSuccess
           mockDetailsResponse(Json.parse("[]"))
           val request = postRequest(userNoMatchUTF8SpecialCharacters)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return JSON response true on successful child detail match" in {
@@ -446,8 +470,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockDetailsResponse(groJsonResponseObjectCollection400000001)
           val request = postRequest(user400000001WithoutReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return JSON response false when birth date is before 2009-07-01" in {
@@ -457,8 +481,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockDetailsResponse(groJsonResponseObjectCollection)
           val request = postRequest(userMatchExcludingReferenceNumberKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
       }
@@ -469,25 +493,24 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.failed(UpstreamErrorResponse("503", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
 
-          when(mockMatchingAudit.audit(any(),any())(any()))
+          when(mockMatchingAudit.audit(any(), any())(any()))
             .thenReturn(Future.successful(AuditResult.Success))
 
-          when(mockEngWalesAudit.audit(any(),any())(any()))
+          when(mockEngWalesAudit.audit(any(), any())(any()))
             .thenReturn(Future.successful(AuditResult.Success))
 
           when(mockConfig.audit(any()))
             .thenReturn(Map[String, String]())
 
-          when(mockTransactionAuditor.transaction(any(),any(), any())(any()))
+          when(mockTransactionAuditor.transaction(any(), any(), any())(any()))
             .thenReturn(Future.successful(AuditResult.Success))
 
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
-
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
@@ -495,8 +518,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return InternalServerError when GRO returns BadRequestException" in {
@@ -505,8 +528,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
@@ -515,10 +538,14 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
-
 
         "return 200 false when GRO returns NotFoundException" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
@@ -526,8 +553,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 match false when GRO returns Forbidden 418 Teapot body" in {
@@ -536,18 +563,20 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 match false when GRO returns Forbidden 'Certificate invalid'" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse(MockErrorResponses.CERTIFICATE_INVALID.json, FORBIDDEN, FORBIDDEN)))
+            .thenReturn(
+              Future.failed(UpstreamErrorResponse(MockErrorResponses.CERTIFICATE_INVALID.json, FORBIDDEN, FORBIDDEN))
+            )
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 500 when proxy returns InternalServerError" in {
@@ -556,44 +585,68 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return 503 when GRO throws UpstreamInternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.failed(UpstreamErrorResponse("502", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
           mockAuditSuccess
-          mockReferenceResponse(UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
+          mockReferenceResponse(
+            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+          )
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.failed(UpstreamErrorResponse("503", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
           mockAuditSuccess
-          mockReferenceResponse(UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE))
+          mockReferenceResponse(
+            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)
+          )
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 503 with code GRO_CONNECTION_DOWN when BRMS GRO proxy is down." in {
           mockAuditSuccess
           mockReferenceResponse(new BadGatewayException(""))
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 503 with code GRO_CONNECTION_DOWN when BRMS GRO proxy is down and returns Upstream5xxResponse BAD_GATEWAY." in {
           mockAuditSuccess
           mockReferenceResponse(UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY))
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
       }
@@ -604,16 +657,26 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockDetailsResponse(new BadGatewayException(""))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway Upstream5xxResponse." in {
           mockAuditSuccess
           mockDetailsResponse(UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
@@ -623,27 +686,40 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return InternalServerError when GRO returns BadRequestException" in {
           mockAuditSuccess
           mockDetailsResponse(new BadRequestException(""))
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse(MockErrorResponses.UNKNOWN_ERROR.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+            .thenReturn(
+              Future.failed(
+                UpstreamErrorResponse(
+                  MockErrorResponses.UNKNOWN_ERROR.json,
+                  INTERNAL_SERVER_ERROR,
+                  INTERNAL_SERVER_ERROR
+                )
+              )
+            )
 
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 200 false when GRO returns NotFoundException" in {
@@ -652,8 +728,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 500 when proxy returns InternalServerError" in {
@@ -663,26 +739,46 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return 503 when GRO returns upstream InternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+            .thenReturn(
+              Future.failed(
+                UpstreamErrorResponse(
+                  MockErrorResponses.CONNECTION_DOWN.json,
+                  INTERNAL_SERVER_ERROR,
+                  INTERNAL_SERVER_ERROR
+                )
+              )
+            )
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
         "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
           mockAuditSuccess
-          mockDetailsResponse(UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE))
+          mockDetailsResponse(
+            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)
+          )
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "GRO_CONNECTION_DOWN","General Registry Office: England and Wales is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
         }
 
       }
@@ -700,8 +796,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsReferenceResponse(validNrsJsonResponseObject)
           val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return JSON response false when date of birth is before 2009-07-01" in {
@@ -710,26 +806,26 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsReferenceResponse(nrsRecord20090630)
           val request = postRequest(userDob20090630)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 when RCE is present" in {
           mockAuditSuccess
           mockNrsReferenceResponse(validNrsJsonResponseObjectRCE)
           val request = postRequest(userMatchIncludingReferenceNumberKeyForScotland)
-          val result = testController.post().apply(request).futureValue
+          val result  = testController.post().apply(request).futureValue
 
-          checkResponse(result,OK, matchResponse = false)
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 matched false when record status is cancelled ie RCE -6" in {
           mockAuditSuccess
           mockNrsReferenceResponse(nrsRecord2017350001)
           val request = postRequest(Json.toJson(nrsRequestPayload2017350001))
-          val result = testController.post().apply(request).futureValue
+          val result  = testController.post().apply(request).futureValue
 
-          checkResponse(result,OK, matchResponse = false)
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 response for UTF-8 reference request" in {
@@ -739,8 +835,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsReferenceResponse(validNrsJsonResponse2017350007)
           val request = postRequest(nrsReferenceRequestWithSpecialCharacters)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return JSON response on unsuccessful birthReferenceNumber match" in {
@@ -750,17 +846,18 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 false response when first name has special characters for unsuccessful BRN match." in {
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
-          val payload = Payload(Some("1234567890"), specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+          val payload =
+            Payload(Some("1234567890"), specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
           val request = postRequest(Json.toJson(payload))
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
       }
@@ -771,35 +868,34 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsDetailsResponse(validNrsJsonResponseObjectRCE)
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = testController.post().apply(request).futureValue
+          val result  = testController.post().apply(request).futureValue
 
-          checkResponse(result,OK, matchResponse = false)
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 response on successful child detail match when multiple records are returned" in {
           mockAuditSuccess
           mockNrsDetailsResponse(nrsResponseWithMultiple)
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
-
 
         "return 200 matched false when record status is cancelled ie RCE -6" in {
           mockAuditSuccess
           mockNrsDetailsResponse(nrsRecord2017350001)
           val request = postRequest(Json.toJson(nrsRequestPayloadWithoutBrn))
-          val result = testController.post().apply(request).futureValue
+          val result  = testController.post().apply(request).futureValue
 
-          checkResponse(result,OK, matchResponse = false)
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 response when child details are not found" in {
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 false response when child details are not found when first name has special characters." in {
@@ -807,8 +903,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val payload = Payload(None, specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
           val request = postRequest(Json.toJson(payload))
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 200 response on when details contain valid UTF-8 special characters" in {
@@ -818,22 +914,21 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
           mockNrsDetailsResponse(validNrsJsonResponse2017350007)
           val request = postRequest(nrsRequestWithSpecialCharacters)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
         "return 200 response on details match when single record is returned" in {
           mockAuditSuccess
           mockNrsDetailsResponse(validNrsJsonResponseObject)
           val request = postRequest(nrsDetailsRequestWithSingleMatch)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = true)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = true)
         }
 
       }
 
       "receiving error response from NRS" should {
-
 
         "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
@@ -841,8 +936,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return 500 InternalServerError when NRS returns 400 INVALID_PAYLOAD" in {
@@ -851,8 +946,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return 500 InternalServerError when NRS returns 400 INVALID_HEADER" in {
@@ -861,8 +956,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,INTERNAL_SERVER_ERROR, empty)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
         "return 400 BadRequest when NRS returns 403 INVALID_DISTRICT_NUMBER" in {
@@ -872,8 +967,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 500 InternalServerError when NRS returns 403 QUERY_LENGTH_EXCESSIVE" in {
@@ -883,18 +978,31 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,OK, matchResponse = false)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, OK, matchResponse = false)
         }
 
         "return 503 when NRS returns 503 Service unavailable" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse(MockErrorResponses.NRS_CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)))
+            .thenReturn(
+              Future.failed(
+                UpstreamErrorResponse(
+                  MockErrorResponses.NRS_CONNECTION_DOWN.json,
+                  SERVICE_UNAVAILABLE,
+                  SERVICE_UNAVAILABLE
+                )
+              )
+            )
           mockAuditSuccess
 
           val request = postRequest(userNoMatchScotlandExcludingReferenceKey)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "NRS_CONNECTION_DOWN","National Records Scotland: Scotland is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "NRS_CONNECTION_DOWN",
+            "National Records Scotland: Scotland is unavailable"
+          )
         }
 
         "return 503 when DES returns 502 BAD_GATEWAY" in {
@@ -903,10 +1011,9 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN","DES is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
         }
-
 
         "return 503 SERVICE_UNAVAILABLE when DES returns 502 BAD_GATEWAY Upstream5xxResponse" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
@@ -914,8 +1021,8 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result = testController.post().apply(request).futureValue
-          checkResponse(result,SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN","DES is unavailable")
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
         }
 
       }
@@ -930,24 +1037,24 @@ class BirthEventsControllerSpec extends AnyWordSpecLike with Matchers
         mockAuditSuccess
         mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,OK, matchResponse = false)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, OK, matchResponse = false)
       }
 
       "calls getReference when GRONIFeature is enabled" in {
         mockAuditSuccess
         mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,OK, matchResponse = false)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, OK, matchResponse = false)
       }
 
       "calls getDetails when GRONIFeature is enabled" in {
         mockAuditSuccess
         mockGroNiDetailsResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
-        val result = testController.post().apply(request).futureValue
-        checkResponse(result,OK, matchResponse = false)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, OK, matchResponse = false)
       }
 
     }

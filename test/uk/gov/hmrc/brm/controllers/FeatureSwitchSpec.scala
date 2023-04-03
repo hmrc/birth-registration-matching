@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,14 @@ import scala.concurrent.Future
 /**
   * Created by adamconder on 02/12/2016.
   */
-trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
-  with GuiceOneAppPerTest
-  with MockitoSugar
-  with BeforeAndAfterEachTestData
-  with ScalaFutures {
+trait FeatureSwitchSpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with GuiceOneAppPerTest
+    with MockitoSugar
+    with BeforeAndAfterEachTestData
+    with ScalaFutures {
 
   /**
     * Enable both GRO and NRS
@@ -53,18 +56,18 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
   lazy val switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false,
-    "microservice.services.birth-registration-matching.features.dobValidation.value" -> "2009-07-01",
+    "microservice.services.birth-registration-matching.features.dobValidation.value"   -> "2009-07-01",
     //    Match switch
-    "microservice.services.birth-registration-matching.matching.firstName" -> true,
-    "microservice.services.birth-registration-matching.matching.lastName" -> true,
-    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
+    "microservice.services.birth-registration-matching.matching.firstName"             -> true,
+    "microservice.services.birth-registration-matching.matching.lastName"              -> true,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth"           -> true,
     // GRO NRS Switch
-    "microservice.services.birth-registration-matching.features.gro.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.enabled"           -> true,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> true,
-    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> true,
-    "microservice.services.birth-registration-matching.features.nrs.enabled" -> true,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled"   -> true,
+    "microservice.services.birth-registration-matching.features.nrs.enabled"           -> true,
     "microservice.services.birth-registration-matching.features.nrs.reference.enabled" -> true,
-    "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> true
+    "microservice.services.birth-registration-matching.features.nrs.details.enabled"   -> true
   )
 
   /**
@@ -73,21 +76,21 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
   lazy val switchDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> false,
-    "microservice.services.birth-registration-matching.features.dobValidation.value" -> "2009-07-01",
+    "microservice.services.birth-registration-matching.features.dobValidation.value"   -> "2009-07-01",
     //    Match switch
-    "microservice.services.birth-registration-matching.matching.firstName" -> true,
-    "microservice.services.birth-registration-matching.matching.lastName" -> true,
-    "microservice.services.birth-registration-matching.matching.dateOfBirth" -> true,
+    "microservice.services.birth-registration-matching.matching.firstName"             -> true,
+    "microservice.services.birth-registration-matching.matching.lastName"              -> true,
+    "microservice.services.birth-registration-matching.matching.dateOfBirth"           -> true,
     // GRO NRS Switch
-    "microservice.services.birth-registration-matching.features.gro.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.enabled"           -> false,
     "microservice.services.birth-registration-matching.features.gro.reference.enabled" -> false,
-    "microservice.services.birth-registration-matching.features.gro.details.enabled" -> false,
-    "microservice.services.birth-registration-matching.features.nrs.enabled" -> false,
+    "microservice.services.birth-registration-matching.features.gro.details.enabled"   -> false,
+    "microservice.services.birth-registration-matching.features.nrs.enabled"           -> false,
     "microservice.services.birth-registration-matching.features.nrs.reference.enabled" -> false,
-    "microservice.services.birth-registration-matching.features.nrs.details.enabled" -> false
+    "microservice.services.birth-registration-matching.features.nrs.details.enabled"   -> false
   )
 
-  override def newAppForTest(testData: TestData) : Application = {
+  override def newAppForTest(testData: TestData): Application = {
     val config = if (testData.tags.contains("enabled")) {
       switchEnabled
     } else if (testData.tags.contains("disabled")) {
@@ -99,9 +102,8 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
       .build()
   }
 
-  override protected def beforeEach(testData: TestData): Unit = {
+  override protected def beforeEach(testData: TestData): Unit =
     reset(MockControllerMockedLookup.service)
-  }
 
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
@@ -111,27 +113,33 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
     "enabled for GRO" should {
 
-      "search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      "search by child's details when the details switch is enabled and no reference number" taggedAs Tag(
+        "enabled"
+      ) in {
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(BirthMatchResponse(true)))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
-      "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
+        "enabled"
+      ) in {
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(BirthMatchResponse(true)))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
@@ -139,25 +147,29 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
     "disabled for GRO" should {
 
-      "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
+      "search by child's details when the details switch is disabled and no reference number" taggedAs Tag(
+        "disabled"
+      ) in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchIncludingReferenceNumber)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
-      "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
+      "search by reference number when the details switch is disabled and has reference number" taggedAs Tag(
+        "disabled"
+      ) in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKey)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
@@ -165,27 +177,33 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
     "enabled for NRS" should {
 
-      "search by child's details when the details switch is enabled and no reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      "search by child's details when the details switch is enabled and no reference number" taggedAs Tag(
+        "enabled"
+      ) in {
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(BirthMatchResponse(true)))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
-      "search by reference number when the details switch is enabled and has reference number" taggedAs Tag("enabled") in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any())).thenReturn(Future.successful(BirthMatchResponse(true)))
+      "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
+        "enabled"
+      ) in {
+        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(BirthMatchResponse(true)))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userWhereBirthRegisteredScotland)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any())
       }
 
@@ -193,32 +211,33 @@ trait FeatureSwitchSpec extends AnyWordSpecLike with Matchers with OptionValues
 
     "disabled for NRS" should {
 
-      "search by child's details when the details switch is disabled and no reference number" taggedAs Tag("disabled") in {
+      "search by child's details when the details switch is disabled and no reference number" taggedAs Tag(
+        "disabled"
+      ) in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
-      "search by reference number when the details switch is disabled and has reference number" taggedAs Tag("disabled") in {
+      "search by reference number when the details switch is disabled and has reference number" taggedAs Tag(
+        "disabled"
+      ) in {
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userWhereBirthRegisteredScotland)
-        val result = MockControllerMockedLookup.post().apply(request).futureValue
-        result.header.status shouldBe OK
+        val result  = MockControllerMockedLookup.post().apply(request).futureValue
+        result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
-        result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
+        result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
         verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any())
       }
 
     }
-
-
-
 
   }
 

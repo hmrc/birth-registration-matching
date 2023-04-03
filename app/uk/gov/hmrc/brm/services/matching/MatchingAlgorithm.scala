@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,11 @@ trait MatchingAlgorithm extends MatchingIterator {
   protected[MatchingAlgorithm] def dateMatch(input: Option[LocalDate], record: Option[LocalDate]): Match =
     matching[LocalDate](input, record, _ isEqual _)
 
-  protected[MatchingAlgorithm] def matching[T](input: Option[T], other: Option[T], matchFunction: (T, T) => Boolean): Match = {
+  protected[MatchingAlgorithm] def matching[T](
+    input: Option[T],
+    other: Option[T],
+    matchFunction: (T, T) => Boolean
+  ): Match =
     (input, other) match {
       case (Some(x), Some(y)) =>
         if (matchFunction(x, y)) {
@@ -39,8 +43,7 @@ trait MatchingAlgorithm extends MatchingIterator {
         } else {
           Bad()
         }
-      case _ => Bad()
+      case _                  => Bad()
     }
-  }
 
 }

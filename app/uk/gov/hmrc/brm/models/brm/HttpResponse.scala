@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,22 @@ import play.api.http.Status
 import play.api.libs.json.{JsPath, Json, JsonValidationError}
 import play.api.mvc.{Result, Results}
 
-
 trait HttpResponseBody {
   val httpCode: Int
   val code: String
   val message: String
 
-  def errorBody(code: String, message: String) = Json.parse(
-    s"""
+  def errorBody(code: String, message: String) = Json
+    .parse(s"""
        |{
        |  "code": "$code",
        |  "message": "$message"
        |}
-     """.stripMargin).toString()
+     """.stripMargin)
+    .toString()
 
-  def status = {
+  def status =
     Results.Status(httpCode).apply(errorBody(code, message))
-  }
 
 }
 
@@ -44,7 +43,9 @@ trait HttpResponse {
 
   def getHttpResponse(key: String, error: String): Result
 
-  def getErrorResponseByField(field: Seq[(JsPath, Seq[JsonValidationError])]): Result = {
+  def getErrorResponseByField(
+    field: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]
+  ): Result = {
 
     val fields = field.map { case (key, validationError) =>
       (key.toString.stripPrefix("/"), validationError.head.message)
@@ -55,62 +56,62 @@ trait HttpResponse {
 }
 
 object BadRequest extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "BAD_REQUEST"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "BAD_REQUEST"
   override val message: String = "Provided request is invalid."
 }
 
 object InvalidFirstName extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_FIRSTNAME"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "INVALID_FIRSTNAME"
   override val message: String = "Provided firstName is invalid."
 }
 
 object InvalidAdditionalName extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_ADDITIONALNAMES"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "INVALID_ADDITIONALNAMES"
   override val message: String = "Provided additionalNames are invalid."
 }
 
 object InvalidLastName extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_LASTNAME"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "INVALID_LASTNAME"
   override val message: String = "Provided lastName is invalid."
 }
 
 object InvalidDateOfBirth extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_DATE_OF_BIRTH"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "INVALID_DATE_OF_BIRTH"
   override val message: String = "Provided dateOfBirth is invalid."
 }
 
 object InvalidBirthReferenceNumber extends HttpResponseBody {
-  override val httpCode: Int = Status.BAD_REQUEST
-  override val code: String = "INVALID_BIRTH_REFERENCE_NUMBER"
+  override val httpCode: Int   = Status.BAD_REQUEST
+  override val code: String    = "INVALID_BIRTH_REFERENCE_NUMBER"
   override val message: String = "The birth reference number does not meet the required length"
 }
 
 object InvalidWhereBirthRegistered extends HttpResponseBody {
-  override val httpCode: Int = Status.FORBIDDEN
-  override val code: String = "INVALID_WHERE_BIRTH_REGISTERED"
+  override val httpCode: Int   = Status.FORBIDDEN
+  override val code: String    = "INVALID_WHERE_BIRTH_REGISTERED"
   override val message: String = "Provided Country is invalid."
 }
 
 object InvalidAuditSource extends HttpResponseBody {
-  override val httpCode: Int = Status.UNAUTHORIZED
-  override val code: String = "INVALID_AUDITSOURCE"
+  override val httpCode: Int   = Status.UNAUTHORIZED
+  override val code: String    = "INVALID_AUDITSOURCE"
   override val message: String = "Provided Audit-Source is invalid."
 }
 
 object InvalidAcceptHeader extends HttpResponseBody {
-  override val httpCode: Int = Status.NOT_ACCEPTABLE
-  override val code: String = "INVALID_ACCEPT_HEADER"
+  override val httpCode: Int   = Status.NOT_ACCEPTABLE
+  override val code: String    = "INVALID_ACCEPT_HEADER"
   override val message: String = "Accept header is invalid."
 }
 
 object InvalidContentType extends HttpResponseBody {
-  override val httpCode: Int = Status.NOT_ACCEPTABLE
-  override val code: String = "INVALID_CONTENT_TYPE"
+  override val httpCode: Int   = Status.NOT_ACCEPTABLE
+  override val code: String    = "INVALID_CONTENT_TYPE"
   override val message: String = "Accept header is invalid."
 }
 
@@ -118,25 +119,24 @@ object ErrorResponses extends HttpResponse {
 
   type ErrorResponses = List[(String, HttpResponseBody)]
 
-  def getHttpResponse(key: String, error: String): Result = {
+  def getHttpResponse(key: String, error: String): Result =
     error match {
       case InvalidBirthReferenceNumber.message => InvalidBirthReferenceNumber.status
-      case "error.path.missing" =>
+      case "error.path.missing"                =>
         BadRequest.status
-      case e =>
+      case e                                   =>
         errors.filter(x => x._1.equals(key)) match {
-          case head :: tail =>
+          case head :: _ =>
             head._2.status
-          case _ =>
+          case _         =>
             BadRequest.status
         }
     }
-  }
 
   protected val errors: ErrorResponses = List(
     ("birthReferenceNumber", InvalidBirthReferenceNumber),
     ("firstName", InvalidFirstName),
-    ("additionalNames" , InvalidAdditionalName),
+    ("additionalNames", InvalidAdditionalName),
     ("lastName", InvalidLastName),
     ("dateOfBirth", InvalidDateOfBirth),
     ("whereBirthRegistered", InvalidWhereBirthRegistered)

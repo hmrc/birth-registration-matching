@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,41 +20,38 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Request
 
 @Singleton
-class KeyGenerator @Inject()() {
+class KeyGenerator @Inject() () {
 
-  val DATE_FORMAT: String = "yyyyMMdd:HHmmssSS"
+  val DATE_FORMAT: String           = "yyyyMMdd:HHmmssSS"
   private var keyForRequest: String = ""
-  private val AUDITSOURCE_LENGTH = 20
+  private val AUDITSOURCE_LENGTH    = 20
 
   def generateKey[A](request: Request[A], apiVersion: String) = {
     val formattedDate: String = getDateKey
     //format is date-requestid-audit source - api version number
-    val auditSource = request.headers.get("Audit-Source").getOrElse("")
-    val key = s"$formattedDate-${request.id}-${getSubString (auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
+    val auditSource           = request.headers.get("Audit-Source").getOrElse("")
+    val key                   = s"$formattedDate-${request.id}-${getSubString(auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
     key
   }
 
-  private def getDateKey: String = {
+  private def getDateKey: String =
     DateUtil.getCurrentDateString(DATE_FORMAT)
-  }
 
-  def getKey(): String = {
+  def getKey(): String =
     keyForRequest
-  }
 
-  def setKey(key: String): Unit = {
+  def setKey(key: String): Unit =
     keyForRequest = key
-  }
 
   def generateAndSetKey[A](request: Request[A], apiVersion: String): Unit = {
     val key = generateKey(request, apiVersion)
     setKey(key)
   }
 
-  def getSubString(originalString: String, maxLength : Int) = {
-    var  formattedString = originalString
-    if(originalString.length > maxLength ) {
-       formattedString = originalString.substring(0, maxLength)
+  def getSubString(originalString: String, maxLength: Int) = {
+    var formattedString = originalString
+    if (originalString.length > maxLength) {
+      formattedString = originalString.substring(0, maxLength)
     }
 
     formattedString

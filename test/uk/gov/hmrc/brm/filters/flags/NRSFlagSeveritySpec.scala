@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,15 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-class NRSFlagSeveritySpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerSuite {
+class NRSFlagSeveritySpec
+    extends AnyWordSpecLike
+    with Matchers
+    with OptionValues
+    with MockitoSugar
+    with GuiceOneAppPerSuite {
 
   val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
-  val conf: BrmConfig = app.injector.instanceOf[BrmConfig]
+  val conf: BrmConfig          = app.injector.instanceOf[BrmConfig]
 
   "determineFlagSeverity" should {
 

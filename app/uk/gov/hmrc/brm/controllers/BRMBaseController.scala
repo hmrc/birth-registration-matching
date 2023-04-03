@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,49 +28,50 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 abstract class BRMBaseController(cc: ControllerComponents) extends BackendController(cc) with BRMException {
 
   val commonUtils: CommonUtil
-  lazy val contentType: String = "application/json; charset=utf-8"
-  lazy val headers: (String, String)  = (ACCEPT, "application/vnd.hmrc.1.0+json")
+  lazy val contentType: String       = "application/json; charset=utf-8"
+  lazy val headers: (String, String) = (ACCEPT, "application/vnd.hmrc.1.0+json")
 
   protected val transactionAuditor: TransactionAuditor
   protected val matchingAuditor: MatchingAudit
   protected val headerValidator: HeaderValidator
 
-  def respond(response: Result): Result = {
+  def respond(response: Result): Result =
     response
       .as(contentType)
       .withHeaders(headers)
+
+  def handleException(method: String, startTime: Long)(implicit
+    payload: Payload,
+    auditor: BRMDownstreamAPIAudit,
+    hc: HeaderCarrier,
+    request: Request[JsValue]
+  ): PartialFunction[Throwable, Result] = { case t =>
+    val allPfs = Seq(
+      groProxyDownPF(method),
+      gatewayTimeoutPF(method),
+      desConnectionDownPF(method),
+      desInvalidHeadersBadRequestPF(method),
+      groConnectionDownPF(method),
+      nrsConnectionDownPF(method),
+      badRequestExceptionPF(method),
+      notImplementedExceptionPF(method),
+      notFoundExceptionPF(method),
+      forbiddenUpstreamPF(method),
+      exceptionPF(method)
+    ).reduce(_ orElse _)
+
+    // audit the transaction when there was an exception with default arguments
+    auditTransaction()
+    commonUtils.logTime(startTime)
+
+    respond(allPfs.apply(t))
   }
 
-  def handleException(method: String,
-                      startTime:Long)
-                     (implicit payload: Payload,
-                      auditor: BRMDownstreamAPIAudit,
-                      hc: HeaderCarrier,
-                      request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case t =>
-      val allPfs = Seq(
-        groProxyDownPF(method),
-        gatewayTimeoutPF(method),
-        desConnectionDownPF(method),
-        desInvalidHeadersBadRequestPF(method),
-        groConnectionDownPF(method),
-        nrsConnectionDownPF(method),
-        badRequestExceptionPF(method),
-        notImplementedExceptionPF(method),
-        notFoundExceptionPF(method),
-        forbiddenUpstreamPF(method),
-        exceptionPF(method)).reduce(_ orElse _)
-
-      // audit the transaction when there was an exception with default arguments
-       auditTransaction()
-       commonUtils.logTime(startTime)
-
-      respond(allPfs.apply(t))
-  }
-
-  protected def auditTransaction()(implicit payload: Payload,
-                                   downstream: BRMDownstreamAPIAudit,
-                                   hc: HeaderCarrier): Unit = {
+  protected def auditTransaction()(implicit
+    payload: Payload,
+    downstream: BRMDownstreamAPIAudit,
+    hc: HeaderCarrier
+  ): Unit = {
 
     val matchResult = MatchingResult.noMatch
 

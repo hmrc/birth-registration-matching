@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,22 @@ class FormatSpec extends AnyWordSpecLike with Matchers with OptionValues with Gu
 
     "trim whitespace from the start of a string" in {
       val input: String = " james"
-      NameFormat(input) shouldBe ("james")
+      NameFormat(input) shouldBe "james"
     }
 
     "trim whitespace from the end of a string" in {
       val input: String = "james "
-      NameFormat(input) shouldBe ("james")
+      NameFormat(input) shouldBe "james"
     }
 
     "trim whitespace from the start and end of a string" in {
       val input: String = " james jones "
-      NameFormat(input) shouldBe ("james jones")
+      NameFormat(input) shouldBe "james jones"
     }
 
     "don't trim whitespace from the middle of a string" in {
       val input: String = "james jones "
-      NameFormat(input) shouldBe ("james jones")
+      NameFormat(input) shouldBe "james jones"
     }
   }
 
@@ -50,17 +50,17 @@ class FormatSpec extends AnyWordSpecLike with Matchers with OptionValues with Gu
 
     "insert leading zeros on month" in {
       val input: String = "2007-1-01"
-      DateFormat(input) shouldBe ("2007-01-01")
+      DateFormat(input) shouldBe "2007-01-01"
     }
 
     "insert leading zeros on day" in {
       val input: String = "2007-01-1"
-      DateFormat(input) shouldBe ("2007-01-01")
+      DateFormat(input) shouldBe "2007-01-01"
     }
 
     "apply no formatting to correctly formatted strings" in {
       val input: String = "2007-12-24"
-      DateFormat(input) shouldBe ("2007-12-24")
+      DateFormat(input) shouldBe "2007-12-24"
     }
 
     "return original string if the string couldn't be formatted" in {

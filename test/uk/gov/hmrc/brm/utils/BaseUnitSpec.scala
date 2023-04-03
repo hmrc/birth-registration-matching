@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,104 +44,99 @@ import uk.gov.hmrc.http.HttpResponse
   */
 trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
-    result.header.status shouldBe responseStatus
+    result.header.status                                                                 shouldBe responseStatus
     (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe matchResponse
     checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus: Int, responseString: String): Unit = {
-    result.header.status shouldBe responseStatus
+    result.header.status                                                  shouldBe responseStatus
     Json.parse(result.body.consumeData.futureValue.utf8String).toString() shouldBe responseString
     checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus: Int, responseBody: EmptyWord): Unit = {
-    result.header.status shouldBe responseStatus
+    result.header.status                           shouldBe responseStatus
     result.body.consumeData.futureValue.utf8String shouldBe responseBody
     checkHeaders(result)
   }
 
   def checkResponse(result: Result, responseStatus: Int, code: String, message: String): Unit = {
-    result.header.status shouldBe responseStatus
+    result.header.status                                                                shouldBe responseStatus
     checkHeaders(result)
-    (Json.parse(result.body.consumeData.futureValue.utf8String) \ "code").as[String] shouldBe code
+    (Json.parse(result.body.consumeData.futureValue.utf8String) \ "code").as[String]    shouldBe code
     (Json.parse(result.body.consumeData.futureValue.utf8String) \ "message").as[String] shouldBe message
   }
 
   private def checkHeaders(result: Result): Unit = {
-    result.body.contentType.get should startWith("application/json")
+    result.body.contentType.get     should startWith("application/json")
     result.header.headers(ACCEPT) shouldBe "application/vnd.hmrc.1.0+json"
   }
 
-  def mockReferenceResponse(jsonResponse: JsValue): Unit = {
+  def mockReferenceResponse(jsonResponse: JsValue): Unit =
     mockRefResponse(mockGroConnector, jsonResponse)
-  }
 
-  def mockReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     mockRefResponse(mockGroConnector, exception)
-  }
 
-  private def mockRefResponse(connector: BirthConnector, exception: Exception) = {
+  private def mockRefResponse(connector: BirthConnector, exception: Exception) =
     when(connector.getReference(any())(any(), any()))
       .thenReturn(Future.failed(exception))
-  }
 
-  private def mockRefResponse(connector: BirthConnector, jsonResponse: JsValue): Unit = {
+  private def mockRefResponse(connector: BirthConnector, jsonResponse: JsValue): Unit =
     when(connector.getReference(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
-  }
 
-  def mockNrsReferenceResponse(jsonResponse: JsValue): Unit = {
+  def mockNrsReferenceResponse(jsonResponse: JsValue): Unit =
     mockRefResponse(mockNrsConnector, jsonResponse)
-  }
 
-  def mockNrsReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockNrsReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     mockRefResponse(mockNrsConnector, exception)
-  }
 
-  def mockGroNiReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockGroNiReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     mockRefResponse(mockGroniConnector, exception)
-  }
 
-  def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockGroConnector.getChildDetails(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
-  }
+  def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
+    when(mockGroConnector.getChildDetails(any())(any(), any()))
+      .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
-  def mockNrsDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] = {
-    when(mockNrsConnector.getChildDetails(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
-  }
+  def mockNrsDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
+    when(mockNrsConnector.getChildDetails(any())(any(), any()))
+      .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
-  def mockDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     when(mockGroConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
-  }
 
-  def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] = {
+  def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     when(mockNrsConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
-  }
 
-  def mockGroNiDetailsResponse(exception: Exception): OngoingStubbing[Future[Nothing]] = {
+  def mockGroNiDetailsResponse(exception: Exception): OngoingStubbing[Future[Nothing]] =
     when(mockGroniConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
-  }
 
-  def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] = {
+  def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] =
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-  }
 
-  def mockAuditFailure: OngoingStubbing[Future[AuditResult]] = {
+  def mockAuditFailure: OngoingStubbing[Future[AuditResult]] =
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
-  }
 
-  def mockHttpPostResponse(responseStatus: Int = Status.OK, responseJson: scala.Option[play.api.libs.json.JsValue]): ArgumentCapture[JsValue] = {
+  def mockHttpPostResponse(
+    responseStatus: Int = Status.OK,
+    responseJson: scala.Option[play.api.libs.json.JsValue]
+  ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
     when(mockHttp.POST[JsValue, HttpResponse](any(), argumentCapture.capture, any())(any(), any(), any(), any()))
-      .thenReturn(Future.successful(HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])))
+      .thenReturn(
+        Future.successful(
+          HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
+        )
+      )
     argumentCapture
   }
 
   def checkResponse(result: HttpResponse, responseCode: Int): Unit = {
-    result shouldBe a[HttpResponse]
+    result        shouldBe a[HttpResponse]
     result.status shouldBe responseCode
   }
 
