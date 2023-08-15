@@ -38,8 +38,8 @@ class WhereBirthRegisteredAuditSpec
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val auditor     = auditorFixtures.whereBirthRegisteredAudit
-  implicit val hc = HeaderCarrier()
+  val auditor                    = auditorFixtures.whereBirthRegisteredAudit
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "WhereBirthRegisteredAudit" should {
 
