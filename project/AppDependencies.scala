@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import play.core.PlayVersion
-import sbt.{ModuleID, _}
-import play.sbt.PlayImport._
+import sbt.{ModuleID, *}
+import play.sbt.PlayImport.*
 
 object AppDependencies {
 

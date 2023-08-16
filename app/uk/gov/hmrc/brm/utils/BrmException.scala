@@ -100,7 +100,7 @@ trait BRMException extends StatusCodes {
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
-    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _, _)
+    case e @ UpstreamErrorResponse(_, BAD_GATEWAY, _, _)
         if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
@@ -110,7 +110,7 @@ trait BRMException extends StatusCodes {
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND                        =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
-    case e @ Upstream5xxResponse(_, BAD_GATEWAY, _, _) if payload.whereBirthRegistered == SCOTLAND =>
+    case e @ UpstreamErrorResponse(_, BAD_GATEWAY, _, _) if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
   }
 
@@ -155,7 +155,7 @@ trait BRMException extends StatusCodes {
   def forbiddenUpstreamPF(
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case Upstream4xxResponse(body, FORBIDDEN, _, _) =>
+    case UpstreamErrorResponse(body, FORBIDDEN, _, _) =>
       // this is correct as Forbidden 403 does not get converted into an Exception, we get the upstream code
       logException(method, s"[Forbidden / Not found]: [$body]", FORBIDDEN)
       respondNoMatch()
@@ -164,7 +164,7 @@ trait BRMException extends StatusCodes {
   def gatewayTimeoutPF(
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, GATEWAY_TIMEOUT, _, _) =>
+    case e @ UpstreamErrorResponse(body, GATEWAY_TIMEOUT, _, _) =>
       logException(method, s"[Gateway timeout]: [$body]", GATEWAY_TIMEOUT)
       InternalServerErrorException(method, e, GATEWAY_TIMEOUT)
   }
@@ -172,7 +172,7 @@ trait BRMException extends StatusCodes {
   def groConnectionDownPF(
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, upstream, _, _)
+    case e @ UpstreamErrorResponse(body, upstream, _, _)
         if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
       logException(method, s"[GRO down]: $body [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
@@ -181,7 +181,7 @@ trait BRMException extends StatusCodes {
   def nrsConnectionDownPF(
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e @ Upstream5xxResponse(body, upstream, _, _) if payload.whereBirthRegistered == SCOTLAND =>
+    case e @ UpstreamErrorResponse(body, upstream, _, _) if payload.whereBirthRegistered == SCOTLAND =>
       logException(method, s"[NRS down]: [$body] [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "[NRS down]", e, ErrorResponse.NRS_CONNECTION_DOWN)
   }

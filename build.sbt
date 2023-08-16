@@ -1,12 +1,12 @@
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "birth-registration-matching"
 
-lazy val scoverageSettings: Seq[Def.Setting[_]] =
+lazy val scoverageSettings: Seq[Def.Setting[?]] =
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;uk.gov.hmrc.brm.config.*;testOnlyDoNotUseInAppConf.*;" +
       "uk.gov.hmrc.brm.views.*;prod.*;uk.gov.hmrc.BuildInfo.*;app.Routes.*;",
