@@ -173,7 +173,7 @@ trait BRMException extends StatusCodes {
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e @ UpstreamErrorResponse(body, upstream, _, _)
-        if payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES =>
+        if Exception5xx.unapply(upstream) && (payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES) =>
       logException(method, s"[GRO down]: $body [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }
