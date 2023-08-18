@@ -49,12 +49,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
     "NRS" should {
 
-      "return error when birthReferenceNumber value exceeds maximum length" ignore {
+      "return error when birthReferenceNumber value exceeds maximum length" in {
         val payload = Payload(Some("12345678911"), "Test", None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
-      "return error when birthReferenceNumber value is under minimum length" ignore {
+      "return error when birthReferenceNumber value is under minimum length" in {
         val payload = Payload(Some("123456789"), "Test", None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
@@ -62,17 +62,17 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
     "GRO" should {
 
-      "return error when birthReferenceNumber key exceeds maximum length" ignore {
+      "return error when birthReferenceNumber key exceeds maximum length" in {
         val payload = Payload(Some("1234567891"), "Test", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
-      "return error when birthReferenceNumber key is under minimum length" ignore {
+      "return error when birthReferenceNumber key is under minimum length" in {
         val payload = Payload(Some("12345678"), "Test", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
-      "return success when birthReferenceNumber key is valid length" ignore {
+      "return success when birthReferenceNumber key is valid length" in {
         val payload = Payload(Some("123456789"), "Test", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
