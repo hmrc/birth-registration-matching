@@ -1,5 +1,6 @@
 import sbt.Keys.*
 import sbt.*
+
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
@@ -17,6 +18,7 @@ lazy val scoverageSettings: Seq[Def.Setting[?]] =
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     scoverageSettings,
     scalaSettings,
