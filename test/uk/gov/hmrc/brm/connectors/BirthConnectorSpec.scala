@@ -51,7 +51,7 @@ class BirthConnectorSpec
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(

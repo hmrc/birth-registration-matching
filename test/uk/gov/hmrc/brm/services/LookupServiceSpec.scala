@@ -125,7 +125,7 @@ class LookupServiceSpec
         val service                    = MockLookupService
         implicit val payload: Payload  =
           Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = service.lookup.futureValue
+        val result: BirthMatchResponse = service.lookup().futureValue
         result shouldBe BirthMatchResponse()
       }
 
@@ -179,7 +179,7 @@ class LookupServiceSpec
         val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
 
@@ -234,7 +234,7 @@ class LookupServiceSpec
         val service                    = MockLookupService
         implicit val payload: Payload  =
           Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = service.lookup.futureValue
+        val result: BirthMatchResponse = service.lookup().futureValue
         result shouldBe BirthMatchResponse()
       }
 
@@ -288,7 +288,7 @@ class LookupServiceSpec
         val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
 
@@ -304,7 +304,7 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
 
         result shouldBe BirthMatchResponse(true)
       }
@@ -317,7 +317,7 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayloadWithoutBrn
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
@@ -330,7 +330,7 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
@@ -343,7 +343,7 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayloadWithSpecialChar
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
 
       }
@@ -361,7 +361,7 @@ class LookupServiceSpec
         val service = MockLookupService
 
         implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong
-        val result                    = service.lookup.futureValue
+        val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse()
 
       }
@@ -385,7 +385,7 @@ class LookupServiceSpec
           new LocalDate("2012-02-16"),
           BirthRegisterCountry.NORTHERN_IRELAND
         )
-        assert(service.lookup.failed.futureValue.isInstanceOf[NotImplementedException])
+        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
       }
 
       "accept payload without reference number as argument" in {
@@ -397,7 +397,7 @@ class LookupServiceSpec
         val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
-        assert(service.lookup.failed.futureValue.isInstanceOf[NotImplementedException])
+        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
       }
 
     }

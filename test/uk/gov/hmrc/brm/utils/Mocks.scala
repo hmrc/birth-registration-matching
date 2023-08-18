@@ -34,8 +34,6 @@ import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, Partial
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-import scala.concurrent.ExecutionContext
-
 /**
   * Created by adamconder on 24/02/2017.
   */
