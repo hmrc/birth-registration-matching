@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models.brm
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
@@ -24,6 +24,8 @@ import play.api.libs.json._
 import uk.gov.hmrc.brm.metrics.{EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
+
+import java.time.format.DateTimeFormatter
 
 case class Payload(
   birthReferenceNumber: Option[String] = None,
@@ -48,7 +50,7 @@ case class Payload(
       "payload.firstName"            -> firstNames,
       "payload.additionalNames"      -> additionalNames,
       "payload.lastName"             -> lastName,
-      "payload.dateOfBirth"          -> dateOfBirth.toString(Payload.datePattern),
+      "payload.dateOfBirth"          -> dateOfBirth.toString,
       "payload.whereBirthRegistered" -> whereBirthRegistered.toString
     )
 
@@ -66,31 +68,31 @@ case class DetailsRequest() extends RequestType
 object Payload {
 
   val minimumDateOfBirthYear = 1900
-  val nameMaxLength          = 250
+  val nameMaxLength = 250
 
   val birthReferenceNumber = "birthReferenceNumber"
-  val firstName            = "firstName"
-  val additionalNames      = "additionalNames"
-  val lastName             = "lastName"
-  val dateOfBirth          = "dateOfBirth"
+  val firstName = "firstName"
+  val additionalNames = "additionalNames"
+  val lastName = "lastName"
+  val dateOfBirth = "dateOfBirth"
   val whereBirthRegistered = "whereBirthRegistered"
 
   val datePattern = "yyyy-MM-dd"
 
-  private val validBirthReferenceNumberRegEx    = """^[0-9]+$"""
+  private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
   private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
-  private val invalidNameCharsRegEx             = "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
+  private val invalidNameCharsRegEx = "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
 
   private val validationError = JsonValidationError("")
 
   private def validBirthReferenceNumber(country: BirthRegisterCountry.Value, referenceNumber: Option[String]): Boolean =
     (country, referenceNumber) match {
-      case (BirthRegisterCountry.ENGLAND, Some(_))  => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
-      case (BirthRegisterCountry.WALES, Some(_))    => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+      case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+      case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
       case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
-      case (_, Some(x))                             => x.matches(validBirthReferenceNumberRegEx)
-      case (_, _)                                   => true
+      case (_, Some(x)) => x.matches(validBirthReferenceNumberRegEx)
+      case (_, _) => true
     }
 
   private val nameValidation: Reads[String] =
@@ -98,12 +100,20 @@ object Payload {
       invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
-  private val isAfterDate: Reads[LocalDate] =
-    JodaReads
-      .jodaLocalDateReads(datePattern)
-      .filter(validationError)(
-        _.getYear >= minimumDateOfBirthYear
-      )
+  private val isAfterDate: Reads[LocalDate] = Reads[LocalDate] { json =>
+      json
+        .validate[String]
+        .flatMap { dateStr =>
+          val formatter = DateTimeFormatter.ofPattern(datePattern)
+          val localDate = LocalDate.parse(dateStr, formatter)
+
+          if (localDate.getYear >= minimumDateOfBirthYear) {
+            JsResult
+          } else {
+            validationError
+          }
+        }
+    }
 
   implicit val PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and

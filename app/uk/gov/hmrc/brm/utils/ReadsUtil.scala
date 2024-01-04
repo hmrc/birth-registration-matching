@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsPath, Reads, _}
@@ -37,7 +38,7 @@ object ReadsUtil {
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "dateOfBirth")
-        .readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern))
+        .readNullable[LocalDate](DateTimeFormatter.ofPattern(Payload.datePattern))
         .orElse(Reads.pure(None))
   )(Child.apply _)
 

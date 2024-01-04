@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.utils
 
 import javax.inject.Inject
-import org.joda.time.DateTime
+import java.time.Instant
 import uk.gov.hmrc.brm.config.BrmConfig
 
 class CommonUtil @Inject() (config: BrmConfig, logger: BRMLogger) {
@@ -33,7 +33,7 @@ class CommonUtil @Inject() (config: BrmConfig, logger: BRMLogger) {
 
   //log the time diff in milliseconds.
   def logTime(startTime: Long): Unit = {
-    def diffInMillis = DateTime.now.getMillis - startTime
+    def diffInMillis = Instant.now().toEpochMilli - startTime
     logger.info(s"CommonUtil", "sendRequest", s"time in milliseconds for making request: $diffInMillis")
   }
 

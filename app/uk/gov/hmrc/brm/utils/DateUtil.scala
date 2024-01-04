@@ -16,19 +16,18 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-/**
-  * Created by user on 02/03/17.
+/** Created by user on 02/03/17.
   */
 object DateUtil {
 
-  def getCurrentDateString(DATE_FORMAT: String) = {
+  def getCurrentDateString(DATE_FORMAT: String): String = {
 
-    val dateTime              = new DateTime()
-    val formatter             = DateTimeFormat.forPattern(DATE_FORMAT)
-    val formattedDate: String = formatter.print(dateTime)
+    val dateTime = LocalDateTime.now
+    val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+    val formattedDate = dateTime.format(formatter)
     formattedDate
   }
 

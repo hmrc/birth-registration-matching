@@ -3,7 +3,7 @@ import play.sbt.PlayImport.*
 
 object AppDependencies {
 
-  private val bootstrapPlayVersion = "7.22.0"
+  private val bootstrapPlayVersion = "7.23.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -15,8 +15,8 @@ object AppDependencies {
     "org.scalatest"       %% "scalatest"              % "3.2.17",
     "uk.gov.hmrc"         %% "bootstrap-test-play-28" % bootstrapPlayVersion,
     "org.scalatestplus"   %% "mockito-3-4"            % "3.2.10.0",
-    "org.specs2"          %% "specs2-core"            % "4.20.2",
-    "org.specs2"          %% "specs2-mock"            % "4.20.2",
+    "org.specs2"          %% "specs2-core"            % "4.20.3",
+    "org.specs2"          %% "specs2-mock"            % "4.20.3",
     "com.vladsch.flexmark" % "flexmark-all"           % "0.64.8"
   ).map(_ % "test")
 
