@@ -27,8 +27,7 @@ import uk.gov.hmrc.http.HttpResponse
 
 object TestHelper {
 
-  /**
-    * GRO
+  /** GRO
     */
 
   val groJsonResponseObject: JsValue                    = JsonUtils.getJsonFromFile("gro", "500035710")
@@ -50,8 +49,7 @@ object TestHelper {
   val payloadNoReference: Payload =
     Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
 
-  /**
-    * NRS
+  /** NRS
     */
 
   val validNrsJsonResponseObject: JsValue     = JsonUtils.getJsonFromFile("nrs", "2017734003")
@@ -90,8 +88,7 @@ object TestHelper {
   val payloadNoReferenceScotland: Payload =
     Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
 
-  /**
-    * GRO-NI
+  /** GRO-NI
     */
 
   val payloadNoReferenceNorthernIreland: Payload =

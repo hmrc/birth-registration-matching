@@ -21,8 +21,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter._
 import uk.gov.hmrc.brm.switches.Switch
 
-/**
-  * Created by mew on 15/05/2017.
+/** Created by mew on 15/05/2017.
   */
 class GROFilter @Inject() (conf: BrmConfig) extends Filter(GeneralFilter) {
   class GROSwitch extends Switch {

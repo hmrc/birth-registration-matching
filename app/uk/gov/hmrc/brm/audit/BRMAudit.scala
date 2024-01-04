@@ -30,8 +30,7 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 
-/**
-  * AuditEvent - Abstract class for auditing events
+/** AuditEvent - Abstract class for auditing events
   * @param auditType type of audit event, given a unique identifier to search on
   * @param detail map of results
   * @param transactionName name of the transaction

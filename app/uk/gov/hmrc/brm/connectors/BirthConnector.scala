@@ -38,8 +38,7 @@ trait BirthConnector {
   protected val referenceBody: PartialFunction[Payload, (String, JsValue)]
   protected val detailsBody: PartialFunction[Payload, (String, JsValue)]
 
-  /**
-    * RequestType, reference or details
+  /** RequestType, reference or details
     */
   trait RequestType
 

@@ -26,8 +26,7 @@ import uk.gov.hmrc.brm.utils.DateUtil._
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.HttpClient
 
-/**
-  * Created by adamconder on 07/02/2017.
+/** Created by adamconder on 07/02/2017.
   */
 @Singleton
 class NRSConnector @Inject() (

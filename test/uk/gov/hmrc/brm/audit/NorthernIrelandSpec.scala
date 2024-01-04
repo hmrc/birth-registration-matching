@@ -32,8 +32,7 @@ import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 class NorthernIrelandSpec
     extends AnyWordSpecLike

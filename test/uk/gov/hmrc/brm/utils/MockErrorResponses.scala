@@ -18,8 +18,7 @@ package uk.gov.hmrc.brm.utils
 
 import play.api.libs.json.Json
 
-/**
-  * Created by mew on 10/04/2017.
+/** Created by mew on 10/04/2017.
   */
 object MockErrorResponses {
 

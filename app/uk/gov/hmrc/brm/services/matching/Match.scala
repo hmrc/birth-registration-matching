@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.brm.services.matching
 
-/**
-  * Created by mew on 24/05/2017.
+/** Created by mew on 24/05/2017.
   */
 sealed abstract class Match {
 

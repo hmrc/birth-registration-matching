@@ -52,8 +52,7 @@ class LookupService @Inject() (
       case BirthRegisterCountry.SCOTLAND                             => nrsConnector
     }
 
-  /**
-    * connects to groconnector and return match if match input details.
+  /** connects to groconnector and return match if match input details.
     *
     * @param hc
     * @param metrics
@@ -88,8 +87,7 @@ class LookupService @Inject() (
     downstreamAPIAuditor: BRMDownstreamAPIAudit
   ): Future[AuditResult] = {
 
-    /**
-      * Audit the response from APIs:
+    /** Audit the response from APIs:
       * - if a record was found
       * - if multiple records were found
       * - how many records were found

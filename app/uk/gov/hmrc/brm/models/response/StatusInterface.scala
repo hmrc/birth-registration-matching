@@ -19,8 +19,7 @@ package uk.gov.hmrc.brm.models.response
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 
-/**
-  * Created by chrisianson on 17/03/2017.
+/** Created by chrisianson on 17/03/2017.
   */
 
 trait StatusInterface {

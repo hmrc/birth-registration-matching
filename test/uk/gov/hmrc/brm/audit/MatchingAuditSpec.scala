@@ -33,8 +33,7 @@ import org.scalatest.OptionValues
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 class MatchingAuditSpec
     extends AnyWordSpecLike

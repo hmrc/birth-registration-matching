@@ -28,16 +28,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import uk.gov.hmrc.http.HeaderCarrier
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 @Singleton
 class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen: KeyGenerator, val logger: BRMLogger)(
   implicit ec: ExecutionContext
 ) extends BRMAudit(connector) {
 
-  /**
-    * OtherCountryAuditEvent
+  /** OtherCountryAuditEvent
     * @param result map of key value results
     * @param hc implicit headerCarrier
     */

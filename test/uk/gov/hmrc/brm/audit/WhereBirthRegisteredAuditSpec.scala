@@ -25,8 +25,7 @@ import uk.gov.hmrc.brm.utils.BaseUnitSpec
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 class WhereBirthRegisteredAuditSpec
     extends AnyWordSpecLike

@@ -29,8 +29,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-/**
-  * Created by adamconder on 02/02/2017.
+/** Created by adamconder on 02/02/2017.
   */
 trait NameParserSpec
     extends AnyWordSpecLike

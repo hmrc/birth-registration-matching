@@ -28,8 +28,7 @@ import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Created by adamconder on 07/02/2017.
+/** Created by adamconder on 07/02/2017.
   */
 @Singleton
 class GRONIConnector @Inject() (val http: HttpClient, auditor: NorthernIrelandAudit, val logger: BRMLogger)

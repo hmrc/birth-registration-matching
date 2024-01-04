@@ -18,8 +18,7 @@ package uk.gov.hmrc.brm.switches
 
 import uk.gov.hmrc.brm.config.BrmConfig
 
-/**
-  * Created by mew on 12/05/2017.
+/** Created by mew on 12/05/2017.
   */
 
 trait SwitchException {

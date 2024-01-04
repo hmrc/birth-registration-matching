@@ -21,8 +21,7 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, GeneralFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.switches.Switch
 
-/**
-  * Created by mew on 19/05/2017.
+/** Created by mew on 19/05/2017.
   */
 class GRONIFilter @Inject() (conf: BrmConfig) extends Filter(GeneralFilter) {
   class GroniSwitch extends Switch {

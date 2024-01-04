@@ -19,13 +19,11 @@ package uk.gov.hmrc.brm.services.parser
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 
-/**
-  * Created by adamconder on 02/02/2017.
+/** Created by adamconder on 02/02/2017.
   */
 object NameParser {
 
-  /**
-    * Cache the names on the record after they have been split into FirstNames and MiddleNames
+  /** Cache the names on the record after they have been split into FirstNames and MiddleNames
     * @param _firstNames getter for FirstNames
     * @param _additionalNames getter for AdditionalNames
     */
