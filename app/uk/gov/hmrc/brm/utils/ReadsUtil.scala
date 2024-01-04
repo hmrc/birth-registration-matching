@@ -27,29 +27,50 @@ import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 
 import scala.language.postfixOps
+import scala.util.{Success, Try}
 
 /**
   * Created by user on 06/03/17.
   */
+
+case class Child(birthReferenceNumber: Int, forenames: String, lastName: String, dateOfBirth: Option[LocalDate])
+
 object ReadsUtil {
 
-  val groChildReads: Reads[Child] = (
-    (JsPath \ "systemNumber").read[Int] and
-      (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
-        .readNullable[LocalDate](DateTimeFormatter.ofPattern(Payload.datePattern))
-        .orElse(Reads.pure(None))
-  )(Child.apply _)
+  private val validationError: JsonValidationError = JsonValidationError("")
+
+  implicit val localDateReads = Reads[LocalDate] {
+    case JsString(str) =>
+      Try(LocalDate.parse(str, DateTimeFormatter.ofPattern(Payload.datePattern))) match {
+        case Success(date: LocalDate) =>
+          if (date.getYear >= 1900) {
+            JsSuccess(date)
+          } else {
+            JsError(validationError)
+          }
+        case _ => JsError(validationError)
+      }
+    case JsNull => ???
+    case boolean: JsBoolean => ???
+    case JsNumber(value) => ???
+    case JsString(value) => ???
+    case JsArray(value) => ???
+    case JsObject(underlying) => ???
+  }
 
   val nrsChildReads: Reads[Child] = (
     (JsPath \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
-        .readNullable[LocalDate](JodaReads.jodaLocalDateReads(Payload.datePattern))
-        .orElse(Reads.pure(None))
-  )(Child.apply _)
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](localDateReads).orElse(Reads.pure(None))
+    )(Child.apply _)
+
+  val groChildReads: Reads[Child] = (
+    (JsPath \ "systemNumber").read[Int] and
+      (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
+      (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](localDateReads).orElse(Reads.pure(None))
+    )(Child.apply _)
 
   val groReadRecord: Reads[Record] = (
     JsPath.read[Child](groChildReads) and
