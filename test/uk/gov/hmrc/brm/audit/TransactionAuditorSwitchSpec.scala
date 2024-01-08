@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.audit
 
 import com.kenshoo.play.metrics.PlayModule
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterAll

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services.parser
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application

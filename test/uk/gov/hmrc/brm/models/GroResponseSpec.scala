@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}

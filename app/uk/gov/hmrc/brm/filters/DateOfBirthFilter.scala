@@ -48,7 +48,7 @@ class DateOfBirthFilter @Inject() (dobCount: DateofBirthFeatureCountMetric, conf
     if (isEnabled) {
       val config     = switchValue
       // validate date of birth
-      val configDate = LocalDate.parse(switchValue).toEpochDay
+      val configDate = LocalDate.parse(config)
       val isValid    = !payload.dateOfBirth.isBefore(configDate)
       if (!isValid) {
         dobCount.count()

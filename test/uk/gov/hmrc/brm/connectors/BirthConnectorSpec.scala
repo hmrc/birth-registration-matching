@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -105,7 +105,7 @@ class BirthConnectorSpec
 
       val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
       val payload         =
-        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 7, 1), BirthRegisterCountry.ENGLAND)
       val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
       checkResponse(result, Status.OK)
       argumentCapture.value.toString().contains("test") shouldBe false
@@ -165,7 +165,7 @@ class BirthConnectorSpec
       "getChildDetails call should not pass additional name to nrs." in {
         val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName =
-          Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+          Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, Status.OK)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam"

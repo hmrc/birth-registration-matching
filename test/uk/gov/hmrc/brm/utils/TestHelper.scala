@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.Json._
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
@@ -44,10 +44,13 @@ object TestHelper {
   val groResponseWithSpecialCharacter: JsValue          = JsonUtils.getJsonFromFile("gro", "with_special_character")
   val groResponse500036682: JsValue                     = JsonUtils.getJsonFromFile("gro", "500036682")
 
+  val dateOfBirth: LocalDate    = LocalDate.of(2006, 11, 12)
+  val altDateOfBirth: LocalDate = LocalDate.of(2009, 11, 12)
+
   val payload: Payload            =
-    Payload(Some("500035710"), "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+    Payload(Some("500035710"), "Adam", None, "Wilson", LocalDate.of(2006, 11, 12), BirthRegisterCountry.ENGLAND)
   val payloadNoReference: Payload =
-    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.ENGLAND)
+    Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
   /** NRS
     */
@@ -60,19 +63,19 @@ object TestHelper {
   val nrsRecord2017350001: JsValue            = JsonUtils.getJsonFromFile("nrs", "2017350001")
 
   val nrsRequestPayload: Payload           =
-    Payload(Some("2017734003"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+    Payload(Some("2017734003"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayload2017350001: Payload =
-    Payload(Some("2017350001"), "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+    Payload(Some("2017350001"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
 
   val nrsRequestPayloadWithoutBrn: Payload         =
-    Payload(None, "Adam TEST", None, "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+    Payload(None, "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
   val nrsRequestPayloadWithSpecialChar: Payload    =
     Payload(
       Some("2017350007"),
       "Gab'iœ-Äæy",
       None,
       "HaÐ0ÄœÄæes",
-      new LocalDate("2011-10-01"),
+      LocalDate.of(2011, 10, 1),
       BirthRegisterCountry.SCOTLAND
     )
   val nrsRequestPayloadWithFirstNameWrong: Payload =
@@ -81,18 +84,18 @@ object TestHelper {
       "firstNameWrong",
       None,
       "HaÐ0ÄœÄæes",
-      new LocalDate("2011-10-01"),
+      LocalDate.of(2011, 10, 1),
       BirthRegisterCountry.SCOTLAND
     )
 
   val payloadNoReferenceScotland: Payload =
-    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.SCOTLAND)
+    Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.SCOTLAND)
 
   /** GRO-NI
     */
 
   val payloadNoReferenceNorthernIreland: Payload =
-    Payload(None, "Adam", None, "Wilson", new LocalDate("2006-11-12"), BirthRegisterCountry.NORTHERN_IRELAND)
+    Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
 
   private val referenceNumber: Int  = 123456789
   val groResponseValidJson: JsValue = parse(s"""
@@ -134,7 +137,7 @@ object TestHelper {
       |  }
     """.stripMargin)
 
-  private val birthDate = new LocalDate("2012-02-16")
+  private val birthDate = LocalDate.of(2012, 2, 16)
 
   def postRequest(v: JsValue): FakeRequest[JsValue] = FakeRequest("POST", "/birth-registration-matching/match")
     .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
@@ -969,7 +972,7 @@ object TestHelper {
   ): JsValue = {
 
     def buildKey(key: String, value: String, append: Option[String] = Some(",")): String =
-      if (!value.isEmpty) {
+      if (value.nonEmpty) {
         s""" "$key": "$value"${append.getOrElse("")}"""
       } else {
         """"""

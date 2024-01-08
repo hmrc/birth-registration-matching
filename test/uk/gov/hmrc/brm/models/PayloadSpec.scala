@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.metrics._
@@ -82,7 +82,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
           birthReferenceNumber = Some("123456789"),
           _firstName = "John",
           _lastName = "Smith",
-          dateOfBirth = new LocalDate("1997-01-13"),
+          dateOfBirth = LocalDate.of(1997, 1, 13),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )
 
@@ -99,7 +99,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
           _firstName = "John",
           _additionalNames = Some("Jones"),
           _lastName = "Smith",
-          dateOfBirth = new LocalDate("1997-01-13"),
+          dateOfBirth = LocalDate.of(1997, 1, 13),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )
 

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
@@ -69,6 +69,8 @@ class BirthEventsControllerSpec
     .build()
 
   val birthEventsController: BirthEventsController = app.injector.instanceOf[BirthEventsController]
+
+  val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -382,7 +384,7 @@ class BirthEventsControllerSpec
               "Adam",
               Some("test"),
               "SMITH",
-              new LocalDate("2009-07-01"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
           )
@@ -400,7 +402,7 @@ class BirthEventsControllerSpec
               "Adam test",
               Some("test"),
               "SMITH",
-              new LocalDate("2009-07-01"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
           )

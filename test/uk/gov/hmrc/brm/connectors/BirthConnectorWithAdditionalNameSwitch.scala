@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.connectors
 
 import akka.http.scaladsl.model.StatusCodes._
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -52,6 +52,8 @@ class BirthConnectorWithAdditionalNameSwitch
   val LASTNAME: String      = "lastname"
   val DATE_OF_BIRTH: String = "dateofbirth"
 
+  val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
+
   val nrsJsonResponseObject: JsValue                      = JsonUtils.getJsonFromFile("nrs", "2017734003")
   val nrsJsonResponseObjectWithoutAdditionalName: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350006")
 
@@ -78,7 +80,7 @@ class BirthConnectorWithAdditionalNameSwitch
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
 
         val payload =
-          Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+          Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result  = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
@@ -90,7 +92,7 @@ class BirthConnectorWithAdditionalNameSwitch
       "pass additionalNames to gro in proper format" in {
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
         val payload         =
-          Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+          Payload(None, " Adam ", Some(" test "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
@@ -109,7 +111,7 @@ class BirthConnectorWithAdditionalNameSwitch
           " Adam ",
           Some(" test    david "),
           " SMITH ",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
@@ -125,7 +127,7 @@ class BirthConnectorWithAdditionalNameSwitch
           .thenReturn("Adam")
 
         val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
-        val payload         = Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        val payload         = Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
         (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam"
@@ -145,7 +147,7 @@ class BirthConnectorWithAdditionalNameSwitch
 
         val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName =
-          Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+          Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
@@ -157,7 +159,7 @@ class BirthConnectorWithAdditionalNameSwitch
       "pass additionalNames to nrs in proper format" in {
         val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
         val requestWithAdditionalName =
-          Payload(None, " Adam ", Some(" test "), " SMITH ", new LocalDate("2009-11-12"), BirthRegisterCountry.SCOTLAND)
+          Payload(None, " Adam ", Some(" test "), " SMITH ", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
@@ -176,7 +178,7 @@ class BirthConnectorWithAdditionalNameSwitch
           " Adam ",
           Some(" test    david "),
           " SMITH ",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.SCOTLAND
         )
         val result          = connectorFixtures.nrsConnector.getChildDetails(payload).futureValue
@@ -193,7 +195,7 @@ class BirthConnectorWithAdditionalNameSwitch
 
         val argumentCapture              = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithoutAdditionalName))
         val requestWithoutAdditionalName =
-          Payload(None, "ANTHONY", None, "ANDREWS", new LocalDate("2016-11-08"), BirthRegisterCountry.SCOTLAND)
+          Payload(None, "ANTHONY", None, "ANDREWS", LocalDate.of(2016, 11, 8), BirthRegisterCountry.SCOTLAND)
         val result                       = connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue
         checkResponse(result, OK.intValue)
         (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "ANTHONY"

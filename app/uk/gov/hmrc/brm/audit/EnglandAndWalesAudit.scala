@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * TODO: should this be deprecated?
+/** TODO: should this be deprecated?
   */
 
 @Singleton
@@ -40,8 +39,7 @@ class EnglandAndWalesAudit @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /**
-    * EnglandAndWalesAuditEvent
+  /** EnglandAndWalesAuditEvent
     * Responsible for auditing when we find records on GRO
     * @param result map of key value results
     * @param path endpoint path

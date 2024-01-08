@@ -68,31 +68,31 @@ case class DetailsRequest() extends RequestType
 object Payload {
 
   val minimumDateOfBirthYear = 1900
-  val nameMaxLength = 250
+  val nameMaxLength          = 250
 
   val birthReferenceNumber = "birthReferenceNumber"
-  val firstName = "firstName"
-  val additionalNames = "additionalNames"
-  val lastName = "lastName"
-  val dateOfBirth = "dateOfBirth"
+  val firstName            = "firstName"
+  val additionalNames      = "additionalNames"
+  val lastName             = "lastName"
+  val dateOfBirth          = "dateOfBirth"
   val whereBirthRegistered = "whereBirthRegistered"
 
   val datePattern = "yyyy-MM-dd"
 
-  private val validBirthReferenceNumberRegEx = """^[0-9]+$"""
+  private val validBirthReferenceNumberRegEx    = """^[0-9]+$"""
   private val validBirthReferenceNumberGRORegEx = """^[0-9]{9}+$"""
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
-  private val invalidNameCharsRegEx = "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
+  private val invalidNameCharsRegEx             = "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
 
   private val validationError = JsonValidationError("")
 
   private def validBirthReferenceNumber(country: BirthRegisterCountry.Value, referenceNumber: Option[String]): Boolean =
     (country, referenceNumber) match {
-      case (BirthRegisterCountry.ENGLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
-      case (BirthRegisterCountry.WALES, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+      case (BirthRegisterCountry.ENGLAND, Some(_))  => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
+      case (BirthRegisterCountry.WALES, Some(_))    => referenceNumber.get.matches(validBirthReferenceNumberGRORegEx)
       case (BirthRegisterCountry.SCOTLAND, Some(_)) => referenceNumber.get.matches(validBirthReferenceNumberNRSRegEx)
-      case (_, Some(x)) => x.matches(validBirthReferenceNumberRegEx)
-      case (_, _) => true
+      case (_, Some(x))                             => x.matches(validBirthReferenceNumberRegEx)
+      case (_, _)                                   => true
     }
 
   private val nameValidation: Reads[String] =
@@ -101,26 +101,26 @@ object Payload {
     )
 
   private val isAfterDate: Reads[LocalDate] = Reads[LocalDate] { json =>
-      json
-        .validate[String]
-        .flatMap { dateStr =>
-          val formatter = DateTimeFormatter.ofPattern(datePattern)
-          val localDate = LocalDate.parse(dateStr, formatter)
+    json
+      .validate[String]
+      .flatMap { dateStr =>
+        val formatter = DateTimeFormatter.ofPattern(datePattern)
+        val localDate = LocalDate.parse(dateStr, formatter)
 
-          if (localDate.getYear >= minimumDateOfBirthYear) {
-            JsResult
-          } else {
-            validationError
-          }
+        if (localDate.getYear >= minimumDateOfBirthYear) {
+          JsSuccess(localDate)
+        } else {
+          JsError(validationError)
         }
-    }
+      }
+  }
 
   implicit val PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and
       (JsPath \ firstName).write[String] and
       (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
-      (JsPath \ dateOfBirth).write[LocalDate](JodaWrites.jodaLocalDateWrites(datePattern)) and
+      (JsPath \ dateOfBirth).write[LocalDate] and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
   )(unlift(Payload.unapply))
 

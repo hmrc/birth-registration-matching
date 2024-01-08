@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -58,6 +58,8 @@ class LookupServiceSpec
 
   val goodMatch: MatchingResult = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List(), List(), List()))
   val badMatch: MatchingResult  = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(List(), List(), List()))
+
+  val dateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 
   before {
     reset(mockAuditConnector)
@@ -178,7 +180,7 @@ class LookupServiceSpec
 
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
@@ -287,7 +289,7 @@ class LookupServiceSpec
 
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
@@ -382,7 +384,7 @@ class LookupServiceSpec
           "Chris",
           None,
           "Jones",
-          new LocalDate("2012-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.NORTHERN_IRELAND
         )
         assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
@@ -396,7 +398,7 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
         assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
       }
 

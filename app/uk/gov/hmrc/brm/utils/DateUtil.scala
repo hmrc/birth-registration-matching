@@ -25,8 +25,8 @@ object DateUtil {
 
   def getCurrentDateString(DATE_FORMAT: String): String = {
 
-    val dateTime = LocalDateTime.now
-    val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+    val dateTime      = LocalDateTime.now
+    val formatter     = DateTimeFormatter.ofPattern(DATE_FORMAT)
     val formattedDate = dateTime.format(formatter)
     formattedDate
   }

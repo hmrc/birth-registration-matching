@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus

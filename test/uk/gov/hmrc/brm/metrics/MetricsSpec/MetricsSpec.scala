@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import akka.http.scaladsl.model.StatusCodes._
 import com.kenshoo.play.metrics.Metrics
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
