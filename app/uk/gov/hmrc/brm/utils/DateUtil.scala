@@ -18,13 +18,13 @@ package uk.gov.hmrc.brm.utils
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 /** Created by user on 02/03/17.
   */
-object DateUtil {
+case class DateUtil @Inject() (DATE_FORMAT: String) {
 
-  def getCurrentDateString(DATE_FORMAT: String): String = {
-
+  def getCurrentDateString(): String = {
     val dateTime      = LocalDateTime.now
     val formatter     = DateTimeFormatter.ofPattern(DATE_FORMAT)
     val formattedDate = dateTime.format(formatter)
