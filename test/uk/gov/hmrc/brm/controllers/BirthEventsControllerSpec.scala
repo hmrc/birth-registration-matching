@@ -38,6 +38,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
+import java.time.format.DateTimeParseException
 import scala.concurrent.Future
 
 class BirthEventsControllerSpec
@@ -307,20 +308,22 @@ class BirthEventsControllerSpec
         checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
-      "return response code 400 if request contains missing dateOfBirth value" in {
-        mockAuditSuccess
-        val request = postRequest(userNoMatchExcludingDateOfBirthValue)
-        val result  = testController.post().apply(request).futureValue
-        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
-      }
+      "should throw a DateTimeParseException if request contains missing dateOfBirth value" in
+        assertThrows[DateTimeParseException] {
+          mockAuditSuccess
+          val request = postRequest(userNoMatchExcludingDateOfBirthValue)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+        }
 
-      "return response code 400 if request contains invalid dateOfBirth format" in {
-        mockAuditSuccess
-        val request = postRequest(userInvalidDOBFormat)
-        val result  = testController.post().apply(request).futureValue
-        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+      "should throw a DateTimeParseException if request contains invalid dateOfBirth format" in
+        assertThrows[DateTimeParseException] {
+          mockAuditSuccess
+          val request = postRequest(userInvalidDOBFormat)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
 
-      }
+        }
 
     }
 
