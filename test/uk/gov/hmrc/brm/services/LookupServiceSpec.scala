@@ -22,7 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.{BeforeAndAfter, OptionValues}
+import org.scalatest.{BeforeAndAfter, OptionValues, Tag}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
@@ -37,6 +37,7 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.brm.services.parser.NameParser._
 
 import scala.concurrent.Future
 
@@ -404,6 +405,44 @@ class LookupServiceSpec
 
     }
 
-  }
+    "filter" should {
+      "return the filtered list correctly" in {
+        val left  = List(1, 2, 3)
+        val right = List(1, 2, 3, 4, 5)
 
+        val result = left.filter(right)
+
+        result shouldEqual List(1, 2, 3)
+      }
+
+      "return the right list if left is empty" in {
+        val left  = List.empty[Int]
+        val right = List(1, 2, 3)
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+      }
+
+      "return the right list if right is empty" in {
+        val left  = List(1, 2, 3)
+        val right = List.empty[Int]
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+      }
+
+      "return the right list if left is longer than right" in {
+        val left  = List(1, 2, 3, 4, 5)
+        val right = List(1, 2, 3)
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+
+      }
+    }
+
+  }
 }

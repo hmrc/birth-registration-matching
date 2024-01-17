@@ -91,6 +91,13 @@ class PartialMatchingSpec
     when(mockConfig.matchDateOfBirth).thenReturn(false)
   }
 
+  def firstLastDobApp: OngoingStubbing[Boolean] = {
+    when(mockConfig.matchFirstName).thenReturn(true)
+    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
+    when(mockConfig.matchLastName).thenReturn(true)
+    when(mockConfig.matchDateOfBirth).thenReturn(true)
+  }
+
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val dateOfBirth: LocalDate    = LocalDate.of(2008, 2, 16)
@@ -279,6 +286,10 @@ class PartialMatchingSpec
 
     }
 
+    "return true when all config flags are true" in {
+      firstLastDobApp
+      testMatchingService.getMatchingType shouldBe MatchingType.FULL
+    }
   }
 
 }
