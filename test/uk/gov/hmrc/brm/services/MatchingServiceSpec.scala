@@ -91,7 +91,7 @@ class PartialMatchingSpec
     when(mockConfig.matchDateOfBirth).thenReturn(false)
   }
 
-  def firstLastDobApp: OngoingStubbing[Boolean] = {
+  def allFlagsTrueApp: OngoingStubbing[Boolean] = {
     when(mockConfig.matchFirstName).thenReturn(true)
     when(mockConfig.ignoreAdditionalNames).thenReturn(true)
     when(mockConfig.matchLastName).thenReturn(true)
@@ -287,7 +287,7 @@ class PartialMatchingSpec
     }
 
     "return true when all config flags are true" in {
-      firstLastDobApp
+      allFlagsTrueApp
       testMatchingService.getMatchingType shouldBe MatchingType.FULL
     }
   }
