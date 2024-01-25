@@ -27,8 +27,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-import java.time.format.DateTimeParseException
-
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
   implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
@@ -505,9 +503,9 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
-      "throw a DateTimeParseException when dateOfBirth key exists but value is empty" in
-        assertThrows[DateTimeParseException] {
-          val jsonObject: JsValue = Json.parse("""
+      "throw a DateTimeParseException when dateOfBirth key exists but value is empty" in {
+        val jsonObject: JsValue = Json.parse(
+          """
             |{
             | "birthReferenceNumber": "123456789",
             | "firstName" : "John",
@@ -517,12 +515,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
             |}
           """.stripMargin)
 
-          jsonObject.validate[Payload]
-        }
+        jsonObject.validate[Payload].isError shouldBe true
+      }
 
-      "throw a DateTimeParseException when dateOfBirth value is invalid" in
-        assertThrows[DateTimeParseException] {
-          val jsonObject: JsValue = Json.parse("""
+      "throw a DateTimeParseException when dateOfBirth value is invalid" in {
+        val jsonObject: JsValue = Json.parse(
+          """
             |{
             | "birthReferenceNumber": "123456789",
             | "firstName" : "John",
@@ -532,12 +530,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
             |}
           """.stripMargin)
 
-          jsonObject.validate[Payload]
-        }
+        jsonObject.validate[Payload].isError shouldBe true
+      }
 
-      "throw a DateTimeParseException when dateOfBirth has 0000 for year" in
-        assertThrows[DateTimeParseException] {
-          val jsonObject: JsValue = Json.parse("""
+      "throw a DateTimeParseException when dateOfBirth has 0000 for year" in {
+        val jsonObject: JsValue = Json.parse(
+          """
             |{
             | "birthReferenceNumber": "123456789",
             | "firstName" : "John",
@@ -547,12 +545,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
             |}
           """.stripMargin)
 
-          jsonObject.validate[Payload]
-        }
+        jsonObject.validate[Payload].isError shouldBe true
+      }
 
-      "throw a DateTimeParseException when dateOfBirth only has a year" in
-        assertThrows[DateTimeParseException] {
-          val jsonObject: JsValue = Json.parse("""
+      "throw a DateTimeParseException when dateOfBirth only has a year" in {
+        val jsonObject: JsValue = Json.parse(
+          """
             |{
             | "birthReferenceNumber": "123456789",
             | "firstName" : "John",
@@ -562,8 +560,8 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
             |}
           """.stripMargin)
 
-          jsonObject.validate[Payload]
-        }
+        jsonObject.validate[Payload].isError shouldBe true
+      }
     }
   }
 
