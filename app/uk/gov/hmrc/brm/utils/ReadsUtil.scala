@@ -34,39 +34,31 @@ import scala.util.{Success, Try}
 
 object ReadsUtil {
 
+  private val minimumDateOfBirthYear = 1900
   private val validationError: JsonValidationError = JsonValidationError("")
 
-  implicit val localDateReads: Reads[LocalDate] = Reads[LocalDate] {
-    case JsString(str)        =>
+  implicit val validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
+    case JsString(str) =>
       Try(LocalDate.parse(str, DateTimeFormatter.ofPattern(Payload.datePattern))) match {
-        case Success(date: LocalDate) =>
-          if (date.getYear >= 1900) {
-            JsSuccess(date)
-          } else {
-            JsError(validationError)
-          }
-        case _                        => JsError(validationError)
+        case Success(date: LocalDate) if date.getYear >= minimumDateOfBirthYear =>
+          JsSuccess(date)
+        case _ => JsError(validationError)
       }
-    case JsNull               => ???
-    case boolean: JsBoolean   => ???
-    case JsNumber(value)      => ???
-    case JsString(value)      => ???
-    case JsArray(value)       => ???
-    case JsObject(underlying) => ???
+    case _ => JsError(validationError)
   }
 
   val nrsChildReads: Reads[Child] = (
     (JsPath \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](localDateReads).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](validLocalDateReads).orElse(Reads.pure(None))
   )(Child.apply _)
 
   val groChildReads: Reads[Child] = (
     (JsPath \ "systemNumber").read[Int] and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](localDateReads).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](validLocalDateReads).orElse(Reads.pure(None))
   )(Child.apply _)
 
   val groReadRecord: Reads[Record] = (

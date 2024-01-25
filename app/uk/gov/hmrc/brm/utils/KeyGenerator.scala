@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.brm.utils
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.mvc.Request
 
-class KeyGenerator @Inject() (val dateUtil: DateUtil = DateUtil("yyyyMMdd:HHmmssSS")) {
+@Singleton
+class KeyGenerator @Inject() () {
 
+  val DATE_FORMAT: String           = "yyyyMMdd:HHmmssSS"
   private var keyForRequest: String = ""
   private val AUDITSOURCE_LENGTH    = 20
 
   def generateKey[A](request: Request[A], apiVersion: String): String = {
-    val formattedDate: String = dateUtil.getCurrentDateString()
+    val formattedDate: String = DateUtil.getCurrentDateString(DATE_FORMAT)
     //format is date-requestid-audit source - api version number
     val auditSource           = request.headers.get("Audit-Source").getOrElse("")
     val key                   = s"$formattedDate-${request.id}-${getSubString(auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"

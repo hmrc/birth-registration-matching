@@ -23,6 +23,7 @@ import play.api.libs.json.Writes._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.metrics.{EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.ReadsUtil.validLocalDateReads
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
 
 import java.time.format.DateTimeFormatter
@@ -100,21 +101,6 @@ object Payload {
       invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
-  private val isAfterDate: Reads[LocalDate] = Reads[LocalDate] { json =>
-    json
-      .validate[String]
-      .flatMap { dateStr =>
-        val formatter = DateTimeFormatter.ofPattern(datePattern)
-        val localDate = LocalDate.parse(dateStr, formatter)
-
-        if (localDate.getYear >= minimumDateOfBirthYear) {
-          JsSuccess(localDate)
-        } else {
-          JsError(validationError)
-        }
-      }
-  }
-
   implicit val PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and
       (JsPath \ firstName).write[String] and
@@ -140,7 +126,7 @@ object Payload {
       (JsPath \ lastName).read[String](
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
       ) and
-      (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
+      (JsPath \ dateOfBirth).read[LocalDate](validLocalDateReads) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry.Value](birthRegisterReads)
   )(Payload.apply _)
     .filter(JsonValidationError(InvalidBirthReferenceNumber.message))(x =>

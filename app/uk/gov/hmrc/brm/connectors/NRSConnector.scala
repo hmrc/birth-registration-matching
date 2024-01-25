@@ -49,7 +49,7 @@ class NRSConnector @Inject() (
       CONTENT_TYPE       -> CONTENT_TYPE_JSON,
       ENVIRONMENT_HEADER -> brmConf.desEnv,
       TOKEN_HEADER       -> s"Bearer ${brmConf.desToken}",
-      DATETIME_HEADER    -> DateUtil(DATE_FORMAT).getCurrentDateString
+      DATETIME_HEADER    -> DateUtil.getCurrentDateString(DATE_FORMAT)
     )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {

@@ -22,12 +22,12 @@ import javax.inject.Inject
 
 /** Created by user on 02/03/17.
   */
-case class DateUtil @Inject() (DATE_FORMAT: String) {
+object DateUtil {
 
-  def getCurrentDateString(): String = {
+  def getCurrentDateString(dateFormat: String): String = {
     val dateTime      = LocalDateTime.now
-    val formatter     = DateTimeFormatter.ofPattern(DATE_FORMAT)
-    val formattedDate = dateTime.format(formatter)
+    val formatter     = DateTimeFormatter.ofPattern(dateFormat)
+    val formattedDate = formatter.format(dateTime)
     formattedDate
   }
 
