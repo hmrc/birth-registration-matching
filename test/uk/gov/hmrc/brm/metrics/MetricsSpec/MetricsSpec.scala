@@ -18,6 +18,7 @@ package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import akka.http.scaladsl.model.StatusCodes._
 import com.kenshoo.play.metrics.Metrics
+
 import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.brm.implicits.MetricsFactory
@@ -28,8 +29,12 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 
 class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar {
+  override lazy val app = new GuiceApplicationBuilder()
+    .configure("metrics.enabled" -> true)
+    .build()
 
   "MetricsFactory" should {
 
