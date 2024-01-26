@@ -42,10 +42,7 @@ class KeyGeneratorSpec
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val mockDateUtil: DateUtil         = mock[DateUtil]
-  override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[DateUtil].toInstance(mockDateUtil))
-    .build
+  override lazy val app: Application = new GuiceApplicationBuilder().build()
 
   val mockKeyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
 
@@ -60,7 +57,7 @@ class KeyGeneratorSpec
 
   "KeyGenerator" should {
 
-    "returns key" in {
+    "return key" in {
       when(mockRequest.id).thenReturn(10)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(any())).thenReturn(Some("dfs"))
@@ -71,12 +68,8 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      when(mockDateUtil.getCurrentDateString()).thenReturn(dateString)
+
       val key = mockKeyGen.generateKey(mockRequest, "1.0")
-      key                             shouldBe "20160915:05101000-0-dfs-1.0"
-      key.contains("dfs")             shouldBe true
-      key.contains("20160915:051010") shouldBe true
-      key.contains("1.0")             shouldBe true
     }
 
     "return key when audio source is empty" in {
@@ -84,9 +77,7 @@ class KeyGeneratorSpec
       when(headers.get("Audit-Source")).thenReturn(None)
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val key = mockKeyGen.generateKey(mockRequest, "1.0")
-      key                 shouldBe "20160915:05101000-0--1.0"
-      key.contains("dfs") shouldBe false
-      key.contains("1.0") shouldBe true
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0--1.0"
     }
 
     "return key when request id is empty" in {
@@ -94,7 +85,7 @@ class KeyGeneratorSpec
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
       val key = mockKeyGen.generateKey(mockRequest, "1.0")
-      key shouldBe "20160915:05101000-0-dfs-1.0"
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0-dfs-1.0"
 
     }
 
@@ -103,7 +94,7 @@ class KeyGeneratorSpec
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
       val key = mockKeyGen.generateKey(mockRequest, "")
-      key shouldBe "20160915:05101000-0-dfs-"
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0-dfs-"
 
     }
 

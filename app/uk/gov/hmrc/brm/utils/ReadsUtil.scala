@@ -34,7 +34,7 @@ import scala.util.{Success, Try}
 
 object ReadsUtil {
 
-  private val minimumDateOfBirthYear = 1900
+  private val minimumDateOfBirthYear               = 1900
   private val validationError: JsonValidationError = JsonValidationError("")
 
   implicit val validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
@@ -42,23 +42,27 @@ object ReadsUtil {
       Try(LocalDate.parse(str, DateTimeFormatter.ofPattern(Payload.datePattern))) match {
         case Success(date: LocalDate) if date.getYear >= minimumDateOfBirthYear =>
           JsSuccess(date)
-        case _ => JsError(validationError)
+        case _                                                                  => JsError(validationError)
       }
-    case _ => JsError(validationError)
+    case _             => JsError(validationError)
   }
 
   val nrsChildReads: Reads[Child] = (
     (JsPath \ "id").read[String].map(x => Integer.valueOf(x).intValue()) and
       (JsPath \ "subjects" \ "child" \ "firstName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "lastName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](validLocalDateReads).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
+        .readNullable[LocalDate](validLocalDateReads)
+        .orElse(Reads.pure(None))
   )(Child.apply _)
 
   val groChildReads: Reads[Child] = (
     (JsPath \ "systemNumber").read[Int] and
       (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
       (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth").readNullable[LocalDate](validLocalDateReads).orElse(Reads.pure(None))
+      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
+        .readNullable[LocalDate](validLocalDateReads)
+        .orElse(Reads.pure(None))
   )(Child.apply _)
 
   val groReadRecord: Reads[Record] = (

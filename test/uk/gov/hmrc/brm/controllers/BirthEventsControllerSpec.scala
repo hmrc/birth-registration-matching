@@ -308,22 +308,20 @@ class BirthEventsControllerSpec
         checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
-      "should throw a DateTimeParseException if request contains missing dateOfBirth value" in
-        assertThrows[DateTimeParseException] {
-          mockAuditSuccess
-          val request = postRequest(userNoMatchExcludingDateOfBirthValue)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
-        }
+      "should throw a DateTimeParseException if request contains missing dateOfBirth value" in {
+        mockAuditSuccess
+        val request = postRequest(userNoMatchExcludingDateOfBirthValue)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+      }
 
-      "should throw a DateTimeParseException if request contains invalid dateOfBirth format" in
-        assertThrows[DateTimeParseException] {
-          mockAuditSuccess
-          val request = postRequest(userInvalidDOBFormat)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
+      "should throw a DateTimeParseException if request contains invalid dateOfBirth format" in {
+        mockAuditSuccess
+        val request = postRequest(userInvalidDOBFormat)
+        val result  = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
 
-        }
+      }
 
     }
 
