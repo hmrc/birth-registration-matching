@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
@@ -91,7 +91,17 @@ class PartialMatchingSpec
     when(mockConfig.matchDateOfBirth).thenReturn(false)
   }
 
+  def allFlagsTrueApp: OngoingStubbing[Boolean] = {
+    when(mockConfig.matchFirstName).thenReturn(true)
+    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
+    when(mockConfig.matchLastName).thenReturn(true)
+    when(mockConfig.matchDateOfBirth).thenReturn(true)
+  }
+
   implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  val dateOfBirth: LocalDate    = LocalDate.of(2008, 2, 16)
+  val altDateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 
   val partial: PartialMatching = new PartialMatching(mockConfig)
 
@@ -119,7 +129,7 @@ class PartialMatchingSpec
           "Chris",
           Some("test"),
           "wrongLastName",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
@@ -134,7 +144,7 @@ class PartialMatchingSpec
           "wrongFirstname",
           Some("David"),
           "wrongLastName",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
@@ -149,7 +159,7 @@ class PartialMatchingSpec
           "Adam",
           Some("David"),
           "wrongLastName",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
@@ -164,7 +174,7 @@ class PartialMatchingSpec
           "wrongFirstName",
           None,
           "Jones",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
@@ -180,7 +190,7 @@ class PartialMatchingSpec
           "wrongFirstName",
           None,
           "wrongLastName",
-          new LocalDate("2012-02-16"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
@@ -192,7 +202,7 @@ class PartialMatchingSpec
         firstNameLastNameApp
 
         val payload     =
-          Payload(Some("123456789"), "chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(Some("123456789"), "chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
         resultMatch.matched shouldBe true
       }
@@ -204,7 +214,7 @@ class PartialMatchingSpec
       "return true result for firstName only" in {
         firstNameApp
         val payload     =
-          Payload(None, "Chris", None, "wrongLastName", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(None, "Chris", None, "wrongLastName", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
 
         resultMatch.matched shouldBe true
@@ -217,7 +227,7 @@ class PartialMatchingSpec
           "wrongFirstname",
           Some("David"),
           "wrongLastName",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
@@ -232,7 +242,7 @@ class PartialMatchingSpec
           "Adam",
           Some("David"),
           "wrongLastName",
-          new LocalDate("2008-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
@@ -244,7 +254,7 @@ class PartialMatchingSpec
         lastNameApp
 
         val payload     =
-          Payload(None, "wrongFirstName", None, "Jones", new LocalDate("2008-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(None, "wrongFirstName", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
 
         resultMatch.matched shouldBe true
@@ -258,7 +268,7 @@ class PartialMatchingSpec
           "wrongFirstName",
           None,
           "wrongLastName",
-          new LocalDate("2012-02-16"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
@@ -269,13 +279,17 @@ class PartialMatchingSpec
       "return true result for firstName and LastName only" in {
         firstNameLastNameApp
 
-        val payload     = Payload(None, "chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+        val payload     = Payload(None, "chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
         val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
         resultMatch.matched shouldBe true
       }
 
     }
 
+    "return true when all config flags are true" in {
+      allFlagsTrueApp
+      testMatchingService.getMatchingType shouldBe MatchingType.FULL
+    }
   }
 
 }
@@ -290,8 +304,8 @@ trait MatchingServiceSpec
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  val references                 = List(Some("123456789"), None)
+  implicit val hc: HeaderCarrier      = HeaderCarrier()
+  val references: Seq[Option[String]] = List(Some("123456789"), None)
 
   val configIgnoreAdditionalNames: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
@@ -356,13 +370,15 @@ trait MatchingServiceSpec
       case None    => "without reference"
     }
 
+    val altDateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
+
     "MatchingService.performMatch" when {
 
       "record contains a fictitious birth" should {
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
           resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe "Bad()"
@@ -374,7 +390,7 @@ trait MatchingServiceSpec
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
           resultMatch.matched                shouldBe true
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -388,7 +404,7 @@ trait MatchingServiceSpec
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(flaggedBlockedRegistration), MatchingType.FULL)
           resultMatch.matched                shouldBe false
@@ -401,7 +417,7 @@ trait MatchingServiceSpec
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(flaggedBlockedRegistration), MatchingType.FULL)
           resultMatch.matched                shouldBe true
@@ -417,7 +433,7 @@ trait MatchingServiceSpec
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(correction), MatchingType.FULL)
           resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -429,7 +445,7 @@ trait MatchingServiceSpec
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(correction), MatchingType.FULL)
           resultMatch.matched                shouldBe true
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -444,7 +460,7 @@ trait MatchingServiceSpec
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(cancelled), MatchingType.FULL)
           resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -456,7 +472,7 @@ trait MatchingServiceSpec
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(cancelled), MatchingType.FULL)
           resultMatch.matched                shouldBe true
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -472,7 +488,7 @@ trait MatchingServiceSpec
           s"($name) match when processFlags is true" taggedAs Tag("enabled") in {
             when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
             val payload     =
-              Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch =
               testMatchingService.performMatch(payload, List(marginalNote(validFlagValue)), MatchingType.FULL)
             resultMatch.matched                shouldBe true
@@ -488,7 +504,7 @@ trait MatchingServiceSpec
           s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
             when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
             val payload     =
-              Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch =
               testMatchingService.performMatch(payload, List(marginalNote(flagValue)), MatchingType.FULL)
             resultMatch.matched                shouldBe false
@@ -501,7 +517,7 @@ trait MatchingServiceSpec
           s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
             when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
             val payload     =
-              Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch =
               testMatchingService.performMatch(payload, List(marginalNote(flagValue)), MatchingType.FULL)
             resultMatch.matched                shouldBe true
@@ -517,7 +533,7 @@ trait MatchingServiceSpec
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(reRegistered("Other")), MatchingType.FULL)
           resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -529,7 +545,7 @@ trait MatchingServiceSpec
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(reRegistered("Other")), MatchingType.FULL)
           resultMatch.matched                shouldBe true
           resultMatch.firstNamesMatched      shouldBe Good()
@@ -549,7 +565,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris-Jame's", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris-Jame's", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(validRecordSpecialCharactersFirstName), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -561,7 +577,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones--Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones--Smith", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(validRecordSpecialCharactersLastName), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -573,7 +589,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris James", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris James", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(validRecordFirstNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -585,7 +601,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones Smith", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -596,7 +612,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones  Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones  Smith", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -611,7 +627,7 @@ trait MatchingServiceSpec
             "Chris",
             None,
             "  Jones  Smith  ",
-            new LocalDate("2012-02-16"),
+            altDateOfBirth,
             BirthRegisterCountry.ENGLAND
           )
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
@@ -624,7 +640,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones Smith", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -636,7 +652,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones Smith", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones Smith", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(
             payload,
             List(validRecordLastNameMultipleSpaceBeginningTrailing),
@@ -651,7 +667,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chrîs", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chrîs", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUTF8FirstName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -662,7 +678,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jonéş", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jonéş", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUTF8LastName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -673,7 +689,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -684,7 +700,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "chRis", None, "joNes", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "chRis", None, "joNes", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -695,7 +711,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(wrongCaseValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -706,7 +722,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "CHRIS", None, "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "CHRIS", None, "JONES", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -717,7 +733,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "CHRIS", None, "JONES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "CHRIS", None, "JONES", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUppercase), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -728,7 +744,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "chRis", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "chRis", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -739,7 +755,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(wrongCaseFirstNameValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -751,7 +767,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "joNES", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "joNES", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
@@ -762,7 +778,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(wrongCaseLastNameValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
@@ -774,7 +790,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Christopher", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -785,7 +801,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -796,7 +812,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Christopher", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -807,7 +823,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Christopher", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Christopher", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(firstNameNotMatchedRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
@@ -819,7 +835,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jone", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jone", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -830,7 +846,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(lastNameNotMatchRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -841,7 +857,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-15"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", LocalDate.of(2012, 2, 15), BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
@@ -852,7 +868,7 @@ trait MatchingServiceSpec
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
           val payload     =
-            Payload(reference, "Chris", None, "Jones", new LocalDate("2012-02-15"), BirthRegisterCountry.ENGLAND)
+            Payload(reference, "Chris", None, "Jones", LocalDate.of(2012, 2, 15), BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(dobNotMatchRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }

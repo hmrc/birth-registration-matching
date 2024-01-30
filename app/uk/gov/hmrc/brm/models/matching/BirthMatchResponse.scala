@@ -21,5 +21,5 @@ import play.api.libs.json._
 case class BirthMatchResponse(matched: Boolean = false)
 
 object BirthMatchResponse {
-  implicit val formats = Json.format[BirthMatchResponse]
+  implicit val formats: OFormat[BirthMatchResponse] = Json.format[BirthMatchResponse]
 }

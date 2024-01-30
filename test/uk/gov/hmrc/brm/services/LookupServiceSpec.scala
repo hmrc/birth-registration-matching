@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.{BeforeAndAfter, OptionValues}
+import org.scalatest.{BeforeAndAfter, OptionValues, Tag}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
@@ -37,6 +37,7 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.brm.services.parser.NameParser._
 
 import scala.concurrent.Future
 
@@ -58,6 +59,8 @@ class LookupServiceSpec
 
   val goodMatch: MatchingResult = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List(), List(), List()))
   val badMatch: MatchingResult  = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(List(), List(), List()))
+
+  val dateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 
   before {
     reset(mockAuditConnector)
@@ -178,7 +181,7 @@ class LookupServiceSpec
 
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(Some("123456789"), "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
@@ -287,7 +290,7 @@ class LookupServiceSpec
 
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+          Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse(true)
       }
@@ -382,7 +385,7 @@ class LookupServiceSpec
           "Chris",
           None,
           "Jones",
-          new LocalDate("2012-02-16"),
+          dateOfBirth,
           BirthRegisterCountry.NORTHERN_IRELAND
         )
         assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
@@ -396,12 +399,50 @@ class LookupServiceSpec
           )
         val service                   = MockLookupService
         implicit val payload: Payload =
-          Payload(None, "Chris", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.NORTHERN_IRELAND)
+          Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
         assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
       }
 
     }
 
-  }
+    "filter" should {
+      "return the filtered list correctly" in {
+        val left  = List(1, 2, 3)
+        val right = List(1, 2, 3, 4, 5)
 
+        val result = left.filter(right)
+
+        result shouldEqual List(1, 2, 3)
+      }
+
+      "return the right list if left is empty" in {
+        val left  = List.empty[Int]
+        val right = List(1, 2, 3)
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+      }
+
+      "return the right list if right is empty" in {
+        val left  = List(1, 2, 3)
+        val right = List.empty[Int]
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+      }
+
+      "return the right list if left is longer than right" in {
+        val left  = List(1, 2, 3, 4, 5)
+        val right = List(1, 2, 3)
+
+        val result = left.filter(right)
+
+        result shouldEqual right
+
+      }
+    }
+
+  }
 }

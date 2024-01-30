@@ -23,8 +23,7 @@ import play.api.LoggerLike
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Play 2.8 no longer provides a global logger instance.
+/** Play 2.8 no longer provides a global logger instance.
   * There is a PR open on bootstrap-play to move it to 2.8 but it is still not merged
   * https://github.com/hmrc/bootstrap-play/pull/50
   */

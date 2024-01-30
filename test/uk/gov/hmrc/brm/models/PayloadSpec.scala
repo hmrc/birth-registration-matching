@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.metrics._
@@ -26,6 +26,8 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
+
+import java.time.format.DateTimeParseException
 
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
@@ -82,7 +84,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
           birthReferenceNumber = Some("123456789"),
           _firstName = "John",
           _lastName = "Smith",
-          dateOfBirth = new LocalDate("1997-01-13"),
+          dateOfBirth = LocalDate.of(1997, 1, 13),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )
 
@@ -99,7 +101,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
           _firstName = "John",
           _additionalNames = Some("Jones"),
           _lastName = "Smith",
-          dateOfBirth = new LocalDate("1997-01-13"),
+          dateOfBirth = LocalDate.of(1997, 1, 13),
           whereBirthRegistered = BirthRegisterCountry.ENGLAND
         )
 
@@ -503,7 +505,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
-      "return error when dateOfBirth key exists but value is empty" in {
+      "throw a DateTimeParseException when dateOfBirth key exists but value is empty" in {
         val jsonObject: JsValue = Json.parse("""
             |{
             | "birthReferenceNumber": "123456789",
@@ -517,7 +519,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         jsonObject.validate[Payload].isError shouldBe true
       }
 
-      "return error when dateOfBirth value is invalid" in {
+      "throw a DateTimeParseException when dateOfBirth value is invalid" in {
         val jsonObject: JsValue = Json.parse("""
             |{
             | "birthReferenceNumber": "123456789",
@@ -531,7 +533,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         jsonObject.validate[Payload].isError shouldBe true
       }
 
-      "return error when dateOfBirth has 0000 for year" in {
+      "throw a DateTimeParseException when dateOfBirth has 0000 for year" in {
         val jsonObject: JsValue = Json.parse("""
             |{
             | "birthReferenceNumber": "123456789",
@@ -545,7 +547,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         jsonObject.validate[Payload].isError shouldBe true
       }
 
-      "return error when dateOfBirth only has a year" in {
+      "throw a DateTimeParseException when dateOfBirth only has a year" in {
         val jsonObject: JsValue = Json.parse("""
             |{
             | "birthReferenceNumber": "123456789",

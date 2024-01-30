@@ -22,12 +22,11 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.brm.utils.DateUtil._
+import uk.gov.hmrc.brm.utils.DateUtil
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.HttpClient
 
-/**
-  * Created by adamconder on 07/02/2017.
+/** Created by adamconder on 07/02/2017.
   */
 @Singleton
 class NRSConnector @Inject() (
@@ -50,7 +49,7 @@ class NRSConnector @Inject() (
       CONTENT_TYPE       -> CONTENT_TYPE_JSON,
       ENVIRONMENT_HEADER -> brmConf.desEnv,
       TOKEN_HEADER       -> s"Bearer ${brmConf.desToken}",
-      DATETIME_HEADER    -> getCurrentDateString(DATE_FORMAT)
+      DATETIME_HEADER    -> DateUtil.getCurrentDateString(DATE_FORMAT)
     )
 
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = {

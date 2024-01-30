@@ -39,8 +39,7 @@ import play.api.Play.materializer
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HttpResponse
 
-/**
-  * Created by user on 04/05/17.
+/** Created by user on 04/05/17.
   */
 trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {

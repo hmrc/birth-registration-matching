@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.switches
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.{Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application

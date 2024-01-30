@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.audit
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -33,8 +33,7 @@ import org.scalatest.OptionValues
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 class MatchingAuditSpec
     extends AnyWordSpecLike

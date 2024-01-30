@@ -26,16 +26,13 @@ class KeyGenerator @Inject() () {
   private var keyForRequest: String = ""
   private val AUDITSOURCE_LENGTH    = 20
 
-  def generateKey[A](request: Request[A], apiVersion: String) = {
-    val formattedDate: String = getDateKey
+  def generateKey[A](request: Request[A], apiVersion: String): String = {
+    val formattedDate: String = DateUtil.getCurrentDateString(DATE_FORMAT)
     //format is date-requestid-audit source - api version number
     val auditSource           = request.headers.get("Audit-Source").getOrElse("")
     val key                   = s"$formattedDate-${request.id}-${getSubString(auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
     key
   }
-
-  private def getDateKey: String =
-    DateUtil.getCurrentDateString(DATE_FORMAT)
 
   def getKey(): String =
     keyForRequest
@@ -53,7 +50,6 @@ class KeyGenerator @Inject() () {
     if (originalString.length > maxLength) {
       formattedString = originalString.substring(0, maxLength)
     }
-
     formattedString
   }
 

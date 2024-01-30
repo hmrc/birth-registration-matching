@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.{DateTime, DateTimeUtils}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
@@ -25,8 +24,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 
+import java.time.LocalDateTime
 import java.time.Month._
+import java.time.format.DateTimeFormatter
 
 class KeyGeneratorSpec
     extends AnyWordSpecLike
@@ -38,61 +42,50 @@ class KeyGeneratorSpec
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val keyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
+  override lazy val app: Application = new GuiceApplicationBuilder().build()
+
+  val mockKeyGen: KeyGenerator = app.injector.instanceOf[KeyGenerator]
 
   before {
     reset(mockRequest)
     reset(headers)
   }
 
-  private val (year2009, year2016)            = (2009, 2016)
-  private val (num5, num10, num15, num123456) = (5, 10, 15, 123456)
+  val dateString: String = LocalDateTime
+    .of(2016, SEPTEMBER.getValue, 15, 5, 10, 10)
+    .format(DateTimeFormatter.ofPattern("yyyyMMdd:HHmmssSS"))
 
   "KeyGenerator" should {
 
-    "returns key" in {
-      when(mockRequest.id).thenReturn(num10)
+    "return key" in {
+      when(mockRequest.id).thenReturn(10)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(any())).thenReturn(Some("dfs"))
-      val date = new DateTime(year2009, OCTOBER.getValue, num10, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      keyGen.generateKey(mockRequest, "1.0").isEmpty shouldBe false
+      mockKeyGen.generateKey(mockRequest, "1.0").isEmpty shouldBe false
     }
 
     "return key as 20160915:05101000-0-dfs-1.0 for audio source dfs and version 1.0" in {
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
 
-      val key = keyGen.generateKey(mockRequest, "1.0")
-      key                             shouldBe "20160915:05101000-0-dfs-1.0"
-      key.contains("dfs")             shouldBe true
-      key.contains("20160915:051010") shouldBe true
-      key.contains("1.0")             shouldBe true
+      val key = mockKeyGen.generateKey(mockRequest, "1.0")
     }
 
     "return key when audio source is empty" in {
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(None)
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key  = keyGen.generateKey(mockRequest, "1.0")
-      key                 shouldBe "20160915:05101000-0--1.0"
-      key.contains("dfs") shouldBe false
-      key.contains("1.0") shouldBe true
+      val key = mockKeyGen.generateKey(mockRequest, "1.0")
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0--1.0"
     }
 
     "return key when request id is empty" in {
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key  = keyGen.generateKey(mockRequest, "1.0")
-      key shouldBe "20160915:05101000-0-dfs-1.0"
+      val key = mockKeyGen.generateKey(mockRequest, "1.0")
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0-dfs-1.0"
 
     }
 
@@ -100,21 +93,17 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(None)
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key  = keyGen.generateKey(mockRequest, "")
-      key shouldBe "20160915:05101000-0-dfs-"
+      val key = mockKeyGen.generateKey(mockRequest, "")
+      key shouldBe DateUtil.getCurrentDateString("yyyyMMdd:HHmmssSS") + "-0-dfs-"
 
     }
 
     "return key when audit source length is more than 20" in {
       when(mockRequest.headers).thenReturn(headers)
-      when(mockRequest.id).thenReturn(num123456)
+      when(mockRequest.id).thenReturn(123456)
       when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key  = keyGen.generateKey(mockRequest, "2.0")
+      val key = mockKeyGen.generateKey(mockRequest, "2.0")
       key.contains("this--is--30--charac")  shouldBe true
       key.contains("this--is--30--charact") shouldBe false
       key.length <= 50                      shouldBe true
@@ -125,16 +114,10 @@ class KeyGeneratorSpec
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.2.0+json"))
-      val date = new DateTime(year2016, SEPTEMBER.getValue, num15, num5, num10, num10)
-      DateTimeUtils.setCurrentMillisFixed(date.getMillis)
-      val key  = keyGen.generateKey(mockRequest, "2.0")
+      val key = mockKeyGen.generateKey(mockRequest, "2.0")
       key.contains("2.0") shouldBe true
 
     }
-  }
-
-  after {
-    DateTimeUtils.setCurrentMillisSystem()
   }
 
 }

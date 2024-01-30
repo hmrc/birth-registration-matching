@@ -36,8 +36,7 @@ class NorthernIrelandAudit @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /**
-    * NorthernIrelandAuditEvent
+  /** NorthernIrelandAuditEvent
     * Responsible for auditing when we find records on GRO-NI
     * @param result map of key value results
     * @param path endpoint path

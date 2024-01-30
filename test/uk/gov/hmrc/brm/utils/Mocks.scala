@@ -34,8 +34,7 @@ import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, Partial
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-/**
-  * Created by adamconder on 24/02/2017.
+/** Created by adamconder on 24/02/2017.
   */
 object Mocks extends MockitoSugar {
 

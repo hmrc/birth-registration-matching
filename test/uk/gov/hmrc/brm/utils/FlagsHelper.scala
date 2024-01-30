@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 
@@ -24,7 +24,7 @@ object FlagsHelper {
 
   private val referenceNumber: Int = 123456789
 
-  private val birthDate = new LocalDate("2012-02-16")
+  private val birthDate = LocalDate.of(2012, 2, 16)
 
   def flaggedFictitiousBirth: Record = {
 

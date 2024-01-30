@@ -80,8 +80,7 @@ trait BRMException extends StatusCodes {
   private def respondNoMatch() =
     Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
 
-  /**
-    * Map on e : Exceptions NOT Upstream4xx as HttpVerbs converts these
+  /** Map on e : Exceptions NOT Upstream4xx as HttpVerbs converts these
     * into Exceptions that are thrown instead of returning the Upstream4xx / Upstream5xx exceptions
     * HttpVerbs converts:
     *
@@ -108,7 +107,7 @@ trait BRMException extends StatusCodes {
   def desConnectionDownPF(
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
-    case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND                        =>
+    case e: BadGatewayException if payload.whereBirthRegistered == SCOTLAND                          =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
     case e @ UpstreamErrorResponse(_, BAD_GATEWAY, _, _) if payload.whereBirthRegistered == SCOTLAND =>
       serviceUnavailable(method, "DES down", e, ErrorResponse.DES_CONNECTION_DOWN)
@@ -173,7 +172,9 @@ trait BRMException extends StatusCodes {
     method: String
   )(implicit payload: Payload, request: Request[JsValue]): PartialFunction[Throwable, Result] = {
     case e @ UpstreamErrorResponse(body, upstream, _, _)
-        if Exception5xx.unapply(upstream) && (payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES) =>
+        if Exception5xx.unapply(
+          upstream
+        ) && (payload.whereBirthRegistered == ENGLAND || payload.whereBirthRegistered == WALES) =>
       logException(method, s"[GRO down]: $body [status]: $upstream", SERVICE_UNAVAILABLE)
       serviceUnavailable(method, "GRO down", e, ErrorResponse.GRO_CONNECTION_DOWN)
   }

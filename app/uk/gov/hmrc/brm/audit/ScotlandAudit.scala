@@ -36,8 +36,7 @@ class ScotlandAudit @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /**
-    * ScotlandAuditEvent
+  /** ScotlandAuditEvent
     * Responsible for auditing when we find records on NRS
     * @param result map of key value results
     * @param path endpoint path

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -40,6 +40,8 @@ class MatchingServiceAdditionalNameDisabledSpec
   import uk.gov.hmrc.brm.utils.Mocks._
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  val dateOfBirth = LocalDate.of(2012, 2, 16)
 
   val mockFull: FullMatching = new FullMatching(mockConfig)
   val testMatchingService    = new MatchingService(
@@ -81,7 +83,7 @@ class MatchingServiceAdditionalNameDisabledSpec
 
             mockAuditSuccess
             val payload     =
-              Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Adam David", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
             resultMatch.matched               shouldBe true
             resultMatch.names.firstNames      shouldBe "Adam David"
@@ -96,7 +98,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Adam",
               Some("test test"),
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch =
@@ -114,7 +116,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Adam ",
               Some("David"),
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -127,7 +129,7 @@ class MatchingServiceAdditionalNameDisabledSpec
           s"($name) match false when payload has no additional name but record has additional name." in {
             mockAuditSuccess
             val payload     =
-              Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Adam ", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
             resultMatch.matched               shouldBe false
             resultMatch.names.firstNames      shouldBe "Adam"
@@ -138,7 +140,7 @@ class MatchingServiceAdditionalNameDisabledSpec
           s"($name) match false when record has empty firstName." in {
             mockAuditSuccess
             val payload     =
-              Payload(reference, "Adam ", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Adam ", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch = testMatchingService.performMatch(payload, List(invalidRecordFirstName), MatchingType.FULL)
             resultMatch.matched               shouldBe false
             resultMatch.names.firstNames      shouldBe empty
@@ -149,7 +151,7 @@ class MatchingServiceAdditionalNameDisabledSpec
           s"($name) not match when firstName argument has a missing first name on input that is on the record" in {
             mockAuditSuccess
             val payload     =
-              Payload(reference, "Adam", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Adam", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
             resultMatch.matched               shouldBe false
             resultMatch.names.firstNames      shouldBe "Adam"
@@ -164,7 +166,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               " Adam    David   ",
               None,
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -177,7 +179,7 @@ class MatchingServiceAdditionalNameDisabledSpec
           s"($name) match when firstName argument has all middle names on input that on are the record, with additional spaces on the record" in {
             mockAuditSuccess
             val payload     =
-              Payload(reference, "Adam David", None, "Jones", new LocalDate("2012-02-16"), BirthRegisterCountry.ENGLAND)
+              Payload(reference, "Adam David", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch =
               testMatchingService.performMatch(payload, List(validRecordMiddleNamesWithSpaces), MatchingType.FULL)
             resultMatch.matched               shouldBe true
@@ -193,7 +195,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Adam David James",
               None,
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -210,7 +212,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Adam ",
               Some(" David James "),
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.FULL)
@@ -227,7 +229,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Adam David James",
               None,
               "Jones",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch =
@@ -245,7 +247,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Chris",
               None,
               "Jones Smith",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(
@@ -267,7 +269,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Manish test",
               Some("test   one    test    two  three  "),
               "joshi",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(record), MatchingType.FULL)
@@ -285,7 +287,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Manish test",
               Some("test one test two  "),
               "joshi",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(record), MatchingType.FULL)
@@ -303,7 +305,7 @@ class MatchingServiceAdditionalNameDisabledSpec
               "Manish test",
               Some("test  three      test  two   one "),
               "joshi",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(record), MatchingType.FULL)
@@ -328,7 +330,7 @@ class MatchingServiceAdditionalNameDisabledSpec
                 "üýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ",
               Some("ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"),
               "joshi",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(record), MatchingType.FULL)
@@ -355,7 +357,7 @@ class MatchingServiceAdditionalNameDisabledSpec
                   "Turton Felicity Andrew Starship Trooper Neil"
               ),
               "JONES",
-              new LocalDate("2012-02-16"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
             val resultMatch = testMatchingService.performMatch(payload, List(record), MatchingType.FULL)

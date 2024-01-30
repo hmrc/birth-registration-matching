@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.audit
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers
@@ -71,8 +71,13 @@ class TransactionAuditorSpec
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      val child     = Record(Child(500035710: Int, "John", "Smith", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val yearOfBirth  = 2009
+      val monthOfBirth = 6
+      val dayOfBirth   = 30
+
+      val child     =
+        Record(Child(500035710: Int, "John", "Smith", Some(LocalDate.of(yearOfBirth, monthOfBirth, dayOfBirth))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val result = auditor.transaction(payload, List(child), MatchingResult.noMatch).futureValue
@@ -93,7 +98,7 @@ class TransactionAuditorSpec
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      val localDate = new LocalDate("2017-02-17")
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(None, "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val result = auditor.transaction(payload, Nil, MatchingResult.noMatch).futureValue
@@ -116,7 +121,7 @@ class TransactionAuditorSpec
   "records audit" should {
 
     "not return word counts for no records found" in {
-      val localDate       = new LocalDate("2017-02-17")
+      val localDate       = LocalDate.of(2017, 2, 17)
       val payload         = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
       val argumentCapture = new ArgumentCapture[AuditEvent]
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
@@ -129,8 +134,8 @@ class TransactionAuditorSpec
     }
 
     "return word count as 0 when a single record is passed with empty name values" in {
-      val child     = Record(Child(500035710: Int, "", "", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val child     = Record(Child(500035710: Int, "", "", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -145,8 +150,8 @@ class TransactionAuditorSpec
 
     "return correct values for word count when a single record is passed" in {
 
-      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2009-06-30")
+      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2009, 6, 30)
       val payload   = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -162,8 +167,8 @@ class TransactionAuditorSpec
 
     "return correct values for word count when a single record is passed having additional names" in {
       when(mockConfig.ignoreAdditionalNames).thenReturn(false)
-      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2009-06-30")
+      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2009, 6, 30)
       val payload   = Payload(Some("500035710"), "Adam ", Some("test"), "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -178,10 +183,10 @@ class TransactionAuditorSpec
     }
 
     "return correct values for word count when multiple records are passed" in {
-      val child = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
+      val child = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
 
-      val child2    = Record(Child(599935710: Int, "Adam", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val child2    = Record(Child(599935710: Int, "Adam", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -197,10 +202,10 @@ class TransactionAuditorSpec
     }
 
     "return correct values for word count when multiple records are passed when ignoreAdditionalName is true" in {
-      val child = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
+      val child = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
 
-      val child2    = Record(Child(599935710: Int, "Adam", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val child2    = Record(Child(599935710: Int, "Adam", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -219,7 +224,7 @@ class TransactionAuditorSpec
   "records audit for character count " should {
 
     "not get audited when no record return from upstream service" in {
-      val localDate = new LocalDate("2017-02-17")
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -233,8 +238,8 @@ class TransactionAuditorSpec
     }
 
     "return correct values when a single record is passed" in {
-      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -252,8 +257,8 @@ class TransactionAuditorSpec
       when(mockConfig.ignoreAdditionalNames)
         .thenReturn(true)
 
-      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val localDate = new LocalDate("2017-02-17")
+      val child     = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -270,10 +275,10 @@ class TransactionAuditorSpec
       when(mockConfig.ignoreAdditionalNames)
         .thenReturn(false)
 
-      val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val child2 = Record(Child(599935710: Int, "Adam TEST Test", "SMITH", Some(new LocalDate("2009-08-30"))))
+      val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val child2 = Record(Child(599935710: Int, "Adam TEST Test", "SMITH", Some(LocalDate.of(2009, 8, 30))))
 
-      val localDate = new LocalDate("2017-02-17")
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -293,10 +298,10 @@ class TransactionAuditorSpec
       when(mockConfig.ignoreAdditionalNames)
         .thenReturn(true)
 
-      val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))))
-      val child2 = Record(Child(599935710: Int, "Adam TEST Test", "SMITH", Some(new LocalDate("2009-08-30"))))
+      val child1 = Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))))
+      val child2 = Record(Child(599935710: Int, "Adam TEST Test", "SMITH", Some(LocalDate.of(2009, 8, 30))))
 
-      val localDate = new LocalDate("2017-02-17")
+      val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
       val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -321,7 +326,7 @@ class TransactionAuditorSpec
       "return a Map() of flags" in {
         when(mockConfig.ignoreAdditionalNames).thenReturn(false)
         val child1           = Record(
-          Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))),
+          Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
               potentiallyFictitiousBirth = true,
@@ -333,7 +338,7 @@ class TransactionAuditorSpec
             )
           )
         )
-        val localDate        = new LocalDate("2017-02-17")
+        val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
         val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -352,7 +357,7 @@ class TransactionAuditorSpec
       "return a Map() of flags where flag has reason and none" in {
         when(mockConfig.ignoreAdditionalNames).thenReturn(false)
         val child1           = Record(
-          Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))),
+          Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
               potentiallyFictitiousBirth = true,
@@ -364,7 +369,7 @@ class TransactionAuditorSpec
             )
           )
         )
-        val localDate        = new LocalDate("2017-02-17")
+        val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
         val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -383,7 +388,7 @@ class TransactionAuditorSpec
       "return a Map() of 'none' flags" in {
         when(mockConfig.ignoreAdditionalNames).thenReturn(false)
         val child1           = Record(
-          Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))),
+          Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
               potentiallyFictitiousBirth = true,
@@ -395,7 +400,7 @@ class TransactionAuditorSpec
             )
           )
         )
-        val localDate        = new LocalDate("2017-02-17")
+        val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
         val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -416,14 +421,14 @@ class TransactionAuditorSpec
       "return a Map() of flags" in {
         when(mockConfig.ignoreAdditionalNames).thenReturn(false)
         val child1    = Record(
-          Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))),
+          Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             NRSStatus(
               deathCode = 1
             )
           )
         )
-        val localDate = new LocalDate("2017-02-17")
+        val localDate = LocalDate.of(2017, 2, 17)
         val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
         val argumentCapture = new ArgumentCapture[AuditEvent]
@@ -441,8 +446,8 @@ class TransactionAuditorSpec
       "not return status flags" in {
         when(mockConfig.ignoreAdditionalNames).thenReturn(false)
         val child1    =
-          Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(new LocalDate("2009-06-30"))), status = None)
-        val localDate = new LocalDate("2017-02-17")
+          Record(Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))), status = None)
+        val localDate = LocalDate.of(2017, 2, 17)
         val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
         val argumentCapture = new ArgumentCapture[AuditEvent]

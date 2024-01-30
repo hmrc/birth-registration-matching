@@ -20,8 +20,7 @@ import uk.gov.hmrc.brm.filters.Filter.FilterType
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.Switch
 
-/**
-  * Created by mew on 15/05/2017.
+/** Created by mew on 15/05/2017.
   */
 object Filter {
   abstract class FilterType

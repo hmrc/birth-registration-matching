@@ -16,6 +16,6 @@
 
 package uk.gov.hmrc.brm.models.response
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 
 case class Child(birthReferenceNumber: Int, forenames: String, lastName: String, dateOfBirth: Option[LocalDate])

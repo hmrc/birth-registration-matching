@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
@@ -25,13 +25,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-/**
-  * Created by chrisianson on 09/08/16.
+/** Created by chrisianson on 09/08/16.
   */
 class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
-  /**
-    * Should
+  /** Should
     * - should be an instance of GroResponse
     * - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
     * - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters
@@ -109,8 +107,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
     """.stripMargin
   )
 
-  /**
-    * Max Length response from GRO with x1 FirstName at max length
+  /** Max Length response from GRO with x1 FirstName at max length
     * x3 Max Length strings for middle names
     * x1 Max Length string for lastName
     */

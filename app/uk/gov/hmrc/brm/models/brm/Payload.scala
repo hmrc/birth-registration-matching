@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.brm.models.brm
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 import uk.gov.hmrc.brm.metrics.{EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.ReadsUtil.validLocalDateReads
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
+
+import java.time.format.DateTimeFormatter
 
 case class Payload(
   birthReferenceNumber: Option[String] = None,
@@ -48,7 +51,7 @@ case class Payload(
       "payload.firstName"            -> firstNames,
       "payload.additionalNames"      -> additionalNames,
       "payload.lastName"             -> lastName,
-      "payload.dateOfBirth"          -> dateOfBirth.toString(Payload.datePattern),
+      "payload.dateOfBirth"          -> dateOfBirth.toString,
       "payload.whereBirthRegistered" -> whereBirthRegistered.toString
     )
 
@@ -98,19 +101,12 @@ object Payload {
       invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
-  private val isAfterDate: Reads[LocalDate] =
-    JodaReads
-      .jodaLocalDateReads(datePattern)
-      .filter(validationError)(
-        _.getYear >= minimumDateOfBirthYear
-      )
-
   implicit val PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and
       (JsPath \ firstName).write[String] and
       (JsPath \ additionalNames).writeNullable[String] and
       (JsPath \ lastName).write[String] and
-      (JsPath \ dateOfBirth).write[LocalDate](JodaWrites.jodaLocalDateWrites(datePattern)) and
+      (JsPath \ dateOfBirth).write[LocalDate] and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
   )(unlift(Payload.unapply))
 
@@ -130,7 +126,7 @@ object Payload {
       (JsPath \ lastName).read[String](
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
       ) and
-      (JsPath \ dateOfBirth).read[LocalDate](isAfterDate) and
+      (JsPath \ dateOfBirth).read[LocalDate](validLocalDateReads) and
       (JsPath \ whereBirthRegistered).read[BirthRegisterCountry.Value](birthRegisterReads)
   )(Payload.apply _)
     .filter(JsonValidationError(InvalidBirthReferenceNumber.message))(x =>

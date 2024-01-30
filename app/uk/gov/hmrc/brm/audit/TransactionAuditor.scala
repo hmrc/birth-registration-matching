@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Created by adamconder on 15/02/2017.
+/** Created by adamconder on 15/02/2017.
   */
 @Singleton
 class TransactionAuditor @Inject() (
@@ -39,8 +38,7 @@ class TransactionAuditor @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /**
-    * Audit event for the result of MatchingService and data submitted to the API
+  /** Audit event for the result of MatchingService and data submitted to the API
     *
     * @param result map of key value results
     * @param hc implicit headerCarrier

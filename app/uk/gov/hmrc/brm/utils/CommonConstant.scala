@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-/**
-  * Created by user on 01/03/17.
+/** Created by user on 01/03/17.
   */
 object CommonConstant {
 

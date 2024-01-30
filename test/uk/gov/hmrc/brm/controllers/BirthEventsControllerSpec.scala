@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
@@ -38,6 +38,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
+import java.time.format.DateTimeParseException
 import scala.concurrent.Future
 
 class BirthEventsControllerSpec
@@ -69,6 +70,8 @@ class BirthEventsControllerSpec
     .build()
 
   val birthEventsController: BirthEventsController = app.injector.instanceOf[BirthEventsController]
+
+  val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -305,14 +308,14 @@ class BirthEventsControllerSpec
         checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
       }
 
-      "return response code 400 if request contains missing dateOfBirth value" in {
+      "should throw a DateTimeParseException if request contains missing dateOfBirth value" in {
         mockAuditSuccess
         val request = postRequest(userNoMatchExcludingDateOfBirthValue)
         val result  = testController.post().apply(request).futureValue
         checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_DATE_OF_BIRTH.json)
       }
 
-      "return response code 400 if request contains invalid dateOfBirth format" in {
+      "should throw a DateTimeParseException if request contains invalid dateOfBirth format" in {
         mockAuditSuccess
         val request = postRequest(userInvalidDOBFormat)
         val result  = testController.post().apply(request).futureValue
@@ -382,7 +385,7 @@ class BirthEventsControllerSpec
               "Adam",
               Some("test"),
               "SMITH",
-              new LocalDate("2009-07-01"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
           )
@@ -400,7 +403,7 @@ class BirthEventsControllerSpec
               "Adam test",
               Some("test"),
               "SMITH",
-              new LocalDate("2009-07-01"),
+              dateOfBirth,
               BirthRegisterCountry.ENGLAND
             )
           )

@@ -38,8 +38,7 @@ import play.api.Play.materializer
 
 import scala.concurrent.Future
 
-/**
-  * Created by adamconder on 02/12/2016.
+/** Created by adamconder on 02/12/2016.
   */
 trait FeatureSwitchSpec
     extends AnyWordSpecLike
@@ -50,8 +49,7 @@ trait FeatureSwitchSpec
     with BeforeAndAfterEachTestData
     with ScalaFutures {
 
-  /**
-    * Enable both GRO and NRS
+  /** Enable both GRO and NRS
     */
 
   lazy val switchEnabled: Map[String, _] = Map(
@@ -70,8 +68,7 @@ trait FeatureSwitchSpec
     "microservice.services.birth-registration-matching.features.nrs.details.enabled"   -> true
   )
 
-  /**
-    * Disable both GRO and NRS
+  /** Disable both GRO and NRS
     */
 
   lazy val switchDisabled: Map[String, _] = Map(

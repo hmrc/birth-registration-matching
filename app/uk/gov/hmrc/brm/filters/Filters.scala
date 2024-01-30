@@ -43,8 +43,7 @@ class Filters @Inject() (
 
   private val baseFilters = List(dobFilter)
 
-  /**
-    * Should the current filter be processed, is the Payload a reference or details request
+  /** Should the current filter be processed, is the Payload a reference or details request
     * @param filter current Filter being processed
     * @param payload Payload
     */
@@ -76,8 +75,7 @@ class Filters @Inject() (
     baseWithFilters
   }
 
-  /**
-    * @param payload request transformed into Payload
+  /** @param payload request transformed into Payload
     * @return List[Filter], list of failed filters
     */
   def process(payload: Payload): List[Filter] = {

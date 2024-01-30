@@ -17,15 +17,14 @@
 package uk.gov.hmrc.brm.filters
 
 import javax.inject.Inject
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.GeneralFilter
 import uk.gov.hmrc.brm.metrics.DateofBirthFeatureCountMetric
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.{Switch, SwitchValue}
 
-/**
-  * Created by mew on 15/05/2017.
+/** Created by mew on 15/05/2017.
   */
 class DateOfBirthFilter @Inject() (dobCount: DateofBirthFeatureCountMetric, conf: BrmConfig)
     extends Filter(GeneralFilter) {
@@ -49,8 +48,8 @@ class DateOfBirthFilter @Inject() (dobCount: DateofBirthFeatureCountMetric, conf
     if (isEnabled) {
       val config     = switchValue
       // validate date of birth
-      val configDate = LocalDate.parse(config).toDate
-      val isValid    = !payload.dateOfBirth.toDate.before(configDate)
+      val configDate = LocalDate.parse(config)
+      val isValid    = !payload.dateOfBirth.isBefore(configDate)
       if (!isValid) {
         dobCount.count()
       }

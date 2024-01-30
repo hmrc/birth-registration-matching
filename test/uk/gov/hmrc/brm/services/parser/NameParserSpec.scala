@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services.parser
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
@@ -29,8 +29,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-/**
-  * Created by adamconder on 02/02/2017.
+/** Created by adamconder on 02/02/2017.
   */
 trait NameParserSpec
     extends AnyWordSpecLike

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.audit
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.implicits.AuditFactory
@@ -27,8 +27,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-/**
-  * Created by adamconder on 09/02/2017.
+/** Created by adamconder on 09/02/2017.
   */
 class AuditFactorySpec
     extends AnyWordSpecLike

@@ -51,8 +51,7 @@ sealed trait BRMMetrics extends Timer with Connector {
   val prefix: String
 }
 
-/**
-  * GRODetailsMetrics
+/** GRODetailsMetrics
   * Timer metric for GRO reference
   */
 
@@ -60,8 +59,7 @@ class GROReferenceMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   override val prefix = "proxy"
 }
 
-/**
-  * GRODetailsMetrics
+/** GRODetailsMetrics
   * Timer metric for GRO details
   */
 
@@ -69,8 +67,7 @@ class GRODetailsMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   override val prefix: String = "proxy-details"
 }
 
-/**
-  * NRSMetrics
+/** NRSMetrics
   * Timer metric for NRS
   */
 
@@ -78,8 +75,7 @@ class NRSMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   override val prefix = "nrs"
 }
 
-/**
-  * GRONIMetrics
+/** GRONIMetrics
   * Timer metric for GRO-NI
   */
 

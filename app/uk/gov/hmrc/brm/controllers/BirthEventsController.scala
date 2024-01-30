@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.controllers
 
 import javax.inject.Inject
-import org.joda.time.DateTime
+import java.time._
 import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import uk.gov.hmrc.brm.audit._
@@ -95,7 +95,7 @@ class BirthEventsController @Inject() (
       s"Request was processed. Feature Switches: ${config.audit(Some(payload))}"
     )
 
-    val beforeRequestTime = DateTime.now.getMillis
+    val beforeRequestTime = Instant.now().toEpochMilli
     val method            = if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
 
     service.lookup()(implicitly, metrics, implicitly, implicitly) map { bm =>

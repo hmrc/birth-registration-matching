@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -51,6 +51,9 @@ class BirthEventsControllerAdditionalNameSwitchSpec
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
   )
+
+  val dateOfBirth: LocalDate    = LocalDate.of(2009, 7, 1)
+  val altDateOfBirth: LocalDate = LocalDate.of(2009, 11, 23)
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -106,7 +109,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Adam",
           Some("test"),
           "SMITH",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -123,7 +126,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Adam",
           Some("test david"),
           "SMITH",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -140,7 +143,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Adam",
           Some(" test david "),
           "SMITH",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -159,7 +162,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Adam",
           Some("test"),
           "SMITH",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -174,7 +177,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
       val payload = Json.toJson(
-        Payload(Some("500035711"), "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(Some("500035711"), "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
       )
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
@@ -192,7 +195,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Adam",
           Some("test"),
           "SMITH",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -212,7 +215,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Mary-Ann ",
           Some("O'Leary"),
           "Smith-Johnson",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -229,7 +232,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Mary-Ann O'Leary ",
           None,
           "Smith-Johnson",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -246,7 +249,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Ivor Test Hywel Tom Jones ",
           Some("Welcome In The Valleys Grand Slam"),
           "WILLIAMS JONES",
-          new LocalDate("2009-11-23"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -266,7 +269,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Ivor Test Hywel Tom Jones ",
           None,
           "WILLIAMS JONES",
-          new LocalDate("2009-11-23"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -283,7 +286,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Ivor Test Hywel Tom Jones ",
           Some("Welcome In The Valleys Grand"),
           "WILLIAMS JONES",
-          new LocalDate("2009-11-23"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -298,7 +301,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockDetailsResponse(groResponseWithAdditionalName)
       val payload = Json.toJson(
-        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
       )
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
@@ -308,7 +311,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockDetailsResponse(groResponseWithMoreAdditionalName)
       val payload = Json.toJson(
-        Payload(None, "Adam", Some("test david"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(None, "Adam", Some("test david"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
       )
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
@@ -321,7 +324,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockDetailsResponse(groResponseWithMoreAdditionalName)
       val payload = Json.toJson(
-        Payload(None, "Adam", Some("test"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
       )
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
@@ -331,7 +334,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockDetailsResponse(groResponseWithoutAdditionalName)
       val payload = Json.toJson(
-        Payload(None, "Adam", Some("david"), "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND)
+        Payload(None, "Adam", Some("david"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
       )
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = false)
@@ -344,7 +347,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
       mockAuditSuccess
       mockDetailsResponse(groResponseWithoutAdditionalName)
       val payload =
-        Json.toJson(Payload(None, "Adam", None, "SMITH", new LocalDate("2009-07-01"), BirthRegisterCountry.ENGLAND))
+        Json.toJson(Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND))
       val result  = makeRequest(payload)
       checkResponse(result, OK, matchResponse = true)
     }
@@ -358,7 +361,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Mary-Ann  ",
           Some("O'Leary"),
           "Smith-Johnson",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -375,7 +378,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Mary-Ann O'Leary ",
           None,
           "Smith-Johnson",
-          new LocalDate("2009-07-01"),
+          dateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -392,7 +395,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
           "Ivor Test Hywel Tom Jones ",
           Some("Welcome In The Valleys Grand Slam"),
           "WILLIAMS JONES",
-          new LocalDate("2009-11-23"),
+          altDateOfBirth,
           BirthRegisterCountry.ENGLAND
         )
       )
@@ -413,7 +416,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
             "Ivor Test Hywel Tom Jones ",
             Some("Welcome In The Valleys Grand"),
             "WILLIAMS JONES",
-            new LocalDate("2009-11-23"),
+            altDateOfBirth,
             BirthRegisterCountry.ENGLAND
           )
         )
