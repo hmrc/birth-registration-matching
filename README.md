@@ -10,6 +10,43 @@ This microservice retrieves a child's birth record from one of the following ser
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs a [JRE to](http://www.oracle.com/technetwork/java/javase/overview/index.html) run.
 
+## Local Testing
+Run the services using the command below
+```shell
+sm2 --start BIRTH_REGISTRATION_MATCHING_ALL
+```
+The Postman collection can be downloaded [here](https://confluence.tools.tax.service.gov.uk/download/attachments/179471780/brms.postman_collection.json?version=1&modificationDate=1580736076000&api=v2)
+
+## Environment testing
+To test the service in a specific environment go to the link below
+
+https://build.tax.service.gov.uk/job/build-and-deploy/job/curl-microservice/
+
+You can use the details below, and change the **DATA** depending on your test:
+
+**ENVIRONMENT:** qa
+
+**URL:** https://birth-registration-matching.protected.mdtp/birth-registration-matching/match
+
+**HTTP_METHOD:** POST
+
+**HEADERS:** {"Content-Type": "application/json", "Accept": "application/vnd.hmrc.1.0+json", "Audit-Source": "DFS"}
+
+**DATA:**
+```
+{
+"birthReferenceNumber": "123456789",
+"firstName": "Adam TEST",
+"lastName": "SMITH",
+"dateOfBirth": "2006-11-12",
+"whereBirthRegistered": "scotland"
+}
+```
+Check the Jenkins Console Output for the response, for the example above it should be
+```
+{"code":"INVALID_BIRTH_REFERENCE_NUMBER","message":"The birth reference number does not meet the required length"}
+```
+
 ### Quickstart
 
 The API takes a post request of child details (see parameters below), and returns a json response. If the submissions passes validation and contains no client errors, the response returned will be 200 OK with a JSON body of _"matched": true_ or _"matched": false_
