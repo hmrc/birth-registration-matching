@@ -10,6 +10,12 @@ This microservice retrieves a child's birth record from one of the following ser
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs a [JRE to](http://www.oracle.com/technetwork/java/javase/overview/index.html) run.
 
+## Local Testing
+Run the services using the command below
+```shell
+sm2 --start BIRTH_REGISTRATION_MATCHING_ALL
+```
+
 ### Quickstart
 
 The API takes a post request of child details (see parameters below), and returns a json response. If the submissions passes validation and contains no client errors, the response returned will be 200 OK with a JSON body of _"matched": true_ or _"matched": false_
