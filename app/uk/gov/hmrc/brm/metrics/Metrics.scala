@@ -18,7 +18,8 @@ package uk.gov.hmrc.brm.metrics
 
 import java.util.concurrent.TimeUnit
 
-import com.kenshoo.play.metrics.Metrics
+//import com.kenshoo.play.metrics.Metrics
+import com.codahale.metrics.MetricRegistry
 import javax.inject.Inject
 
 sealed protected trait Timer {
@@ -27,7 +28,7 @@ sealed protected trait Timer {
   val prefix: String
 
   private def time(diff: Long): Unit =
-    metrics.defaultRegistry.timer(s"$prefix-timer").update(diff, TimeUnit.MILLISECONDS)
+    metrics.timer(s"$prefix-timer").update(diff, TimeUnit.MILLISECONDS)
 
   def startTimer(): Long = System.currentTimeMillis()
 
@@ -43,11 +44,11 @@ sealed protected trait Connector {
   val prefix: String
 
   def status(code: Int): Unit =
-    metrics.defaultRegistry.counter(s"$prefix-connector-status-$code").inc()
+    metrics.counter(s"$prefix-connector-status-$code").inc()
 }
 
 sealed trait BRMMetrics extends Timer with Connector {
-  val metrics: Metrics
+  val metrics: MetricRegistry
   val prefix: String
 }
 
@@ -55,7 +56,7 @@ sealed trait BRMMetrics extends Timer with Connector {
   * Timer metric for GRO reference
   */
 
-class GROReferenceMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class GROReferenceMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "proxy"
 }
 
@@ -63,7 +64,7 @@ class GROReferenceMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   * Timer metric for GRO details
   */
 
-class GRODetailsMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class GRODetailsMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix: String = "proxy-details"
 }
 
@@ -71,7 +72,7 @@ class GRODetailsMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   * Timer metric for NRS
   */
 
-class NRSMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class NRSMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "nrs"
 }
 
@@ -79,48 +80,48 @@ class NRSMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
   * Timer metric for GRO-NI
   */
 
-class GRONIMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class GRONIMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "gro-ni"
 }
 
-class APIVersionMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class APIVersionMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "1.0"
-  def count(): Unit   = metrics.defaultRegistry.counter(s"api-version-$prefix").inc()
+  def count(): Unit   = metrics.counter(s"api-version-$prefix").inc()
 }
 
-class AuditSourceMetrics @Inject() (val metrics: Metrics) extends BRMMetrics {
+class AuditSourceMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix             = "unused"
-  def count(source: String): Unit = metrics.defaultRegistry.counter(s"audit-source-$source").inc()
+  def count(source: String): Unit = metrics.counter(s"audit-source-$source").inc()
 }
 
 trait CountingMetric extends BRMMetrics {
-  def count(): Unit = metrics.defaultRegistry.counter(s"$prefix-count").inc()
+  def count(): Unit = metrics.counter(s"$prefix-count").inc()
 }
 
-class MatchCountMetric @Inject() (val metrics: Metrics) extends CountingMetric {
+class MatchCountMetric @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "match"
 }
 
-class NoMatchCountMetric @Inject() (val metrics: Metrics) extends CountingMetric {
+class NoMatchCountMetric @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "no-match"
 }
 
-class EnglandAndWalesBirthRegisteredCountMetrics @Inject() (val metrics: Metrics) extends CountingMetric {
+class EnglandAndWalesBirthRegisteredCountMetrics @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "england-and-wales"
 }
 
-class ScotlandBirthRegisteredCountMetrics @Inject() (val metrics: Metrics) extends CountingMetric {
+class ScotlandBirthRegisteredCountMetrics @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "scotland"
 }
 
-class NorthernIrelandBirthRegisteredCountMetrics @Inject() (val metrics: Metrics) extends CountingMetric {
+class NorthernIrelandBirthRegisteredCountMetrics @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "northern-ireland"
 }
 
-class InvalidBirthRegisteredCountMetrics @Inject() (val metrics: Metrics) extends CountingMetric {
+class InvalidBirthRegisteredCountMetrics @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "invalid-birth-registered"
 }
 
-class DateofBirthFeatureCountMetric @Inject() (val metrics: Metrics) extends CountingMetric {
+class DateofBirthFeatureCountMetric @Inject() (val metrics: MetricRegistry) extends CountingMetric {
   val prefix = "feature-date-of-birth"
 }

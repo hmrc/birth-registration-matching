@@ -65,7 +65,7 @@ trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with Be
         Map.empty[String, Any]
       }
     }
-    .disable[com.kenshoo.play.metrics.PlayModule]
+    .disable[com.codahale.metrics.MetricRegistry]
     .build()
 
   "Switch" should {

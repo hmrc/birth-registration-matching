@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.audit
 
-import com.kenshoo.play.metrics.PlayModule
+//import com.kenshoo.play.metrics.PlayModule
+import com.codahale.metrics.MetricRegistry
 import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -54,7 +55,7 @@ class TransactionAuditorSwitchSpec
 
   class TestAuditor(configuration: Configuration) {
     implicit lazy val app: Application =
-      new GuiceApplicationBuilder().disable[PlayModule].configure(configuration).build()
+      new GuiceApplicationBuilder().disable[MetricRegistry].configure(configuration).build()
     val connector: AuditConnector      = mock[AuditConnector]
     val keyGen: KeyGenerator           = app.injector.instanceOf[KeyGenerator]
     val config: BrmConfig              = app.injector.instanceOf[BrmConfig]

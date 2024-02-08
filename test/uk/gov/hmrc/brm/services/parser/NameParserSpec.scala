@@ -54,7 +54,7 @@ trait NameParserSpec
     } else { Map("" -> "") }
 
     new GuiceApplicationBuilder()
-      .disable[com.kenshoo.play.metrics.PlayModule]
+      .disable[com.codahale.metrics.MetricRegistry]
       .configure(config)
       .build()
   }

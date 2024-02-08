@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import akka.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.model.StatusCodes._
+
 import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

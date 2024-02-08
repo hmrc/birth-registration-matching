@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
-import akka.http.scaladsl.model.StatusCodes._
-import com.kenshoo.play.metrics.Metrics
-
+//import com.kenshoo.play.metrics.Metrics
+import org.apache.pekko.http.scaladsl.model.StatusCodes._
+import com.codahale.metrics.MetricRegistry
 import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.brm.implicits.MetricsFactory
@@ -58,42 +58,42 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "have a timer for the proxy connection" in {
       val time = metrics.startTimer()
       metrics.endTimer(time)
-      metrics.metrics.defaultRegistry.getTimers.get("proxy-timer").getCount shouldBe 1
+      metrics.metrics.getTimers.get("proxy-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for proxy" in {
       metrics.status(OK.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-200").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for proxy" in {
       metrics.status(BadRequest.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-400").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
       metrics.status(NotFound.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-404").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for proxy" in {
       metrics.status(InternalServerError.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-500").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
       metrics.status(BadGateway.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-502").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
       metrics.status(GatewayTimeout.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-504").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       for (i <- 1 to 5) yield metrics.status(Locked.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-connector-status-423").getCount shouldBe 5
+      metrics.metrics.getCounters.get("proxy-connector-status-423").getCount shouldBe 5
     }
 
   }
@@ -109,41 +109,41 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "have a timer for the proxy-details connection" in {
       val time = metrics.startTimer()
       metrics.endTimer(time)
-      metrics.metrics.defaultRegistry.getTimers.get("proxy-details-timer").getCount shouldBe 1
+      metrics.metrics.getTimers.get("proxy-details-timer").getCount shouldBe 1
     }
     "have a 200 status count for proxy-details" in {
       metrics.status(OK.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-200").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for proxy-details" in {
       metrics.status(BadRequest.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-400").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy-details" in {
       metrics.status(NotFound.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-404").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for proxy-details" in {
       metrics.status(InternalServerError.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-500").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy-details" in {
       metrics.status(BadGateway.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-502").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy-details" in {
       metrics.status(GatewayTimeout.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-504").getCount shouldBe 1
+      metrics.metrics.getCounters.get("proxy-details-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       for (i <- 1 to 5) yield metrics.status(Locked.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
+      metrics.metrics.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
     }
 
   }
@@ -160,42 +160,42 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "have a timer for the nrs connection" in {
       val time = metrics.startTimer()
       metrics.endTimer(time)
-      metrics.metrics.defaultRegistry.getTimers.get("nrs-timer").getCount shouldBe 1
+      metrics.metrics.getTimers.get("nrs-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for nrs" in {
       metrics.status(OK.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-200").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for nrs" in {
       metrics.status(BadRequest.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-400").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
       metrics.status(NotFound.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-404").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for nrs" in {
       metrics.status(InternalServerError.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-500").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
       metrics.status(BadGateway.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-502").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
       metrics.status(GatewayTimeout.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-504").getCount shouldBe 1
+      metrics.metrics.getCounters.get("nrs-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       for (i <- 1 to 5) yield metrics.status(Locked.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("nrs-connector-status-423").getCount shouldBe 5
+      metrics.metrics.getCounters.get("nrs-connector-status-423").getCount shouldBe 5
     }
 
   }
@@ -212,42 +212,42 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "have a timer for the gro-ni connection" in {
       val time = metrics.startTimer()
       metrics.endTimer(time)
-      metrics.metrics.defaultRegistry.getTimers.get("gro-ni-timer").getCount shouldBe 1
+      metrics.metrics.getTimers.get("gro-ni-timer").getCount shouldBe 1
     }
 
     "have a 200 status count for gro-ni" in {
       metrics.status(OK.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-200").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-200").getCount shouldBe 1
     }
 
     "have a 400 status count for gro-ni" in {
       metrics.status(BadRequest.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-400").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-400").getCount shouldBe 1
     }
 
     "have a 404 status count for proxy" in {
       metrics.status(NotFound.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-404").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-404").getCount shouldBe 1
     }
 
     "have a 500 status count for gro-ni" in {
       metrics.status(InternalServerError.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-500").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-500").getCount shouldBe 1
     }
 
     "have a 502 status count for proxy" in {
       metrics.status(BadGateway.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-502").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-502").getCount shouldBe 1
     }
 
     "have a 504 status count for proxy" in {
       metrics.status(GatewayTimeout.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-504").getCount shouldBe 1
+      metrics.metrics.getCounters.get("gro-ni-connector-status-504").getCount shouldBe 1
     }
 
     "accept a status code not registered" in {
       for (i <- 1 to 5) yield metrics.status(Locked.intValue)
-      metrics.metrics.defaultRegistry.getCounters.get("gro-ni-connector-status-423").getCount shouldBe 5
+      metrics.metrics.getCounters.get("gro-ni-connector-status-423").getCount shouldBe 5
     }
 
   }
@@ -263,7 +263,7 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
     "count" in {
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("match-count").getCount shouldBe 1
     }
 
   }
@@ -279,10 +279,10 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
     "count" in {
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("no-match-count").getCount shouldBe 1
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("no-match-count").getCount shouldBe 2
-      metrics.metrics.defaultRegistry.getCounters.get("match-count").getCount      should not be 2
+      metrics.metrics.getCounters.get("no-match-count").getCount shouldBe 2
+      metrics.metrics.getCounters.get("match-count").getCount      should not be 2
     }
 
   }
@@ -292,25 +292,25 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "increment for england and wales" in {
       val metrics = app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("england-and-wales-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("england-and-wales-count").getCount shouldBe 1
     }
 
     "increment for northern ireland" in {
       val metrics = app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("northern-ireland-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("northern-ireland-count").getCount shouldBe 1
     }
 
     "increment for scotland" in {
       val metrics = app.injector.instanceOf[ScotlandBirthRegisteredCountMetrics]
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("scotland-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("scotland-count").getCount shouldBe 1
     }
 
     "increment for invalid register" in {
       val metrics = app.injector.instanceOf[InvalidBirthRegisteredCountMetrics]
       metrics.count()
-      metrics.metrics.defaultRegistry.getCounters.get("invalid-birth-registered-count").getCount shouldBe 1
+      metrics.metrics.getCounters.get("invalid-birth-registered-count").getCount shouldBe 1
     }
 
   }
@@ -320,14 +320,14 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     val metrics = app.injector.instanceOf[GROReferenceMetrics]
 
     "increment for version 1.0" in {
-      new APIVersionMetrics(app.injector.instanceOf[Metrics]).count()
-      metrics.metrics.defaultRegistry.getCounters.get("api-version-1.0").getCount shouldBe 1
+      new APIVersionMetrics(app.injector.instanceOf[MetricRegistry]).count()
+      metrics.metrics.getCounters.get("api-version-1.0").getCount shouldBe 1
     }
 
     "Audit-Source" should {
       "increment for audit-source" in {
-        new AuditSourceMetrics(app.injector.instanceOf[Metrics]).count("dfs")
-        metrics.metrics.defaultRegistry.getCounters.get("audit-source-dfs").getCount shouldBe 1
+        new AuditSourceMetrics(app.injector.instanceOf[MetricRegistry]).count("dfs")
+        metrics.metrics.getCounters.get("audit-source-dfs").getCount shouldBe 1
       }
     }
 
