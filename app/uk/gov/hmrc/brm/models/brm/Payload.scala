@@ -26,8 +26,6 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.ReadsUtil.validLocalDateReads
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
 
-import java.time.format.DateTimeFormatter
-
 case class Payload(
   birthReferenceNumber: Option[String] = None,
   private val _firstName: String,

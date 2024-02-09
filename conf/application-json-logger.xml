@@ -12,8 +12,6 @@
 
     <logger name="com.google.inject" level="OFF"/>
 
-    <logger name="akka.event" level="OFF"/>
-
     <logger name="io.netty" level="OFF"/>
 
     <logger name="connector" level="OFF"/>

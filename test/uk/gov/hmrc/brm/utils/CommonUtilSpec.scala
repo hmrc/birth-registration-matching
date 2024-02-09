@@ -22,9 +22,6 @@ import uk.gov.hmrc.brm.config.BrmConfig
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
-import org.scalatest.flatspec.AnyFlatSpec
-import java.time._
-
 class CommonUtilSpec extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   val mockConfig: BrmConfig = mock[BrmConfig]

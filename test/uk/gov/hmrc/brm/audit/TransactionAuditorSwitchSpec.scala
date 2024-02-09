@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.audit
 
-//import com.kenshoo.play.metrics.PlayModule
 import com.codahale.metrics.MetricRegistry
 import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any

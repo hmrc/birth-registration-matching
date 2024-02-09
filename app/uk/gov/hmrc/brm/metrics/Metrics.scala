@@ -17,8 +17,6 @@
 package uk.gov.hmrc.brm.metrics
 
 import java.util.concurrent.TimeUnit
-
-//import com.kenshoo.play.metrics.Metrics
 import com.codahale.metrics.MetricRegistry
 import javax.inject.Inject
 

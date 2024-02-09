@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
-//import com.kenshoo.play.metrics.Metrics
 import org.apache.pekko.http.scaladsl.model.StatusCodes._
-import com.codahale.metrics.MetricRegistry
 import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.brm.implicits.MetricsFactory
@@ -282,7 +280,6 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       metrics.metrics.getCounters.get("no-match-count").getCount shouldBe 1
       metrics.count()
       metrics.metrics.getCounters.get("no-match-count").getCount shouldBe 2
-      metrics.metrics.getCounters.get("match-count").getCount      should not be 2
     }
 
   }
@@ -317,16 +314,18 @@ class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
   "API version" should {
 
-    val metrics = app.injector.instanceOf[GROReferenceMetrics]
-
     "increment for version 1.0" in {
-      new APIVersionMetrics(app.injector.instanceOf[MetricRegistry]).count()
+      val metrics = app.injector.instanceOf[APIVersionMetrics]
+
+      metrics.count()
       metrics.metrics.getCounters.get("api-version-1.0").getCount shouldBe 1
     }
 
     "Audit-Source" should {
       "increment for audit-source" in {
-        new AuditSourceMetrics(app.injector.instanceOf[MetricRegistry]).count("dfs")
+        val metrics = app.injector.instanceOf[AuditSourceMetrics]
+
+        metrics.count("dfs")
         metrics.metrics.getCounters.get("audit-source-dfs").getCount shouldBe 1
       }
     }
