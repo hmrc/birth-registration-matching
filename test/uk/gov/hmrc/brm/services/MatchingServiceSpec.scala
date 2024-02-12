@@ -346,7 +346,7 @@ trait MatchingServiceSpec
     .build()
 
   def getApp(config: Map[String, _]): Application = GuiceApplicationBuilder(
-    disabled = Seq(classOf[com.kenshoo.play.metrics.PlayModule])
+    disabled = Seq(classOf[com.codahale.metrics.MetricRegistry])
   )
     .configure(configIgnoreAdditionalNames)
     .build()

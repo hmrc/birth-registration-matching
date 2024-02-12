@@ -18,7 +18,6 @@ package uk.gov.hmrc.brm.utils
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
 /** Created by user on 02/03/17.
   */

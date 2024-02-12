@@ -27,8 +27,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
-import java.time.format.DateTimeParseException
-
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
   implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =

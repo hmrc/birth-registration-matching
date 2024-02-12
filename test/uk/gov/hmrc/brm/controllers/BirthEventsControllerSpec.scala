@@ -37,8 +37,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
-
-import java.time.format.DateTimeParseException
 import scala.concurrent.Future
 
 class BirthEventsControllerSpec
