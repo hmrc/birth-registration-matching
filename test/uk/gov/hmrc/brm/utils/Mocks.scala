@@ -124,6 +124,7 @@ object Mocks extends MockitoSugar {
         MockAuditFactory,
         mockConfig,
         auditorFixtures.transactionAudit,
+        auditorFixtures.errorAudit,
         auditorFixtures.matchingAudit,
         mockHeaderValidator,
         stubControllerComponents(),
@@ -144,6 +145,7 @@ object Mocks extends MockitoSugar {
         MockAuditFactory,
         mockConfig,
         auditorFixtures.transactionAudit,
+        auditorFixtures.errorAudit,
         auditorFixtures.matchingAudit,
         mockHeaderValidator,
         stubControllerComponents(),
@@ -176,6 +178,7 @@ object Mocks extends MockitoSugar {
       val northernIrelandAudit      = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
       val matchingAudit             = new MatchingAudit(mockAuditConnector, mockBrmLogger, mockConfig, mockKeyGen)
       val transactionAudit          = new TransactionAuditor(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
+      val errorAudit                = new ErrorAudit(mockAuditConnector, mockBrmLogger, mockKeyGen)
     }
 
 }

@@ -70,7 +70,7 @@ object Payload {
   val nameMaxLength          = 250
 
   val birthReferenceNumber = "birthReferenceNumber"
-  val firstName            = "firstName"
+  val firstName             = "firstName"
   val additionalNames      = "additionalNames"
   val lastName             = "lastName"
   val dateOfBirth          = "dateOfBirth"
@@ -83,7 +83,7 @@ object Payload {
   private val validBirthReferenceNumberNRSRegEx = """^[0-9]{10}+$"""
   private val invalidNameCharsRegEx             = "[;/\\\\()|*.=+@]|(<!)|(-->)|(\\n)|(\")|(\u0000)|(^\\s+$)".r
 
-  private val validationError = JsonValidationError("")
+  private val validationError = JsonValidationError("Input does not match regex")
 
   private def validBirthReferenceNumber(country: BirthRegisterCountry.Value, referenceNumber: Option[String]): Boolean =
     (country, referenceNumber) match {

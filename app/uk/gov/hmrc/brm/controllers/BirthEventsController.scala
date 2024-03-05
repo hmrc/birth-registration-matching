@@ -40,6 +40,7 @@ class BirthEventsController @Inject() (
   auditFactory: AuditFactory,
   config: BrmConfig,
   val transactionAuditor: TransactionAuditor,
+  val errorAuditor: ErrorAudit,
   val matchingAuditor: MatchingAudit,
   val headerValidator: HeaderValidator,
   cc: ControllerComponents,
@@ -63,6 +64,7 @@ class BirthEventsController @Inject() (
     errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]
   )(implicit hc: HeaderCarrier): Future[Result] = {
     countryAuditor.auditCountryInRequest(request.body)
+    errorAuditor.audit(Json.fromJson[Map[String, String]](request.body).getOrElse(Map.empty[String, String]))
     val response = ErrorResponses.getErrorResponseByField(errors)
     logger.warn(CLASS_NAME, "handleInvalidRequest", s"error parsing request body as [Payload]")
 

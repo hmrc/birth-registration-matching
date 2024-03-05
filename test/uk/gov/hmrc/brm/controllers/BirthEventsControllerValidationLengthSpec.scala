@@ -58,6 +58,7 @@ class BirthEventsControllerValidationLengthSpec
     MockAuditFactory,
     app.injector.instanceOf[BrmConfig],
     auditorFixtures.transactionAudit,
+    auditorFixtures.errorAudit,
     auditorFixtures.matchingAudit,
     app.injector.instanceOf[HeaderValidator],
     stubControllerComponents(),
