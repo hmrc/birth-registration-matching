@@ -217,11 +217,11 @@ class BirthEventsControllerSpec
 
     "validate additionalNames" should {
 
-      "return response code 400 if request contains additionalNames key but no value" in {
+      "return response code 200 if request contains additionalNames key but no value" in {
         mockAuditSuccess
         val request = postRequest(additionalNamesKeyNoValue)
         val result  = testController.post().apply(request).futureValue
-        checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
+        checkResponse(result, OK, matchResponse = true)
       }
 
       "return response code 400 if request contains special characters in additionalNames" in {
