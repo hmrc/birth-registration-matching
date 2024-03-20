@@ -70,7 +70,7 @@ object Payload {
   val nameMaxLength          = 250
 
   val birthReferenceNumber = "birthReferenceNumber"
-  val firstName             = "firstName"
+  val firstName            = "firstName"
   val additionalNames      = "additionalNames"
   val lastName             = "lastName"
   val dateOfBirth          = "dateOfBirth"
@@ -119,7 +119,7 @@ object Payload {
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
       ) and
       (JsPath \ additionalNames).readNullable[String](
-        nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
+        nameValidation keepAnd maxLength[String](nameMaxLength)
       ) and
       (JsPath \ lastName).read[String](
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)

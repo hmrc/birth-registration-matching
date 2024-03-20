@@ -27,16 +27,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorAudit @Inject() (
-                             connector: AuditConnector,
-                             val logger: BRMLogger,
-                             val keyGen: KeyGenerator
-                           )(implicit ec: ExecutionContext)
-  extends BRMAudit(connector) {
+  connector: AuditConnector,
+  val logger: BRMLogger,
+  val keyGen: KeyGenerator
+)(implicit ec: ExecutionContext)
+    extends BRMAudit(connector) {
 
   final private class PayloadErrorEvent(result: Map[String, String])(implicit hc: HeaderCarrier)
-    extends AuditEvent("BRM-Payload-Error", detail = result, transactionName = "brm-payload-error")
+      extends AuditEvent("BRM-Payload-Error", detail = result, transactionName = "brm-payload-error")
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit hc: HeaderCarrier): Future[AuditResult] = {
+  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+    hc: HeaderCarrier
+  ): Future[AuditResult] = {
     logger.debug("ErrorAudit", "audit", "auditing error event")
     event(new PayloadErrorEvent(result))
   }

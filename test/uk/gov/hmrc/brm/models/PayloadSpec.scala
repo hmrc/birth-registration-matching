@@ -247,6 +247,11 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
+      "return success when additionalNames key exists but value is empty" in {
+        val payload = Payload(None, "Test", Some(""), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe true
+      }
+
       "return error when additionalNames value is an int" in {
         val jsonObject: JsValue = Json.parse("""
             |{
@@ -314,11 +319,6 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when additionalNames contains newline character" in {
         val payload = Payload(None, "Test", Some("Johnny\n"), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
-      }
-
-      "return error when additionalNames key exists but value is empty" in {
-        val payload = Payload(None, "Test", Some(""), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isError shouldBe true
       }
 
