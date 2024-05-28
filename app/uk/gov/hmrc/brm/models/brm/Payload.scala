@@ -119,7 +119,7 @@ object Payload {
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
       ) and
       (JsPath \ additionalNames).readNullable[String](
-        nameValidation keepAnd maxLength[String](nameMaxLength)
+        nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)
       ) and
       (JsPath \ lastName).read[String](
         nameValidation keepAnd minLength[String](1) keepAnd maxLength[String](nameMaxLength)

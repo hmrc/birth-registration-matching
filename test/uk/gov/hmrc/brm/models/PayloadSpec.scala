@@ -247,9 +247,9 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
-      "return success when additionalNames key exists but value is empty" in {
+      "return failure when additionalNames key exists but value is empty" in {
         val payload = Payload(None, "Test", Some(""), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isSuccess shouldBe true
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
       }
 
       "return error when additionalNames value is an int" in {
