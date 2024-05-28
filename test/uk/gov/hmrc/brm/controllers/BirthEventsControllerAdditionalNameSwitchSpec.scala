@@ -429,11 +429,11 @@ class BirthEventsControllerAdditionalNameSwitchSpec
 
   "validate additionalNames when ignoreAdditionalName is false." should {
 
-    "return response code 200 if request contains additionalName key but no value" in {
+    "return response code 400 if request contains additionalName key but no value" in {
       mockAuditSuccess
       val request = postRequest(additionalNamesKeyNoValue)
       val result  = testController.post().apply(request).futureValue
-      checkResponse(result, OK, matchResponse = false)
+      checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
     }
 
     "return response code 400 if request contains special characters in additionalName" in {
