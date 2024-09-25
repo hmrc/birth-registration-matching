@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import play.api.libs.json.{JsValue, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,7 +30,7 @@ trait BirthConnector {
   private type BRMHeaders = Seq[(String, String)]
 
   val serviceUrl: String
-  val http: HttpClient
+  val http: HttpClientV2
   val logger: BRMLogger
 
   protected def headers: BRMHeaders
@@ -61,12 +61,18 @@ trait BirthConnector {
 
     val newHc = hc.copy(authorization = None)
 
-    val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody, headers)(
-      wts = Writes.jsValueWrites,
-      rds = implicitly,
-      hc = newHc,
-      ec
-    )
+//    val response = http.POST[JsValue, HttpResponse](request.uri, request.jsonBody, headers)(
+//      wts = Writes.jsValueWrites,
+//      rds = implicitly,
+//      hc = newHc,
+//      ec
+//    )
+
+    val response = http
+      .post(url"${request.uri}")
+      .withBody(Json.toJson(request.jsonBody))
+      .setHeader(hc.headers(Seq(hc.names.authorisation)): _*)
+      .execute[HttpResponse]
 
     logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
 

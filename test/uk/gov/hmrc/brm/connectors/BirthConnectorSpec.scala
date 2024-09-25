@@ -29,7 +29,7 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
@@ -196,7 +196,7 @@ class BirthConnectorSpec
     "GRONIConnector" should {
 
       "initialise with correct properties" in {
-        connectorFixtures.groniConnector.http shouldBe a[HttpClient]
+        connectorFixtures.groniConnector.http shouldBe a[HttpClientV2]
       }
 
       "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {

@@ -22,13 +22,13 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 /** Created by adamconder on 07/02/2017.
   */
 @Singleton
 class GROConnector @Inject() (
-  val http: HttpClient,
+  val http: HttpClientV2,
   brmConf: BrmConfig,
   keyGen: KeyGenerator,
   val logger: BRMLogger,
