@@ -43,7 +43,10 @@ object MockErrorResponses {
     ErrorResponse("INVALID_CERTIFICATE", "TLS certificate was either not provided or was invalid")
   val UNKNOWN_ERROR                  = ErrorResponse("UNKNOWN_ERROR", "An unknown exception has been thrown")
   val INVALID_BIRTH_REFERENCE_NUMBER =
-    ErrorResponse("INVALID_BIRTH_REFERENCE_NUMBER", "The birth reference number does not meet the required length")
+    ErrorResponse(
+      "INVALID_BIRTH_REFERENCE_NUMBER",
+      "The birth reference number does not meet the validation requirements"
+    )
   val INVALID_FIRSTNAME              = ErrorResponse("INVALID_FIRSTNAME", "Provided firstName is invalid.")
   val INVALID_ADDITIONALNAMES        = ErrorResponse("INVALID_ADDITIONALNAMES", "Provided additionalNames are invalid.")
   val INVALID_LASTNAME               = ErrorResponse("INVALID_LASTNAME", "Provided lastName is invalid.")
