@@ -71,7 +71,7 @@ class BirthEventsControllerSpec
 
   val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,

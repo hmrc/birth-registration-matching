@@ -53,7 +53,7 @@ class BirthEventsControllerDOBSwitchSpec
     "microservice.services.birth-registration-matching.matching.dateOfBirth"           -> false
   )
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,

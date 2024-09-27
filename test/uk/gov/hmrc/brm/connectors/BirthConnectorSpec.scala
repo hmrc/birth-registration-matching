@@ -49,7 +49,7 @@ class BirthConnectorSpec
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

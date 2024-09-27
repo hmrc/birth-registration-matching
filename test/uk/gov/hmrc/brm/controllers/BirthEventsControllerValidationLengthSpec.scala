@@ -50,7 +50,7 @@ class BirthEventsControllerValidationLengthSpec
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
   )
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,

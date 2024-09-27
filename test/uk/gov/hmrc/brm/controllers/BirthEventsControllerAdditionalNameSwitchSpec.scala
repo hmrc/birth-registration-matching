@@ -55,7 +55,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec
   val dateOfBirth: LocalDate    = LocalDate.of(2009, 7, 1)
   val altDateOfBirth: LocalDate = LocalDate.of(2009, 11, 23)
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
