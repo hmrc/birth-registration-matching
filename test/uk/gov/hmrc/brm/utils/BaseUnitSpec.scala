@@ -35,13 +35,30 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
-
+import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.{Injector, bind}
+import play.api.mvc.{AnyContentAsEmpty, BodyParsers}
+import play.api.Application
+import play.api.test.FakeRequest
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 /** Created by user on 04/05/17.
   */
 trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
+
+  implicit override lazy val app: Application =
+    new GuiceApplicationBuilder()
+      .overrides(bind[HttpClientV2].toInstance(mockHttp))
+      .build()
+
+  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
+  lazy val injector: Injector = app.injector
+  implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
+  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status                                                                 shouldBe responseStatus
     (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe matchResponse
@@ -120,12 +137,30 @@ trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with 
   def mockAuditFailure: OngoingStubbing[Future[AuditResult]] =
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
 
+//  def mockHttpPostResponse(
+//    responseStatus: Int = Status.OK,
+//    responseJson: scala.Option[play.api.libs.json.JsValue]
+//  ): ArgumentCapture[JsValue] = {
+//    val argumentCapture = new ArgumentCapture[JsValue]
+//    when(mockHttp.POST[JsValue, HttpResponse](any(), argumentCapture.capture, any())(any(), any(), any(), any()))
+//      .thenReturn(
+//        Future.successful(
+//          HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
+//        )
+//      )
+//    argumentCapture
+//  }
+
   def mockHttpPostResponse(
-    responseStatus: Int = Status.OK,
-    responseJson: scala.Option[play.api.libs.json.JsValue]
-  ): ArgumentCapture[JsValue] = {
+                            responseStatus: Int = Status.OK,
+                            responseJson: scala.Option[play.api.libs.json.JsValue]
+                          ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
-    when(mockHttp.POST[JsValue, HttpResponse](any(), argumentCapture.capture, any())(any(), any(), any(), any()))
+    when(mockHttp
+      .post(any())(any())
+      .withBody(argumentCapture.capture)
+      .setHeader(any())
+      .execute[HttpResponse])
       .thenReturn(
         Future.successful(
           HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
@@ -133,6 +168,7 @@ trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with 
       )
     argumentCapture
   }
+
 
   def checkResponse(result: HttpResponse, responseCode: Int): Unit = {
     result        shouldBe a[HttpResponse]

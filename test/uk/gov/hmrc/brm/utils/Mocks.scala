@@ -40,7 +40,7 @@ object Mocks extends MockitoSugar {
 
   val mockConnector: BirthConnector      = mock[BirthConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
-  val mockHttp: HttpClientV2               = mock[HttpClientV2]
+  val mockHttp: HttpClientV2             = mock[HttpClientV2]
   val mockLookupService: LookupService   = mock[LookupService]
   val mockLogger: Logger                 = mock[org.slf4j.Logger]
   val mockBrmLogger: BRMLogger           = mock[BRMLogger]
