@@ -16,24 +16,16 @@
 
 package uk.gov.hmrc.brm.filters.flags
 
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import uk.gov.hmrc.brm.utils.BaseUnitSpec
 
 class NRSFlagSeveritySpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite {
+  extends BaseUnitSpec {
 
   val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
-  val conf: BrmConfig          = app.injector.instanceOf[BrmConfig]
+  val conf: BrmConfig = app.injector.instanceOf[BrmConfig]
 
   "determineFlagSeverity" should {
 

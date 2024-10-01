@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
+import izumi.reflect.Tag
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
@@ -27,23 +28,19 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
-import play.api.Application
 import play.api.Play.materializer
 import play.api.http.Status
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
+import play.api.inject.Injector
 import play.api.libs.json.{JsObject, JsValue, Json}
-import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.FakeRequest
+import play.api.libs.ws.BodyWritable
+import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.test.WireMockSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -58,16 +55,6 @@ trait BaseUnitSpec extends AnyWordSpecLike
   with MockitoSugar
   {
 
-
-  implicit override lazy val app: Application =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[HttpClientV2].to(mockHttp),
-        bind[RequestBuilder].toInstance(mockRequestBuilder)
-      )
-      .build()
-
-  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
 
   implicit lazy val hc: HeaderCarrier = HeaderCarrier()
@@ -152,23 +139,17 @@ trait BaseUnitSpec extends AnyWordSpecLike
   def mockAuditFailure: OngoingStubbing[Future[AuditResult]] =
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
 
-
-
   def mockHttpPostResponse(
                             responseStatus: Int = Status.OK,
-                            responseJson: scala.Option[play.api.libs.json.JsValue]
+                            responseJson: Option[JsValue]
                           ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
 
     when(mockConfig.serviceUrl).thenReturn(wireMockUrl)
     when(mockConfig.desUrl).thenReturn(wireMockUrl)
-
     when(mockHttp.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
-
-    when(mockRequestBuilder.withBody(argumentCapture.capture)(any(), any(), any())).thenReturn(mockRequestBuilder)
-
-
+    when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext])).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute[HttpResponse](any[HttpReads[HttpResponse]], any[ExecutionContext])).thenReturn(
       Future.successful(
         HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
