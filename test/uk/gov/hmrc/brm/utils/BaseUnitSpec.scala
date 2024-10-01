@@ -145,10 +145,6 @@ trait BaseUnitSpec extends AnyWordSpecLike
                           ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
 
-    when(mockConfig.serviceUrl).thenReturn(wireMockUrl)
-    when(mockConfig.desUrl).thenReturn(wireMockUrl)
-    when(mockHttp.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
-    when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext])).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute[HttpResponse](any[HttpReads[HttpResponse]], any[ExecutionContext])).thenReturn(
       Future.successful(
@@ -158,6 +154,11 @@ trait BaseUnitSpec extends AnyWordSpecLike
 
     argumentCapture
   }
+
+  when(mockConfig.serviceUrl).thenReturn(wireMockUrl)
+  when(mockConfig.desUrl).thenReturn(wireMockUrl)
+  when(mockHttp.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+  when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
 
   def checkResponse(result: HttpResponse, responseCode: Int): Unit = {
     result        shouldBe a[HttpResponse]

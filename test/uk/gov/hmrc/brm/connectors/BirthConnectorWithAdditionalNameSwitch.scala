@@ -56,10 +56,6 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
     "getChildDetails called" should {
 
       "pass additionalNames to gro" in {
-        when(mockConfig.serviceUrl)
-          .thenReturn("test")
-        when(mockConfig.desUrl)
-          .thenReturn("test")
         when(mockCommonUtil.forenames(any(), any()))
           .thenReturn("Adam test")
 
