@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.IntegrationPatience
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -34,19 +31,11 @@ import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class BirthEventsControllerSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite
-    with BaseUnitSpec
-    with IntegrationPatience {
+class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -70,8 +59,6 @@ class BirthEventsControllerSpec
   val birthEventsController: BirthEventsController = app.injector.instanceOf[BirthEventsController]
 
   val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
-
-  import scala.concurrent.ExecutionContext
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,

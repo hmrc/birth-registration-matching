@@ -17,19 +17,15 @@
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import org.apache.pekko.http.scaladsl.model.StatusCodes._
-import java.time.LocalDate
-import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 
-class MetricsSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite with MockitoSugar {
+import java.time.LocalDate
+
+class MetricsSpec extends BaseUnitSpec {
   override lazy val app = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> true)
     .build()

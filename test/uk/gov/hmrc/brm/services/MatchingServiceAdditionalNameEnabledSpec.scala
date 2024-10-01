@@ -16,34 +16,19 @@
 
 package uk.gov.hmrc.brm.services
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService}
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class MatchingServiceAdditionalNameEnabledSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite
-    with BaseUnitSpec {
-
+class MatchingServiceAdditionalNameEnabledSpec extends BaseUnitSpec {
   import uk.gov.hmrc.brm.utils.Mocks._
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val mockFull: FullMatching = new FullMatching(mockConfig)
 

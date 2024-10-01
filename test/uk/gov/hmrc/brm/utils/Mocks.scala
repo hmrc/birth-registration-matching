@@ -31,7 +31,7 @@ import uk.gov.hmrc.brm.metrics._
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, PartialMatching}
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 /** Created by adamconder on 24/02/2017.
@@ -41,6 +41,7 @@ object Mocks extends MockitoSugar {
   val mockConnector: BirthConnector      = mock[BirthConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val mockHttp: HttpClientV2             = mock[HttpClientV2]
+  val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
   val mockLookupService: LookupService   = mock[LookupService]
   val mockLogger: Logger                 = mock[org.slf4j.Logger]
   val mockBrmLogger: BRMLogger           = mock[BRMLogger]

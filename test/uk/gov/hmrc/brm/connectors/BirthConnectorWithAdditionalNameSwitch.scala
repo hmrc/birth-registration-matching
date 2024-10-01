@@ -17,12 +17,9 @@
 package uk.gov.hmrc.brm.connectors
 
 import org.apache.pekko.http.scaladsl.model.StatusCodes._
-
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -32,22 +29,10 @@ import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
-import uk.gov.hmrc.http.HeaderCarrier
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
-import scala.concurrent.ExecutionContext
+import java.time.LocalDate
 
-class BirthConnectorWithAdditionalNameSwitch
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with GuiceOneAppPerSuite
-    with MockitoSugar
-    with BaseUnitSpec {
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSugar {
 
   val FORNAMES: String      = "forenames"
   val LASTNAME: String      = "lastname"

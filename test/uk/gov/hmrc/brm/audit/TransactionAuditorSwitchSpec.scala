@@ -17,40 +17,23 @@
 package uk.gov.hmrc.brm.audit
 
 import com.codahale.metrics.MetricRegistry
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
-import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Configuration}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
-import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.brm.utils.{BRMLogger, BaseUnitSpec, BirthRegisterCountry, KeyGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class TransactionAuditorSwitchSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite
-    with BeforeAndAfterAll
-    with ScalaFutures {
+class TransactionAuditorSwitchSpec extends BaseUnitSpec {
 
   class TestAuditor(configuration: Configuration) {
     implicit lazy val app: Application =
@@ -62,7 +45,6 @@ class TransactionAuditorSwitchSpec
     val auditor                        = new TransactionAuditor(connector, keyGen, config, logger)
   }
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val auditConfigOnForDefault: Configuration = Configuration(
     "metrics.jvm"                                                                      -> false,
