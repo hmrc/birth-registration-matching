@@ -88,7 +88,7 @@ object InvalidDateOfBirth extends HttpResponseBody {
 object InvalidBirthReferenceNumber extends HttpResponseBody {
   override val httpCode: Int   = Status.BAD_REQUEST
   override val code: String    = "INVALID_BIRTH_REFERENCE_NUMBER"
-  override val message: String = "The birth reference number does not meet the required length"
+  override val message: String = "The birth reference number does not meet the validation requirements"
 }
 
 object InvalidWhereBirthRegistered extends HttpResponseBody {
