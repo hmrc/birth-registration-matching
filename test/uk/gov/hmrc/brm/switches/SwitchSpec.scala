@@ -27,8 +27,8 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
 /** Created by mew on 15/05/2017.
-  */
-class SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
+ */
+trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
 
   object TestSwitch extends Switch {
     val config: BrmConfig = app.injector.instanceOf[BrmConfig]
@@ -75,10 +75,10 @@ class SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with Be
       switch.isEnabled shouldBe true
     }
 
-//    "load configuration for a feature and return false for isEnabled" taggedAs Tag("disabled") in {
-//      val switch = TestSwitch
-//      switch.isEnabled shouldBe false
-//    }
+    "load configuration for a feature and return false for isEnabled" taggedAs Tag("disabled") in {
+      val switch = TestSwitch
+      switch.isEnabled shouldBe false
+    }
 
     "throw FeatureSwitchException for configuration that doesn't exist" in {
       val e = intercept[RuntimeException](
