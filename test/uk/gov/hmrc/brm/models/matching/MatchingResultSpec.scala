@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import uk.gov.hmrc.brm.utils.BaseUnitSpec
 
-class MatchingResultSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
+class MatchingResultSpec extends BaseUnitSpec {
 
   val ignoreAdditionalNamesDisabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false

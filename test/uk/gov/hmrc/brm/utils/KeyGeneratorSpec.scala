@@ -19,25 +19,13 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-
 import java.time.LocalDateTime
 import java.time.Month._
 import java.time.format.DateTimeFormatter
 
-class KeyGeneratorSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with BeforeAndAfter
-    with GuiceOneAppPerSuite {
+class KeyGeneratorSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -103,9 +91,9 @@ class KeyGeneratorSpec
       when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
       val key = mockKeyGen.generateKey(mockRequest, "2.0")
-      key.contains("this--is--30--charac")  shouldBe true
+      key.contains("this--is--30--charac") shouldBe true
       key.contains("this--is--30--charact") shouldBe false
-      key.length <= 50                      shouldBe true
+      key.length <= 50 shouldBe true
 
     }
 

@@ -16,27 +16,15 @@
 
 package uk.gov.hmrc.brm.audit
 
-import java.time.LocalDate
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.implicits.AuditFactory
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.http.HeaderCarrier
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
+
+import java.time.LocalDate
 
 /** Created by adamconder on 09/02/2017.
   */
-class AuditFactorySpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite {
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+class AuditFactorySpec extends BaseUnitSpec {
 
   val mockEngWalesAudit: EnglandAndWalesAudit = mock[EnglandAndWalesAudit]
   val mockScotAudit: ScotlandAudit            = mock[ScotlandAudit]

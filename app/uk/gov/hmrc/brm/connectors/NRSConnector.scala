@@ -24,13 +24,13 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.DateUtil
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 /** Created by adamconder on 07/02/2017.
   */
 @Singleton
 class NRSConnector @Inject() (
-  val http: HttpClient,
+  val http: HttpClientV2,
   brmConf: BrmConfig,
   commonUtil: CommonUtil,
   keyGen: KeyGenerator,

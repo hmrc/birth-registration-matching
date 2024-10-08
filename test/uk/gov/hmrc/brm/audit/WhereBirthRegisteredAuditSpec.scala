@@ -16,29 +16,16 @@
 
 package uk.gov.hmrc.brm.audit
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 /** Created by adamconder on 09/02/2017.
   */
-class WhereBirthRegisteredAuditSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite
-    with BaseUnitSpec {
+class WhereBirthRegisteredAuditSpec extends BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
-  val auditor                    = auditorFixtures.whereBirthRegisteredAudit
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  val auditor = auditorFixtures.whereBirthRegisteredAudit
 
   "WhereBirthRegisteredAudit" should {
 

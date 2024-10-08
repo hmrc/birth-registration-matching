@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.brm.models
 
-import java.time.LocalDate
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, JsonUtils, ReadsUtil}
 
-class NRSResponseSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
+import java.time.LocalDate
+
+class NRSResponseSpec extends BaseUnitSpec {
 
   lazy val emptyJson: JsValue = Json.parse(
     """

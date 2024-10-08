@@ -16,38 +16,23 @@
 
 package uk.gov.hmrc.brm.audit
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 /** Created by adamconder on 09/02/2017.
   */
-class NorthernIrelandSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerSuite
-    with ScalaFutures {
+class NorthernIrelandSpec extends BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
   val connector: AuditConnector     = mockAuditConnector
   val auditor: NorthernIrelandAudit = auditorFixtures.northernIrelandAudit
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "NorthernIrelandAudit" should {
 
