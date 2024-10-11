@@ -58,13 +58,15 @@ trait BirthConnector {
   private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
     implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = None)
+    val headersTuple = headers.map(header => (header._1, header._2))
 
     val response = http
       .post(url"${request.uri}")(headerCarrier)
+      .setHeader(headersTuple: _*)
       .withBody(Json.toJson(request.jsonBody))
       .execute[HttpResponse]
 
-//    logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $newHc")
+    logger.debug("BirthConnector", "sendRequest", s"[Request]: $request [HeaderCarrier withExtraHeaders]: $headersTuple")
 
     response.onComplete(r =>
       logger.debug(
