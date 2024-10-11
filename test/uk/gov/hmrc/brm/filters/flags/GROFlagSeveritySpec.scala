@@ -251,7 +251,6 @@ class GROFlagSeveritySpec
     "correction exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("correction") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-
         val groFlags = correctionFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
