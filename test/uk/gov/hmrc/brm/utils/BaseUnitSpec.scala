@@ -38,7 +38,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.http.test.WireMockSupport
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import java.net.URL
@@ -47,7 +46,6 @@ import scala.concurrent.{ExecutionContext, Future}
 /** Created by user on 04/05/17.
   */
 trait BaseUnitSpec extends AnyWordSpecLike
-  with WireMockSupport
   with GuiceOneAppPerSuite
   with Matchers
   with OptionValues
@@ -155,8 +153,8 @@ trait BaseUnitSpec extends AnyWordSpecLike
     argumentCapture
   }
 
-  when(mockConfig.serviceUrl).thenReturn(wireMockUrl)
-  when(mockConfig.desUrl).thenReturn(wireMockUrl)
+  when(mockConfig.serviceUrl).thenReturn("http://localhost:6001")
+  when(mockConfig.desUrl).thenReturn("http://localhost:6001")
   when(mockHttp.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
   when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
 
