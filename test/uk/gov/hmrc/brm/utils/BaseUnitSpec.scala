@@ -143,7 +143,8 @@ trait BaseUnitSpec extends AnyWordSpecLike
                           ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
 
-    when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext])).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext]))
+      .thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute[HttpResponse](any[HttpReads[HttpResponse]], any[ExecutionContext])).thenReturn(
       Future.successful(
         HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
