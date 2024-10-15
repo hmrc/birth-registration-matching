@@ -16,15 +16,9 @@
 
 package uk.gov.hmrc.brm.services
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.{BeforeAndAfter, OptionValues}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.BeforeAndAfter
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
@@ -32,27 +26,18 @@ import uk.gov.hmrc.brm.metrics.EnglandAndWalesBirthRegisteredCountMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.services.matching.{Bad, Good}
-import uk.gov.hmrc.brm.services.parser.NameParser.Names
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
+import uk.gov.hmrc.http.{HttpResponse, NotImplementedException}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class LookupServiceSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with GuiceOneAppPerSuite
-    with MockitoSugar
-    with BeforeAndAfter
-    with ScalaFutures {
+class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks._
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   implicit val engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
   implicit val engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]

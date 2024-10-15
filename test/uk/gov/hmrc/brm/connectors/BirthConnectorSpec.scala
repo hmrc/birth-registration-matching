@@ -16,42 +16,24 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant._
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.http.HttpClient
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
+import java.time.LocalDate
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class BirthConnectorSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with GuiceOneAppPerSuite
-    with MockitoSugar
-    with BaseUnitSpec
-    with ScalaFutures {
+class BirthConnectorSpec extends BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(
@@ -60,6 +42,7 @@ class BirthConnectorSpec
       )
     )
     .build()
+
 
   trait BirthConnectorSpecSetup {
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
@@ -196,7 +179,7 @@ class BirthConnectorSpec
     "GRONIConnector" should {
 
       "initialise with correct properties" in {
-        connectorFixtures.groniConnector.http shouldBe a[HttpClient]
+        connectorFixtures.groniConnector.http shouldBe a[HttpClientV2]
       }
 
       "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {

@@ -16,32 +16,49 @@
 
 package uk.gov.hmrc.brm.utils
 
+import izumi.reflect.Tag
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
+import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.dsl.EmptyWord
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.specs2.mock.mockito.ArgumentCapture
+import play.api.Play.materializer
 import play.api.http.Status
+import play.api.inject.Injector
 import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.ws.BodyWritable
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.connectors.BirthConnector
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Play.materializer
-
-import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
+import java.net.URL
+import scala.concurrent.{ExecutionContext, Future}
 
 /** Created by user on 04/05/17.
   */
-trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with ScalaFutures with GuiceOneAppPerSuite {
+trait BaseUnitSpec extends AnyWordSpecLike
+  with GuiceOneAppPerSuite
+  with Matchers
+  with OptionValues
+  with ScalaFutures
+  with MockitoSugar
+  {
+
+  lazy val injector: Injector = app.injector
+
+  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+
+
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status                                                                 shouldBe responseStatus
     (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe matchResponse
@@ -121,18 +138,26 @@ trait BaseUnitSpec extends AnyWordSpecLike with Matchers with OptionValues with 
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
 
   def mockHttpPostResponse(
-    responseStatus: Int = Status.OK,
-    responseJson: scala.Option[play.api.libs.json.JsValue]
-  ): ArgumentCapture[JsValue] = {
+                            responseStatus: Int = Status.OK,
+                            responseJson: Option[JsValue]
+                          ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
-    when(mockHttp.POST[JsValue, HttpResponse](any(), argumentCapture.capture, any())(any(), any(), any(), any()))
-      .thenReturn(
-        Future.successful(
-          HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
-        )
+
+    when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext]))
+      .thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.execute[HttpResponse](any[HttpReads[HttpResponse]], any[ExecutionContext])).thenReturn(
+      Future.successful(
+        HttpResponse(responseStatus, responseJson.getOrElse(JsObject.empty), Map.empty[String, Seq[String]])
       )
+    )
+
     argumentCapture
   }
+
+  when(mockConfig.serviceUrl).thenReturn("http://localhost:6001")
+  when(mockConfig.desUrl).thenReturn("http://localhost:6001")
+  when(mockHttp.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+  when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
 
   def checkResponse(result: HttpResponse, responseCode: Int): Unit = {
     result        shouldBe a[HttpResponse]

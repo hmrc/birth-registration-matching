@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.brm.services
 
-import java.time.LocalDate
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.{GuiceOneAppPerSuite, GuiceOneAppPerTest}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
@@ -30,22 +31,14 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.{FullMatching, Good, MatchingService, PartialMatching}
 import uk.gov.hmrc.brm.utils.FlagsHelper._
 import uk.gov.hmrc.brm.utils.TestHelper._
-import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class PartialMatchingSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with BeforeAndAfterAll
-    with GuiceOneAppPerSuite {
+class PartialMatchingSpec extends BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -98,7 +91,6 @@ class PartialMatchingSpec
     when(mockConfig.matchDateOfBirth).thenReturn(true)
   }
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val dateOfBirth: LocalDate    = LocalDate.of(2008, 2, 16)
   val altDateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)

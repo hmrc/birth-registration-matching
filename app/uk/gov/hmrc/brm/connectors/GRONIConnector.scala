@@ -24,14 +24,14 @@ import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
 import uk.gov.hmrc.http.{HeaderCarrier, NotImplementedException}
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /** Created by adamconder on 07/02/2017.
   */
 @Singleton
-class GRONIConnector @Inject() (val http: HttpClient, auditor: NorthernIrelandAudit, val logger: BRMLogger)
+class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIrelandAudit, val logger: BRMLogger)
     extends BirthConnector {
 
   override val serviceUrl  = ""

@@ -16,11 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-
-class BirthRegisterCountrySpec extends AnyWordSpecLike with Matchers with OptionValues {
+class BirthRegisterCountrySpec extends BaseUnitSpec {
 
   "BirthRegisterCountry" should {
 

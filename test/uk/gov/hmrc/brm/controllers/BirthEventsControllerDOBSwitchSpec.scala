@@ -18,8 +18,6 @@ package uk.gov.hmrc.brm.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
@@ -27,22 +25,13 @@ import play.api.mvc.Result
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator}
 import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
 import scala.concurrent.Future
 
-class BirthEventsControllerDOBSwitchSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with GuiceOneAppPerSuite
-    with MockitoSugar
-    with BaseUnitSpec {
+class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
 
   import uk.gov.hmrc.brm.utils.TestHelper._
 
@@ -52,8 +41,6 @@ class BirthEventsControllerDOBSwitchSpec
     "microservice.services.birth-registration-matching.matching.lastName"              -> true,
     "microservice.services.birth-registration-matching.matching.dateOfBirth"           -> false
   )
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   val testController: BirthEventsController = new BirthEventsController(
     mockLookupService,
