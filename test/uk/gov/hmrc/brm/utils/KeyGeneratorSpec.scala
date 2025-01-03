@@ -28,10 +28,7 @@ import java.time.LocalDateTime
 import java.time.Month._
 import java.time.format.DateTimeFormatter
 
-class KeyGeneratorSpec extends AnyWordSpecLike
-  with Matchers
-  with BeforeAndAfter
-  with GuiceOneAppPerSuite{
+class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with BeforeAndAfter with GuiceOneAppPerSuite {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
@@ -97,9 +94,9 @@ class KeyGeneratorSpec extends AnyWordSpecLike
       when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
       val key = mockKeyGen.generateKey(mockRequest, "2.0")
-      key.contains("this--is--30--charac") shouldBe true
+      key.contains("this--is--30--charac")  shouldBe true
       key.contains("this--is--30--charact") shouldBe false
-      key.length <= 50 shouldBe true
+      key.length <= 50                      shouldBe true
 
     }
 

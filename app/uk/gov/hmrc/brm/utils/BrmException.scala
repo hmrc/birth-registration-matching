@@ -43,19 +43,19 @@ trait BRMException extends StatusCodes {
         logger.error(
           CLASS_NAME,
           METHOD_NAME,
-          BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID"))
+          BrmExceptionMessage.message(method, statusCode, request.headers.get("X-Request-ID"))
         )
       case Exception4xx() =>
         logger.warn(
           CLASS_NAME,
           METHOD_NAME,
-          BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID"))
+          BrmExceptionMessage.message(method, statusCode, request.headers.get("X-Request-ID"))
         )
       case _              =>
         logger.info(
           CLASS_NAME,
           METHOD_NAME,
-          BrmExceptionMessage.message(method, body, statusCode, request.headers.get("X-Request-ID"))
+          BrmExceptionMessage.message(method, statusCode, request.headers.get("X-Request-ID"))
         )
     }
   }
@@ -200,6 +200,6 @@ private object Exception4xx {
 }
 
 object BrmExceptionMessage {
-  def message(method: String, body: String, statusCode: Int, requestId: Option[String] = None): String =
-    s"[respond][$method] $body, status: $statusCode${if (requestId.isDefined) s", requestId: ${requestId.get}" else ""}"
+  def message(method: String, statusCode: Int, requestId: Option[String] = None): String =
+    s"[respond][$method], status: $statusCode${if (requestId.isDefined) s", requestId: ${requestId.get}" else ""}"
 }

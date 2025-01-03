@@ -27,7 +27,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
 /** Created by mew on 15/05/2017.
- */
+  */
 trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
 
   object TestSwitch extends Switch {

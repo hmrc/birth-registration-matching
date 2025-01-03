@@ -27,7 +27,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
 class GROFlagSeveritySpec
-  extends AnyWordSpecLike
+    extends AnyWordSpecLike
     with Matchers
     with OptionValues
     with MockitoSugar
@@ -201,7 +201,7 @@ class GROFlagSeveritySpec
     "all flags are green" should {
       "return true " in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = allFlagsGreen.determineFlagSeverity
+        val groFlags          = allFlagsGreen.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -209,13 +209,13 @@ class GROFlagSeveritySpec
     "all flags are red" should {
       "return false when all individual flags are set to true" taggedAs Tag("allEnabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = allFlagsRed.determineFlagSeverity
+        val groFlags          = allFlagsRed.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when all individual flags are set to  false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = allFlagsRed.determineFlagSeverity
+        val groFlags          = allFlagsRed.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -223,13 +223,13 @@ class GROFlagSeveritySpec
     "potentiallyFictitiousBirthFlag exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("potentiallyFictitiousBirth") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity
+        val groFlags          = potentiallyFictitiousBirthFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = potentiallyFictitiousBirthFlag.determineFlagSeverity
+        val groFlags          = potentiallyFictitiousBirthFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -237,13 +237,13 @@ class GROFlagSeveritySpec
     "blockedRegistration exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("blockedRegistration") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = blockedRegistration.determineFlagSeverity
+        val groFlags          = blockedRegistration.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = blockedRegistration.determineFlagSeverity
+        val groFlags          = blockedRegistration.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -251,13 +251,13 @@ class GROFlagSeveritySpec
     "correction exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("correction") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = correctionFlag.determineFlagSeverity
+        val groFlags          = correctionFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = correctionFlag.determineFlagSeverity
+        val groFlags          = correctionFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -265,13 +265,13 @@ class GROFlagSeveritySpec
     "cancelled exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("cancelled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = cancelledFlag.determineFlagSeverity
+        val groFlags          = cancelledFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = cancelledFlag.determineFlagSeverity
+        val groFlags          = cancelledFlag.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -279,13 +279,13 @@ class GROFlagSeveritySpec
     "marginalNote exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("marginalNote") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = marginalNote.determineFlagSeverity
+        val groFlags          = marginalNote.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = marginalNote.determineFlagSeverity
+        val groFlags          = marginalNote.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
     }
@@ -293,13 +293,13 @@ class GROFlagSeveritySpec
     "reRegistered exists" should {
       "return false when flag is set and process flag is true" taggedAs Tag("reRegistered") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = reRegistered.determineFlagSeverity
+        val groFlags          = reRegistered.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags = reRegistered.determineFlagSeverity
+        val groFlags          = reRegistered.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
 

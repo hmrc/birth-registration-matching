@@ -21,11 +21,10 @@ import uk.gov.hmrc.brm.models.response.gro.FlagSeverity
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 
-class NRSFlagSeveritySpec
-  extends BaseUnitSpec {
+class NRSFlagSeveritySpec extends BaseUnitSpec {
 
   val allFlagsGreen: NRSStatus = NRSStatus(status = 1, deathCode = 0)
-  val conf: BrmConfig = app.injector.instanceOf[BrmConfig]
+  val conf: BrmConfig          = app.injector.instanceOf[BrmConfig]
 
   "determineFlagSeverity" should {
 
