@@ -91,7 +91,6 @@ class PartialMatchingSpec extends BaseUnitSpec {
     when(mockConfig.matchDateOfBirth).thenReturn(true)
   }
 
-
   val dateOfBirth: LocalDate    = LocalDate.of(2008, 2, 16)
   val altDateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 

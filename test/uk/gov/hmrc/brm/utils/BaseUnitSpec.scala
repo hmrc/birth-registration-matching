@@ -45,19 +45,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /** Created by user on 04/05/17.
   */
-trait BaseUnitSpec extends AnyWordSpecLike
-  with GuiceOneAppPerSuite
-  with Matchers
-  with OptionValues
-  with ScalaFutures
-  with MockitoSugar
-  {
+trait BaseUnitSpec
+    extends AnyWordSpecLike
+    with GuiceOneAppPerSuite
+    with Matchers
+    with OptionValues
+    with ScalaFutures
+    with MockitoSugar {
 
   lazy val injector: Injector = app.injector
 
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  implicit lazy val hc: HeaderCarrier    = HeaderCarrier()
   implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
-
 
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status                                                                 shouldBe responseStatus
@@ -138,12 +137,15 @@ trait BaseUnitSpec extends AnyWordSpecLike
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.failed(AuditResult.Failure("")))
 
   def mockHttpPostResponse(
-                            responseStatus: Int = Status.OK,
-                            responseJson: Option[JsValue]
-                          ): ArgumentCapture[JsValue] = {
+    responseStatus: Int = Status.OK,
+    responseJson: Option[JsValue]
+  ): ArgumentCapture[JsValue] = {
     val argumentCapture = new ArgumentCapture[JsValue]
 
-    when(mockRequestBuilder.withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext]))
+    when(
+      mockRequestBuilder
+        .withBody(argumentCapture.capture)(any[BodyWritable[JsValue]], any[Tag[JsValue]], any[ExecutionContext])
+    )
       .thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.execute[HttpResponse](any[HttpReads[HttpResponse]], any[ExecutionContext])).thenReturn(
       Future.successful(

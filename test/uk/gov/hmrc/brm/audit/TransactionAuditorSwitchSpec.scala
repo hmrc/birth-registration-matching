@@ -45,7 +45,6 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
     val auditor                        = new TransactionAuditor(connector, keyGen, config, logger)
   }
 
-
   val auditConfigOnForDefault: Configuration = Configuration(
     "metrics.jvm"                                                                      -> false,
     "microservice.services.birth-registration-matching.features.flags.logging"         -> true,

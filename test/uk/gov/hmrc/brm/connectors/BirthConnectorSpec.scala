@@ -43,7 +43,6 @@ class BirthConnectorSpec extends BaseUnitSpec {
     )
     .build()
 
-
   trait BirthConnectorSpecSetup {
     when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
   }
