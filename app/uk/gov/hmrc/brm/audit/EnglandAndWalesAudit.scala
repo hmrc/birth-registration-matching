@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,13 @@ class EnglandAndWalesAudit @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /** EnglandAndWalesAuditEvent
-    * Responsible for auditing when we find records on GRO
-    * @param result map of key value results
-    * @param path endpoint path
-    * @param hc implicit headerCarrier
+  /** EnglandAndWalesAuditEvent Responsible for auditing when we find records on GRO
+    * @param result
+    *   map of key value results
+    * @param path
+    *   endpoint path
+    * @param hc
+    *   implicit headerCarrier
     */
   final private class EnglandAndWalesAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
       extends AuditEvent(

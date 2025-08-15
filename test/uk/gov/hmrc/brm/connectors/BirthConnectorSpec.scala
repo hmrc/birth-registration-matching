@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,8 +90,8 @@ class BirthConnectorSpec extends BaseUnitSpec {
         Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 7, 1), BirthRegisterCountry.ENGLAND)
       val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
       checkResponse(result, Status.OK)
-      argumentCapture.value.toString().contains("test") shouldBe false
-      (argumentCapture.value \ "forenames").as[String]  shouldBe "Adam"
+      argumentCapture.getValue.toString().contains("test") shouldBe false
+      (argumentCapture.getValue \ "forenames").as[String]  shouldBe "Adam"
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
@@ -150,9 +150,9 @@ class BirthConnectorSpec extends BaseUnitSpec {
           Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, Status.OK)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam"
+        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
+        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
       }
 
       "getChildDetails returns 403 forbidden response when record was not found." in {
@@ -182,7 +182,7 @@ class BirthConnectorSpec extends BaseUnitSpec {
       }
 
       "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {
-        val future = connectorFixtures.groniConnector.getReference(payload)
+        val future: Future[Nothing] = connectorFixtures.groniConnector.getReference(payload)
         future.onComplete {
           case Failure(e) =>
             connectorFixtures.groniConnector.headers.isEmpty shouldBe true
@@ -193,7 +193,8 @@ class BirthConnectorSpec extends BaseUnitSpec {
       }
 
       "getChildDetails returns http NotImplementedException" in new BirthConnectorSpecSetup {
-        val future = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
+        val future: Future[Nothing] =
+          connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
         future.onComplete {
           case Failure(e) =>
             connectorFixtures.groniConnector.headers.isEmpty shouldBe true

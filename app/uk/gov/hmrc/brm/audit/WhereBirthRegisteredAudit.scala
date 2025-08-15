@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,10 @@ class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen
 ) extends BRMAudit(connector) {
 
   /** OtherCountryAuditEvent
-    * @param result map of key value results
-    * @param hc implicit headerCarrier
+    * @param result
+    *   map of key value results
+    * @param hc
+    *   implicit headerCarrier
     */
   final private class OtherCountryAuditEvent(result: Map[String, String])(implicit hc: HeaderCarrier)
       extends AuditEvent(
@@ -52,10 +54,10 @@ class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen
   ): Future[AuditResult] =
     event(new OtherCountryAuditEvent(result))
 
-  def auditCountryInRequest(json: JsValue)(implicit hc: HeaderCarrier) =
+  def auditCountryInRequest(json: JsValue)(implicit hc: HeaderCarrier): Unit =
     json.\(Payload.whereBirthRegistered) match {
       case JsDefined(country) =>
-        Try(BirthRegisterCountry.withName(country.toString)) recover { _ =>
+        Try(BirthRegisterCountry.withName(country.toString)).recover { _ =>
           // audit incorrect country
           audit(Map("country" -> country.toString), None)
         }

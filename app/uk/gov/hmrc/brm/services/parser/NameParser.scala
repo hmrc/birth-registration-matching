@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import uk.gov.hmrc.brm.models.response.Record
 object NameParser {
 
   /** Cache the names on the record after they have been split into FirstNames and MiddleNames
-    * @param _firstNames getter for FirstNames
-    * @param _additionalNames getter for AdditionalNames
+    * @param _firstNames
+    *   getter for FirstNames
+    * @param _additionalNames
+    *   getter for AdditionalNames
     */
   case class Names(
     private val _firstNames: List[String],

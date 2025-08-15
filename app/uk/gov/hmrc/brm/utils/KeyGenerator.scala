@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class KeyGenerator @Inject() () {
 
   def generateKey[A](request: Request[A], apiVersion: String): String = {
     val formattedDate: String = DateUtil.getCurrentDateString(DATE_FORMAT)
-    //format is date-requestid-audit source - api version number
+    // format is date-requestid-audit source - api version number
     val auditSource           = request.headers.get("Audit-Source").getOrElse("")
     val key                   = s"$formattedDate-${request.id}-${getSubString(auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
     key

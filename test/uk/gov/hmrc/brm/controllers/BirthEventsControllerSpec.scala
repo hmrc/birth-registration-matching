@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
             postRequest(userInvalidReference(scenario("country").toString, scenario("referenceNumber").toString))
           val result   = testController.post().apply(request).futureValue
           val response = scenario("responseCode")
-          checkResponse(result, response.asInstanceOf[Int], MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
+          checkResponse(result, response, MockErrorResponses.INVALID_BIRTH_REFERENCE_NUMBER.json)
 
         }
 

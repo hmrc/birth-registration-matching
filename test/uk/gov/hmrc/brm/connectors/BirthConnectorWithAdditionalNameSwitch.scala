@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,9 +66,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
         val result  = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
-        (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test"
-        (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test"
+        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
+        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
 
       "pass additionalNames to gro in proper format" in {
@@ -78,9 +78,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
-        (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test"
-        (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test"
+        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
+        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
 
       "pass additionalNames to gro in proper format when multiple additional names are present" in {
@@ -99,9 +99,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
-        (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam test david"
-        (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test david"
+        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
+        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
 
       "pass only firstName when additionalNames value is empty" in {
@@ -112,9 +112,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
         val payload         = Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
-        (argumentCapture.value \ FORNAMES).as[String]      shouldBe "Adam"
-        (argumentCapture.value \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.value \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam"
+        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
+        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
     }
 
@@ -132,9 +132,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
           Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, OK.intValue)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
+        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
+        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
 
       }
 
@@ -144,9 +144,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
           Payload(None, " Adam ", Some(" test "), " SMITH ", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
         val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
         checkResponse(result, OK.intValue)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
+        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
+        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
+        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
 
       }
 
@@ -166,9 +166,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
         val result          = connectorFixtures.nrsConnector.getChildDetails(payload).futureValue
         checkResponse(result, OK.intValue)
 
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test david"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-07-01"
+        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test david"
+        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
+        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-07-01"
       }
 
       "pass only firstName when additionalNames value is empty" in {
@@ -180,9 +180,9 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSu
           Payload(None, "ANTHONY", None, "ANDREWS", LocalDate.of(2016, 11, 8), BirthRegisterCountry.SCOTLAND)
         val result                       = connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue
         checkResponse(result, OK.intValue)
-        (argumentCapture.value \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "ANTHONY"
-        (argumentCapture.value \ JSON_LASTNAME_PATH).as[String]    shouldBe "ANDREWS"
-        (argumentCapture.value \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2016-11-08"
+        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "ANTHONY"
+        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "ANDREWS"
+        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2016-11-08"
 
       }
 

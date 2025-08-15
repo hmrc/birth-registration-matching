@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,32 +50,28 @@ sealed trait BRMMetrics extends Timer with Connector {
   val prefix: String
 }
 
-/** GRODetailsMetrics
-  * Timer metric for GRO reference
+/** GRODetailsMetrics Timer metric for GRO reference
   */
 
 class GROReferenceMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "proxy"
 }
 
-/** GRODetailsMetrics
-  * Timer metric for GRO details
+/** GRODetailsMetrics Timer metric for GRO details
   */
 
 class GRODetailsMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix: String = "proxy-details"
 }
 
-/** NRSMetrics
-  * Timer metric for NRS
+/** NRSMetrics Timer metric for NRS
   */
 
 class NRSMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {
   override val prefix = "nrs"
 }
 
-/** GRONIMetrics
-  * Timer metric for GRO-NI
+/** GRONIMetrics Timer metric for GRO-NI
   */
 
 class GRONIMetrics @Inject() (val metrics: MetricRegistry) extends BRMMetrics {

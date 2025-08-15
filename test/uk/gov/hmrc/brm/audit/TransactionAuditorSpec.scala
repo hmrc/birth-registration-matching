@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.audit
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import org.specs2.mock.mockito.ArgumentCapture
+import org.mockito.ArgumentCaptor
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -56,7 +56,7 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       when(mockConfig.audit(any()))
         .thenReturn(Map.empty[String, String])
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
@@ -72,18 +72,18 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val result = auditor.transaction(payload, List(child), MatchingResult.noMatch).futureValue
       result shouldBe AuditResult.Success
 
-      argumentCapture.value.detail("payload.birthReferenceNumber").contains("123456789")
-      argumentCapture.value.detail("payload.firstName")            shouldBe "Adam"
-      argumentCapture.value.detail("payload.lastName")             shouldBe "Test"
-      argumentCapture.value.detail("payload.dateOfBirth")          shouldBe "2017-02-17"
-      argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+      argumentCapture.getValue.detail("payload.birthReferenceNumber").contains("123456789")
+      argumentCapture.getValue.detail("payload.firstName")            shouldBe "Adam"
+      argumentCapture.getValue.detail("payload.lastName")             shouldBe "Test"
+      argumentCapture.getValue.detail("payload.dateOfBirth")          shouldBe "2017-02-17"
+      argumentCapture.getValue.detail("payload.whereBirthRegistered") shouldBe "england"
     }
 
     "audit request and result when child's details used" in {
       when(mockConfig.audit(any()))
         .thenReturn(Map.empty[String, String])
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
@@ -93,11 +93,11 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val result = auditor.transaction(payload, Nil, MatchingResult.noMatch).futureValue
       result shouldBe AuditResult.Success
 
-      argumentCapture.value.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
-      argumentCapture.value.detail("payload.firstName")            shouldBe "Adam"
-      argumentCapture.value.detail("payload.lastName")             shouldBe "Test"
-      argumentCapture.value.detail("payload.dateOfBirth")          shouldBe "2017-02-17"
-      argumentCapture.value.detail("payload.whereBirthRegistered") shouldBe "england"
+      argumentCapture.getValue.detail("payload.birthReferenceNumber") shouldBe "No Birth Reference Number"
+      argumentCapture.getValue.detail("payload.firstName")            shouldBe "Adam"
+      argumentCapture.getValue.detail("payload.lastName")             shouldBe "Test"
+      argumentCapture.getValue.detail("payload.dateOfBirth")          shouldBe "2017-02-17"
+      argumentCapture.getValue.detail("payload.whereBirthRegistered") shouldBe "england"
     }
 
     "throw Illegal argument exception when no payload is provided" in {
@@ -110,16 +110,16 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
   "records audit" should {
 
     "not return word counts for no records found" in {
-      val localDate       = LocalDate.of(2017, 2, 17)
-      val payload         = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val localDate                                   = LocalDate.of(2017, 2, 17)
+      val payload                                     = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, Nil, MatchingResult.noMatch)
 
-      argumentCapture.value.detail.contains("records.record1.numberOfForenames")       shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfAdditionalNames") shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfLastnames")       shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfForenames")       shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfAdditionalNames") shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfLastnames")       shouldBe false
     }
 
     "return word count as 0 when a single record is passed with empty name values" in {
@@ -127,14 +127,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames")       shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames")       shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfForenames")       shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfLastnames")       shouldBe "0"
     }
 
     "return correct values for word count when a single record is passed" in {
@@ -143,14 +143,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2009, 6, 30)
       val payload   = Payload(Some("500035710"), "Adam TEST", None, "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames")       shouldBe "2"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfForenames")       shouldBe "2"
+      argumentCapture.getValue.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfLastnames")       shouldBe "1"
 
     }
 
@@ -160,14 +160,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2009, 6, 30)
       val payload   = Payload(Some("500035710"), "Adam ", Some("test"), "SMITH", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames")       shouldBe "1"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "1"
-      argumentCapture.value.detail("records.record1.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfForenames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfAdditionalNames") shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfLastnames")       shouldBe "1"
 
     }
 
@@ -178,16 +178,16 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child, child2), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames")       shouldBe "2"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames")       shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfForenames")       shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfForenames")       shouldBe "2"
+      argumentCapture.getValue.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record2.numberOfForenames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record2.numberOfLastnames")       shouldBe "1"
     }
 
     "return correct values for word count when multiple records are passed when ignoreAdditionalName is true" in {
@@ -197,16 +197,16 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam TEST", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child, child2), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfForenames")       shouldBe "2"
-      argumentCapture.value.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
-      argumentCapture.value.detail("records.record1.numberOfLastnames")       shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfForenames")       shouldBe "1"
-      argumentCapture.value.detail("records.record2.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record1.numberOfForenames")       shouldBe "2"
+      argumentCapture.getValue.detail("records.record1.numberOfAdditionalNames") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfLastnames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record2.numberOfForenames")       shouldBe "1"
+      argumentCapture.getValue.detail("records.record2.numberOfLastnames")       shouldBe "1"
     }
   }
 
@@ -216,14 +216,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, Nil, MatchingResult.noMatch)
 
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInFirstName")      shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInLastName")       shouldBe false
-      argumentCapture.value.detail.contains("records.record1.numberOfCharactersInAdditionalName") shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfCharactersInFirstName")      shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfCharactersInLastName")       shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.numberOfCharactersInAdditionalName") shouldBe false
     }
 
     "return correct values when a single record is passed" in {
@@ -231,14 +231,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
 
     }
 
@@ -250,14 +250,14 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam", Some("test"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
     }
 
     "return correct values when a multiple records are passed" in {
@@ -270,17 +270,17 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child1, child2), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "9"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "4"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "9"
     }
 
     "return correct values when a multiple records are passed when additional name is not considered." in {
@@ -293,17 +293,17 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
       val localDate = LocalDate.of(2017, 2, 17)
       val payload   = Payload(Some("123456789"), "Adam ", Some("TEST"), "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-      val argumentCapture = new ArgumentCapture[AuditEvent]
+      val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
       when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
         .thenReturn(Future.successful(AuditResult.Success))
       auditor.transaction(payload, List(child1, child2), MatchingResult.noMatch)
 
-      argumentCapture.value.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInFirstName")      shouldBe "4"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInLastName")       shouldBe "5"
-      argumentCapture.value.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "0"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record1.numberOfCharactersInAdditionalName") shouldBe "0"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInFirstName")      shouldBe "4"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInLastName")       shouldBe "5"
+      argumentCapture.getValue.detail("records.record2.numberOfCharactersInAdditionalName") shouldBe "0"
     }
 
   }
@@ -330,17 +330,17 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
+        val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
-        argumentCapture.value.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
-        argumentCapture.value.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
+        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
       }
 
       "return a Map() of flags where flag has reason and none" in {
@@ -361,17 +361,17 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
+        val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
-        argumentCapture.value.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
-        argumentCapture.value.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
+        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
       }
 
       "return a Map() of 'none' flags" in {
@@ -392,16 +392,16 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         val localDate        = LocalDate.of(2017, 2, 17)
         val payload: Payload = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
+        val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
-        argumentCapture.value.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.correction")                 shouldBe "None"
-        argumentCapture.value.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.value.detail("records.record1.flags.marginalNote")               shouldBe "None"
-        argumentCapture.value.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "None"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "None"
+        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
       }
 
     }
@@ -420,13 +420,13 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         val localDate = LocalDate.of(2017, 2, 17)
         val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
+        val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail("records.record1.flags.status")    shouldBe "Valid"
-        argumentCapture.value.detail("records.record1.flags.deathCode") shouldBe "Potentially deceased"
+        argumentCapture.getValue.detail("records.record1.flags.status")    shouldBe "Valid"
+        argumentCapture.getValue.detail("records.record1.flags.deathCode") shouldBe "Potentially deceased"
       }
 
     }
@@ -439,17 +439,17 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         val localDate = LocalDate.of(2017, 2, 17)
         val payload   = Payload(Some("123456789"), "Adam", None, "Test", localDate, BirthRegisterCountry.ENGLAND)
 
-        val argumentCapture = new ArgumentCapture[AuditEvent]
+        val argumentCapture: ArgumentCaptor[AuditEvent] = ArgumentCaptor.forClass(classOf[AuditEvent])
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.value.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.correction")                 shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.cancelled")                  shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.blockedRegistration")        shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.marginalNote")               shouldBe false
-        argumentCapture.value.detail.contains("records.record1.flags.reRegistered")               shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.correction")                 shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.cancelled")                  shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.blockedRegistration")        shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.marginalNote")               shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.reRegistered")               shouldBe false
       }
     }
   }

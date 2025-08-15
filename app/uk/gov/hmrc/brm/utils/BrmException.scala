@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,14 +80,13 @@ trait BRMException extends StatusCodes {
   private def respondNoMatch() =
     Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))
 
-  /** Map on e : Exceptions NOT Upstream4xx as HttpVerbs converts these
-    * into Exceptions that are thrown instead of returning the Upstream4xx / Upstream5xx exceptions
-    * HttpVerbs converts:
+  /** Map on e : Exceptions NOT Upstream4xx as HttpVerbs converts these into Exceptions that are thrown instead of
+    * returning the Upstream4xx / Upstream5xx exceptions HttpVerbs converts:
     *
-    * - Upstream 400 => BadRequestException
-    * - Upstream 404 => NotFoundException
-    * - ConnectException => BadGatewayException
-    * - TimeoutException => GatewayTimeoutException
+    *   - Upstream 400 => BadRequestException
+    *   - Upstream 404 => NotFoundException
+    *   - ConnectException => BadGatewayException
+    *   - TimeoutException => GatewayTimeoutException
     *
     * Everything else is left as a Upstream4xxException / Upstream5xxException with the response body and upstream code
     */

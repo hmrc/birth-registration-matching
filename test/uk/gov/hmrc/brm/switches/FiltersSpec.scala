@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,8 +114,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(payloadWithReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
       "contain GRO details filters" in {
@@ -132,8 +132,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(payloadWithoutReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
     }
@@ -154,8 +154,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(nrsPayloadWithReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
       "contain NRS details filters" in {
@@ -172,8 +172,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(nrsPayloadWithoutReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
     }
@@ -194,8 +194,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(groNIPayloadWithReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
       "contain GRO-NI details filters" in {
@@ -212,8 +212,8 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         val toProcess = testFilters.getFilters(groNIPayloadWithoutReference)
 
         for (filter <- excluded) yield toProcess should not contain filter
-        for (filter <- filters) yield toProcess should contain(filter)
-        toProcess.length shouldBe filters.length
+        for (filter <- filters) yield toProcess  should contain(filter)
+        toProcess.length                       shouldBe filters.length
       }
 
     }

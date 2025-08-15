@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import play.api.Logger
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
-import uk.gov.hmrc.brm.utils.LogCapturing
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 class BrmLoggerSpec
     extends AnyWordSpecLike
@@ -48,7 +48,7 @@ class BrmLoggerSpec
     keyGen.setKey("somekey")
     val expected = List("methodName", "message", "somekey")
 
-    "info call Logger info" in {
+    "info call Logger info" in
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.info(this, "methodName", "message")
 
@@ -56,9 +56,8 @@ class BrmLoggerSpec
         logs.head.getLevel                             shouldBe INFO
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
-    }
 
-    "warn call Logger warn" in {
+    "warn call Logger warn" in
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.warn(this, "methodName", "message")
 
@@ -66,9 +65,8 @@ class BrmLoggerSpec
         logs.head.getLevel                             shouldBe WARN
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
-    }
 
-    "debug call Logger debug" in {
+    "debug call Logger debug" in
       withCaptureOfLoggingFrom(testLogger) { logs =>
         mockBrmLogger.debug(this, "methodName", "message")
 
@@ -76,7 +74,6 @@ class BrmLoggerSpec
         logs.head.getLevel                             shouldBe DEBUG
         expected.forall(logs.head.getMessage.contains) shouldBe true
       }
-    }
 
     "error call Logger error" in {
       val expectedError = List("methodNameForError", "message", "somekey")
