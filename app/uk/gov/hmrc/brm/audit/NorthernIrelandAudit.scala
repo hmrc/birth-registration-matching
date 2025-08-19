@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,13 @@ class NorthernIrelandAudit @Inject() (
 )(implicit ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
-  /** NorthernIrelandAuditEvent
-    * Responsible for auditing when we find records on GRO-NI
-    * @param result map of key value results
-    * @param path endpoint path
-    * @param hc implicit headerCarrier
+  /** NorthernIrelandAuditEvent Responsible for auditing when we find records on GRO-NI
+    * @param result
+    *   map of key value results
+    * @param path
+    *   endpoint path
+    * @param hc
+    *   implicit headerCarrier
     */
   final private class NorthernIrelandAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
       extends AuditEvent(

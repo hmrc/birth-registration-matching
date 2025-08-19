@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with BeforeAndAfter
       when(headers.get("Audit-Source")).thenReturn(Some("dfs"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.1.0+json"))
 
-      val key = mockKeyGen.generateKey(mockRequest, "1.0")
+      mockKeyGen.generateKey(mockRequest, "1.0")
     }
 
     "return key when audio source is empty" in {

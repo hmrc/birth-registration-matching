@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -551,7 +551,7 @@ trait MatchingServiceSpec
 
     "MatchingService" should {
 
-      s"($name) match when firstName contains special characters" in {
+      s"($name) match when firstName contains special characters" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -561,9 +561,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(validRecordSpecialCharactersFirstName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName contains special characters" in {
+      s"($name) match when lastName contains special characters" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -573,9 +572,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(validRecordSpecialCharactersLastName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when firstName contains space" in {
+      s"($name) match when firstName contains space" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -585,9 +583,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(validRecordFirstNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName contains space" in {
+      s"($name) match when lastName contains space" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -596,9 +593,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName from record contains multiple spaces between names" in {
+      s"($name) match when lastName from record contains multiple spaces between names" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -607,9 +603,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName from payload contains multiple spaces between names and includes space at beginning and end of string" in {
+      s"($name) match when lastName from payload contains multiple spaces between names and includes space at beginning and end of string" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -624,9 +619,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordLastNameSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName from payload contains multiple spaces between names" in {
+      s"($name) match when lastName from payload contains multiple spaces between names" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -636,9 +630,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(validRecordLastNameMultipleSpace), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in {
+      s"($name) match when lastName from record contains multiple spaces between names and includes space at beginning and end of string" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -651,9 +644,8 @@ trait MatchingServiceSpec
           )
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when firstName contains UTF-8 characters" in {
+      s"($name) match when firstName contains UTF-8 characters" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -662,9 +654,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUTF8FirstName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when lastName contains UTF-8 characters" in {
+      s"($name) match when lastName contains UTF-8 characters" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -673,9 +664,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUTF8LastName), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match for exact match on firstName and lastName and dateOfBirth on both input and record" in {
+      s"($name) match for exact match on firstName and lastName and dateOfBirth on both input and record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -684,9 +674,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for firstName, lastName on input" in {
+      s"($name) match when case is different for firstName, lastName on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -695,9 +684,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for firstName, lastName on record" in {
+      s"($name) match when case is different for firstName, lastName on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -706,9 +694,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(wrongCaseValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is uppercase for firstName, lastName on input" in {
+      s"($name) match when case is uppercase for firstName, lastName on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -717,9 +704,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is uppercase for firstName, lastName on record" in {
+      s"($name) match when case is uppercase for firstName, lastName on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -728,9 +714,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecordUppercase), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for firstName on input" in {
+      s"($name) match when case is different for firstName on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -739,9 +724,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for firstName on record" in {
+      s"($name) match when case is different for firstName on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -751,9 +735,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(wrongCaseFirstNameValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for lastName on input" in {
+      s"($name) match when case is different for lastName on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -762,9 +745,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) match when case is different for lastName on record" in {
+      s"($name) match when case is different for lastName on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -774,9 +756,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(wrongCaseLastNameValidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe true
         }
-      }
 
-      s"($name) not match when firstName and lastName are different on the input" in {
+      s"($name) not match when firstName and lastName are different on the input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -785,9 +766,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when firstName and lastName are different on the record" in {
+      s"($name) not match when firstName and lastName are different on the record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -796,9 +776,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(invalidRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when firstName is different on input" in {
+      s"($name) not match when firstName is different on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -807,9 +786,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when firstName is different on record" in {
+      s"($name) not match when firstName is different on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -819,9 +797,8 @@ trait MatchingServiceSpec
             testMatchingService.performMatch(payload, List(firstNameNotMatchedRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when lastName is different on input" in {
+      s"($name) not match when lastName is different on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -830,9 +807,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when lastName is different on record" in {
+      s"($name) not match when lastName is different on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -841,9 +817,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(lastNameNotMatchRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when dateOfBirth is different on input" in {
+      s"($name) not match when dateOfBirth is different on input" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -852,9 +827,8 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
 
-      s"($name) not match when dateOfBirth is different on record" in {
+      s"($name) not match when dateOfBirth is different on record" in
         running(getApp(configIgnoreAdditionalNames)) {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -863,7 +837,6 @@ trait MatchingServiceSpec
           val resultMatch = testMatchingService.performMatch(payload, List(dobNotMatchRecord), MatchingType.FULL)
           resultMatch.matched shouldBe false
         }
-      }
     }
   }
 

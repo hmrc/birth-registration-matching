@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.specs2.mock.mockito.ArgumentCapture
+import org.mockito.ArgumentCaptor
 import play.api.Play.materializer
 import play.api.http.Status
 import play.api.inject.Injector
@@ -64,8 +64,11 @@ trait BaseUnitSpec
     checkHeaders(result)
   }
 
-  def checkResponse(result: Result, responseStatus: Int, responseString: String): Unit = {
-    result.header.status                                                  shouldBe responseStatus
+  def checkResponse(result: Result, responseStatus: Int, responseString: String): Unit =
+    checkResponse(result, responseStatus.toString, responseString)
+
+  def checkResponse(result: Result, responseStatus: String, responseString: String): Unit = {
+    result.header.status.toString                                         shouldBe responseStatus
     Json.parse(result.body.consumeData.futureValue.utf8String).toString() shouldBe responseString
     checkHeaders(result)
   }
@@ -139,8 +142,8 @@ trait BaseUnitSpec
   def mockHttpPostResponse(
     responseStatus: Int = Status.OK,
     responseJson: Option[JsValue]
-  ): ArgumentCapture[JsValue] = {
-    val argumentCapture = new ArgumentCapture[JsValue]
+  ): ArgumentCaptor[JsValue] = {
+    val argumentCapture: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
 
     when(
       mockRequestBuilder

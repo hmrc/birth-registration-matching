@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -937,27 +937,27 @@ object TestHelper {
      """.stripMargin)
 
   val referenceNumberScenario = List(
-    Map(
+    Map[String, String](
       "description"     -> "return response code 400 if request contains birthReferenceNumber below minimum length for england",
-      "responseCode"    -> BAD_REQUEST,
+      "responseCode"    -> BAD_REQUEST.toString,
       "country"         -> "england",
       "referenceNumber" -> "12345678"
     ),
-    Map(
+    Map[String, String](
       "description"     -> "return response code 400 if request contains birthReferenceNumber above maximum length for england",
-      "responseCode"    -> BAD_REQUEST,
+      "responseCode"    -> BAD_REQUEST.toString,
       "country"         -> "england",
       "referenceNumber" -> "1234567891"
     ),
-    Map(
+    Map[String, String](
       "description"     -> "return response code 400 if request contains birthReferenceNumber below minimum length for scotland",
-      "responseCode"    -> BAD_REQUEST,
+      "responseCode"    -> BAD_REQUEST.toString,
       "country"         -> "scotland",
       "referenceNumber" -> s"$referenceNumber"
     ),
-    Map(
+    Map[String, String](
       "description"     -> "return response code 400 if request contains birthReferenceNumber above maximum length for scotland",
-      "responseCode"    -> BAD_REQUEST,
+      "responseCode"    -> BAD_REQUEST.toString,
       "country"         -> "scotland",
       "referenceNumber" -> "12345678912"
     )

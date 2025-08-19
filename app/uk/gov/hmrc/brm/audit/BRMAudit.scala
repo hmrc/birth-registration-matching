@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,16 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 
 /** AuditEvent - Abstract class for auditing events
-  * @param auditType type of audit event, given a unique identifier to search on
-  * @param detail map of results
-  * @param transactionName name of the transaction
-  * @param path endpoint path
-  * @param hc implicit headerCarrier
+  * @param auditType
+  *   type of audit event, given a unique identifier to search on
+  * @param detail
+  *   map of results
+  * @param transactionName
+  *   name of the transaction
+  * @param path
+  *   endpoint path
+  * @param hc
+  *   implicit headerCarrier
   */
 
 private abstract class AuditEvent(

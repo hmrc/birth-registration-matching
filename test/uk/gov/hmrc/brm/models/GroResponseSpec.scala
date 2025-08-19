@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,21 +30,23 @@ import org.scalatest.OptionValues
 class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
   /** Should
-    * - should be an instance of GroResponse
-    * - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
-    * - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended characters
-    * - should return GroResponse object with all Child attributes when json is valid and complete with UTF-8 characters
-    * - should return GroResponse object with all Child attributes when json is valid and complete max length
-    * - should return GroResponse object with null Child attributes when json is empty
-    * - should return GroResponse object with Child object when systemNumber key is missing
-    * - should return GroResponse object with Child object when givenName key is missing
-    * - should return GroResponse object with Child object when surname key is missing
-    * - should return GroResponse object with Child object when dateOfBirth key is missing
-    * - should return GroResponse object with Child object when name key is missing
-    * - should return GroResponse object with Child object when dateOfBirth value is invalid format
-    * - should return GROResponse object with missing properties in all objects
-    * - should return a JsonParseException from a broken json object
-    * - should return an JsonMappingException from an invalid json object
+    *   - should be an instance of GroResponse
+    *   - should return GroResponse object with all Child attributes when json is valid and complete (ASCII)
+    *   - should return GroResponse object with all Child attributes when json is valid and complete with ASCII-Extended
+    *     characters
+    *   - should return GroResponse object with all Child attributes when json is valid and complete with UTF-8
+    *     characters
+    *   - should return GroResponse object with all Child attributes when json is valid and complete max length
+    *   - should return GroResponse object with null Child attributes when json is empty
+    *   - should return GroResponse object with Child object when systemNumber key is missing
+    *   - should return GroResponse object with Child object when givenName key is missing
+    *   - should return GroResponse object with Child object when surname key is missing
+    *   - should return GroResponse object with Child object when dateOfBirth key is missing
+    *   - should return GroResponse object with Child object when name key is missing
+    *   - should return GroResponse object with Child object when dateOfBirth value is invalid format
+    *   - should return GROResponse object with missing properties in all objects
+    *   - should return a JsonParseException from a broken json object
+    *   - should return an JsonMappingException from an invalid json object
     */
 
   lazy val jsonFullRecord: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
@@ -107,9 +109,8 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
     """.stripMargin
   )
 
-  /** Max Length response from GRO with x1 FirstName at max length
-    * x3 Max Length strings for middle names
-    * x1 Max Length string for lastName
+  /** Max Length response from GRO with x1 FirstName at max length x3 Max Length strings for middle names x1 Max Length
+    * string for lastName
     */
   lazy val jsonValidMaxLength: JsValue = Json.parse(
     s"""
@@ -1153,18 +1154,15 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       }
     }
 
-    "return a JsonParseException from a broken json object" in {
+    "return a JsonParseException from a broken json object" in
       intercept[com.fasterxml.jackson.core.JsonParseException] {
         jsonBrokenObject.validate[Record](ReadsUtil.groReadRecord)
       }
-    }
 
-    "return a JsonMappingException from an invalid json object" in {
+    "return a JsonMappingException from an invalid json object" in
       intercept[com.fasterxml.jackson.databind.JsonMappingException] {
         jsonNoObject.validate[Record](ReadsUtil.groReadRecord)
       }
-
-    }
 
   }
 
