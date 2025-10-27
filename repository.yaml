@@ -1,4 +1,8 @@
+digital-service: BRMS / Birth Registration Matching Service
+description: This microservice retrieves a child's birth record from either GRO (England and Wales) or NRS (Scotland) if there is a matching birth event recorded for a given name and reference number.
 repoVisibility: public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71
+type: Service
+service-type: Backend
 test-repositories:
   - birth-registration-matching-performance-tests
   - birth-registration-matching-acceptance-tests
