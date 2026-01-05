@@ -29,7 +29,7 @@ import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
-import uk.gov.hmrc.http.{HttpResponse, NotImplementedException}
+import uk.gov.hmrc.http.{HttpResponse, NotImplementedException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
@@ -280,6 +280,34 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         result shouldBe BirthMatchResponse(true)
       }
 
+      "return UpstreamErrorResponse when GRO returns non-OK status" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.INTERNAL_SERVER_ERROR, "GRO error", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+
+      "return failed Future when response JSON parsing fails" in {
+        val malformedResponse = HttpResponse(Status.OK, "not valid json at all", Map.empty[String, Seq[String]])
+
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(malformedResponse))
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        service.lookup().failed.futureValue shouldBe a[Throwable]
+      }
+
     }
 
     "requesting Scotland" should {
@@ -352,6 +380,23 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         val result                    = service.lookup().futureValue
         result shouldBe BirthMatchResponse()
 
+      }
+
+      "return UpstreamErrorResponse when NRS returns non-OK status" in {
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(
+              HttpResponse(Status.SERVICE_UNAVAILABLE, "NRS service unavailable", Map.empty[String, Seq[String]])
+            )
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.SERVICE_UNAVAILABLE
       }
 
     }

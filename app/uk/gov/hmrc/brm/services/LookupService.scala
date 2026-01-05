@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.brm.services
 
+import play.api.http.Status.OK
+
 import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
@@ -25,11 +27,13 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.matching.MatchingService
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.SCOTLAND
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuilder, RecordParser}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class LookupService @Inject() (
   groConnector: GROConnector,
@@ -66,18 +70,36 @@ class LookupService @Inject() (
     payload: Payload,
     auditor: BRMDownstreamAPIAudit
   ): Future[BirthMatchResponse] =
-    getRecord(hc, payload, metrics).map { response =>
+    getRecord(hc, payload, metrics).flatMap { response =>
       logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
-      val records     = recordParser.parse[Record](response.json, ReadsFactory.getReads())
-      val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
 
-      audit(records, matchResult)
-      if (matchResult.matched) {
-        matchMetric.count()
-        BirthResponseBuilder.getResponse(matchResult.matched)
-      } else {
-        noMatchMetric.count()
-        BirthResponseBuilder.withNoMatch()
+      response.status match {
+        case OK =>
+          Try(recordParser.parse[Record](response.json, ReadsFactory.getReads())) match {
+            case Success(records) =>
+              val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
+              audit(records, matchResult)
+
+              if (matchResult.matched) {
+                matchMetric.count()
+                Future.successful(BirthResponseBuilder.getResponse(matchResult.matched))
+              } else {
+                noMatchMetric.count()
+                Future.successful(BirthResponseBuilder.withNoMatch())
+              }
+
+            case Failure(e) =>
+              logger.error(CLASS_NAME, "lookup()", s"Failed to parse response: ${e.getMessage}")
+              Future.failed(e)
+          }
+
+        case status if payload.whereBirthRegistered == SCOTLAND =>
+          logger.error(CLASS_NAME, "lookup()", s"[NRS down]: [${response.body}] [status]: $status")
+          Future.failed(UpstreamErrorResponse(response.body, status))
+
+        case status =>
+          logger.error(CLASS_NAME, "lookup()", s"Upstream error: [${response.body}] [status]: $status")
+          Future.failed(UpstreamErrorResponse(response.body, status))
       }
     }
 
