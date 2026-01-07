@@ -29,7 +29,7 @@ import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
-import uk.gov.hmrc.http.{HttpResponse, NotImplementedException}
+import uk.gov.hmrc.http.{BadGatewayException, BadRequestException, HttpResponse, NotFoundException, NotImplementedException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
@@ -354,6 +354,139 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
       }
 
+    }
+
+    "handling error status codes" should {
+
+      "return BadGatewayException when GRO returns 502" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result shouldBe a[BadGatewayException]
+      }
+
+      "return UpstreamErrorResponse when GRO returns 504 Gateway Timeout" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.GATEWAY_TIMEOUT
+      }
+
+      "return BadRequestException when GRO returns 400" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_REQUEST, "Bad Request", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result shouldBe a[BadRequestException]
+      }
+
+      "return NotImplementedException when connector returns 501" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result shouldBe a[NotImplementedException]
+      }
+
+      "return NotFoundException when GRO returns 404" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.NOT_FOUND, "Not Found", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result shouldBe a[NotFoundException]
+      }
+
+      "return UpstreamErrorResponse when GRO returns 403 Forbidden" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.FORBIDDEN, "Forbidden", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.FORBIDDEN
+      }
+
+      "return UpstreamErrorResponse for other 5xx status codes" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(
+              HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
+            )
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.SERVICE_UNAVAILABLE
+      }
+
+      "return BadGatewayException when NRS returns 502" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().failed.futureValue
+        result shouldBe a[BadGatewayException]
+      }
+
+      "return UpstreamErrorResponse when NRS returns 504 Gateway Timeout" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
+          )
+
+        val service                   = MockLookupService
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().failed.futureValue
+        result                                                shouldBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode shouldBe Status.GATEWAY_TIMEOUT
+      }
     }
 
     "requesting Northern Ireland" should {
