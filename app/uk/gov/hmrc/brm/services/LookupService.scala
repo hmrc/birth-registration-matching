@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.services
 
-import play.api.http.Status.OK
+import play.api.http.Status._
 
 import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, TransactionAuditor}
@@ -27,9 +27,8 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.matching.MatchingService
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.SCOTLAND
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuilder, RecordParser}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{BadGatewayException, BadRequestException, HeaderCarrier, HttpResponse, NotFoundException, NotImplementedException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -93,12 +92,25 @@ class LookupService @Inject() (
               Future.failed(e)
           }
 
-        case status if payload.whereBirthRegistered == SCOTLAND =>
-          logger.error(CLASS_NAME, "lookup()", s"[NRS down]: [${response.body}] [status]: $status")
-          Future.failed(UpstreamErrorResponse(response.body, status))
+        case BAD_GATEWAY =>
+          Future.failed(new BadGatewayException(response.body))
+
+        case GATEWAY_TIMEOUT =>
+          Future.failed(UpstreamErrorResponse(response.body, GATEWAY_TIMEOUT))
+
+        case BAD_REQUEST =>
+          Future.failed(new BadRequestException(response.body))
+
+        case NOT_IMPLEMENTED =>
+          Future.failed(new NotImplementedException(response.body))
+
+        case NOT_FOUND =>
+          Future.failed(new NotFoundException(response.body))
+
+        case FORBIDDEN =>
+          Future.failed(UpstreamErrorResponse(response.body, FORBIDDEN))
 
         case status =>
-          logger.error(CLASS_NAME, "lookup()", s"Upstream error: [${response.body}] [status]: $status")
           Future.failed(UpstreamErrorResponse(response.body, status))
       }
     }
