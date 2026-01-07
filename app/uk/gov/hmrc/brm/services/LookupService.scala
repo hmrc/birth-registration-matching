@@ -17,18 +17,21 @@
 package uk.gov.hmrc.brm.services
 
 import play.api.http.Status._
+import play.api.mvc.Result
+import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
 
 import javax.inject.Inject
-import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.connectors._
 import uk.gov.hmrc.brm.implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics._
-import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.matching.MatchingService
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{ENGLAND, SCOTLAND, WALES}
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuilder, RecordParser}
-import uk.gov.hmrc.http.{BadGatewayException, BadRequestException, HeaderCarrier, HttpResponse, NotFoundException, NotImplementedException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,6 +44,7 @@ class LookupService @Inject() (
   matchingService: MatchingService,
   transactionAuditor: TransactionAuditor,
   logger: BRMLogger,
+  matchingAuditor: MatchingAudit,
   recordParser: RecordParser,
   matchMetric: MatchCountMetric,
   noMatchMetric: NoMatchCountMetric
@@ -68,7 +72,7 @@ class LookupService @Inject() (
     metrics: BRMMetrics,
     payload: Payload,
     auditor: BRMDownstreamAPIAudit
-  ): Future[BirthMatchResponse] =
+  ): Future[Either[Result, BirthMatchResponse]] =
     getRecord(hc, payload, metrics).flatMap { response =>
       logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
 
@@ -81,41 +85,91 @@ class LookupService @Inject() (
 
               if (matchResult.matched) {
                 matchMetric.count()
-                Future.successful(BirthResponseBuilder.getResponse(matchResult.matched))
+                Future.successful(Right(BirthResponseBuilder.getResponse(matchResult.matched)))
               } else {
                 noMatchMetric.count()
-                Future.successful(BirthResponseBuilder.withNoMatch())
+                Future.successful(Right(BirthResponseBuilder.withNoMatch()))
               }
 
             case Failure(e) =>
+              audit(Nil, MatchingResult.noMatch, isError = true)
               logger.error(CLASS_NAME, "lookup()", s"Failed to parse response: ${e.getMessage}")
-              Future.failed(e)
+              metrics.status(INTERNAL_SERVER_ERROR)
+              Future.successful(Left(InternalServerError))
           }
 
         case BAD_GATEWAY =>
-          Future.failed(new BadGatewayException(response.body))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          payload.whereBirthRegistered match {
+            case ENGLAND | WALES =>
+              logAndMetric(s"[GRO down]: ${response.body}", SERVICE_UNAVAILABLE)
+              Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)))
+            case SCOTLAND        =>
+              logAndMetric(s"[DES down]: ${response.body}", SERVICE_UNAVAILABLE)
+              Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)))
+            case _               =>
+              logAndMetric(s"[Service down]: ${response.body}", INTERNAL_SERVER_ERROR)
+              Future.successful(Left(InternalServerError))
+          }
 
         case GATEWAY_TIMEOUT =>
-          Future.failed(UpstreamErrorResponse(response.body, GATEWAY_TIMEOUT))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Gateway timeout]: [${response.body}]", GATEWAY_TIMEOUT)
+          Future.successful(Left(InternalServerError))
 
         case BAD_REQUEST =>
-          Future.failed(new BadRequestException(response.body))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Bad request]: ${response.body}", BAD_REQUEST)
+          Future.successful(Left(InternalServerError))
 
+        // currently returning right as thats respondNoMatch gave a success response
         case NOT_IMPLEMENTED =>
-          Future.failed(new NotImplementedException(response.body))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Not implemented]: ${response.body}", OK)
+          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
 
         case NOT_FOUND =>
-          Future.failed(new NotFoundException(response.body))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Not found]: ${response.body}", NOT_FOUND)
+          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
 
         case FORBIDDEN =>
-          Future.failed(UpstreamErrorResponse(response.body, FORBIDDEN))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Forbidden]: ${response.body}", FORBIDDEN)
+          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
+
+        case status if status >= 500 && status < 600 =>
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          payload.whereBirthRegistered match {
+            case ENGLAND | WALES =>
+              logAndMetric(s"[GRO down]: ${response.body} [status]: $status", SERVICE_UNAVAILABLE)
+              Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)))
+            case SCOTLAND        =>
+              logAndMetric(s"[NRS down]: ${response.body} [status]: $status", SERVICE_UNAVAILABLE)
+              Future.successful(Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN)))
+            case _               =>
+              logAndMetric(s"[Service down]: ${response.body} [status]: $status", INTERNAL_SERVER_ERROR)
+              Future.successful(Left(InternalServerError))
+          }
 
         case status =>
-          Future.failed(UpstreamErrorResponse(response.body, status))
+          audit(Nil, MatchingResult.noMatch, isError = true)
+          logAndMetric(s"[Unexpected error]: ${response.body} [status]: $status", INTERNAL_SERVER_ERROR)
+          Future.successful(Left(InternalServerError))
       }
     }
 
-  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult)(implicit
+  private def logAndMetric(message: String, statusCode: Int)(implicit metrics: BRMMetrics): Unit = {
+    metrics.status(statusCode)
+    statusCode match {
+      case s if s >= 500 => logger.error(CLASS_NAME, "lookup()", message)
+      case s if s >= 400 => logger.warn(CLASS_NAME, "lookup()", message)
+      case _             => logger.info(CLASS_NAME, "lookup()", message)
+    }
+  }
+
+  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult, isError: Boolean = false)(
+    implicit
     payload: Payload,
     hc: HeaderCarrier,
     downstreamAPIAuditor: BRMDownstreamAPIAudit
@@ -130,6 +184,10 @@ class LookupService @Inject() (
       *   - number of characters in each name for each record
       *   - payload details
       */
+
+    if (isError) {
+      matchingAuditor.audit(matchResult.audit, Some(payload))
+    }
 
     downstreamAPIAuditor.transaction(payload, records, matchResult)
     transactionAuditor.transaction(payload, records, matchResult)
