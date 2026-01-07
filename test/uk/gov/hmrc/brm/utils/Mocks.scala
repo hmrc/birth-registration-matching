@@ -109,6 +109,7 @@ object Mocks extends MockitoSugar {
         mockMatchingservice,
         mockTransactionAuditor,
         mockBrmLogger,
+        mockMatchingAudit,
         mockRecordParser,
         mockMatchMetrics,
         mockNoMatchMetrics

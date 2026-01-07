@@ -22,10 +22,11 @@ import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
+import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
 import play.api.test.Helpers._
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.Mocks._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, HeaderValidator, MockErrorResponses}
@@ -92,7 +93,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse(true)))
+          .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
         when(mockFilters.process(any()))
           .thenReturn(List())
@@ -315,7 +316,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "return 200 if request contains camel case where birth registered" in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse()))
+          .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
         mockAuditSuccess
         mockReferenceResponse(groJsonResponseObject)
@@ -353,7 +354,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response true on successful reference match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse(true)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
           mockReferenceResponse(groJsonResponseObject400000001)
@@ -400,7 +401,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response false when date of birth is before 2009-07-01" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
           val request = postRequest(userMatchIncludingReferenceNumber)
@@ -454,7 +455,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response true on successful child detail match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse(true)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
           mockDetailsResponse(groJsonResponseObjectCollection400000001)
@@ -465,7 +466,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response false when birth date is before 2009-07-01" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
           mockDetailsResponse(groJsonResponseObjectCollection)
@@ -478,21 +479,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "receiving error response from Proxy for reference number" should {
 
-        "return InternalServerError when GRO returns Upstream5xxResponse GATEWAY_TIMEOUT" in {
+        "return InternalServerError when GRO returns GATEWAY_TIMEOUT" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("503", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
-
-          when(mockMatchingAudit.audit(any(), any())(any()))
-            .thenReturn(Future.successful(AuditResult.Success))
-
-          when(mockEngWalesAudit.audit(any(), any())(any()))
-            .thenReturn(Future.successful(AuditResult.Success))
-
-          when(mockConfig.audit(any()))
-            .thenReturn(Map[String, String]())
-
-          when(mockTransactionAuditor.transaction(any(), any(), any())(any()))
-            .thenReturn(Future.successful(AuditResult.Success))
+            .thenReturn(Future.successful(Left(InternalServerError)))
 
           mockAuditSuccess
 
@@ -501,9 +490,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
+        "return InternalServerError when GRO returns BadRequest" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("503", GATEWAY_TIMEOUT, GATEWAY_TIMEOUT)))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -511,19 +500,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns BadRequestException" in {
+        "return ServiceUnavailable when GRO returns 5xx error" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new BadRequestException("oops")))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("501", NOT_IMPLEMENTED, NOT_IMPLEMENTED)))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -536,9 +515,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 200 false when GRO returns NotFoundException" in {
+        "return 200 false when GRO returns NotFound" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new NotFoundException("oops")))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -546,9 +525,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 200 match false when GRO returns Forbidden 418 Teapot body" in {
+        "return 200 match false when GRO returns Forbidden" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("418", FORBIDDEN, FORBIDDEN)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -556,21 +535,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 200 match false when GRO returns Forbidden 'Certificate invalid'" in {
+        "return 500 when unexpected error occurs" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(
-              Future.failed(UpstreamErrorResponse(MockErrorResponses.CERTIFICATE_INVALID.json, FORBIDDEN, FORBIDDEN))
-            )
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, OK, matchResponse = false)
-        }
-
-        "return 500 when proxy returns InternalServerError" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new Exception()))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -578,13 +545,11 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return 503 when GRO throws UpstreamInternalServerError" in {
+        "return 503 when GRO returns upstream InternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("502", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
-          mockReferenceResponse(
-            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-          )
+
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result  = testController.post().apply(request).futureValue
           checkResponse(
@@ -595,13 +560,11 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
+        "return 503 when GRO returns ServiceUnavailable" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("503", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
-          mockReferenceResponse(
-            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)
-          )
+
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result  = testController.post().apply(request).futureValue
           checkResponse(
@@ -612,9 +575,11 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 with code GRO_CONNECTION_DOWN when BRMS GRO proxy is down." in {
+        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy is down" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
-          mockReferenceResponse(new BadGatewayException(""))
+
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result  = testController.post().apply(request).futureValue
           checkResponse(
@@ -625,9 +590,11 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 with code GRO_CONNECTION_DOWN when BRMS GRO proxy is down and returns Upstream5xxResponse BAD_GATEWAY." in {
+        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy returns BAD_GATEWAY" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
-          mockReferenceResponse(UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY))
+
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result  = testController.post().apply(request).futureValue
           checkResponse(
@@ -642,35 +609,39 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "receiving error response from Proxy for details request" should {
 
-        "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway." in {
-          mockAuditSuccess
-          mockDetailsResponse(new BadGatewayException(""))
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 with code GRO_CONNECTION_DOWN when gro proxy is down and retuns bad gateway Upstream5xxResponse." in {
-          mockAuditSuccess
-          mockDetailsResponse(UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY))
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
+        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy is down" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new Exception()))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
+          mockAuditSuccess
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
+        }
+
+        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy returns BAD_GATEWAY" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
+          mockAuditSuccess
+
+          val request = postRequest(userNoMatchExcludingReferenceKey)
+          val result  = testController.post().apply(request).futureValue
+          checkResponse(
+            result,
+            SERVICE_UNAVAILABLE,
+            "GRO_CONNECTION_DOWN",
+            "General Registry Office: England and Wales is unavailable"
+          )
+        }
+
+        "return InternalServerError when unexpected error occurs" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(InternalServerError)))
 
           mockAuditSuccess
 
@@ -679,25 +650,19 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns BadRequestException" in {
+        "return InternalServerError when GRO returns BadRequest" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
-          mockDetailsResponse(new BadRequestException(""))
+
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result  = testController.post().apply(request).futureValue
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return ServiceUnavailable when GRO returns upstream 5xx NOT_IMPLEMENTED" in {
+        "return ServiceUnavailable when GRO returns 5xx error" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(
-              Future.failed(
-                UpstreamErrorResponse(
-                  MockErrorResponses.UNKNOWN_ERROR.json,
-                  INTERNAL_SERVER_ERROR,
-                  INTERNAL_SERVER_ERROR
-                )
-              )
-            )
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
 
           mockAuditSuccess
 
@@ -711,9 +676,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 200 false when GRO returns NotFoundException" in {
+        "return 200 false when GRO returns NotFound" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new NotFoundException("")))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
@@ -721,9 +686,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 500 when proxy returns InternalServerError" in {
+        "return 500 when unexpected error occurs in details request" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new Exception()))
+            .thenReturn(Future.successful(Left(InternalServerError)))
 
           mockAuditSuccess
 
@@ -734,15 +699,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return 503 when GRO returns upstream InternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(
-              Future.failed(
-                UpstreamErrorResponse(
-                  MockErrorResponses.CONNECTION_DOWN.json,
-                  INTERNAL_SERVER_ERROR,
-                  INTERNAL_SERVER_ERROR
-                )
-              )
-            )
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
@@ -755,11 +712,11 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 when GRO returns 503 GRO_CONNECTION_DOWN" in {
+        "return 503 when GRO returns ServiceUnavailable" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
-          mockDetailsResponse(
-            UpstreamErrorResponse(MockErrorResponses.CONNECTION_DOWN.json, SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE)
-          )
+
           val request = postRequest(userNoMatchExcludingReferenceKey)
           val result  = testController.post().apply(request).futureValue
           checkResponse(
@@ -780,7 +737,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response on successful reference match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse(true)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
           mockNrsReferenceResponse(validNrsJsonResponseObject)
@@ -791,7 +748,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response false when date of birth is before 2009-07-01" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(nrsRecord20090630)
           val request = postRequest(userDob20090630)
@@ -819,7 +776,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return 200 response for UTF-8 reference request" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse(true)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
           mockNrsReferenceResponse(validNrsJsonResponse2017350007)
@@ -830,7 +787,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return JSON response on unsuccessful birthReferenceNumber match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
@@ -840,6 +797,8 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false response when first name has special characters for unsuccessful BRN match." in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val payload =
@@ -880,6 +839,8 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 response when child details are not found" in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val request = postRequest(userMatchExcludingReferenceNumberKeyForScotland)
@@ -888,6 +849,8 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false response when child details are not found when first name has special characters." in {
+          when(mockLookupService.lookup()(any(), any(), any(), any()))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
           val payload = Payload(None, specialCharacters, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
@@ -898,7 +861,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
         "return 200 response on when details contain valid UTF-8 special characters" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(BirthMatchResponse(true)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
           mockNrsDetailsResponse(validNrsJsonResponse2017350007)
@@ -919,9 +882,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "receiving error response from NRS" should {
 
-        "return InternalServerError when GRO returns 5xx when GatewayTimeout" in {
+        "return InternalServerError when NRS returns GatewayTimeout" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new GatewayTimeoutException("")))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
@@ -929,9 +892,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return 500 InternalServerError when NRS returns 400 INVALID_PAYLOAD" in {
+        "return 500 InternalServerError when NRS returns BadRequest INVALID_PAYLOAD" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new BadRequestException("INVALID_PAYLOAD")))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
@@ -939,9 +902,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return 500 InternalServerError when NRS returns 400 INVALID_HEADER" in {
+        "return 500 InternalServerError when NRS returns BadRequest INVALID_HEADER" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new BadRequestException("INVALID_HEADER")))
+            .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKey)
@@ -949,9 +912,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return 400 BadRequest when NRS returns 403 INVALID_DISTRICT_NUMBER" in {
+        "return 200 false when NRS returns Forbidden INVALID_DISTRICT_NUMBER" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("INVALID_DISTRICT_NUMBER", FORBIDDEN, FORBIDDEN)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
 
@@ -960,9 +923,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 500 InternalServerError when NRS returns 403 QUERY_LENGTH_EXCESSIVE" in {
+        "return 200 false when NRS returns Forbidden QUERY_LENGTH_EXCESSIVE" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("QUERY_LENGTH_EXCESSIVE", FORBIDDEN, FORBIDDEN)))
+            .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
 
@@ -971,17 +934,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 503 when NRS returns 503 Service unavailable" in {
+        "return 503 when NRS returns ServiceUnavailable" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(
-              Future.failed(
-                UpstreamErrorResponse(
-                  MockErrorResponses.NRS_CONNECTION_DOWN.json,
-                  SERVICE_UNAVAILABLE,
-                  SERVICE_UNAVAILABLE
-                )
-              )
-            )
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchScotlandExcludingReferenceKey)
@@ -994,9 +949,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 when DES returns 502 BAD_GATEWAY" in {
+        "return 503 when DES returns BAD_GATEWAY" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(new BadGatewayException("")))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
@@ -1004,9 +959,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
         }
 
-        "return 503 SERVICE_UNAVAILABLE when DES returns 502 BAD_GATEWAY Upstream5xxResponse" in {
+        "return 503 SERVICE_UNAVAILABLE when DES returns BAD_GATEWAY" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.failed(UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY)))
+            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
@@ -1022,7 +977,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       "return 200 false if request contains Northern Ireland" in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse()))
+          .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
@@ -1031,6 +986,8 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       }
 
       "calls getReference when GRONIFeature is enabled" in {
+        when(mockLookupService.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
@@ -1039,6 +996,8 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       }
 
       "calls getDetails when GRONIFeature is enabled" in {
+        when(mockLookupService.lookup()(any(), any(), any(), any()))
+          .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         mockGroNiDetailsResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)

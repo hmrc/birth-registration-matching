@@ -73,7 +73,7 @@ class LookupService @Inject() (
     payload: Payload,
     auditor: BRMDownstreamAPIAudit
   ): Future[Either[Result, BirthMatchResponse]] =
-    getRecord(hc, payload, metrics).flatMap { response =>
+    getRecord(hc, payload, metrics).map { response =>
       logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
 
       response.status match {
@@ -85,79 +85,84 @@ class LookupService @Inject() (
 
               if (matchResult.matched) {
                 matchMetric.count()
-                Future.successful(Right(BirthResponseBuilder.getResponse(matchResult.matched)))
+                Right(BirthResponseBuilder.getResponse(matchResult.matched))
               } else {
                 noMatchMetric.count()
-                Future.successful(Right(BirthResponseBuilder.withNoMatch()))
+                Right(BirthResponseBuilder.withNoMatch())
               }
 
             case Failure(e) =>
-              audit(Nil, MatchingResult.noMatch, isError = true)
               logger.error(CLASS_NAME, "lookup()", s"Failed to parse response: ${e.getMessage}")
               metrics.status(INTERNAL_SERVER_ERROR)
-              Future.successful(Left(InternalServerError))
-          }
-
-        case BAD_GATEWAY =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          payload.whereBirthRegistered match {
-            case ENGLAND | WALES =>
-              logAndMetric(s"[GRO down]: ${response.body}", SERVICE_UNAVAILABLE)
-              Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)))
-            case SCOTLAND        =>
-              logAndMetric(s"[DES down]: ${response.body}", SERVICE_UNAVAILABLE)
-              Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN)))
-            case _               =>
-              logAndMetric(s"[Service down]: ${response.body}", INTERNAL_SERVER_ERROR)
-              Future.successful(Left(InternalServerError))
-          }
-
-        case GATEWAY_TIMEOUT =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Gateway timeout]: [${response.body}]", GATEWAY_TIMEOUT)
-          Future.successful(Left(InternalServerError))
-
-        case BAD_REQUEST =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Bad request]: ${response.body}", BAD_REQUEST)
-          Future.successful(Left(InternalServerError))
-
-        // currently returning right as thats respondNoMatch gave a success response
-        case NOT_IMPLEMENTED =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Not implemented]: ${response.body}", OK)
-          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
-
-        case NOT_FOUND =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Not found]: ${response.body}", NOT_FOUND)
-          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
-
-        case FORBIDDEN =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Forbidden]: ${response.body}", FORBIDDEN)
-          Future.successful(Right(BirthResponseBuilder.withNoMatch()))
-
-        case status if status >= 500 && status < 600 =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          payload.whereBirthRegistered match {
-            case ENGLAND | WALES =>
-              logAndMetric(s"[GRO down]: ${response.body} [status]: $status", SERVICE_UNAVAILABLE)
-              Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)))
-            case SCOTLAND        =>
-              logAndMetric(s"[NRS down]: ${response.body} [status]: $status", SERVICE_UNAVAILABLE)
-              Future.successful(Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN)))
-            case _               =>
-              logAndMetric(s"[Service down]: ${response.body} [status]: $status", INTERNAL_SERVER_ERROR)
-              Future.successful(Left(InternalServerError))
+              Left(InternalServerError)
           }
 
         case status =>
-          audit(Nil, MatchingResult.noMatch, isError = true)
-          logAndMetric(s"[Unexpected error]: ${response.body} [status]: $status", INTERNAL_SERVER_ERROR)
-          Future.successful(Left(InternalServerError))
+          handleError(status, response.body, payload.whereBirthRegistered)
       }
     }
+
+  private def handleError(status: Int, responseBody: String, country: BirthRegisterCountry.Value)(implicit
+    metrics: BRMMetrics,
+    payload: Payload,
+    hc: HeaderCarrier,
+    auditor: BRMDownstreamAPIAudit
+  ): Either[Result, BirthMatchResponse] = {
+
+    audit(Nil, MatchingResult.noMatch, isError = true)
+
+    status match {
+      case BAD_GATEWAY =>
+        country match {
+          case ENGLAND | WALES =>
+            logAndMetric(s"[GRO down]: $responseBody", SERVICE_UNAVAILABLE)
+            Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))
+          case SCOTLAND        =>
+            logAndMetric(s"[DES down]: $responseBody", SERVICE_UNAVAILABLE)
+            Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))
+          case _               =>
+            logAndMetric(s"[Service down]: $responseBody", INTERNAL_SERVER_ERROR)
+            Left(InternalServerError)
+        }
+
+      case GATEWAY_TIMEOUT =>
+        logAndMetric(s"[Gateway timeout]: [$responseBody]", GATEWAY_TIMEOUT)
+        Left(InternalServerError)
+
+      case BAD_REQUEST =>
+        logAndMetric(s"[Bad request]: $responseBody", BAD_REQUEST)
+        Left(InternalServerError)
+
+      case NOT_IMPLEMENTED =>
+        logAndMetric(s"[Not implemented]: $responseBody", OK)
+        Right(BirthResponseBuilder.withNoMatch())
+
+      case NOT_FOUND =>
+        logAndMetric(s"[Not found]: $responseBody", NOT_FOUND)
+        Right(BirthResponseBuilder.withNoMatch())
+
+      case FORBIDDEN =>
+        logAndMetric(s"[Forbidden / Not found]: $responseBody", FORBIDDEN)
+        Right(BirthResponseBuilder.withNoMatch())
+
+      case status if status >= 500 && status < 600 =>
+        country match {
+          case ENGLAND | WALES =>
+            logAndMetric(s"[GRO down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+            Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))
+          case SCOTLAND        =>
+            logAndMetric(s"[NRS down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+            Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN))
+          case _               =>
+            logAndMetric(s"[Service down]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
+            Left(InternalServerError)
+        }
+
+      case status =>
+        logAndMetric(s"[Unexpected error]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
+        Left(InternalServerError)
+    }
+  }
 
   private def logAndMetric(message: String, statusCode: Int)(implicit metrics: BRMMetrics): Unit = {
     metrics.status(statusCode)

@@ -87,7 +87,7 @@ class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
         .thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
 
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       when(mockFilters.process(any()))
         .thenReturn(List())

@@ -78,7 +78,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of true when reference request has additional names and record has same value" in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       when(mockFilters.process(any()))
         .thenReturn(List())
@@ -141,7 +141,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of false when reference request has additional names and record does not have middle name in it." in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        .thenReturn(Future.successful(Right(BirthMatchResponse())))
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
       val payload = Json.toJson(
@@ -160,7 +160,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of true when user does not provide additional name and record also does not have it " in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
@@ -173,7 +173,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of false when user provide additional name and record does not have it " in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithoutAdditionalName)
@@ -193,7 +193,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of true when reference request has additional names with special character and record has same value" in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       mockAuditSuccess
       mockReferenceResponse(groResponseWithSpecialCharacter)
@@ -247,7 +247,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of false when reference request firstname has multiple names ,no additional name and record has addiional name on it.." in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       mockAuditSuccess
       mockReferenceResponse(groResponse500036682)
@@ -284,7 +284,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of true when detail request has additional names and record has same value" in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithAdditionalName)
@@ -307,7 +307,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of false when detail request has more that one additional names and record has only one additional name." in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithMoreAdditionalName)
@@ -330,7 +330,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
     "return matched value of true when detail request does not have additional name and record also does not have it " in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse(true)))
+        .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       mockAuditSuccess
       mockDetailsResponse(groResponseWithoutAdditionalName)
@@ -394,7 +394,7 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
     "return matched value of false when details request firstname and additional names " +
       "has more space seprated names and record has same different name on it." in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse()))
+          .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
         mockAuditSuccess
         mockDetailsResponse(groResponse500036682)

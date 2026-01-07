@@ -70,7 +70,7 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
 
     "return OK if firstName < 250 characters" in {
       when(mockLookupService.lookup()(any(), any(), any(), any()))
-        .thenReturn(Future.successful(BirthMatchResponse()))
+        .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       when(mockFilters.process(any()))
         .thenReturn(List())

@@ -55,8 +55,7 @@ class BirthEventsController @Inject() (
 )(implicit val ec: ExecutionContext)
     extends BRMBaseController(cc) {
 
-  override val CLASS_NAME: String     = this.getClass.getSimpleName
-  override val METHOD_NAME: String    = "BirthEventsController::post"
+  val CLASS_NAME: String              = this.getClass.getSimpleName
   private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
 
   private def handleInvalidRequest(
