@@ -98,15 +98,24 @@ class BirthEventsController @Inject() (
     )
 
     val beforeRequestTime = Instant.now().toEpochMilli
-    val method            = if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
 
-    service.lookup()(implicitly, metrics, implicitly, implicitly) map { bm =>
-      metrics.status(OK)
-      val response = Json.toJson(bm)
-      commonUtils.logTime(beforeRequestTime)
-      respond(Ok(response))
-    } recover
-      handleException(method, beforeRequestTime)
+    service
+      .lookup()(implicitly, metrics, implicitly, implicitly)
+      .map {
+        case Right(birthMatchResponse) =>
+          metrics.status(OK)
+          commonUtils.logTime(beforeRequestTime)
+          respond(Ok(Json.toJson(birthMatchResponse)))
+
+        case Left(errorResult) =>
+          commonUtils.logTime(beforeRequestTime)
+          respond(errorResult)
+      }
+      .recover { case e: Exception =>
+        logger.error(CLASS_NAME, "traceAndMatchRecord", s"Unexpected exception: ${e.getMessage}")
+        commonUtils.logTime(beforeRequestTime)
+        respond(InternalServerError)
+      }
   }
 
   private def getOrCreateCorrelationID(request: Request[_]): String = {
