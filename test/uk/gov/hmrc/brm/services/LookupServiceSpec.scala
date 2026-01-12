@@ -371,7 +371,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
       }
 
@@ -387,7 +387,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
 
@@ -403,7 +403,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
 
@@ -466,7 +466,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
       }
 
@@ -481,7 +481,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
       }
 
@@ -496,7 +496,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
 
@@ -513,7 +513,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
       }
 
@@ -529,7 +529,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
-        result shouldBe a[Left[_, _]]
+        result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
     }
