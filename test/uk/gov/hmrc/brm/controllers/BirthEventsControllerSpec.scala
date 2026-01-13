@@ -477,9 +477,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       }
 
-      "receiving error response from Proxy for reference number" should {
+      "returning error responses" should {
 
-        "return InternalServerError when GRO returns GATEWAY_TIMEOUT" in {
+        "return InternalServerError when lookup service returns InternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(InternalServerError)))
 
@@ -490,17 +490,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return InternalServerError when GRO returns BadRequest" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return ServiceUnavailable when GRO returns 5xx error" in {
+        "return ServiceUnavailable with GRO_CONNECTION_DOWN when lookup service returns GRO connection error" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
@@ -515,7 +505,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 200 false when GRO returns NotFound" in {
+        "return 200 false when lookup service returns no match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
@@ -523,208 +513,6 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           val request = postRequest(userNoMatchIncludingReferenceNumber)
           val result  = testController.post().apply(request).futureValue
           checkResponse(result, OK, matchResponse = false)
-        }
-
-        "return 200 match false when GRO returns Forbidden" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Right(BirthMatchResponse())))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, OK, matchResponse = false)
-        }
-
-        "return 500 when unexpected error occurs" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return 503 when GRO returns upstream InternalServerError" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 when GRO returns ServiceUnavailable" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy is down" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy returns BAD_GATEWAY" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchIncludingReferenceNumber)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-      }
-
-      "receiving error response from Proxy for details request" should {
-
-        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy is down" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 with code GRO_CONNECTION_DOWN when GRO proxy returns BAD_GATEWAY" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return InternalServerError when unexpected error occurs" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return InternalServerError when GRO returns BadRequest" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return ServiceUnavailable when GRO returns 5xx error" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 200 false when GRO returns NotFound" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Right(BirthMatchResponse())))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, OK, matchResponse = false)
-        }
-
-        "return 500 when unexpected error occurs in details request" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return 503 when GRO returns upstream InternalServerError" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
-        }
-
-        "return 503 when GRO returns ServiceUnavailable" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(
-            result,
-            SERVICE_UNAVAILABLE,
-            "GRO_CONNECTION_DOWN",
-            "General Registry Office: England and Wales is unavailable"
-          )
         }
 
       }
@@ -880,9 +668,9 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
       }
 
-      "receiving error response from NRS" should {
+      "returning error responses" should {
 
-        "return InternalServerError when NRS returns GatewayTimeout" in {
+        "return InternalServerError when lookup service returns InternalServerError" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
@@ -892,27 +680,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, INTERNAL_SERVER_ERROR, empty)
         }
 
-        "return 500 InternalServerError when NRS returns BadRequest INVALID_PAYLOAD" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return 500 InternalServerError when NRS returns BadRequest INVALID_HEADER" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(InternalServerError)))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, INTERNAL_SERVER_ERROR, empty)
-        }
-
-        "return 200 false when NRS returns Forbidden INVALID_DISTRICT_NUMBER" in {
+        "return 200 false when lookup service returns no match" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
@@ -923,18 +691,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, OK, matchResponse = false)
         }
 
-        "return 200 false when NRS returns Forbidden QUERY_LENGTH_EXCESSIVE" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Right(BirthMatchResponse())))
-
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKey)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, OK, matchResponse = false)
-        }
-
-        "return 503 when NRS returns ServiceUnavailable" in {
+        "return ServiceUnavailable with NRS_CONNECTION_DOWN when lookup service returns NRS connection error" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN))))
           mockAuditSuccess
@@ -949,17 +706,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           )
         }
 
-        "return 503 when DES returns BAD_GATEWAY" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
-            .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))))
-          mockAuditSuccess
-
-          val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
-          val result  = testController.post().apply(request).futureValue
-          checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
-        }
-
-        "return 503 SERVICE_UNAVAILABLE when DES returns BAD_GATEWAY" in {
+        "return ServiceUnavailable with DES_CONNECTION_DOWN when lookup service returns DES connection error" in {
           when(mockLookupService.lookup()(any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))))
           mockAuditSuccess
@@ -985,7 +732,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         checkResponse(result, OK, matchResponse = false)
       }
 
-      "calls getReference when GRONIFeature is enabled" in {
+      "return 200 false when GRONIFeature is enabled for reference request" in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
@@ -995,7 +742,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         checkResponse(result, OK, matchResponse = false)
       }
 
-      "calls getDetails when GRONIFeature is enabled" in {
+      "return 200 false when GRONIFeature is enabled for details request" in {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess

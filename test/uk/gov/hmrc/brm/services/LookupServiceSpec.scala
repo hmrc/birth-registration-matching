@@ -532,6 +532,22 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
+
+      "return Left with InternalServerError for unexpected status codes" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(418, "random", Map.empty[String, Seq[String]]))
+          )
+        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+
+        val service                   = MockLookupService
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
     }
 
     "requesting Northern Ireland" should {
