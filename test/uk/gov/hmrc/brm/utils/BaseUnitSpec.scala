@@ -110,9 +110,6 @@ trait BaseUnitSpec
   def mockNrsReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     mockRefResponse(mockNrsConnector, exception)
 
-  def mockGroNiReferenceResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
-    mockRefResponse(mockGroniConnector, exception)
-
   def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
     when(mockGroConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.successful(httpResponse(jsonResponse)))
@@ -127,10 +124,6 @@ trait BaseUnitSpec
 
   def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
     when(mockNrsConnector.getChildDetails(any())(any(), any()))
-      .thenReturn(Future.failed(exception))
-
-  def mockGroNiDetailsResponse(exception: Exception): OngoingStubbing[Future[Nothing]] =
-    when(mockGroniConnector.getChildDetails(any())(any(), any()))
       .thenReturn(Future.failed(exception))
 
   def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] =

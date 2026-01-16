@@ -726,7 +726,6 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
-        mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
         val result  = testController.post().apply(request).futureValue
         checkResponse(result, OK, matchResponse = false)
@@ -736,7 +735,6 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
-        mockGroNiReferenceResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
         val result  = testController.post().apply(request).futureValue
         checkResponse(result, OK, matchResponse = false)
@@ -746,7 +744,6 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         when(mockLookupService.lookup()(any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
-        mockGroNiDetailsResponse(new NotImplementedException(""))
         val request = postRequest(userWhereBirthRegisteredNI)
         val result  = testController.post().apply(request).futureValue
         checkResponse(result, OK, matchResponse = false)

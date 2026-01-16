@@ -48,11 +48,12 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   val dateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 
+  val service: LookupService = MockLookupService
+
   before {
     reset(mockAuditConnector)
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
   }
-
-  val FIVE = 5
 
   "LookupService" when {
 
@@ -105,13 +106,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockAuditor.audit(any(), any())(any()))
           .thenReturn(Future.successful(AuditResult.Success))
 
-        when(mockAuditConnector.sendEvent(any())(any(), any()))
-          .thenReturn(Future.successful(AuditResult.Success))
-
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
@@ -160,12 +157,10 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
         when(mockGroConnector.getReference(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(goodMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
@@ -215,12 +210,10 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
         when(mockGroConnector.getChildDetails(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
@@ -269,12 +262,10 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
         when(mockGroConnector.getChildDetails(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(goodMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
@@ -286,12 +277,11 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "requesting Scotland" should {
 
       "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayload
         val result                    = service.lookup().futureValue
 
@@ -299,46 +289,39 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getChildDetails(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayloadWithoutBrn
         val result                    = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
-
       }
 
       "accept payload with reference number as argument and returns true as matched." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayload
         val result                    = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
-
       }
 
       "accept payload with special character and returns match true as matched." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayloadWithSpecialChar
         val result                    = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
-
       }
 
       "accept payload with special character and returns match false as first name doesn't match." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
@@ -347,12 +330,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service = MockLookupService
-
         implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong
         val result                    = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
-
       }
 
     }
@@ -364,9 +344,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -380,9 +358,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -396,9 +372,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_REQUEST, "Bad Request", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -412,9 +386,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -427,9 +399,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_FOUND, "Not Found", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -442,9 +412,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.FORBIDDEN, "Forbidden", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -459,9 +427,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
               HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
             )
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -475,9 +441,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
@@ -490,9 +454,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
@@ -507,9 +469,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
               HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
             )
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
@@ -522,9 +482,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
         when(mockGroConnector.getReference(any())(any(), any()))
           .thenReturn(Future.successful(malformedResponse))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -538,9 +496,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           .thenReturn(
             Future.successful(HttpResponse(418, "random", Map.empty[String, Seq[String]]))
           )
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -552,13 +508,12 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
     "requesting Northern Ireland" should {
 
-      "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      "return Right with no match when GRONI returns 501 Not Implemented" in {
         when(mockGroniConnector.getReference(any())(any(), any()))
           .thenReturn(
-            Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = Payload(
           Some("123456789"),
           "Chris",
@@ -567,19 +522,20 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           dateOfBirth,
           BirthRegisterCountry.NORTHERN_IRELAND
         )
-        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
-      "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      "return Right with no match when GRONI details returns 501 Not Implemented" in {
         when(mockGroniConnector.getChildDetails(any())(any(), any()))
           .thenReturn(
-            Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
-        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
     }
@@ -619,7 +575,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         val result = left.filter(right)
 
         result shouldEqual right
-
       }
     }
 

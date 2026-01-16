@@ -181,27 +181,18 @@ class BirthConnectorSpec extends BaseUnitSpec {
         connectorFixtures.groniConnector.http shouldBe a[HttpClientV2]
       }
 
-      "getReference returns http NotImplementedException" in new BirthConnectorSpecSetup {
-        val future: Future[Nothing] = connectorFixtures.groniConnector.getReference(payload)
-        future.onComplete {
-          case Failure(e) =>
-            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage                                     shouldBe "No getReference method available for GRONI connector."
-          case Success(_) =>
-            throw new Exception
-        }
+      "getReference returns http 501 Not Implemented" in new BirthConnectorSpecSetup {
+        val result = connectorFixtures.groniConnector.getReference(payload).futureValue
+        connectorFixtures.groniConnector.headers.isEmpty shouldBe true
+        result.status                                    shouldBe Status.NOT_IMPLEMENTED
+        result.body                                      shouldBe "GRO-NI getReference not implemented"
       }
 
-      "getChildDetails returns http NotImplementedException" in new BirthConnectorSpecSetup {
-        val future: Future[Nothing] =
-          connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland)
-        future.onComplete {
-          case Failure(e) =>
-            connectorFixtures.groniConnector.headers.isEmpty shouldBe true
-            e.getMessage                                     shouldBe "No getChildDetails method available for GRONI connector."
-          case Success(_) =>
-            throw new Exception
-        }
+      "getChildDetails returns http 501 Not Implemented" in new BirthConnectorSpecSetup {
+        val result = connectorFixtures.groniConnector.getChildDetails(payloadNoReferenceNorthernIreland).futureValue
+        connectorFixtures.groniConnector.headers.isEmpty shouldBe true
+        result.status                                    shouldBe Status.NOT_IMPLEMENTED
+        result.body                                      shouldBe "GRO-NI getChildDetails not implemented"
       }
     }
   }

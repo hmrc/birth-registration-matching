@@ -112,57 +112,45 @@ class LookupService @Inject() (
     audit(Nil, MatchingResult.noMatch, isError = true)
 
     status match {
-      case BAD_GATEWAY =>
-        country match {
-          case ENGLAND | WALES =>
-            logAndMetric(s"[GRO down]: $responseBody", SERVICE_UNAVAILABLE)
-            Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))
-          case SCOTLAND        =>
-            logAndMetric(s"[DES down]: $responseBody", SERVICE_UNAVAILABLE)
-            Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))
-          case _               =>
-            logAndMetric(s"[Service down]: $responseBody", INTERNAL_SERVER_ERROR)
-            Left(InternalServerError)
-        }
-
-      case GATEWAY_TIMEOUT =>
-        logAndMetric(s"[Gateway timeout]: [$responseBody]", GATEWAY_TIMEOUT)
+      case status @ (GATEWAY_TIMEOUT | BAD_REQUEST) =>
+        logAndMetric(s"[$status]: [$responseBody]", status)
         Left(InternalServerError)
 
-      case BAD_REQUEST =>
-        logAndMetric(s"[Bad request]: $responseBody", BAD_REQUEST)
-        Left(InternalServerError)
-
-      case NOT_IMPLEMENTED =>
-        logAndMetric(s"[Not implemented]: $responseBody", OK)
+      case status @ (NOT_IMPLEMENTED | NOT_FOUND | FORBIDDEN) =>
+        logAndMetric(s"[$status]: $responseBody", status)
         Right(BirthResponseBuilder.withNoMatch())
 
-      case NOT_FOUND =>
-        logAndMetric(s"[Not found]: $responseBody", NOT_FOUND)
-        Right(BirthResponseBuilder.withNoMatch())
-
-      case FORBIDDEN =>
-        logAndMetric(s"[Forbidden / Not found]: $responseBody", FORBIDDEN)
-        Right(BirthResponseBuilder.withNoMatch())
-
-      case status if status >= 500 && status < 600 =>
-        country match {
-          case ENGLAND | WALES =>
-            logAndMetric(s"[GRO down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
-            Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))
-          case SCOTLAND        =>
-            logAndMetric(s"[NRS down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
-            Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN))
-          case _               =>
-            logAndMetric(s"[Service down]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
-            Left(InternalServerError)
-        }
+      case status if status == BAD_GATEWAY || (status >= 500 && status < 600) =>
+        Left(handleServiceError(status, country, responseBody))
 
       case status =>
         logAndMetric(s"[Unexpected error]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
         Left(InternalServerError)
     }
   }
+
+  private def handleServiceError(status: Int, country: BirthRegisterCountry.Value, responseBody: String)(implicit
+    metrics: BRMMetrics
+  ): Result =
+    country match {
+      case ENGLAND | WALES =>
+        logAndMetric(s"[GRO down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+        ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
+
+      case SCOTLAND =>
+        val (service, error) = if (status == BAD_GATEWAY) {
+          ("DES", ErrorResponse.DES_CONNECTION_DOWN)
+        } else {
+          ("NRS", ErrorResponse.NRS_CONNECTION_DOWN)
+        }
+
+        logAndMetric(s"[$service down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+        ServiceUnavailable(error)
+
+      case _ =>
+        logAndMetric(s"[Service down]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
+        InternalServerError
+    }
 
   private def logAndMetric(message: String, statusCode: Int)(implicit metrics: BRMMetrics): Unit = {
     metrics.status(statusCode)

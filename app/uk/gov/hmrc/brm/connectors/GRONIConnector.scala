@@ -17,13 +17,14 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
+import play.api.http.Status.NOT_IMPLEMENTED
 
 import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.http.{HeaderCarrier, NotImplementedException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,26 +59,30 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
     )
   }
 
-  override def getReference(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nothing] = {
-    logger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
+  override def getReference(
+    payload: Payload
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+    logger.debug(s"GRONIConnector", "getReference", s"requesting child's record from GRO-NI")
 
     referenceBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
     auditor.audit(result, Some(payload))
 
-    Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
+    Future.successful(HttpResponse(NOT_IMPLEMENTED, "GRO-NI getReference not implemented"))
   }
 
-  override def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nothing] = {
-    logger.debug(s"NRSConnector", "getChildDetails", s"requesting child's record from GRO-NI")
+  override def getChildDetails(
+    payload: Payload
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+    logger.debug(s"GRONIConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     detailsBody.apply(payload)
 
     val result: Map[String, String] = Map("match" -> "false")
     auditor.audit(result, Some(payload))
 
-    Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
+    Future.successful(HttpResponse(NOT_IMPLEMENTED, "GRO-NI getChildDetails not implemented"))
   }
 
 }
