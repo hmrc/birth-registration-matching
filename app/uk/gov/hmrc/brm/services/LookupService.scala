@@ -111,30 +111,40 @@ class LookupService @Inject() (
 
     audit(Nil, MatchingResult.noMatch, isError = true)
 
+    val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+
     status match {
       case status @ (GATEWAY_TIMEOUT | BAD_REQUEST) =>
-        logAndMetric(s"[$status]: [$responseBody]", status)
+        logAndMetric(s"[$status]: $responseBody [X-Request-ID]: $requestId", status)
         Left(InternalServerError)
 
       case status @ (NOT_IMPLEMENTED | NOT_FOUND | FORBIDDEN) =>
-        logAndMetric(s"[$status]: $responseBody", status)
+        logAndMetric(s"[$status]: $responseBody [X-Request-ID]: $requestId", status)
         Right(BirthResponseBuilder.withNoMatch())
 
       case status if status == BAD_GATEWAY || (status >= 500 && status < 600) =>
-        Left(handleServiceError(status, country, responseBody))
+        Left(handleServiceError(status, country, responseBody, requestId))
 
       case status =>
-        logAndMetric(s"[Unexpected error]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
+        logAndMetric(
+          s"[Unexpected error]: $responseBody [status]: $status [X-Request-ID]: $requestId",
+          INTERNAL_SERVER_ERROR
+        )
         Left(InternalServerError)
     }
   }
 
-  private def handleServiceError(status: Int, country: BirthRegisterCountry.Value, responseBody: String)(implicit
+  private def handleServiceError(
+    status: Int,
+    country: BirthRegisterCountry.Value,
+    responseBody: String,
+    requestId: String
+  )(implicit
     metrics: BRMMetrics
   ): Result =
     country match {
       case ENGLAND | WALES =>
-        logAndMetric(s"[GRO down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+        logAndMetric(s"[GRO down]: $responseBody [status]: $status [X-Request-ID]: $requestId", SERVICE_UNAVAILABLE)
         ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN)
 
       case SCOTLAND =>
@@ -144,11 +154,17 @@ class LookupService @Inject() (
           ("NRS", ErrorResponse.NRS_CONNECTION_DOWN)
         }
 
-        logAndMetric(s"[$service down]: $responseBody [status]: $status", SERVICE_UNAVAILABLE)
+        logAndMetric(
+          s"[$service down]: $responseBody [status]: $status [X-Request-ID]: $requestId",
+          SERVICE_UNAVAILABLE
+        )
         ServiceUnavailable(error)
 
       case _ =>
-        logAndMetric(s"[Service down]: $responseBody [status]: $status", INTERNAL_SERVER_ERROR)
+        logAndMetric(
+          s"[Service down]: $responseBody [status]: $status [X-Request-ID]: $requestId",
+          INTERNAL_SERVER_ERROR
+        )
         InternalServerError
     }
 
