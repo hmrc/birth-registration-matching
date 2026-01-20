@@ -504,6 +504,29 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
+
+      "return Left with ServiceUnavailable when connection to GRO fails" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.failed(new RuntimeException("Connection refused")))
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with ServiceUnavailable when connection to NRS fails" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.failed(new RuntimeException("Connection refused")))
+
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
     }
 
     "requesting Northern Ireland" should {

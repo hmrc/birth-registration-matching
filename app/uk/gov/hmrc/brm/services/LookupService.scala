@@ -73,40 +73,46 @@ class LookupService @Inject() (
     payload: Payload,
     auditor: BRMDownstreamAPIAudit
   ): Future[Either[Result, BirthMatchResponse]] =
-    getRecord(hc, payload, metrics).map { response =>
-      logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
+    getRecord(hc, payload, metrics)
+      .map { response =>
+        logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
 
-      response.status match {
-        case OK =>
-          Try(recordParser.parse[Record](response.json, ReadsFactory.getReads())) match {
-            case Success(records) =>
-              val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
-              audit(records, matchResult)
+        response.status match {
+          case OK =>
+            Try(recordParser.parse[Record](response.json, ReadsFactory.getReads())) match {
+              case Success(records) =>
+                val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
+                audit(records, matchResult)
 
-              if (matchResult.matched) {
-                matchMetric.count()
-                Right(BirthResponseBuilder.getResponse(matchResult.matched))
-              } else {
-                noMatchMetric.count()
-                Right(BirthResponseBuilder.withNoMatch())
-              }
+                if (matchResult.matched) {
+                  matchMetric.count()
+                  Right(BirthResponseBuilder.getResponse(matchResult.matched))
+                } else {
+                  noMatchMetric.count()
+                  Right(BirthResponseBuilder.withNoMatch())
+                }
 
-            case Failure(e) =>
-              val requestId = hc.requestId.map(_.value).getOrElse("unknown")
-              audit(Nil, MatchingResult.noMatch, isError = true)
-              logger.error(
-                CLASS_NAME,
-                "lookup()",
-                s"[X-Request-ID]: $requestId Failed to parse response: ${e.getMessage}"
-              )
-              metrics.status(INTERNAL_SERVER_ERROR)
-              Left(InternalServerError)
-          }
+              case Failure(e) =>
+                val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+                audit(Nil, MatchingResult.noMatch, isError = true)
+                logger.error(
+                  CLASS_NAME,
+                  "lookup()",
+                  s"[X-Request-ID]: $requestId Failed to parse response: ${e.getMessage}"
+                )
+                metrics.status(INTERNAL_SERVER_ERROR)
+                Left(InternalServerError)
+            }
 
-        case status =>
-          handleError(status, response.body, payload.whereBirthRegistered)
+          case status =>
+            handleError(status, response.body, payload.whereBirthRegistered)
+        }
       }
-    }
+      .recover { case e: Exception =>
+        val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+        audit(Nil, MatchingResult.noMatch, isError = true)
+        Left(handleServiceError(BAD_GATEWAY, payload.whereBirthRegistered, e.getMessage, requestId))
+      }
 
   private def handleError(status: Int, responseBody: String, country: BirthRegisterCountry.Value)(implicit
     metrics: BRMMetrics,
