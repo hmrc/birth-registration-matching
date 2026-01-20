@@ -114,7 +114,7 @@ trait FeatureSwitchSpec
         "enabled"
       ) in {
         when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse(true)))
+          .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchIncludingReferenceNumber)
@@ -129,7 +129,7 @@ trait FeatureSwitchSpec
         "enabled"
       ) in {
         when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse(true)))
+          .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKey)
@@ -178,7 +178,7 @@ trait FeatureSwitchSpec
         "enabled"
       ) in {
         when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse(true)))
+          .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
@@ -193,7 +193,7 @@ trait FeatureSwitchSpec
         "enabled"
       ) in {
         when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any()))
-          .thenReturn(Future.successful(BirthMatchResponse(true)))
+          .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val request = postRequest(userWhereBirthRegisteredScotland)

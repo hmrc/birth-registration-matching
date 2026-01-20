@@ -16,16 +16,12 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import play.api.libs.json.JsValue
-import play.api.mvc.{ControllerComponents, Request, Result}
-import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
-import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.matching.MatchingResult
-import uk.gov.hmrc.brm.utils.{BRMException, CommonUtil, HeaderValidator}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.mvc.{ControllerComponents, Result}
+import uk.gov.hmrc.brm.audit.{MatchingAudit, TransactionAuditor}
+import uk.gov.hmrc.brm.utils.{CommonUtil, HeaderValidator}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-abstract class BRMBaseController(cc: ControllerComponents) extends BackendController(cc) with BRMException {
+abstract class BRMBaseController(cc: ControllerComponents) extends BackendController(cc) {
 
   val commonUtils: CommonUtil
   lazy val contentType: String       = "application/json; charset=utf-8"
@@ -39,47 +35,5 @@ abstract class BRMBaseController(cc: ControllerComponents) extends BackendContro
     response
       .as(contentType)
       .withHeaders(headers)
-
-  def handleException(method: String, startTime: Long)(implicit
-    payload: Payload,
-    auditor: BRMDownstreamAPIAudit,
-    hc: HeaderCarrier,
-    request: Request[JsValue]
-  ): PartialFunction[Throwable, Result] = { case t =>
-    val allPfs = Seq(
-      groProxyDownPF(method),
-      gatewayTimeoutPF(method),
-      desConnectionDownPF(method),
-      desInvalidHeadersBadRequestPF(method),
-      groConnectionDownPF(method),
-      nrsConnectionDownPF(method),
-      badRequestExceptionPF(method),
-      notImplementedExceptionPF(method),
-      notFoundExceptionPF(method),
-      forbiddenUpstreamPF(method),
-      exceptionPF(method)
-    ).reduce(_ orElse _)
-
-    // audit the transaction when there was an exception with default arguments
-    auditTransaction()
-    commonUtils.logTime(startTime)
-
-    respond(allPfs.apply(t))
-  }
-
-  protected def auditTransaction()(implicit
-    payload: Payload,
-    downstream: BRMDownstreamAPIAudit,
-    hc: HeaderCarrier
-  ): Unit = {
-
-    val matchResult = MatchingResult.noMatch
-
-    // audit matching result
-    matchingAuditor.audit(matchResult.audit, Some(payload))
-
-    downstream.transaction(payload, Nil, matchResult)
-    transactionAuditor.transaction(payload, Nil, matchResult)
-  }
 
 }

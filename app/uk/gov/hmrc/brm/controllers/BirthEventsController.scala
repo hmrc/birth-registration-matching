@@ -55,8 +55,7 @@ class BirthEventsController @Inject() (
 )(implicit val ec: ExecutionContext)
     extends BRMBaseController(cc) {
 
-  override val CLASS_NAME: String     = this.getClass.getSimpleName
-  override val METHOD_NAME: String    = "BirthEventsController::post"
+  val CLASS_NAME: String              = this.getClass.getSimpleName
   private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
 
   private def handleInvalidRequest(
@@ -88,8 +87,7 @@ class BirthEventsController @Inject() (
     payload: Payload,
     hc: HeaderCarrier,
     metrics: BRMMetrics,
-    downstream: BRMDownstreamAPIAudit,
-    request: Request[JsValue]
+    downstream: BRMDownstreamAPIAudit
   ): Future[Result] = {
     logger.info(
       CLASS_NAME,
@@ -98,15 +96,24 @@ class BirthEventsController @Inject() (
     )
 
     val beforeRequestTime = Instant.now().toEpochMilli
-    val method            = if (payload.birthReferenceNumber.isDefined) "getReference" else "getDetails"
 
-    service.lookup()(implicitly, metrics, implicitly, implicitly) map { bm =>
-      metrics.status(OK)
-      val response = Json.toJson(bm)
-      commonUtils.logTime(beforeRequestTime)
-      respond(Ok(response))
-    } recover
-      handleException(method, beforeRequestTime)
+    service
+      .lookup()(implicitly, metrics, implicitly, implicitly)
+      .map {
+        case Right(birthMatchResponse) =>
+          metrics.status(OK)
+          commonUtils.logTime(beforeRequestTime)
+          respond(Ok(Json.toJson(birthMatchResponse)))
+
+        case Left(errorResult) =>
+          commonUtils.logTime(beforeRequestTime)
+          respond(errorResult)
+      }
+      .recover { case e: Exception =>
+        logger.error(CLASS_NAME, "traceAndMatchRecord", s"Unexpected exception: ${e.getMessage}")
+        commonUtils.logTime(beforeRequestTime)
+        respond(InternalServerError)
+      }
   }
 
   private def getOrCreateCorrelationID(request: Request[_]): String = {
@@ -135,7 +142,7 @@ class BirthEventsController @Inject() (
             failedAtFilter(processed)
           } else {
             val metric: BRMMetrics = metrics.getMetrics()
-            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly, implicitly)
+            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly)
           }
         }
       )

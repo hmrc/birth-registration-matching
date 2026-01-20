@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import play.api.http.Status
+import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
 import uk.gov.hmrc.brm.metrics.EnglandAndWalesBirthRegisteredCountMetrics
@@ -47,11 +48,12 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   val dateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
 
+  val service: LookupService = MockLookupService
+
   before {
     reset(mockAuditConnector)
+    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
   }
-
-  val FIVE = 5
 
   "LookupService" when {
 
@@ -59,43 +61,43 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
       "accept Payload as an argument - false match" in {
         val groResponseInvalid = Json.parse("""
-            |{
-            |  "location": {
-            |
-            |  },
-            |  "subjects": {
-            |    "child": {
-            |      "name": {
-            |
-            |      },
-            |      "originalName": {
-            |
-            |      }
-            |    },
-            |    "father": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "mother": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "informant": {
-            |      "name": {
-            |
-            |      }
-            |    }
-            |  },
-            |  "systemNumber": 999999920,
-            |  "id": 999999920,
-            |  "status": {
-            |    "blockedRegistration": false
-            |  },
-            |  "previousRegistration": {}
-            |
-            |  }
+                                              |{
+                                              |  "location": {
+                                              |
+                                              |  },
+                                              |  "subjects": {
+                                              |    "child": {
+                                              |      "name": {
+                                              |
+                                              |      },
+                                              |      "originalName": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "father": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "mother": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "informant": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    }
+                                              |  },
+                                              |  "systemNumber": 999999920,
+                                              |  "id": 999999920,
+                                              |  "status": {
+                                              |    "blockedRegistration": false
+                                              |  },
+                                              |  "previousRegistration": {}
+                                              |
+                                              |  }
           """.stripMargin)
 
         when(mockGroConnector.getReference(any())(any(), any()))
@@ -104,180 +106,170 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockAuditor.audit(any(), any())(any()))
           .thenReturn(Future.successful(AuditResult.Success))
 
-        when(mockAuditConnector.sendEvent(any())(any(), any()))
-          .thenReturn(Future.successful(AuditResult.Success))
-
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service                    = MockLookupService
-        implicit val payload: Payload  =
+        implicit val payload: Payload =
           Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = service.lookup().futureValue
-        result shouldBe BirthMatchResponse()
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
       "accept Payload as an argument - true match" in {
         val groResponseValid = Json.parse("""
-            |{
-            |  "location": {
-            |
-            |  },
-            |  "subjects": {
-            |    "child" : {
-            |   "name" : {
-            |    "givenName" : "Chris",
-            |    "surname" : "Jones"
-            |   },
-            |   "dateOfBirth" : "2012-02-16"
-            |  },
-            |    "father": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "mother": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "informant": {
-            |      "name": {
-            |
-            |      }
-            |    }
-            |  },
-            |  "systemNumber": 123456789,
-            |  "id": 123456789,
-            |  "status": {
-            |    "blockedRegistration": false
-            |  },
-            |  "previousRegistration": {}
-            |
-            |  }
+                                            |{
+                                            |  "location": {
+                                            |
+                                            |  },
+                                            |  "subjects": {
+                                            |    "child" : {
+                                            |   "name" : {
+                                            |    "givenName" : "Chris",
+                                            |    "surname" : "Jones"
+                                            |   },
+                                            |   "dateOfBirth" : "2012-02-16"
+                                            |  },
+                                            |    "father": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    },
+                                            |    "mother": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    },
+                                            |    "informant": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    }
+                                            |  },
+                                            |  "systemNumber": 123456789,
+                                            |  "id": 123456789,
+                                            |  "status": {
+                                            |    "blockedRegistration": false
+                                            |  },
+                                            |  "previousRegistration": {}
+                                            |
+                                            |  }
           """.stripMargin)
 
         when(mockGroConnector.getReference(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(goodMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse(true)
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
       "accept Payload as an argument without reference number - false match" in {
         val groResponseInvalid = Json.parse("""
-            |{
-            |  "location": {
-            |
-            |  },
-            |  "subjects": {
-            |    "child": {
-            |      "name": {
-            |
-            |      },
-            |      "originalName": {
-            |
-            |      }
-            |    },
-            |    "father": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "mother": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "informant": {
-            |      "name": {
-            |
-            |      }
-            |    }
-            |  },
-            |  "systemNumber": 999999920,
-            |  "id": 999999920,
-            |  "status": {
-            |    "blockedRegistration": false
-            |  },
-            |  "previousRegistration": {}
-            |
-            |  }
+                                              |{
+                                              |  "location": {
+                                              |
+                                              |  },
+                                              |  "subjects": {
+                                              |    "child": {
+                                              |      "name": {
+                                              |
+                                              |      },
+                                              |      "originalName": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "father": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "mother": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    },
+                                              |    "informant": {
+                                              |      "name": {
+                                              |
+                                              |      }
+                                              |    }
+                                              |  },
+                                              |  "systemNumber": 999999920,
+                                              |  "id": 999999920,
+                                              |  "status": {
+                                              |    "blockedRegistration": false
+                                              |  },
+                                              |  "previousRegistration": {}
+                                              |
+                                              |  }
           """.stripMargin)
 
         when(mockGroConnector.getChildDetails(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service                    = MockLookupService
-        implicit val payload: Payload  =
+        implicit val payload: Payload =
           Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result: BirthMatchResponse = service.lookup().futureValue
-        result shouldBe BirthMatchResponse()
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
       "accept payload as an argument without reference number - true match" in {
         val groResponseValid = Json.parse("""
-            |{
-            |  "location": {
-            |
-            |  },
-            |  "subjects": {
-            |    "child" : {
-            |   "name" : {
-            |    "givenName" : "Chris",
-            |    "surname" : "Jones"
-            |   },
-            |   "dateOfBirth" : "2012-02-16"
-            |  },
-            |    "father": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "mother": {
-            |      "name": {
-            |
-            |      }
-            |    },
-            |    "informant": {
-            |      "name": {
-            |
-            |      }
-            |    }
-            |  },
-            |  "systemNumber": 123456789,
-            |  "id": 123456789,
-            |  "status": {
-            |    "blockedRegistration": false
-            |  },
-            |  "previousRegistration": {}
-            |
-            |  }
+                                            |{
+                                            |  "location": {
+                                            |
+                                            |  },
+                                            |  "subjects": {
+                                            |    "child" : {
+                                            |   "name" : {
+                                            |    "givenName" : "Chris",
+                                            |    "surname" : "Jones"
+                                            |   },
+                                            |   "dateOfBirth" : "2012-02-16"
+                                            |  },
+                                            |    "father": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    },
+                                            |    "mother": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    },
+                                            |    "informant": {
+                                            |      "name": {
+                                            |
+                                            |      }
+                                            |    }
+                                            |  },
+                                            |  "systemNumber": 123456789,
+                                            |  "id": 123456789,
+                                            |  "status": {
+                                            |    "blockedRegistration": false
+                                            |  },
+                                            |  "previousRegistration": {}
+                                            |
+                                            |  }
           """.stripMargin)
 
         when(mockGroConnector.getChildDetails(any())(any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(goodMatch)
 
-        val service                   = MockLookupService
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse(true)
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
     }
@@ -285,59 +277,51 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "requesting Scotland" should {
 
       "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayload
         val result                    = service.lookup().futureValue
 
-        result shouldBe BirthMatchResponse(true)
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
       "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getChildDetails(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayloadWithoutBrn
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse(true)
-
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
       "accept payload with reference number as argument and returns true as matched." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayload
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse(true)
-
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
       "accept payload with special character and returns match true as matched." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = nrsRequestPayloadWithSpecialChar
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse(true)
-
+        result shouldBe Right(BirthMatchResponse(true))
       }
 
       "accept payload with special character and returns match false as first name doesn't match." in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockNrsConnector.getReference(any())(any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
@@ -346,25 +330,190 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
           .thenReturn(badMatch)
 
-        val service = MockLookupService
-
         implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong
         val result                    = service.lookup().futureValue
-        result shouldBe BirthMatchResponse()
-
+        result shouldBe Right(BirthMatchResponse())
       }
 
     }
 
+    "handling error status codes" should {
+
+      "return Left with ServiceUnavailable when GRO returns 502 Bad Gateway" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with InternalServerError when GRO returns 504 Gateway Timeout" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "return Left with InternalServerError when GRO returns 400 Bad Request" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_REQUEST, "Bad Request", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "return Right with no match when connector returns 501 Not Implemented" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
+      }
+
+      "return Right with no match when GRO returns 404 Not Found" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.NOT_FOUND, "Not Found", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
+      }
+
+      "return Right with no match when GRO returns 403 Forbidden" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.FORBIDDEN, "Forbidden", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
+      }
+
+      "return Left with ServiceUnavailable for other 5xx status codes from GRO" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(
+              HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
+            )
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with ServiceUnavailable when NRS returns 502 Bad Gateway" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with InternalServerError when NRS returns 504 Gateway Timeout" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "return Left with ServiceUnavailable for other 5xx status codes from NRS" in {
+        when(mockNrsConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(
+              HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
+            )
+          )
+
+        implicit val payload: Payload = nrsRequestPayload
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with InternalServerError when JSON parsing fails" in {
+        val malformedResponse = HttpResponse(Status.OK, "not valid json at all", Map.empty[String, Seq[String]])
+
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(Future.successful(malformedResponse))
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "return Left with InternalServerError for unexpected status codes" in {
+        when(mockGroConnector.getReference(any())(any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(418, "random", Map.empty[String, Seq[String]]))
+          )
+
+        implicit val payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
     "requesting Northern Ireland" should {
 
-      "accept Payload as an argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      "return Right with no match when GRONI returns 501 Not Implemented" in {
         when(mockGroniConnector.getReference(any())(any(), any()))
           .thenReturn(
-            Future.failed(new NotImplementedException("No getReference method available for GRONI connector."))
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload = Payload(
           Some("123456789"),
           "Chris",
@@ -373,19 +522,20 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           dateOfBirth,
           BirthRegisterCountry.NORTHERN_IRELAND
         )
-        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
-      "accept payload without reference number as argument" in {
-        when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      "return Right with no match when GRONI details returns 501 Not Implemented" in {
         when(mockGroniConnector.getChildDetails(any())(any(), any()))
           .thenReturn(
-            Future.failed(new NotImplementedException("No getChildDetails method available for GRONI connector."))
+            Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
-        val service                   = MockLookupService
+
         implicit val payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
-        assert(service.lookup().failed.futureValue.isInstanceOf[NotImplementedException])
+        val result                    = service.lookup().futureValue
+        result shouldBe Right(BirthMatchResponse())
       }
 
     }
@@ -425,7 +575,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         val result = left.filter(right)
 
         result shouldEqual right
-
       }
     }
 
