@@ -92,7 +92,13 @@ class LookupService @Inject() (
               }
 
             case Failure(e) =>
-              logger.error(CLASS_NAME, "lookup()", s"Failed to parse response: ${e.getMessage}")
+              val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+              audit(Nil, MatchingResult.noMatch, isError = true)
+              logger.error(
+                CLASS_NAME,
+                "lookup()",
+                s"[X-Request-ID]: $requestId Failed to parse response: ${e.getMessage}"
+              )
               metrics.status(INTERNAL_SERVER_ERROR)
               Left(InternalServerError)
           }

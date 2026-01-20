@@ -87,8 +87,7 @@ class BirthEventsController @Inject() (
     payload: Payload,
     hc: HeaderCarrier,
     metrics: BRMMetrics,
-    downstream: BRMDownstreamAPIAudit,
-    request: Request[JsValue]
+    downstream: BRMDownstreamAPIAudit
   ): Future[Result] = {
     logger.info(
       CLASS_NAME,
@@ -143,7 +142,7 @@ class BirthEventsController @Inject() (
             failedAtFilter(processed)
           } else {
             val metric: BRMMetrics = metrics.getMetrics()
-            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly, implicitly)
+            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly)
           }
         }
       )
