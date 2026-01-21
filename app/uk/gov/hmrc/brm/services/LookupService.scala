@@ -93,7 +93,7 @@ class LookupService @Inject() (
                 }
 
               case Failure(e) =>
-                val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+                val requestId = getRequestId
                 audit(Nil, MatchingResult.noMatch, isError = true)
                 logger.error(
                   CLASS_NAME,
@@ -109,7 +109,7 @@ class LookupService @Inject() (
         }
       }
       .recover { case e: Exception =>
-        val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+        val requestId = getRequestId
         audit(Nil, MatchingResult.noMatch, isError = true)
         Left(handleServiceError(BAD_GATEWAY, payload.whereBirthRegistered, e.getMessage, requestId))
       }
@@ -123,7 +123,7 @@ class LookupService @Inject() (
 
     audit(Nil, MatchingResult.noMatch, isError = true)
 
-    val requestId = hc.requestId.map(_.value).getOrElse("unknown")
+    val requestId = getRequestId
 
     status match {
       case status @ (GATEWAY_TIMEOUT | BAD_REQUEST) =>
@@ -228,6 +228,13 @@ class LookupService @Inject() (
     metrics.endTimer(start)
     httpResponse
   }
+
+  private def getRequestId(implicit hc: HeaderCarrier): String =
+    hc.extraHeaders
+      .collectFirst {
+        case (key, value) if key.equalsIgnoreCase("x-request-id") => value
+      }
+      .getOrElse("unknown")
 
   private[LookupService] def noReferenceNumberPF(implicit
     hc: HeaderCarrier
