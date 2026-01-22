@@ -30,7 +30,7 @@ import uk.gov.hmrc.brm.services.matching.{Bad, Good}
 import uk.gov.hmrc.brm.services.parser.NameParser._
 import uk.gov.hmrc.brm.utils.TestHelper._
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
-import uk.gov.hmrc.http.{HttpResponse, NotImplementedException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
@@ -561,6 +561,24 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         result shouldBe Right(BirthMatchResponse())
       }
 
+    }
+
+    "getRequestId" should {
+
+      "return the X-Request-ID from HeaderCarrier when present" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("X-Request-ID" -> "test-request-id"))
+        service.getRequestId shouldBe "test-request-id"
+      }
+
+      "return the X-Request-ID case-insensitively" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("x-request-id" -> "lowercase-id"))
+        service.getRequestId shouldBe "lowercase-id"
+      }
+
+      "return 'unknown' when X-Request-ID is not present" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier()
+        service.getRequestId shouldBe "unknown"
+      }
     }
 
     "filter" should {

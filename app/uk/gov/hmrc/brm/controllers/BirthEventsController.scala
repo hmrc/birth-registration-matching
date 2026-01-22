@@ -126,8 +126,14 @@ class BirthEventsController @Inject() (
   }
 
   def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) { implicit request =>
+    val requestId = request.headers.get("X-Request-ID").getOrElse("unknown")
+
     implicit val hc: HeaderCarrier =
-      HeaderCarrier().withExtraHeaders((HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)))
+      HeaderCarrier()
+        .withExtraHeaders(
+          (HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)),
+          ("X-Request-ID", requestId)
+        )
     request.body
       .validate[Payload]
       .fold(
