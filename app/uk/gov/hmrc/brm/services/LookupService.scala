@@ -229,7 +229,7 @@ class LookupService @Inject() (
     httpResponse
   }
 
-  private def getRequestId(implicit hc: HeaderCarrier): String =
+  def getRequestId(implicit hc: HeaderCarrier): String =
     hc.extraHeaders
       .collectFirst {
         case (key, value) if key.equalsIgnoreCase("x-request-id") => value
