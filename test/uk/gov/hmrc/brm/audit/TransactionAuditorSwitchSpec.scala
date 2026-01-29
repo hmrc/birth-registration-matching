@@ -36,8 +36,10 @@ import scala.concurrent.Future
 class TransactionAuditorSwitchSpec extends BaseUnitSpec {
 
   class TestAuditor(configuration: Configuration) {
+
     implicit lazy val app: Application =
       new GuiceApplicationBuilder().disable[MetricRegistry].configure(configuration).build()
+
     val connector: AuditConnector      = mock[AuditConnector]
     val keyGen: KeyGenerator           = app.injector.instanceOf[KeyGenerator]
     val config: BrmConfig              = app.injector.instanceOf[BrmConfig]
@@ -136,4 +138,5 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
     }
 
   }
+
 }

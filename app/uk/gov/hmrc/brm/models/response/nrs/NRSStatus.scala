@@ -25,8 +25,10 @@ import uk.gov.hmrc.brm.filters.flags.{Green, Severity}
 case class NRSStatus(status: Int = 1, deathCode: Int = 0) extends StatusInterface {
 
   case class NRSFlagSeverity(status: Severity, deathCode: Severity) extends FlagSeverity {
+
     def canProcessRecord(config: BrmConfig): Boolean =
       true
+
   }
 
   override def toJson: JsValue =
@@ -62,4 +64,5 @@ case class NRSStatus(status: Int = 1, deathCode: Int = 0) extends StatusInterfac
       case 0 => "Not deceased"
       case _ => "Potentially deceased"
     }
+
 }

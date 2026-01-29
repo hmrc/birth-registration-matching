@@ -48,4 +48,5 @@ class BRMLogger @Inject() (keyGen: KeyGenerator) {
 
   def debug(objectName: Object, methodName: String, message: String): Unit =
     debug(objectName.getClass.getCanonicalName, methodName: String, message: String)
+
 }

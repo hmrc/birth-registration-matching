@@ -91,6 +91,7 @@ object Mocks extends MockitoSugar {
       extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, mockPartialMatching, mockBrmLogger) {
     override val matchOnMultiple: Boolean = true
   }
+
   class MockMatchingService(partial: PartialMatching)
       extends MatchingService(mockConfig, mockMatchingAudit, mockFullMatching, partial, mockBrmLogger) {
     override val matchOnMultiple: Boolean = true

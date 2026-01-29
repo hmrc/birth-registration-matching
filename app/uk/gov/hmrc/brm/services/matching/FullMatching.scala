@@ -51,4 +51,5 @@ class FullMatching @Inject() (val config: BrmConfig) extends MatchingAlgorithm {
       namesOnRecord
     )
   }
+
 }

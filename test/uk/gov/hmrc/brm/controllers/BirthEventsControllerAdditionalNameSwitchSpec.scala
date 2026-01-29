@@ -437,4 +437,5 @@ class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_ADDITIONALNAMES.json)
     }
   }
+
 }

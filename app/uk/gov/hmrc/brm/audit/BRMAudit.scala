@@ -43,7 +43,7 @@ import scala.concurrent.ExecutionContext
   *   implicit headerCarrier
   */
 
-private abstract class AuditEvent(
+abstract private class AuditEvent(
   auditType: String,
   detail: Map[String, String],
   transactionName: String,

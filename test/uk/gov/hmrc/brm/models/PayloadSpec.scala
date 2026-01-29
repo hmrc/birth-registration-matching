@@ -31,16 +31,20 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
   implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
     app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
+
   implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics    =
     app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]
+
   implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics           =
     app.injector.instanceOf[ScotlandBirthRegisteredCountMetrics]
+
   implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics          =
     app.injector.instanceOf[InvalidBirthRegisteredCountMetrics]
 
   private val unicode            = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ" +
     " ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíî" +
     "ïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
+
   private val maxCharacterLength = "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYi" +
     "dmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagNCyhMKHYocWLbVdwWWpYVbGkZYwe" +
     "lvvfIYhibZgbbptqEQEJYRWPKeELQYCUtteeaftfvvdjaQqnFMgwWWpYVbGkZYwelvvfIYhibZgbbptqEQEJYY"

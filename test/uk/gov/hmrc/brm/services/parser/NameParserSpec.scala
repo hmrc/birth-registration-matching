@@ -32,11 +32,7 @@ import org.scalatest.OptionValues
 /** Created by adamconder on 02/02/2017.
   */
 trait NameParserSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with GuiceOneAppPerTest
-    with BeforeAndAfterEachTestData {
+    extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest with BeforeAndAfterEachTestData {
 
   lazy val ignoreAdditionalNamesFalse: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
@@ -473,4 +469,5 @@ trait NameParserSpec
       }
     }
   }
+
 }

@@ -42,4 +42,5 @@ class ErrorAudit @Inject() (
     logger.debug("ErrorAudit", "audit", "auditing error event")
     event(new PayloadErrorEvent(result))
   }
+
 }

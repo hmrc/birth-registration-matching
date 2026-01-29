@@ -115,4 +115,5 @@ object FlagsHelper {
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
     Record(child, Some(status))
   }
+
 }

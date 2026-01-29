@@ -35,13 +35,17 @@ trait SwitchException {
 trait Switch extends SwitchException {
   val config: BrmConfig
   val name: String
+
   final def isEnabled: Boolean =
     config.conf.getConfBool(s"birth-registration-matching.features.$name.enabled", exception(name))
+
 }
 
 trait SwitchValue extends SwitchException {
   val config: BrmConfig
   val name: String
+
   final def value: String =
     config.conf.getConfString(s"birth-registration-matching.features.$name.value", exception(name))
+
 }

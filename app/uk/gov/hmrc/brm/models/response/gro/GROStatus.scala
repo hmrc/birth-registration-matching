@@ -59,6 +59,7 @@ case class GROStatus(
       } else {
         true
       }
+
   }
 
   private val invalidMarginalNote = List("other", "re-registered", "court order in place")
@@ -137,4 +138,5 @@ object GROStatus {
       (JsPath \ "marginalNote").readNullable[String] and
       (JsPath \ "reRegistered").readNullable[String]
   )(GROStatus.apply _)
+
 }

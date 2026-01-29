@@ -37,4 +37,5 @@ class NRSFlagSeveritySpec extends BaseUnitSpec {
       groFlags.canProcessRecord(conf) shouldBe true
     }
   }
+
 }

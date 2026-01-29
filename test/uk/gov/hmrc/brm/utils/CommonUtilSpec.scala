@@ -76,4 +76,5 @@ class CommonUtilSpec extends BaseUnitSpec {
         commonUtil.logTime(startTime)
     }
   }
+
 }

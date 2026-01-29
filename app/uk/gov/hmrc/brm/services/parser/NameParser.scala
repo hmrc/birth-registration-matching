@@ -61,6 +61,7 @@ object NameParser {
 
     def names: List[String] =
       s.trim.split(regex).toList
+
   }
 
   implicit class FilterList[T](left: List[T]) {

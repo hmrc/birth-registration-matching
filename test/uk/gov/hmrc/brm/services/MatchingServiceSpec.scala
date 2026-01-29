@@ -287,11 +287,7 @@ class PartialMatchingSpec extends BaseUnitSpec {
 
 //TODO Just FYI, this spec doesn't run because it's a trait
 trait MatchingServiceSpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerTest {
+    extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 

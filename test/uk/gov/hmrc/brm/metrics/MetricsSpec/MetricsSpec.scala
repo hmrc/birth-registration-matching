@@ -26,6 +26,7 @@ import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import java.time.LocalDate
 
 class MetricsSpec extends BaseUnitSpec {
+
   override lazy val app = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> true)
     .build()

@@ -1,4 +1,4 @@
-import sbt.{ModuleID, *}
+import sbt.*
 
 object AppDependencies {
 
