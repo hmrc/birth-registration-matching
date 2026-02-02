@@ -53,6 +53,7 @@ trait HttpResponse {
 
     getHttpResponse(fields.head._1, fields.head._2)
   }
+
 }
 
 object BadRequest extends HttpResponseBody {

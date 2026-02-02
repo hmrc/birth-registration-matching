@@ -620,4 +620,5 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     }
 
   }
+
 }

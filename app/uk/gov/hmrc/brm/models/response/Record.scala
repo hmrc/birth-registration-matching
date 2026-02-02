@@ -39,6 +39,7 @@ case class Record(child: Child, status: Option[StatusInterface] = None) {
       notFlagged
     }
   }
+
 }
 
 object Record {
@@ -90,4 +91,5 @@ object Record {
 
     logger.info("TransactionAuditor", "logNameCount", s"${Json.toJson(payloadCount ++ auditWordsPerNameOnRecords)}")
   }
+
 }

@@ -49,6 +49,7 @@ object TestHelper {
 
   val payload: Payload            =
     Payload(Some("500035710"), "Adam", None, "Wilson", LocalDate.of(2006, 11, 12), BirthRegisterCountry.ENGLAND)
+
   val payloadNoReference: Payload =
     Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
@@ -64,11 +65,13 @@ object TestHelper {
 
   val nrsRequestPayload: Payload           =
     Payload(Some("2017734003"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
+
   val nrsRequestPayload2017350001: Payload =
     Payload(Some("2017350001"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
 
   val nrsRequestPayloadWithoutBrn: Payload         =
     Payload(None, "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
+
   val nrsRequestPayloadWithSpecialChar: Payload    =
     Payload(
       Some("2017350007"),
@@ -78,6 +81,7 @@ object TestHelper {
       LocalDate.of(2011, 10, 1),
       BirthRegisterCountry.SCOTLAND
     )
+
   val nrsRequestPayloadWithFirstNameWrong: Payload =
     Payload(
       Some("2017350007"),
@@ -98,6 +102,7 @@ object TestHelper {
     Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
 
   private val referenceNumber: Int  = 123456789
+
   val groResponseValidJson: JsValue = parse(s"""
       |{
       |  "location": {

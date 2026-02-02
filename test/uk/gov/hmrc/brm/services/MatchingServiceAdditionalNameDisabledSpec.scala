@@ -31,6 +31,7 @@ class MatchingServiceAdditionalNameDisabledSpec extends BaseUnitSpec {
   val dateOfBirth = LocalDate.of(2012, 2, 16)
 
   val mockFull: FullMatching = new FullMatching(mockConfig)
+
   val testMatchingService    = new MatchingService(
     mockConfig,
     mockMatchingAudit,
@@ -358,4 +359,5 @@ class MatchingServiceAdditionalNameDisabledSpec extends BaseUnitSpec {
       }
     }
   }
+
 }

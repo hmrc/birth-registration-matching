@@ -74,17 +74,22 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
   val payloadWithReference: Payload         =
     Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+
   val nrsPayloadWithReference: Payload      =
     Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+
   val nrsPayloadWithoutReference: Payload   =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+
   val groNIPayloadWithReference: Payload    =
     Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
+
   val groNIPayloadWithoutReference: Payload =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
 
   val payloadWithoutReference: Payload   =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
+
   val payloadInvalidDateOfBirth: Payload =
     Payload(None, "Adam", None, "Smith", LocalDate.parse("2008-12-12"), BirthRegisterCountry.ENGLAND)
 

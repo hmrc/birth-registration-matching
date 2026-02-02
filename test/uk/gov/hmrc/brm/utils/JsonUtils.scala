@@ -39,4 +39,5 @@ object JsonUtils {
         throw new RuntimeException("cannot load json")
     }
   }
+
 }

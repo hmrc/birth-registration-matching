@@ -34,6 +34,7 @@ sealed protected trait Timer {
     val end = System.currentTimeMillis() - start
     time(end)
   }
+
 }
 
 sealed protected trait Connector {
@@ -43,6 +44,7 @@ sealed protected trait Connector {
 
   def status(code: Int): Unit =
     metrics.counter(s"$prefix-connector-status-$code").inc()
+
 }
 
 sealed trait BRMMetrics extends Timer with Connector {

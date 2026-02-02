@@ -66,4 +66,5 @@ class PartialMatching @Inject() (val config: BrmConfig) extends MatchingAlgorith
 
     MatchingResult(matched, f, a, l, d, namesOnRecord)
   }
+
 }

@@ -72,9 +72,11 @@ class AuditFactory @Inject() (
 
   def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit =
     set(payload.whereBirthRegistered)
+
 }
 
 object ReadsFactory {
+
   private lazy val set: Map[BirthRegisterCountry.Value, (Reads[List[Record]], Reads[Record])] = Map(
     BirthRegisterCountry.ENGLAND  -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
     BirthRegisterCountry.WALES    -> ((ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)),
@@ -83,4 +85,5 @@ object ReadsFactory {
 
   def getReads()(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) =
     set(payload.whereBirthRegistered)
+
 }

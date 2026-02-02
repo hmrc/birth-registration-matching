@@ -19,11 +19,14 @@ package uk.gov.hmrc.brm.utils
 import uk.gov.hmrc.brm.services.parser.NameParser._
 
 object Trim {
+
   def apply(v: String): String =
     v.trim
+
 }
 
 object LeadingZeros {
+
   def apply(v: String): String = {
 
     def formatDatePart(v: String): String = {
@@ -35,16 +38,19 @@ object LeadingZeros {
       .map(formatDatePart(_))
       .reduceLeft((e, s) => String.format("%s-%s", e, s))
   }
+
 }
 
 object NameFormat {
 
   def apply(v: String): String =
     v.names.listToString
+
 }
 
 object DateFormat {
 
   def apply(v: String): String =
     LeadingZeros.apply(Trim.apply(v))
+
 }

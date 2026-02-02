@@ -41,6 +41,7 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
   private val referenceUri = s"$serviceUrl/$baseUri"
 
   override def headers                                                    = Seq()
+
   override val referenceBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(Some(brn), _, _, _, _, _) =>
     (
       referenceUri,

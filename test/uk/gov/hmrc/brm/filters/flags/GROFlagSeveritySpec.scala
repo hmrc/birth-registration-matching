@@ -27,11 +27,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
 
 class GROFlagSeveritySpec
-    extends AnyWordSpecLike
-    with Matchers
-    with OptionValues
-    with MockitoSugar
-    with GuiceOneAppPerTest {
+    extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   val allEnabledConfig: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,

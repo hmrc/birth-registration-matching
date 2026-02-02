@@ -24,28 +24,34 @@ import uk.gov.hmrc.brm.switches.Switch
 /** Created by mew on 19/05/2017.
   */
 class GRONIFilter @Inject() (conf: BrmConfig) extends Filter(GeneralFilter) {
+
   class GroniSwitch extends Switch {
     override val config: BrmConfig = conf
     override val name              = "groni"
   }
+
   val switch            = new GroniSwitch
   override def toString = "GRONIFilter"
 }
 
 class GRONIDetailsFilter @Inject() (conf: BrmConfig) extends Filter(DetailsFilter) {
+
   class GRONIDetailsSwitch extends Switch {
     override val config: BrmConfig = conf
     override val name              = "groni.details"
   }
+
   val switch            = new GRONIDetailsSwitch
   override def toString = "GRONIDetailsFilter"
 }
 
 class GRONIReferenceFilter @Inject() (conf: BrmConfig) extends Filter(ReferenceFilter) {
+
   class GRONIReferenceSwitch extends Switch {
     override val config: BrmConfig = conf
     override val name              = "groni.reference"
   }
+
   val switch            = new GRONIReferenceSwitch
   override def toString = "GRONIReferenceFilter"
 }

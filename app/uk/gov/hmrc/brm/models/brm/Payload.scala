@@ -21,10 +21,13 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
-import uk.gov.hmrc.brm.metrics.{EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics, NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics}
+import uk.gov.hmrc.brm.metrics.{
+  EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics,
+  NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics
+}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.brm.utils.ReadsUtil.validLocalDateReads
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{birthRegisterReads, birthRegisterWrites, apply => _}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply => _, birthRegisterReads, birthRegisterWrites}
 
 case class Payload(
   birthReferenceNumber: Option[String] = None,
@@ -58,6 +61,7 @@ case class Payload(
       case input @ Payload(None, _, _, _, _, _)      => DetailsRequest()
       case payload @ Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
     }
+
 }
 
 abstract class RequestType
@@ -130,4 +134,5 @@ object Payload {
     .filter(JsonValidationError(InvalidBirthReferenceNumber.message))(x =>
       validBirthReferenceNumber(x.whereBirthRegistered, x.birthReferenceNumber)
     )
+
 }
