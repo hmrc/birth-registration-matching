@@ -110,7 +110,16 @@ object Payload {
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate] and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
-  )(unlift(Payload.unapply))
+    )(p =>
+    (
+      p.birthReferenceNumber,
+      p.firstNames,
+      Option(p.additionalNames).filter(_.nonEmpty),
+      p.lastName,
+      p.dateOfBirth,
+      p.whereBirthRegistered
+    )
+  )
 
   implicit def requestFormat(implicit
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,

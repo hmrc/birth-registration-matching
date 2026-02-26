@@ -20,13 +20,10 @@ import java.util.concurrent.TimeUnit
 import com.codahale.metrics.MetricRegistry
 import javax.inject.Inject
 
-sealed protected trait Timer {
-  this: BRMMetrics =>
-
-  val prefix: String
+sealed protected trait Timer { this: BRMMetrics =>
 
   private def time(diff: Long): Unit =
-    metrics.timer(s"$prefix-timer").update(diff, TimeUnit.MILLISECONDS)
+    metrics.timer(s"${prefix}-timer").update(diff, TimeUnit.MILLISECONDS)
 
   def startTimer(): Long = System.currentTimeMillis()
 
@@ -34,17 +31,12 @@ sealed protected trait Timer {
     val end = System.currentTimeMillis() - start
     time(end)
   }
-
 }
 
-sealed protected trait Connector {
-  this: BRMMetrics =>
-
-  val prefix: String
+sealed protected trait Connector { this: BRMMetrics =>
 
   def status(code: Int): Unit =
-    metrics.counter(s"$prefix-connector-status-$code").inc()
-
+    metrics.counter(s"${prefix}-connector-status-$code").inc()
 }
 
 sealed trait BRMMetrics extends Timer with Connector {

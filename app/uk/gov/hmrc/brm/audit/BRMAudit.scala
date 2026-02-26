@@ -56,7 +56,7 @@ abstract private class AuditEvent(
       tags = hc.toAuditTags(transactionName, path)
     )
 
-abstract class BRMAudit(connector: AuditConnector)(implicit val ec: ExecutionContext) {
+abstract class BRMAudit(connector: AuditConnector)(using val ec: ExecutionContext) {
 
   val keyGen: KeyGenerator
   val logger: BRMLogger
