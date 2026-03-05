@@ -110,7 +110,7 @@ object Payload {
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate] and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
-    )(p =>
+  )(p =>
     (
       p.birthReferenceNumber,
       p.firstNames,

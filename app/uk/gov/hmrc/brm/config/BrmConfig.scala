@@ -29,11 +29,11 @@ class BrmConfig @Inject() (val conf: ServicesConfig) extends SwitchException {
   def matchLastName: Boolean    = conf.getConfBool("birth-registration-matching.matching.lastName", defBool = true)
   def matchDateOfBirth: Boolean = conf.getConfBool("birth-registration-matching.matching.dateOfBirth", defBool = true)
 
-  def matchOnMultiple: Boolean  =
+  def matchOnMultiple: Boolean =
     conf.getConfBool("birth-registration-matching.matching.matchOnMultiple", defBool = false)
 
-  def logFlags: Boolean                                = conf.getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
-  def processFlags: Boolean                            = conf.getConfBool("birth-registration-matching.features.flags.process", defBool = true)
+  def logFlags: Boolean     = conf.getConfBool("birth-registration-matching.features.flags.logging", defBool = true)
+  def processFlags: Boolean = conf.getConfBool("birth-registration-matching.features.flags.process", defBool = true)
 
   def validateFlag(api: String, flag: String): Boolean =
     conf.getConfBool(s"birth-registration-matching.features.$api.flags.$flag.process", defBool = false)

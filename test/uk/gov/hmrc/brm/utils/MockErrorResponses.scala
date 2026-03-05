@@ -35,17 +35,17 @@ object MockErrorResponses {
 
   }
 
-  val CONNECTION_DOWN                = ErrorResponse("GRO_CONNECTION_DOWN", "Connection to GRO is down")
-  val NRS_CONNECTION_DOWN            = ErrorResponse("SERVICE_UNAVAILABLE", "Dependent systems are currently not responding")
-  val BAD_REQUEST                    = ErrorResponse("BAD_REQUEST", "Provided request is invalid.")
-  val TEAPOT                         = ErrorResponse("TEAPOT", "Invalid argument sent to GRO")
-  val NOT_FOUND                      = ErrorResponse("NOT_FOUND", "Resource not found")
-  val GATEWAY_TIMEOUT                = ErrorResponse("GATEWAY_TIMEOUT", "Connection to GRO timed out")
+  val CONNECTION_DOWN     = ErrorResponse("GRO_CONNECTION_DOWN", "Connection to GRO is down")
+  val NRS_CONNECTION_DOWN = ErrorResponse("SERVICE_UNAVAILABLE", "Dependent systems are currently not responding")
+  val BAD_REQUEST         = ErrorResponse("BAD_REQUEST", "Provided request is invalid.")
+  val TEAPOT              = ErrorResponse("TEAPOT", "Invalid argument sent to GRO")
+  val NOT_FOUND           = ErrorResponse("NOT_FOUND", "Resource not found")
+  val GATEWAY_TIMEOUT     = ErrorResponse("GATEWAY_TIMEOUT", "Connection to GRO timed out")
 
-  val CERTIFICATE_INVALID            =
+  val CERTIFICATE_INVALID =
     ErrorResponse("INVALID_CERTIFICATE", "TLS certificate was either not provided or was invalid")
 
-  val UNKNOWN_ERROR                  = ErrorResponse("UNKNOWN_ERROR", "An unknown exception has been thrown")
+  val UNKNOWN_ERROR = ErrorResponse("UNKNOWN_ERROR", "An unknown exception has been thrown")
 
   val INVALID_BIRTH_REFERENCE_NUMBER =
     ErrorResponse(

@@ -16,21 +16,21 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 import org.mockito.stubbing.OngoingStubbing
-import org.scalatest._
+import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.matching.{FullMatching, Good, MatchingService, PartialMatching}
-import uk.gov.hmrc.brm.utils.FlagsHelper._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.services.matching.{Bad, FullMatching, Good, MatchingService, PartialMatching}
+import uk.gov.hmrc.brm.utils.FlagsHelper.*
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -368,7 +368,7 @@ trait MatchingServiceSpec
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
           resultMatch.matched                shouldBe false
-          resultMatch.firstNamesMatched      shouldBe "Bad()"
+          resultMatch.firstNamesMatched      shouldBe Bad()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()
           resultMatch.dateOfBirthMatched     shouldBe Good()

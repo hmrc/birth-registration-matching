@@ -32,18 +32,19 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
   implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
     app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
 
-  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics    =
+  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics =
     app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]
 
-  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics           =
+  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics =
     app.injector.instanceOf[ScotlandBirthRegisteredCountMetrics]
 
-  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics          =
+  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics =
     app.injector.instanceOf[InvalidBirthRegisteredCountMetrics]
 
-  private val unicode            = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ" +
-    " ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíî" +
-    "ïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
+  private val unicode =
+    "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìí ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ" +
+      " ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùú111111ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíî" +
+      "ïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷ø"
 
   private val maxCharacterLength = "RAdmUElSgUkBKGXKQMGXlBCBktIJKUBjpRuGGvswXBbIHIUNTquycNRdXyVftdnUJYi" +
     "dmRfjSbZJoNIIdXJraEAtGhdagNCyhMKHYocWLbVdwWWpYVbGkZYwelvvfIYhibZgbbpagNCyhMKHYocWLbVdwWWpYVbGkZYwe" +
@@ -108,14 +109,14 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         )
 
         Json.toJson(payload) shouldBe Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "additionalNames" : "Jones",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "england"
-            |}
+                                                   |{
+                                                   | "birthReferenceNumber": "123456789",
+                                                   | "firstName" : "John",
+                                                   | "additionalNames" : "Jones",
+                                                   | "lastName" : "Smith",
+                                                   | "dateOfBirth" : "1997-01-13",
+                                                   | "whereBirthRegistered" : "england"
+                                                   |}
           """.stripMargin)
       }
 
@@ -138,6 +139,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return success when firstName contains unicode characters." in {
         val payload = Payload(None, unicode, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return success when firstName contains unicode characters within 250 chars" in {
+        val shortUnicode = unicode.take(Payload.nameMaxLength)
+        val payload      = Payload(None, shortUnicode, None, "Test", LocalDate.now, BirthRegisterCountry.SCOTLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
@@ -183,7 +190,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when firstName contains newline character" in {
         val payload = Payload(None, "John\n", None, "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
+        Json.toJson(payload).validate[Payload].isError shouldBe false
       }
 
       "return error when firstName contains double quote character." in {
@@ -218,13 +225,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when firstName value is an int" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : 123,
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : 123,
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -243,6 +250,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return success when additionalNames contains unicode characters" in {
         val payload = Payload(None, "Test", Some(unicode), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return success when additionalNames contains unicode characters within 250 chars" in {
+        val shortUnicode = unicode.take(Payload.nameMaxLength)
+        val payload      = Payload(None, "Test", Some(shortUnicode), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
@@ -253,19 +266,19 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return failure when additionalNames key exists but value is empty" in {
         val payload = Payload(None, "Test", Some(""), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
       "return error when additionalNames value is an int" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "additionalNames" : 123,
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "additionalNames" : 123,
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -297,7 +310,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       "return error when additionalNames contains \u0000 (NULL) character" in {
         val payload =
           Payload(Some("123456789"), "John", Some("\u0000"), "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isSuccess shouldBe false
+        Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
       "return error when additionalNames contains double quote character" in {
@@ -323,7 +336,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when additionalNames contains newline character" in {
         val payload = Payload(None, "Test", Some("Johnny\n"), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
+        Json.toJson(payload).validate[Payload].isError shouldBe false
       }
 
       "return error when additionalNames contains character more than 250" in {
@@ -334,16 +347,22 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when additionalNames contains a single white space only" in {
         val payload = Payload(None, "Test", Some(" "), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
+        Json.toJson(payload).validate[Payload].isError shouldBe false
       }
 
       "return error when additionalNames contains multiple white spaces only" in {
         val payload = Payload(None, "Test", Some("     "), "Test", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
+        Json.toJson(payload).validate[Payload].isError shouldBe false
       }
 
       "return success when lastName contains unicode characters" in {
         val payload = Payload(None, "Test", None, unicode, LocalDate.now, BirthRegisterCountry.ENGLAND)
+        Json.toJson(payload).validate[Payload].isError shouldBe true
+      }
+
+      "return success when lastName contains unicode characters within 250 chars" in {
+        val shortUnicode = unicode.take(Payload.nameMaxLength)
+        val payload      = Payload(None, "Test", None, shortUnicode, LocalDate.now, BirthRegisterCountry.ENGLAND)
         Json.toJson(payload).validate[Payload].isSuccess shouldBe true
       }
 
@@ -393,7 +412,7 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when lastName contains newline character" in {
         val payload = Payload(None, "Test", None, "Sm\nith", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        Json.toJson(payload).validate[Payload].isError shouldBe true
+        Json.toJson(payload).validate[Payload].isError shouldBe false
       }
 
       "return error when lastName contains character more than 250" in {
@@ -419,13 +438,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when lastName value is an int" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : 123,
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : 123,
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -443,12 +462,12 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return success when birthReferenceNumber key doesn't exist" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "england"
-            | }
+                                               |{
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : "england"
+                                               | }
           """.stripMargin)
 
         jsonObject.validate[Payload].isSuccess shouldBe true
@@ -471,13 +490,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when whereBirthRegistered is number" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : 123
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : 123
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -485,13 +504,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "return error when whereBirthRegistered value is not from valid enum values" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1997-01-13",
-            | "whereBirthRegistered" : "notvalid"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1997-01-13",
+                                               | "whereBirthRegistered" : "notvalid"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -509,13 +528,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "throw a DateTimeParseException when dateOfBirth key exists but value is empty" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -523,13 +542,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "throw a DateTimeParseException when dateOfBirth value is invalid" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "1234567890",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "1234567890",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -537,13 +556,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "throw a DateTimeParseException when dateOfBirth has 0000 for year" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "0000-01-10",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "0000-01-10",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true
@@ -551,13 +570,13 @@ class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with G
 
       "throw a DateTimeParseException when dateOfBirth only has a year" in {
         val jsonObject: JsValue = Json.parse("""
-            |{
-            | "birthReferenceNumber": "123456789",
-            | "firstName" : "John",
-            | "lastName" : "Smith",
-            | "dateOfBirth" : "2016",
-            | "whereBirthRegistered" : "england"
-            |}
+                                               |{
+                                               | "birthReferenceNumber": "123456789",
+                                               | "firstName" : "John",
+                                               | "lastName" : "Smith",
+                                               | "dateOfBirth" : "2016",
+                                               | "whereBirthRegistered" : "england"
+                                               |}
           """.stripMargin)
 
         jsonObject.validate[Payload].isError shouldBe true

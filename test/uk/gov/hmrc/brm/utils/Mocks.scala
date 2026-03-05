@@ -35,7 +35,7 @@ import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 /** Created by adamconder on 24/02/2017.
-  */
+ */
 object Mocks extends MockitoSugar {
 
   val mockConnector: BirthConnector      = mock[BirthConnector]
@@ -162,26 +162,42 @@ object Mocks extends MockitoSugar {
         mockInvalidMetric
       )
 
-  def connectorFixtures =
-    new {
-      val groConnector   = new GROConnector(mockHttp, mockConfig, mockKeyGen, mockBrmLogger, mockCommonUtil)
-      val nrsConnector   = new NRSConnector(mockHttp, mockConfig, mockCommonUtil, mockKeyGen, mockBrmLogger)
-      val groniConnector = new GRONIConnector(
+  final case class ConnectorFixtures(
+    groConnector: GROConnector,
+    nrsConnector: NRSConnector,
+    groniConnector: GRONIConnector
+  )
+
+  final case class AuditorFixtures(
+    whereBirthRegisteredAudit: WhereBirthRegisteredAudit,
+    englandAndWalesAudit: EnglandAndWalesAudit,
+    scotlandAudit: ScotlandAudit,
+    northernIrelandAudit: NorthernIrelandAudit,
+    matchingAudit: MatchingAudit,
+    transactionAudit: TransactionAuditor,
+    errorAudit: ErrorAudit
+  )
+
+  lazy val connectorFixtures: ConnectorFixtures =
+    ConnectorFixtures(
+      groConnector = new GROConnector(mockHttp, mockConfig, mockKeyGen, mockBrmLogger, mockCommonUtil),
+      nrsConnector = new NRSConnector(mockHttp, mockConfig, mockCommonUtil, mockKeyGen, mockBrmLogger),
+      groniConnector = new GRONIConnector(
         mockHttp,
         auditor = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger),
         mockBrmLogger
       )
-    }
+    )
 
-  def auditorFixtures =
-    new {
-      val whereBirthRegisteredAudit = new WhereBirthRegisteredAudit(mockAuditConnector, mockKeyGen, mockBrmLogger)
-      val englandAndWalesAudit      = new EnglandAndWalesAudit(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
-      val scotlandAudit             = new ScotlandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
-      val northernIrelandAudit      = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger)
-      val matchingAudit             = new MatchingAudit(mockAuditConnector, mockBrmLogger, mockConfig, mockKeyGen)
-      val transactionAudit          = new TransactionAuditor(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger)
-      val errorAudit                = new ErrorAudit(mockAuditConnector, mockBrmLogger, mockKeyGen)
-    }
+  lazy val auditorFixtures: AuditorFixtures =
+    AuditorFixtures(
+      whereBirthRegisteredAudit = new WhereBirthRegisteredAudit(mockAuditConnector, mockKeyGen, mockBrmLogger),
+      englandAndWalesAudit = new EnglandAndWalesAudit(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger),
+      scotlandAudit = new ScotlandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger),
+      northernIrelandAudit = new NorthernIrelandAudit(mockAuditConnector, mockConfig, mockKeyGen, mockBrmLogger),
+      matchingAudit = new MatchingAudit(mockAuditConnector, mockBrmLogger, mockConfig, mockKeyGen),
+      transactionAudit = new TransactionAuditor(mockAuditConnector, mockKeyGen, mockConfig, mockBrmLogger),
+      errorAudit = new ErrorAudit(mockAuditConnector, mockBrmLogger, mockKeyGen)
+    )
 
 }
