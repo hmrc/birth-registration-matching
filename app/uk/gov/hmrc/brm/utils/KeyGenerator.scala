@@ -20,8 +20,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Request
 
 object KeyGenerator {
-  val DateFormat: String        = "yyyyMMdd:HHmmssSS"
-  val AuditSourceMaxLen: Int    = 20
+  val DateFormat: String         = "yyyyMMdd:HHmmssSS"
+  val AuditSourceMaxLen: Int     = 20
   def liveDateSupplier(): String = DateUtil.getCurrentDateString(DateFormat)
 }
 
@@ -45,10 +45,10 @@ class KeyGenerator(private val dateSupplier: () => String) {
   def setKey(key: String): Unit =
     keyForRequest = key
 
-  def generateAndSetKey[A](request: Request[A], apiVersion: String): Unit = {
+  def generateAndSetKey[A](request: Request[A], apiVersion: String): Unit =
     setKey(generateKey(request, apiVersion))
-  }
 
   def getSubString(originalString: String, maxLength: Int): String =
     if (originalString.length > maxLength) originalString.substring(0, maxLength) else originalString
+
 }

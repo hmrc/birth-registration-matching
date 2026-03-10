@@ -87,7 +87,7 @@ class MetricsSpec extends BaseUnitSpec {
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
+      for (_ <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.getCounters.get("proxy-connector-status-423").getCount shouldBe 5
     }
 
@@ -137,7 +137,7 @@ class MetricsSpec extends BaseUnitSpec {
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
+      for (_ <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.getCounters.get("proxy-details-connector-status-423").getCount shouldBe 5
     }
 
@@ -189,7 +189,7 @@ class MetricsSpec extends BaseUnitSpec {
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
+      for (_ <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.getCounters.get("nrs-connector-status-423").getCount shouldBe 5
     }
 
@@ -241,7 +241,7 @@ class MetricsSpec extends BaseUnitSpec {
     }
 
     "accept a status code not registered" in {
-      for (i <- 1 to 5) yield metrics.status(Locked.intValue)
+      for (_ <- 1 to 5) yield metrics.status(Locked.intValue)
       metrics.metrics.getCounters.get("gro-ni-connector-status-423").getCount shouldBe 5
     }
 

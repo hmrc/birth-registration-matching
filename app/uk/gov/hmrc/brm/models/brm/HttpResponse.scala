@@ -125,7 +125,7 @@ object ErrorResponses extends HttpResponse {
       case InvalidBirthReferenceNumber.message => InvalidBirthReferenceNumber.status
       case "error.path.missing"                =>
         BadRequest.status
-      case e                                   =>
+      case _                                   =>
         errors.filter(x => x._1.equals(key)) match {
           case head :: _ =>
             head._2.status

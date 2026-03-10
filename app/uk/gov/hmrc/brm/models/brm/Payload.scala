@@ -58,8 +58,8 @@ case class Payload(
 
   def requestType: RequestType =
     this match {
-      case input @ Payload(None, _, _, _, _, _)      => DetailsRequest()
-      case payload @ Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
+      case Payload(None, _, _, _, _, _)    => DetailsRequest()
+      case Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
     }
 
 }

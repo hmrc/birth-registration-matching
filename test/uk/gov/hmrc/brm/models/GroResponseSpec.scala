@@ -1149,7 +1149,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
           x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
           x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
           x.status.get.asInstanceOf[GROStatus].reRegistered               shouldBe None
-        case JsError(x)      =>
+        case JsError(_)      =>
           throw new Exception
       }
     }
