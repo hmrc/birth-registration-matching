@@ -18,12 +18,9 @@ package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.{anyString, argThat, contains}
 import org.mockito.Mockito._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json, Reads}
 
-class RecordParserSpec extends AnyWordSpec with Matchers with MockitoSugar {
+class RecordParserSpec extends BaseUnitSpec {
 
   private case class Dummy(a: String)
 
