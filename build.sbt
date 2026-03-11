@@ -1,5 +1,3 @@
-import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
-
 ThisBuild / scalaVersion := "3.3.7"
 ThisBuild / majorVersion := 2
 
