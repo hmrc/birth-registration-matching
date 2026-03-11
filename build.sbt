@@ -8,11 +8,9 @@ lazy val microservice = Project("birth-registration-matching", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
-    scalaSettings,
-    defaultSettings(),
     PlayKeys.playDefaultPort := 8098,
     libraryDependencies ++= AppDependencies(),
-    scalacOptions ++= Seq("-feature", "-Wconf:msg=unused-imports&src=routes/.*:s")
+    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s")
   )
   .settings(CodeCoverageSettings())
 

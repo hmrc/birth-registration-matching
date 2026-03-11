@@ -19,7 +19,6 @@ package uk.gov.hmrc.brm.filters
 import uk.gov.hmrc.brm.filters.Filter.FilterType
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.Switch
-import scala.annotation.unused
 
 /** Created by mew on 15/05/2017.
   */
