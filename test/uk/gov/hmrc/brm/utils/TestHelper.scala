@@ -47,7 +47,7 @@ object TestHelper {
   val dateOfBirth: LocalDate    = LocalDate.of(2006, 11, 12)
   val altDateOfBirth: LocalDate = LocalDate.of(2009, 11, 12)
 
-  val payload: Payload            =
+  val payload: Payload =
     Payload(Some("500035710"), "Adam", None, "Wilson", LocalDate.of(2006, 11, 12), BirthRegisterCountry.ENGLAND)
 
   val payloadNoReference: Payload =
@@ -63,16 +63,16 @@ object TestHelper {
   val nrsRecord20090630: JsValue              = JsonUtils.getJsonFromFile("nrs", "2017734100")
   val nrsRecord2017350001: JsValue            = JsonUtils.getJsonFromFile("nrs", "2017350001")
 
-  val nrsRequestPayload: Payload           =
+  val nrsRequestPayload: Payload =
     Payload(Some("2017734003"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
 
   val nrsRequestPayload2017350001: Payload =
     Payload(Some("2017350001"), "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
 
-  val nrsRequestPayloadWithoutBrn: Payload         =
+  val nrsRequestPayloadWithoutBrn: Payload =
     Payload(None, "Adam TEST", None, "SMITH", altDateOfBirth, BirthRegisterCountry.SCOTLAND)
 
-  val nrsRequestPayloadWithSpecialChar: Payload    =
+  val nrsRequestPayloadWithSpecialChar: Payload =
     Payload(
       Some("2017350007"),
       "Gab'iœ-Äæy",
@@ -101,7 +101,7 @@ object TestHelper {
   val payloadNoReferenceNorthernIreland: Payload =
     Payload(None, "Adam", None, "Wilson", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
 
-  private val referenceNumber: Int  = 123456789
+  private val referenceNumber: Int = 123456789
 
   val groResponseValidJson: JsValue = parse(s"""
       |{

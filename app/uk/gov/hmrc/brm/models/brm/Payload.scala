@@ -58,8 +58,8 @@ case class Payload(
 
   def requestType: RequestType =
     this match {
-      case input @ Payload(None, _, _, _, _, _)      => DetailsRequest()
-      case payload @ Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
+      case Payload(None, _, _, _, _, _)    => DetailsRequest()
+      case Payload(Some(_), _, _, _, _, _) => ReferenceRequest()
     }
 
 }
@@ -110,7 +110,16 @@ object Payload {
       (JsPath \ lastName).write[String] and
       (JsPath \ dateOfBirth).write[LocalDate] and
       (JsPath \ whereBirthRegistered).write[BirthRegisterCountry.Value](birthRegisterWrites)
-  )(unlift(Payload.unapply))
+  )(p =>
+    (
+      p.birthReferenceNumber,
+      p.firstNames,
+      Option(p.additionalNames).filter(_.nonEmpty),
+      p.lastName,
+      p.dateOfBirth,
+      p.whereBirthRegistered
+    )
+  )
 
   implicit def requestFormat(implicit
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,

@@ -116,7 +116,7 @@ class BirthEventsController @Inject() (
       }
   }
 
-  private def getOrCreateCorrelationID(request: Request[_]): String = {
+  private def getOrCreateCorrelationID(request: Request[?]): String = {
     logger.debug(
       CLASS_NAME,
       "getOrCreateCorrelationID",

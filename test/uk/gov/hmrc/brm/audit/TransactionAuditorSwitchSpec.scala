@@ -40,11 +40,11 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
     implicit lazy val app: Application =
       new GuiceApplicationBuilder().disable[MetricRegistry].configure(configuration).build()
 
-    val connector: AuditConnector      = mock[AuditConnector]
-    val keyGen: KeyGenerator           = app.injector.instanceOf[KeyGenerator]
-    val config: BrmConfig              = app.injector.instanceOf[BrmConfig]
-    val logger: BRMLogger              = app.injector.instanceOf[BRMLogger]
-    val auditor                        = new TransactionAuditor(connector, keyGen, config, logger)
+    val connector: AuditConnector = mock[AuditConnector]
+    val keyGen: KeyGenerator      = app.injector.instanceOf[KeyGenerator]
+    val config: BrmConfig         = app.injector.instanceOf[BrmConfig]
+    val logger: BRMLogger         = app.injector.instanceOf[BRMLogger]
+    val auditor                   = new TransactionAuditor(connector, keyGen, config, logger)
   }
 
   val auditConfigOnForDefault: Configuration = Configuration(

@@ -19,19 +19,24 @@ package uk.gov.hmrc.brm.utils
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Request
 
-@Singleton
-class KeyGenerator @Inject() () {
+object KeyGenerator {
+  val DateFormat: String         = "yyyyMMdd:HHmmssSS"
+  val AuditSourceMaxLen: Int     = 20
+  def liveDateSupplier(): String = DateUtil.getCurrentDateString(DateFormat)
+}
 
-  val DATE_FORMAT: String           = "yyyyMMdd:HHmmssSS"
+@Singleton
+class KeyGenerator(private val dateSupplier: () => String) {
+
+  @Inject
+  def this() = this(() => KeyGenerator.liveDateSupplier())
+
   private var keyForRequest: String = ""
-  private val AUDITSOURCE_LENGTH    = 20
 
   def generateKey[A](request: Request[A], apiVersion: String): String = {
-    val formattedDate: String = DateUtil.getCurrentDateString(DATE_FORMAT)
-    // format is date-requestid-audit source - api version number
-    val auditSource           = request.headers.get("Audit-Source").getOrElse("")
-    val key                   = s"$formattedDate-${request.id}-${getSubString(auditSource, AUDITSOURCE_LENGTH)}-$apiVersion"
-    key
+    val formattedDate = dateSupplier()
+    val auditSource   = request.headers.get("Audit-Source").getOrElse("")
+    s"$formattedDate-${request.id}-${getSubString(auditSource, KeyGenerator.AuditSourceMaxLen)}-$apiVersion"
   }
 
   def getKey(): String =
@@ -40,17 +45,10 @@ class KeyGenerator @Inject() () {
   def setKey(key: String): Unit =
     keyForRequest = key
 
-  def generateAndSetKey[A](request: Request[A], apiVersion: String): Unit = {
-    val key = generateKey(request, apiVersion)
-    setKey(key)
-  }
+  def generateAndSetKey[A](request: Request[A], apiVersion: String): Unit =
+    setKey(generateKey(request, apiVersion))
 
-  def getSubString(originalString: String, maxLength: Int) = {
-    var formattedString = originalString
-    if (originalString.length > maxLength) {
-      formattedString = originalString.substring(0, maxLength)
-    }
-    formattedString
-  }
+  def getSubString(originalString: String, maxLength: Int): String =
+    if (originalString.length > maxLength) originalString.substring(0, maxLength) else originalString
 
 }

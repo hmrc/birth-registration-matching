@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.audit.NorthernIrelandAudit
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BRMLogger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotImplementedException}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,9 +40,9 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
   private val detailsUri   = s"$serviceUrl/$baseUri"
   private val referenceUri = s"$serviceUrl/$baseUri"
 
-  override def headers                                                    = Seq()
+  override def headers = Seq()
 
-  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(Some(brn), _, _, _, _, _) =>
+  override val referenceBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(Some(_), _, _, _, _, _) =>
     (
       referenceUri,
       Json.parse(s"""
@@ -51,7 +51,7 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
     )
   }
 
-  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(None, f, a, l, d, _) =>
+  override val detailsBody: PartialFunction[Payload, (String, JsValue)] = { case Payload(None, _, _, _, _, _) =>
     (
       detailsUri,
       Json.parse(s"""

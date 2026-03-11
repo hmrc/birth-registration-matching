@@ -22,6 +22,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.filters._
+import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, GeneralFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import org.scalatest.matchers.should.Matchers
@@ -72,22 +73,22 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     }
     .build()
 
-  val payloadWithReference: Payload         =
+  val payloadWithReference: Payload =
     Payload(Some("123456789"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
 
-  val nrsPayloadWithReference: Payload      =
+  val nrsPayloadWithReference: Payload =
     Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
 
-  val nrsPayloadWithoutReference: Payload   =
+  val nrsPayloadWithoutReference: Payload =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.SCOTLAND)
 
-  val groNIPayloadWithReference: Payload    =
+  val groNIPayloadWithReference: Payload =
     Payload(Some("1234567890"), "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
 
   val groNIPayloadWithoutReference: Payload =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.NORTHERN_IRELAND)
 
-  val payloadWithoutReference: Payload   =
+  val payloadWithoutReference: Payload =
     Payload(None, "Adam", None, "Smith", LocalDate.now, BirthRegisterCountry.ENGLAND)
 
   val payloadInvalidDateOfBirth: Payload =
@@ -219,6 +220,27 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
         toProcess.length                       shouldBe filters.length
+      }
+
+      "have correct general GRO-NI filter details" in {
+        groniFilter.filterType    shouldBe GeneralFilter
+        groniFilter.switch.name   shouldBe "groni"
+        groniFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
+        groniFilter.toString      shouldBe "GRONIFilter"
+      }
+
+      "have correct GRO-NI details filter details" in {
+        groniDetailsFilter.filterType    shouldBe DetailsFilter
+        groniDetailsFilter.switch.name   shouldBe "groni.details"
+        groniDetailsFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
+        groniDetailsFilter.toString      shouldBe "GRONIDetailsFilter"
+      }
+
+      "have correct GRO-NI reference filter details" in {
+        groniReferenceFilter.filterType    shouldBe ReferenceFilter
+        groniReferenceFilter.switch.name   shouldBe "groni.reference"
+        groniReferenceFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
+        groniReferenceFilter.toString      shouldBe "GRONIReferenceFilter"
       }
 
     }

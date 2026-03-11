@@ -32,7 +32,7 @@ class MatchingServiceAdditionalNameDisabledSpec extends BaseUnitSpec {
 
   val mockFull: FullMatching = new FullMatching(mockConfig)
 
-  val testMatchingService    = new MatchingService(
+  val testMatchingService = new MatchingService(
     mockConfig,
     mockMatchingAudit,
     mockFull,

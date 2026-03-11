@@ -48,7 +48,7 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with BeforeAndAfter
   "KeyGenerator" should {
 
     "return key" in {
-      when(mockRequest.id).thenReturn(10)
+      when(mockRequest.id).thenReturn(10L)
       when(mockRequest.headers).thenReturn(headers)
       when(headers.get(any())).thenReturn(Some("dfs"))
       mockKeyGen.generateKey(mockRequest, "1.0").isEmpty shouldBe false
@@ -90,7 +90,7 @@ class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with BeforeAndAfter
 
     "return key when audit source length is more than 20" in {
       when(mockRequest.headers).thenReturn(headers)
-      when(mockRequest.id).thenReturn(123456)
+      when(mockRequest.id).thenReturn(123456L)
       when(headers.get("Audit-Source")).thenReturn(Some("this--is--30--character--long"))
       when(headers.get(HeaderNames.ACCEPT)).thenReturn(Some("application/vnd.hmrc.10.0+json"))
       val key = mockKeyGen.generateKey(mockRequest, "2.0")

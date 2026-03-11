@@ -18,14 +18,14 @@ package uk.gov.hmrc.brm.utils
 
 import javax.inject.Inject
 import play.api.libs.json.{JsValue, Reads}
-import uk.gov.hmrc.brm.models.response.Record
+import scala.reflect.ClassTag
 
 class RecordParser @Inject() (logger: BRMLogger) {
 
   def parse[T](json: JsValue, reads: (Reads[List[T]], Reads[T]))(implicit
-    manifest: reflect.Manifest[Record]
+    classTag: ClassTag[T]
   ): List[T] = {
-    val name = manifest.toString()
+    val name = classTag.runtimeClass.getSimpleName
 
     // read-1 is list reads and reads_2 is single record read.
     val records = json
