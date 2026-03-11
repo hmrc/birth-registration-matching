@@ -12,7 +12,7 @@ lazy val microservice = Project("birth-registration-matching", file("."))
     defaultSettings(),
     PlayKeys.playDefaultPort := 8098,
     libraryDependencies ++= AppDependencies(),
-    scalacOptions ++= Seq("-feature", "-Wconf:src=conf/.*\\.routes:s")
+    scalacOptions ++= Seq("-feature", "-Wconf:msg=unused-imports&src=routes/.*:s")
   )
   .settings(CodeCoverageSettings())
 

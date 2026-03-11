@@ -22,7 +22,7 @@ import uk.gov.hmrc.brm.switches.Switch
 import scala.annotation.unused
 
 /** Created by mew on 15/05/2017.
- */
+  */
 object Filter {
   abstract class FilterType
   object ReferenceFilter extends FilterType
@@ -33,7 +33,7 @@ object Filter {
 abstract class Filter(val filterType: FilterType) {
   val switch: Switch
 
-  def process(@unused payload: Payload): Boolean =
+  def process(payload: Payload): Boolean =
     switch.isEnabled
 
 }

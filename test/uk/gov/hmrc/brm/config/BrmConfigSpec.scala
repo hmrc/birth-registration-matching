@@ -30,8 +30,8 @@ class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .configure(
-      "microservice.services.birth-registration-matching.host"                              -> "localhost",
-      "microservice.services.birth-registration-matching.port"                              -> 9000,
+      "microservice.services.birth-registration-matching.host"                             -> "localhost",
+      "microservice.services.birth-registration-matching.port"                             -> 9000,
       "microservice.services.des.host"                                                     -> "localhost",
       "microservice.services.des.port"                                                     -> 9001,
       "microservice.services.birth-registration-matching.matching.firstName"               -> true,
@@ -71,57 +71,57 @@ class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with
   "BrmConfig" should {
 
     "return matching config values" in {
-      config.matchFirstName shouldBe true
-      config.matchLastName shouldBe true
-      config.matchDateOfBirth shouldBe true
-      config.matchOnMultiple shouldBe false
+      config.matchFirstName        shouldBe true
+      config.matchLastName         shouldBe true
+      config.matchDateOfBirth      shouldBe true
+      config.matchOnMultiple       shouldBe false
       config.ignoreAdditionalNames shouldBe true
     }
 
     "return flags config values" in {
-      config.logFlags shouldBe true
-      config.processFlags shouldBe true
-      config.validateFlag("gro", "test") shouldBe true
+      config.logFlags                       shouldBe true
+      config.processFlags                   shouldBe true
+      config.validateFlag("gro", "test")    shouldBe true
       config.validateFlag("gro", "missing") shouldBe false
     }
 
     "return audit map for england payload" in {
       val audit = config.audit(Some(payloadEngland))
 
-      audit("features.matchFirstName") shouldBe "true"
-      audit("features.matchLastName") shouldBe "true"
-      audit("features.matchDateOfBirth") shouldBe "true"
-      audit("features.matchOnMultiple") shouldBe "false"
-      audit("features.ignoreMiddleNames") shouldBe "true"
+      audit("features.matchFirstName")     shouldBe "true"
+      audit("features.matchLastName")      shouldBe "true"
+      audit("features.matchDateOfBirth")   shouldBe "true"
+      audit("features.matchOnMultiple")    shouldBe "false"
+      audit("features.ignoreMiddleNames")  shouldBe "true"
       audit("features.downstream.enabled") shouldBe "true"
-      audit("features.reference.enabled") shouldBe "true"
-      audit("features.details.enabled") shouldBe "true"
-      audit("features.flags.logging") shouldBe "true"
-      audit("features.flags.process") shouldBe "true"
+      audit("features.reference.enabled")  shouldBe "true"
+      audit("features.details.enabled")    shouldBe "true"
+      audit("features.flags.logging")      shouldBe "true"
+      audit("features.flags.process")      shouldBe "true"
     }
 
     "return audit map for scotland payload" in {
       val audit = config.audit(Some(payloadScotland))
 
       audit("features.downstream.enabled") shouldBe "true"
-      audit("features.reference.enabled") shouldBe "true"
-      audit("features.details.enabled") shouldBe "true"
+      audit("features.reference.enabled")  shouldBe "true"
+      audit("features.details.enabled")    shouldBe "true"
     }
 
     "return audit map for northern ireland payload" in {
       val audit = config.audit(Some(payloadNorthernIreland))
 
       audit("features.downstream.enabled") shouldBe "false"
-      audit("features.reference.enabled") shouldBe "false"
-      audit("features.details.enabled") shouldBe "false"
+      audit("features.reference.enabled")  shouldBe "false"
+      audit("features.details.enabled")    shouldBe "false"
     }
 
     "return audit map for missing payload" in {
       val audit = config.audit(None)
 
       audit("features.downstream.enabled") shouldBe "false"
-      audit("features.reference.enabled") shouldBe "false"
-      audit("features.details.enabled") shouldBe "false"
+      audit("features.reference.enabled")  shouldBe "false"
+      audit("features.details.enabled")    shouldBe "false"
     }
 
     "return des config values" in {
@@ -131,7 +131,7 @@ class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with
 
     "return service urls" in {
       config.serviceUrl should include("localhost")
-      config.desUrl should include("localhost")
+      config.desUrl     should include("localhost")
     }
 
     "throw MatchingConfigurationException when ignoreAdditionalNames config is missing" in {

@@ -36,7 +36,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
-import scala.annotation.unused
 import scala.concurrent.Future
 
 class PartialMatchingSpec extends BaseUnitSpec {
@@ -333,7 +332,7 @@ trait MatchingServiceSpec
     )
     .build()
 
-  def getApp(@unused config: Map[String, _]): Application = GuiceApplicationBuilder(
+  def getApp(config: Map[String, _]): Application = GuiceApplicationBuilder(
     disabled = Seq(classOf[com.codahale.metrics.MetricRegistry])
   )
     .configure(configIgnoreAdditionalNames)
