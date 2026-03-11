@@ -1,4 +1,3 @@
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 ThisBuild / scalaVersion := "3.3.7"
