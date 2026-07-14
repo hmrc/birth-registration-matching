@@ -135,7 +135,7 @@ object TestHelper {
       |  "systemNumber": $referenceNumber,
       |  "id": $referenceNumber,
       |  "status": {
-      |    "blockedRegistration": false
+      |    "blocked": false
       |  },
       |  "previousRegistration": {}
       |

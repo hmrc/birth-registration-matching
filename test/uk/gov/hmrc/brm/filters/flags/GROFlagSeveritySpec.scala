@@ -30,70 +30,70 @@ class GROFlagSeveritySpec
     extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
   val allEnabledConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> true
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> true
   )
 
   val allDisabledConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> false
   )
 
-  val potentiallyFictitiousBirthConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false
+  val potentiallyFictitiousConfig: Map[String, _] = Map(
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false
   )
 
   val blockedRegistrationConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false
   )
 
   val correctionConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false
   )
 
   val cancelledConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false
   )
 
   val marginalNoteConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> true
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> true
   )
 
   val reRegisteredConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> true
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> true
   )
 
   override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
@@ -102,9 +102,9 @@ class GROFlagSeveritySpec
         allEnabledConfig
       } else if (testData.tags.contains("allDisabled")) {
         allDisabledConfig
-      } else if (testData.tags.contains("potentiallyFictitiousBirth")) {
-        potentiallyFictitiousBirthConfig
-      } else if (testData.tags.contains("blockedRegistration")) {
+      } else if (testData.tags.contains("potentiallyFictitious")) {
+        potentiallyFictitiousConfig
+      } else if (testData.tags.contains("blocked")) {
         blockedRegistrationConfig
       } else if (testData.tags.contains("correction")) {
         correctionConfig
@@ -112,7 +112,7 @@ class GROFlagSeveritySpec
         cancelledConfig
       } else if (testData.tags.contains("marginalNote")) {
         marginalNoteConfig
-      } else if (testData.tags.contains("reRegistered")) {
+      } else if (testData.tags.contains("reregistration")) {
         reRegisteredConfig
       } else {
         allEnabledConfig
@@ -121,75 +121,75 @@ class GROFlagSeveritySpec
     .build()
 
   val allFlagsGreen = GROStatus(
-    potentiallyFictitiousBirth = false,
+    potentiallyFictitious = false,
     correction = None,
     cancelled = false,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val allFlagsRed = GROStatus(
-    potentiallyFictitiousBirth = true,
+    potentiallyFictitious = true,
     correction = Some("reason here..."),
     cancelled = true,
-    blockedRegistration = true,
+    blocked = true,
     marginalNote = Some("reason here..."),
-    reRegistered = Some("reason here...")
+    reregistration = Some("reason here...")
   )
 
   val potentiallyFictitiousBirthFlag = GROStatus(
-    potentiallyFictitiousBirth = true,
+    potentiallyFictitious = true,
     correction = None,
     cancelled = false,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val correctionFlag = GROStatus(
-    potentiallyFictitiousBirth = false,
+    potentiallyFictitious = false,
     correction = Some("correction on record"),
     cancelled = false,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val cancelledFlag = GROStatus(
-    potentiallyFictitiousBirth = false,
+    potentiallyFictitious = false,
     correction = None,
     cancelled = true,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val blockedRegistration = GROStatus(
-    potentiallyFictitiousBirth = false,
+    potentiallyFictitious = false,
     correction = None,
     cancelled = false,
-    blockedRegistration = true,
+    blocked = true,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val marginalNote = GROStatus(
-    potentiallyFictitiousBirth = false,
+    potentiallyFictitious = false,
     correction = None,
     cancelled = false,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = Some("Other"),
-    reRegistered = None
+    reregistration = None
   )
 
-  val reRegistered = GROStatus(
-    potentiallyFictitiousBirth = false,
+  val reregistration = GROStatus(
+    potentiallyFictitious = false,
     correction = None,
     cancelled = false,
-    blockedRegistration = false,
+    blocked = false,
     marginalNote = None,
-    reRegistered = Some("Other")
+    reregistration = Some("Other")
   )
 
   "GROFlagSeverity.canProcessRecord" when {
@@ -230,8 +230,8 @@ class GROFlagSeveritySpec
       }
     }
 
-    "blockedRegistration exists" should {
-      "return false when flag is set and process flag is true" taggedAs Tag("blockedRegistration") in {
+    "blocked exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("blocked") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
         val groFlags          = blockedRegistration.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
@@ -286,16 +286,16 @@ class GROFlagSeveritySpec
       }
     }
 
-    "reRegistered exists" should {
-      "return false when flag is set and process flag is true" taggedAs Tag("reRegistered") in {
+    "reregistration exists" should {
+      "return false when flag is set and process flag is true" taggedAs Tag("reregistration") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags          = reRegistered.determineFlagSeverity
+        val groFlags          = reregistration.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe false
       }
 
       "return true when flag is set and process flag is false" taggedAs Tag("allDisabled") in {
         val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-        val groFlags          = reRegistered.determineFlagSeverity
+        val groFlags          = reregistration.determineFlagSeverity
         groFlags.canProcessRecord(config) shouldBe true
       }
 

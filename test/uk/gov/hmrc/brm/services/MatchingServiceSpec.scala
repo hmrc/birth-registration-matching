@@ -305,14 +305,14 @@ trait MatchingServiceSpec
   )
 
   def switchEnabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames"                        -> false,
-    "microservice.services.birth-registration-matching.features.flags.process"                                -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> true
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames"                   -> false,
+    "microservice.services.birth-registration-matching.features.flags.process"                           -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> true
   )
 
   def switchDisabled: Map[String, _] = Map(
@@ -516,7 +516,7 @@ trait MatchingServiceSpec
 
         }
 
-      "record contains a reRegistered flag" should {
+      "record contains a reregistration flag" should {
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
           val payload     =

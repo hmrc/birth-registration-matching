@@ -318,12 +318,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
-              potentiallyFictitiousBirth = true,
+              potentiallyFictitious = true,
               correction = Some("Correction"),
               cancelled = true,
-              blockedRegistration = true,
+              blocked = true,
               marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
+              reregistration = Some("Re-registered")
             )
           )
         )
@@ -335,12 +335,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
-        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
-        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitious") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")            shouldBe "Correction on record"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")             shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blocked")               shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")          shouldBe "Marginal note on record"
+        argumentCapture.getValue.detail("records.record1.flags.reregistration")        shouldBe "Re-registration on record"
       }
 
       "return a Map() of flags where flag has reason and none" in {
@@ -349,12 +349,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
-              potentiallyFictitiousBirth = true,
+              potentiallyFictitious = true,
               correction = Some("Correction None"),
               cancelled = true,
-              blockedRegistration = true,
+              blocked = true,
               marginalNote = Some("RCE"),
-              reRegistered = Some("Re-registered")
+              reregistration = Some("Re-registered")
             )
           )
         )
@@ -366,12 +366,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
-        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "Marginal note on record"
-        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitious") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")            shouldBe "Correction on record"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")             shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blocked")               shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")          shouldBe "Marginal note on record"
+        argumentCapture.getValue.detail("records.record1.flags.reregistration")        shouldBe "Re-registration on record"
       }
 
       "return a Map() of 'none' flags" in {
@@ -380,12 +380,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           Child(500035710: Int, "Adam TEST", "SMITH", Some(LocalDate.of(2009, 6, 30))),
           status = Some(
             GROStatus(
-              potentiallyFictitiousBirth = true,
+              potentiallyFictitious = true,
               correction = Some(" None  "),
               cancelled = true,
-              blockedRegistration = true,
+              blocked = true,
               marginalNote = Some("  None  "),
-              reRegistered = Some(" None.  .none... ")
+              reregistration = Some(" None.  .none... ")
             )
           )
         )
@@ -396,12 +396,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
         when(mockAuditConnector.sendEvent(argumentCapture.capture)(any(), any()))
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
-        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "None"
-        argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-        argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "None"
-        argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "Re-registration on record"
+        argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitious") shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.correction")            shouldBe "None"
+        argumentCapture.getValue.detail("records.record1.flags.cancelled")             shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.blocked")               shouldBe "true"
+        argumentCapture.getValue.detail("records.record1.flags.marginalNote")          shouldBe "None"
+        argumentCapture.getValue.detail("records.record1.flags.reregistration")        shouldBe "Re-registration on record"
       }
 
     }
@@ -444,12 +444,12 @@ class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
           .thenReturn(Future.successful(AuditResult.Success))
         auditor.transaction(payload, List(child1), MatchingResult.noMatch)
 
-        argumentCapture.getValue.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
-        argumentCapture.getValue.detail.contains("records.record1.flags.correction")                 shouldBe false
-        argumentCapture.getValue.detail.contains("records.record1.flags.cancelled")                  shouldBe false
-        argumentCapture.getValue.detail.contains("records.record1.flags.blockedRegistration")        shouldBe false
-        argumentCapture.getValue.detail.contains("records.record1.flags.marginalNote")               shouldBe false
-        argumentCapture.getValue.detail.contains("records.record1.flags.reRegistered")               shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.potentiallyFictitious") shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.correction")            shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.cancelled")             shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.blocked")               shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.marginalNote")          shouldBe false
+        argumentCapture.getValue.detail.contains("records.record1.flags.reregistration")        shouldBe false
       }
     }
   }

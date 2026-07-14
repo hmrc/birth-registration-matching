@@ -29,12 +29,12 @@ object FlagsHelper {
   def flaggedFictitiousBirth: Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = true,
+      potentiallyFictitious = true,
       correction = None,
       cancelled = false,
-      blockedRegistration = false,
+      blocked = false,
       marginalNote = None,
-      reRegistered = None
+      reregistration = None
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
@@ -44,12 +44,12 @@ object FlagsHelper {
   def flaggedBlockedRegistration: Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = false,
+      potentiallyFictitious = false,
       correction = None,
       cancelled = false,
-      blockedRegistration = true,
+      blocked = true,
       marginalNote = None,
-      reRegistered = None
+      reregistration = None
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
@@ -59,12 +59,12 @@ object FlagsHelper {
   def correction: Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = false,
+      potentiallyFictitious = false,
       correction = Some("Simple clerical"),
       cancelled = false,
-      blockedRegistration = false,
+      blocked = false,
       marginalNote = None,
-      reRegistered = None
+      reregistration = None
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
@@ -74,12 +74,12 @@ object FlagsHelper {
   def cancelled: Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = false,
+      potentiallyFictitious = false,
       correction = None,
       cancelled = true,
-      blockedRegistration = false,
+      blocked = false,
       marginalNote = None,
-      reRegistered = None
+      reregistration = None
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
@@ -89,12 +89,12 @@ object FlagsHelper {
   def marginalNote(value: String): Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = false,
+      potentiallyFictitious = false,
       correction = None,
       cancelled = false,
-      blockedRegistration = false,
+      blocked = false,
       marginalNote = Some(value),
-      reRegistered = None
+      reregistration = None
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))
@@ -104,12 +104,12 @@ object FlagsHelper {
   def reRegistered(value: String): Record = {
 
     val status = GROStatus(
-      potentiallyFictitiousBirth = false,
+      potentiallyFictitious = false,
       correction = None,
       cancelled = false,
-      blockedRegistration = false,
+      blocked = false,
       marginalNote = None,
-      reRegistered = Some(value)
+      reregistration = Some(value)
     )
 
     val child = Child(referenceNumber, "Chris", "Jones", Some(birthDate))

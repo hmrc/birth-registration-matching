@@ -72,9 +72,9 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
 
   val status: GROStatus = GROStatus(
     correction = Some("Correction on record"),
-    blockedRegistration = true,
+    blocked = true,
     marginalNote = None,
-    reRegistered = None
+    reregistration = None
   )
 
   val record: Record = Record(child, Option(status))
@@ -91,22 +91,22 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
       val event: AuditResult                          = auditor.transaction(payload, List(record), MatchingResult.noMatch).futureValue
       event shouldBe AuditResult.Success
 
-      argumentCapture.getValue.detail("features.matchFirstName")                          shouldBe "true"
-      argumentCapture.getValue.detail("features.matchLastName")                           shouldBe "true"
-      argumentCapture.getValue.detail("features.matchDateOfBirth")                        shouldBe "true"
-      argumentCapture.getValue.detail("features.matchOnMultiple")                         shouldBe "false"
-      argumentCapture.getValue.detail("features.ignoreMiddleNames")                       shouldBe "true"
-      argumentCapture.getValue.detail("features.details.enabled")                         shouldBe "true"
-      argumentCapture.getValue.detail("features.reference.enabled")                       shouldBe "true"
-      argumentCapture.getValue.detail("features.flags.logging")                           shouldBe "true"
-      argumentCapture.getValue.detail("features.flags.process")                           shouldBe "true"
-      argumentCapture.getValue.detail("features.downstream.enabled")                      shouldBe "true"
-      argumentCapture.getValue.detail("records.record1.flags.marginalNote")               shouldBe "None"
-      argumentCapture.getValue.detail("records.record1.flags.blockedRegistration")        shouldBe "true"
-      argumentCapture.getValue.detail("records.record1.flags.reRegistered")               shouldBe "None"
-      argumentCapture.getValue.detail("records.record1.flags.cancelled")                  shouldBe "false"
-      argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitiousBirth") shouldBe "false"
-      argumentCapture.getValue.detail("records.record1.flags.correction")                 shouldBe "Correction on record"
+      argumentCapture.getValue.detail("features.matchFirstName")                     shouldBe "true"
+      argumentCapture.getValue.detail("features.matchLastName")                      shouldBe "true"
+      argumentCapture.getValue.detail("features.matchDateOfBirth")                   shouldBe "true"
+      argumentCapture.getValue.detail("features.matchOnMultiple")                    shouldBe "false"
+      argumentCapture.getValue.detail("features.ignoreMiddleNames")                  shouldBe "true"
+      argumentCapture.getValue.detail("features.details.enabled")                    shouldBe "true"
+      argumentCapture.getValue.detail("features.reference.enabled")                  shouldBe "true"
+      argumentCapture.getValue.detail("features.flags.logging")                      shouldBe "true"
+      argumentCapture.getValue.detail("features.flags.process")                      shouldBe "true"
+      argumentCapture.getValue.detail("features.downstream.enabled")                 shouldBe "true"
+      argumentCapture.getValue.detail("records.record1.flags.marginalNote")          shouldBe "None"
+      argumentCapture.getValue.detail("records.record1.flags.blocked")               shouldBe "true"
+      argumentCapture.getValue.detail("records.record1.flags.reregistration")        shouldBe "None"
+      argumentCapture.getValue.detail("records.record1.flags.cancelled")             shouldBe "false"
+      argumentCapture.getValue.detail("records.record1.flags.potentiallyFictitious") shouldBe "false"
+      argumentCapture.getValue.detail("records.record1.flags.correction")            shouldBe "Correction on record"
     }
 
     "return correct settings when audit config is overridden" in new TestAuditor(auditConfigOnForAlternate) {
@@ -119,22 +119,22 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
       val event: AuditResult                          = auditor.transaction(payload, List(record), MatchingResult.noMatch).futureValue
       event shouldBe AuditResult.Success
 
-      argumentCapture.getValue.detail("features.matchFirstName")                                   shouldBe "false"
-      argumentCapture.getValue.detail("features.matchLastName")                                    shouldBe "false"
-      argumentCapture.getValue.detail("features.matchDateOfBirth")                                 shouldBe "false"
-      argumentCapture.getValue.detail("features.matchOnMultiple")                                  shouldBe "true"
-      argumentCapture.getValue.detail("features.ignoreMiddleNames")                                shouldBe "false"
-      argumentCapture.getValue.detail("features.details.enabled")                                  shouldBe "false"
-      argumentCapture.getValue.detail("features.reference.enabled")                                shouldBe "false"
-      argumentCapture.getValue.detail("features.downstream.enabled")                               shouldBe "false"
-      argumentCapture.getValue.detail("features.flags.logging")                                    shouldBe "false"
-      argumentCapture.getValue.detail("features.flags.process")                                    shouldBe "false"
-      argumentCapture.getValue.detail.contains("records.record1.flags.marginalNote")               shouldBe false
-      argumentCapture.getValue.detail.contains("records.record1.flags.blockedRegistration")        shouldBe false
-      argumentCapture.getValue.detail.contains("records.record1.flags.reRegistered")               shouldBe false
-      argumentCapture.getValue.detail.contains("records.record1.flags.cancelled")                  shouldBe false
-      argumentCapture.getValue.detail.contains("records.record1.flags.potentiallyFictitiousBirth") shouldBe false
-      argumentCapture.getValue.detail.contains("records.record1.flags.correction")                 shouldBe false
+      argumentCapture.getValue.detail("features.matchFirstName")                              shouldBe "false"
+      argumentCapture.getValue.detail("features.matchLastName")                               shouldBe "false"
+      argumentCapture.getValue.detail("features.matchDateOfBirth")                            shouldBe "false"
+      argumentCapture.getValue.detail("features.matchOnMultiple")                             shouldBe "true"
+      argumentCapture.getValue.detail("features.ignoreMiddleNames")                           shouldBe "false"
+      argumentCapture.getValue.detail("features.details.enabled")                             shouldBe "false"
+      argumentCapture.getValue.detail("features.reference.enabled")                           shouldBe "false"
+      argumentCapture.getValue.detail("features.downstream.enabled")                          shouldBe "false"
+      argumentCapture.getValue.detail("features.flags.logging")                               shouldBe "false"
+      argumentCapture.getValue.detail("features.flags.process")                               shouldBe "false"
+      argumentCapture.getValue.detail.contains("records.record1.flags.marginalNote")          shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.flags.blocked")               shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.flags.reregistration")        shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.flags.cancelled")             shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.flags.potentiallyFictitious") shouldBe false
+      argumentCapture.getValue.detail.contains("records.record1.flags.correction")            shouldBe false
     }
 
   }

@@ -195,7 +195,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
     |  "systemNumber": 999999920,
     |  "id": 999999920,
     |  "status": {
-    |    "blockedRegistration": false
+    |    "blocked": false
     |  },
     |  "previousRegistration": {}
     |
@@ -315,12 +315,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -340,12 +340,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": true,
+      |    "potentiallyFictitious": true,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -365,12 +365,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "Typographical",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -390,12 +390,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": true,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -415,12 +415,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": true,
+      |    "blocked": true,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -440,12 +440,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "Re-registered",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -465,12 +465,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "Re-registered"
+      |    "reregistration": "Re-registered"
       |  }
       |}
     """.stripMargin
@@ -492,9 +492,9 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | "status": {
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -514,11 +514,11 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -538,11 +538,11 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -562,11 +562,11 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
       |    "marginalNote": "None",
-      |    "reRegistered": "None"
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -586,11 +586,11 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
-      |    "reRegistered": "None"
+      |    "blocked": false,
+      |    "reregistration": "None"
       |  }
       |}
     """.stripMargin
@@ -610,10 +610,10 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       | },
       | "systemNumber" : 500035710,
       | "status": {
-      |    "potentiallyFictitiousBirth": false,
+      |    "potentiallyFictitious": false,
       |    "correction": "None",
       |    "cancelled": false,
-      |    "blockedRegistration": false,
+      |    "blocked": false,
       |    "marginalNote": "None"
       |  }
       |}
@@ -627,12 +627,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonAllStatusFlagsPotentiallyFictious.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         Map(
-          "potentiallyFictitiousBirth" -> "true",
-          "correction"                 -> "None",
-          "cancelled"                  -> "false",
-          "blockedRegistration"        -> "false",
-          "marginalNote"               -> "None",
-          "reRegistered"               -> "None"
+          "potentiallyFictitious" -> "true",
+          "correction"            -> "None",
+          "cancelled"             -> "false",
+          "blocked"               -> "false",
+          "marginalNote"          -> "None",
+          "reregistration"        -> "None"
         )
     }
 
@@ -641,12 +641,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonAllStatusFlagsCorrection.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         Map(
-          "potentiallyFictitiousBirth" -> "false",
-          "correction"                 -> "Correction on record",
-          "cancelled"                  -> "false",
-          "blockedRegistration"        -> "false",
-          "marginalNote"               -> "None",
-          "reRegistered"               -> "None"
+          "potentiallyFictitious" -> "false",
+          "correction"            -> "Correction on record",
+          "cancelled"             -> "false",
+          "blocked"               -> "false",
+          "marginalNote"          -> "None",
+          "reregistration"        -> "None"
         )
     }
 
@@ -655,12 +655,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonAllStatusFlagsCancelled.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         Map(
-          "potentiallyFictitiousBirth" -> "false",
-          "correction"                 -> "None",
-          "cancelled"                  -> "true",
-          "blockedRegistration"        -> "false",
-          "marginalNote"               -> "None",
-          "reRegistered"               -> "None"
+          "potentiallyFictitious" -> "false",
+          "correction"            -> "None",
+          "cancelled"             -> "true",
+          "blocked"               -> "false",
+          "marginalNote"          -> "None",
+          "reregistration"        -> "None"
         )
     }
 
@@ -669,12 +669,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonAllStatusFlagsBlocked.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         Map(
-          "potentiallyFictitiousBirth" -> "false",
-          "correction"                 -> "None",
-          "cancelled"                  -> "false",
-          "blockedRegistration"        -> "true",
-          "marginalNote"               -> "None",
-          "reRegistered"               -> "None"
+          "potentiallyFictitious" -> "false",
+          "correction"            -> "None",
+          "cancelled"             -> "false",
+          "blocked"               -> "true",
+          "marginalNote"          -> "None",
+          "reregistration"        -> "None"
         )
     }
 
@@ -683,12 +683,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonAllStatusFlagsMarginalNote.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe
         Map(
-          "potentiallyFictitiousBirth" -> "false",
-          "correction"                 -> "None",
-          "cancelled"                  -> "false",
-          "blockedRegistration"        -> "false",
-          "marginalNote"               -> "Marginal note on record",
-          "reRegistered"               -> "None"
+          "potentiallyFictitious" -> "false",
+          "correction"            -> "None",
+          "cancelled"             -> "false",
+          "blocked"               -> "false",
+          "marginalNote"          -> "Marginal note on record",
+          "reregistration"        -> "None"
         )
     }
 
@@ -696,12 +696,12 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
       val result = jsonAllStatusFlagsReregistered.validate[Record](ReadsUtil.groReadRecord).get
       result.status.get.flags shouldBe Map(
-        "potentiallyFictitiousBirth" -> "false",
-        "correction"                 -> "None",
-        "cancelled"                  -> "false",
-        "blockedRegistration"        -> "false",
-        "marginalNote"               -> "None",
-        "reRegistered"               -> "Re-registration on record"
+        "potentiallyFictitious" -> "false",
+        "correction"            -> "None",
+        "cancelled"             -> "false",
+        "blocked"               -> "false",
+        "marginalNote"          -> "None",
+        "reregistration"        -> "Re-registration on record"
       )
 
     }
@@ -712,21 +712,21 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
       val record = listOfRecords.head
 
-      listOfRecords.length                                                 shouldBe 1
-      record                                                               shouldBe a[Record]
-      record.child                                                         shouldBe a[Child]
-      record.child.birthReferenceNumber                                    shouldBe 500035710
-      record.child.forenames                                               shouldBe "Adam TEST"
-      record.child.lastName                                                shouldBe "SMITH"
-      record.child.dateOfBirth.get.toString                                shouldBe "2006-11-12"
-      record.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-      record.status.get                                                    shouldBe a[GROStatus]
-      record.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-      record.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-      record.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-      record.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-      record.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-      record.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+      listOfRecords.length                                            shouldBe 1
+      record                                                          shouldBe a[Record]
+      record.child                                                    shouldBe a[Child]
+      record.child.birthReferenceNumber                               shouldBe 500035710
+      record.child.forenames                                          shouldBe "Adam TEST"
+      record.child.lastName                                           shouldBe "SMITH"
+      record.child.dateOfBirth.get.toString                           shouldBe "2006-11-12"
+      record.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+      record.status.get                                               shouldBe a[GROStatus]
+      record.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+      record.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+      record.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+      record.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+      record.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+      record.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
     }
 
     "return Record object with all Child attributes when json is valid and complete (ASCII)" in {
@@ -819,19 +819,19 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       val result = jsonRecordKeysNoValues.validate[Record](ReadsUtil.groReadRecord)
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 999999926
-          x.child.forenames                                               shouldBe ""
-          x.child.lastName                                                shouldBe ""
-          x.child.dateOfBirth                                             shouldBe None
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction                 shouldBe None
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote               shouldBe None
-          x.status.get.asInstanceOf[GROStatus].reRegistered               shouldBe None
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 999999926
+          x.child.forenames                                          shouldBe ""
+          x.child.lastName                                           shouldBe ""
+          x.child.dateOfBirth                                        shouldBe None
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction            shouldBe None
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote          shouldBe None
+          x.status.get.asInstanceOf[GROStatus].reregistration        shouldBe None
         case JsError(_)      =>
           throw new Exception
       }
@@ -875,10 +875,10 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
           x.child.dateOfBirth          shouldBe None
           x.status                     shouldBe Some(
             GROStatus(
-              potentiallyFictitiousBirth = false,
+              potentiallyFictitious = false,
               None,
               cancelled = false,
-              blockedRegistration = false,
+              blocked = false,
               None,
               None
             )
@@ -980,29 +980,29 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
-          x.status.get.toJson                                             shouldBe
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
+          x.status.get.toJson                                        shouldBe
             Json.parse(s"""
                |{
-               |  "potentiallyFictitiousBirth": "false",
+               |  "potentiallyFictitious": "false",
                |  "correction": "None",
                |  "cancelled": "false",
-               |  "blockedRegistration": "false",
+               |  "blocked": "false",
                |  "marginalNote": "None",
-               |  "reRegistered": "None"
+               |  "reregistration": "None"
                |}
              """.stripMargin)
         case JsError(_)      =>
@@ -1010,25 +1010,25 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       }
     }
 
-    "return Record object with Status object when potentiallyFictitiousBirth key is excluded" in {
+    "return Record object with Status object when potentiallyFictitious key is excluded" in {
       val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
         case JsError(_)      =>
           throw new Exception
       }
@@ -1039,20 +1039,20 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction                 shouldBe None
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction            shouldBe None
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
         case JsError(_)      =>
           throw new Exception
       }
@@ -1063,44 +1063,44 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
         case JsError(_)      =>
           throw new Exception
       }
     }
 
-    "return Record object with Status object when blockedRegistration key is excluded" in {
+    "return Record object with Status object when blocked key is excluded" in {
       val result = jsonStatusFlagsExcludingBlockedRegistration.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
         case JsError(_)      =>
           throw new Exception
       }
@@ -1111,44 +1111,44 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote               shouldBe None
-          x.status.get.asInstanceOf[GROStatus].reRegistered.get           shouldBe "None"
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote          shouldBe None
+          x.status.get.asInstanceOf[GROStatus].reregistration.get    shouldBe "None"
         case JsError(_)      =>
           throw new Exception
       }
     }
 
-    "return Record object with Status object when reRegistered key is excluded" in {
+    "return Record object with Status object when reregistration key is excluded" in {
       val result = jsonStatusFlagsExcludingReRegistered.validate[Record](ReadsUtil.groReadRecord)
       result shouldBe a[JsSuccess[_]]
       result match {
         case JsSuccess(x, _) =>
-          x                                                               shouldBe a[Record]
-          x.child                                                         shouldBe a[Child]
-          x.child.birthReferenceNumber                                    shouldBe 500035710
-          x.child.forenames                                               shouldBe "John"
-          x.child.lastName                                                shouldBe "Jones"
-          x.child.dateOfBirth.get.toString                                shouldBe "2007-02-18"
-          x.child.dateOfBirth.get                                         shouldBe a[LocalDate]
-          x.status.get                                                    shouldBe a[GROStatus]
-          x.status.get.asInstanceOf[GROStatus].potentiallyFictitiousBirth shouldBe false
-          x.status.get.asInstanceOf[GROStatus].correction.get             shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].cancelled                  shouldBe false
-          x.status.get.asInstanceOf[GROStatus].blockedRegistration        shouldBe false
-          x.status.get.asInstanceOf[GROStatus].marginalNote.get           shouldBe "None"
-          x.status.get.asInstanceOf[GROStatus].reRegistered               shouldBe None
+          x                                                          shouldBe a[Record]
+          x.child                                                    shouldBe a[Child]
+          x.child.birthReferenceNumber                               shouldBe 500035710
+          x.child.forenames                                          shouldBe "John"
+          x.child.lastName                                           shouldBe "Jones"
+          x.child.dateOfBirth.get.toString                           shouldBe "2007-02-18"
+          x.child.dateOfBirth.get                                    shouldBe a[LocalDate]
+          x.status.get                                               shouldBe a[GROStatus]
+          x.status.get.asInstanceOf[GROStatus].potentiallyFictitious shouldBe false
+          x.status.get.asInstanceOf[GROStatus].correction.get        shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].cancelled             shouldBe false
+          x.status.get.asInstanceOf[GROStatus].blocked               shouldBe false
+          x.status.get.asInstanceOf[GROStatus].marginalNote.get      shouldBe "None"
+          x.status.get.asInstanceOf[GROStatus].reregistration        shouldBe None
         case JsError(_)      =>
           throw new Exception
       }

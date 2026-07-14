@@ -93,7 +93,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                               |  "systemNumber": 999999920,
                                               |  "id": 999999920,
                                               |  "status": {
-                                              |    "blockedRegistration": false
+                                              |    "blocked": false
                                               |  },
                                               |  "previousRegistration": {}
                                               |
@@ -148,7 +148,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                             |  "systemNumber": 123456789,
                                             |  "id": 123456789,
                                             |  "status": {
-                                            |    "blockedRegistration": false
+                                            |    "blocked": false
                                             |  },
                                             |  "previousRegistration": {}
                                             |
@@ -201,7 +201,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                               |  "systemNumber": 999999920,
                                               |  "id": 999999920,
                                               |  "status": {
-                                              |    "blockedRegistration": false
+                                              |    "blocked": false
                                               |  },
                                               |  "previousRegistration": {}
                                               |
@@ -253,7 +253,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                             |  "systemNumber": 123456789,
                                             |  "id": 123456789,
                                             |  "status": {
-                                            |    "blockedRegistration": false
+                                            |    "blocked": false
                                             |  },
                                             |  "previousRegistration": {}
                                             |

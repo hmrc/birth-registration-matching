@@ -46,8 +46,8 @@ case class GROStatus(
   ) extends FlagSeverity {
 
     def canProcessRecord(config: BrmConfig): Boolean =
-      isGreen(this.potentiallyFictitious, config.validateFlag("gro", "potentiallyFictitiousBirth")) &&
-        isGreen(this.blocked, config.validateFlag("gro", "blockedRegistration")) &&
+      isGreen(this.potentiallyFictitious, config.validateFlag("gro", "potentiallyFictitious")) &&
+        isGreen(this.blocked, config.validateFlag("gro", "blocked")) &&
         isGreen(this.correction, config.validateFlag("gro", "correction")) &&
         isGreen(this.cancelled, config.validateFlag("gro", "cancelled")) &&
         isGreen(this.marginalNote, config.validateFlag("gro", "marginalNote")) &&
@@ -79,11 +79,11 @@ case class GROStatus(
 
   override def flags: Map[String, String] = Map(
     "potentiallyFictitious" -> s"$potentiallyFictitious",
-    "correction"                 -> obfuscateReason(correction, "Correction on record"),
-    "cancelled"                  -> s"$cancelled",
-    "blocked"        -> s"$blocked",
-    "marginalNote"               -> obfuscateReason(marginalNote, "Marginal note on record"),
-    "reregistration"               -> obfuscateReason(reregistration, "Re-registration on record")
+    "correction"            -> obfuscateReason(correction, "Correction on record"),
+    "cancelled"             -> s"$cancelled",
+    "blocked"               -> s"$blocked",
+    "marginalNote"          -> obfuscateReason(marginalNote, "Marginal note on record"),
+    "reregistration"        -> obfuscateReason(reregistration, "Re-registration on record")
   )
 
   def determineFlagSeverity: FlagSeverity =
