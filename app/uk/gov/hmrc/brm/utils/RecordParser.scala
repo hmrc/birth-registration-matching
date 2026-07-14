@@ -17,7 +17,8 @@
 package uk.gov.hmrc.brm.utils
 
 import javax.inject.Inject
-import play.api.libs.json.{JsValue, Reads}
+import play.api.libs.json.{JsError, JsValue, Reads}
+
 import scala.reflect.ClassTag
 
 class RecordParser @Inject() (logger: BRMLogger) {
@@ -37,7 +38,11 @@ class RecordParser @Inject() (logger: BRMLogger) {
             .validate[T](reads._2)
             .fold(
               e => {
-                logger.warn("RecordParser", "parse()", s"Failed to validate as[$name] $e")
+                logger.warn(
+                  "RecordParser",
+                  "parse()",
+                  s"Failed to validate as[$name]: ${JsError.toJson(e)}"
+                )
                 List()
               },
               r => {

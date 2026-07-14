@@ -46,10 +46,12 @@ case class MatchingResult(
       case Bad()  => false
     }
 
+  override def toString: String = super.toString
 }
 
 object MatchingResult {
 
   val noMatch: MatchingResult = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(Nil, Nil, Nil))
 
+  override def toString: String = super.toString
 }

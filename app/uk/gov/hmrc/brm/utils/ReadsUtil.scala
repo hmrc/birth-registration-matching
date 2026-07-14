@@ -31,7 +31,6 @@ import scala.util.{Success, Try}
 
 /** Created by user on 06/03/17.
   */
-
 object ReadsUtil {
 
   private val minimumDateOfBirthYear               = 1900
@@ -57,10 +56,14 @@ object ReadsUtil {
   )(Child.apply _)
 
   val groChildReads: Reads[Child] = (
-    (JsPath \ "systemNumber").read[Int] and
-      (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
+    (JsPath \ "id").read[Int] and
+      (JsPath \ "child" \ "forenames")
+        .read[String]
+        .orElse(Reads.pure("")) and
+      (JsPath \ "child" \ "surname")
+        .read[String]
+        .orElse(Reads.pure("")) and
+      (JsPath \ "child" \ "dateOfBirth")
         .readNullable[LocalDate](validLocalDateReads)
         .orElse(Reads.pure(None))
   )(Child.apply _)

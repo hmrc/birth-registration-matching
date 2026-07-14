@@ -29,6 +29,9 @@
 
     <logger name="connector" level="OFF"/>
 
+    <logger name="uk.gov" level="INFO"/>
+    <logger name="application" level="DEBUG"/>
+
     <logger name="uk.gov">
         <appender-ref ref="STDOUT"/>
     </logger>

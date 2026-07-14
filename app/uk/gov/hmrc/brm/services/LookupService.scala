@@ -77,6 +77,8 @@ class LookupService @Inject() (
       .map { response =>
         logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
 
+        logger.info(CLASS_NAME, "lookup", s"response $response")
+
         response.status match {
           case OK =>
             Try(recordParser.parse[Record](response.json, ReadsFactory.getReads())) match {
