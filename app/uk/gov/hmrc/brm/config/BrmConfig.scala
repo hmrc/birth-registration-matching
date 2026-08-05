@@ -91,4 +91,6 @@ class BrmConfig @Inject() (val conf: ServicesConfig) extends SwitchException {
   val serviceUrl: String = conf.baseUrl("birth-registration-matching")
   val desUrl: String     = conf.baseUrl("des")
 
+  lazy val enableV1Version: Boolean = conf.getBoolean("microservice.services.birth-registration-matching.v1.enabled")
+
 }

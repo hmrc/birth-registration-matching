@@ -17,18 +17,20 @@
 package uk.gov.hmrc.brm.services
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import play.api.http.Status
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.brm.audit.EnglandAndWalesAudit
+import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.metrics.EnglandAndWalesBirthRegisteredCountMetrics
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.{BirthMatchResponse, MatchingResult}
 import uk.gov.hmrc.brm.services.matching.{Bad, Good}
-import uk.gov.hmrc.brm.services.parser.NameParser._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.services.parser.NameParser.*
+import uk.gov.hmrc.brm.utils.Mocks.mock
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -40,6 +42,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks._
 
+  implicit val brmConfig: BrmConfig                                   = mockConfig
   implicit val engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
   implicit val engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
 
