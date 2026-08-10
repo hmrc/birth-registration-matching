@@ -38,12 +38,12 @@ class GROFlagSeverityV1Spec
   )
 
   val allDisabledConfig: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> false,
-    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> false
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> false,
+    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> false
   )
 
   val potentiallyFictitiousConfig: Map[String, _] = Map(
