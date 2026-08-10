@@ -38,7 +38,7 @@ case class GROStatusV1(
     cancelled: Severity,
     blocked: Severity,
     marginalNote: Severity,
-    reRegistered: Severity
+    reregistration: Severity
   ) extends FlagSeverity {
 
     def canProcessRecord(config: BrmConfig): Boolean =
@@ -47,7 +47,7 @@ case class GROStatusV1(
         isGreen(this.correction, config.validateFlag("gro", "correction")) &&
         isGreen(this.cancelled, config.validateFlag("gro", "cancelled")) &&
         isGreen(this.marginalNote, config.validateFlag("gro", "marginalNote")) &&
-        isGreen(this.reRegistered, config.validateFlag("gro", "reRegistered"))
+        isGreen(this.reregistration, config.validateFlag("gro", "reregistration"))
 
     private def isGreen(flag: Severity, turnedOn: Boolean): Boolean =
       if (turnedOn) {
@@ -79,7 +79,7 @@ case class GROStatusV1(
     "cancelled"             -> s"$cancelled",
     "blocked"               -> s"$blocked",
     "marginalNote"          -> obfuscateReason(marginalNote, "Marginal note on record"),
-    "reRegistered"          -> obfuscateReason(reregistration, "Re-registration on record")
+    "reregistration"        -> obfuscateReason(reregistration, "Re-registration on record")
   )
 
   def determineFlagSeverity: FlagSeverity =
@@ -89,7 +89,7 @@ case class GROStatusV1(
       cancelled = cancelledP(this.cancelled),
       blocked = blockedRegistrationP(this.blocked),
       marginalNote = marginalNoteP(this.marginalNote),
-      reRegistered = reRegisteredP(this.reregistration)
+      reregistration = reRegisteredP(this.reregistration)
     )
 
   private def potentiallyFictitiousBirthP: PartialFunction[Boolean, Severity] = {

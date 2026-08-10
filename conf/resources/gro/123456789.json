@@ -1,0 +1,131 @@
+{
+  "id": 123456789,
+  "date": "2008-08-08",
+  "entryNumber": 0,
+  "registrar": {
+    "signature": "A. Registrar",
+    "designation": "Registrar",
+    "superintendentSignature": null,
+    "superintendentDesignation": null,
+    "subdistrict": "Subdistrict town",
+    "district": "District city",
+    "administrativeArea": "Adminshire"
+  },
+  "informant1": {
+    "forenames": "John Narcissus Ouroboros",
+    "surname": "SMITH",
+    "address": "888 Dad House, 8 Dad street, Daddington, Dadshire",
+    "qualification": "Parent",
+    "signature": "J. Smith",
+    "signatureIsMark": false
+  },
+  "informant2": {
+    "forenames": "Joan Narcissus Ouroboros",
+    "surname": "BLACK",
+    "address": null,
+    "qualification": "Mother",
+    "signature": "J.Smith",
+    "signatureIsMark": false
+  },
+  "child": {
+    "originalPrefix": null,
+    "prefix": null,
+    "forenames": "Joan Narcissus Ouroboros",
+    "originalForenames": "John Narcissus Ouroboros",
+    "surname": "SMITH",
+    "originalSuffix": null,
+    "suffix": null,
+    "dateOfBirth": "2008-08-08",
+    "sex": "Indeterminate",
+    "birthplace": "888 Birth House, 8 Birth way, Bournemouth"
+  },
+  "mother": {
+    "prefix": null,
+    "forenames": "Joan Narcissus Ouroboros",
+    "surname": "BLACK",
+    "suffix": null,
+    "birthplace": "888 Birth House, 8 Birth way, Bournemouth, B1 7TH",
+    "occupation": "Unemployed",
+    "aliases": [
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      }
+    ],
+    "address": null,
+    "maidenSurname": "SMITH",
+    "marriageSurname": "WHITE"
+  },
+  "father": {
+    "prefix": null,
+    "forenames": "John Narcissus Ouroboros",
+    "surname": "SMITH",
+    "suffix": null,
+    "birthplace": "888 Birth House, 8 Birth way, Bournemouth, B1 7TH",
+    "occupation": "Unemployed",
+    "aliases": [
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      },
+      {
+        "prefix": null,
+        "forenames": null,
+        "surname": null,
+        "suffix": null
+      }
+    ],
+    "deceased": false
+  },
+  "dateOfDeclaration": null,
+  "dateOfStatutoryDeclarationOfParentage": null,
+  "statutoryDeclarationOfParentage": null,
+  "dateOfNameUpdate": null,
+  "status": {
+    "blocked": false,
+    "cancelled": false,
+    "correction": "None",
+    "marginalNote": "None",
+    "nameUpdate": "None",
+    "onAuthorityOfRegistrarGeneral": false,
+    "potentiallyFictitious": false,
+    "praOrCourtOrder": "None",
+    "reregistration": "None"
+  },
+  "nextRegistration": null,
+  "previousRegistration": null
+}

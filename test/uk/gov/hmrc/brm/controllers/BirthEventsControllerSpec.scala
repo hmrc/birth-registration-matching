@@ -716,6 +716,18 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
           checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
         }
 
+        "return InternalServerError when lookup service throws an unexpected exception" in {
+
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+            .thenReturn(Future.failed(new RuntimeException("Unexpected error")))
+          mockAuditSuccess
+
+          val request = postRequest(userNoMatchScotlandExcludingReferenceKey)
+          val result  = testController.post().apply(request).futureValue
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
+
+        }
+
       }
 
     }
