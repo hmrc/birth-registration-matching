@@ -44,7 +44,7 @@ class HeaderValidator @Inject() (
   val regEx         = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
 
   val matchAuditSource: CharSequence => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
-  val matchHeader: CharSequence => Option[Match]      = new Regex(regEx, groupNames: _*) findFirstMatchIn _
+  val matchHeader: CharSequence => Option[Match]      = new Regex(regEx, groupNames*) findFirstMatchIn _
 
   def validateVersion(s: String): Boolean = s match {
     case x: String =>

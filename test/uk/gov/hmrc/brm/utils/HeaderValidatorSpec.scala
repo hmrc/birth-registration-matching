@@ -77,7 +77,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       when(mockFilters.process(any()))
         .thenReturn(List())
-      when(mockMetricsFactory.getMetrics()(any()))
+      when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockScotMetric)
       when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))

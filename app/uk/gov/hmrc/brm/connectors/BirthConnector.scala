@@ -60,7 +60,7 @@ trait BirthConnector {
 
     val response = http
       .post(url"${request.uri}")(hc.copy(authorization = None))
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .withBody(Json.toJson(request.jsonBody))
       .execute[HttpResponse]
 

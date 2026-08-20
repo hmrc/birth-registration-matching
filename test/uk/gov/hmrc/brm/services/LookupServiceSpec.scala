@@ -109,7 +109,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockAuditor.audit(any(), any())(using any()))
           .thenReturn(Future.successful(AuditResult.Success))
 
-        when(mockMatchingservice.performMatch(any(), any(), any())(any()))
+        when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
         implicit val payload: Payload =
@@ -161,7 +161,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
 
-        when(mockMatchingservice.performMatch(any(), any(), any())(any()))
+        when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
 
         implicit val payload: Payload =
@@ -214,7 +214,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockGroConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
 
-        when(mockMatchingservice.performMatch(any(), any(), any())(any()))
+        when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
         implicit val payload: Payload =
@@ -266,7 +266,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockGroConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
 
-        when(mockMatchingservice.performMatch(any(), any(), any())(any()))
+        when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
 
         implicit val payload: Payload =
@@ -330,7 +330,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
 
-        when(mockMatchingservice.performMatch(any(), any(), any())(any()))
+        when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
         implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong

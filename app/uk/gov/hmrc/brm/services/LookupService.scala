@@ -190,8 +190,7 @@ class LookupService @Inject() (
     }
   }
 
-  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult, isError: Boolean = false)(
-    implicit
+  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult, isError: Boolean = false)(using
     payload: Payload,
     hc: HeaderCarrier,
     downstreamAPIAuditor: BRMDownstreamAPIAudit
@@ -237,7 +236,7 @@ class LookupService @Inject() (
       }
       .getOrElse("unknown")
 
-  private[LookupService] def noReferenceNumberPF(implicit
+  private[LookupService] def noReferenceNumberPF(using
     hc: HeaderCarrier
   ): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isEmpty =>
@@ -245,7 +244,7 @@ class LookupService @Inject() (
       getConnector()(using payload).getChildDetails(payload)
   }
 
-  private[LookupService] def referenceNumberIncludedPF(implicit
+  private[LookupService] def referenceNumberIncludedPF(using
     hc: HeaderCarrier
   ): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isDefined =>

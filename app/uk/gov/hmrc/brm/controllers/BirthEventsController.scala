@@ -140,7 +140,7 @@ class BirthEventsController @Inject() (
         errors => handleInvalidRequest(request, errors),
         implicit payload => {
 
-          implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
+          given auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
 
           val processed = filters.process(payload)
 

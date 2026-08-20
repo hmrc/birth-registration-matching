@@ -27,28 +27,28 @@ import javax.inject.Inject
 
 class PartialMatching @Inject() (val config: BrmConfig) extends MatchingAlgorithm {
 
-  private def lastNames()(implicit payload: Payload, record: Record): Match =
+  private def lastNames()(using payload: Payload, record: Record): Match =
     if (config.matchLastName) {
       stringMatch(Some(payload.lastName), Some(record.child.lastName))
     } else {
       Good()
     }
 
-  private def firstNames(names: Names)(implicit payload: Payload): Match =
+  private def firstNames(names: Names)(using payload: Payload): Match =
     if (config.matchFirstName) {
       stringMatch(Some(payload.firstNames), Some(names.firstNames))
     } else {
       Good()
     }
 
-  private def additionalNames(names: Names)(implicit payload: Payload): Match =
+  private def additionalNames(names: Names)(using payload: Payload): Match =
     if (!config.ignoreAdditionalNames) {
       stringMatch(Some(payload.additionalNames), Some(names.additionalNames))
     } else {
       Good()
     }
 
-  private def dateOfBirth()(implicit payload: Payload, record: Record): Match =
+  private def dateOfBirth()(using payload: Payload, record: Record): Match =
     if (config.matchDateOfBirth) {
       dateMatch(Some(payload.dateOfBirth), record.child.dateOfBirth)
     } else {
@@ -56,8 +56,8 @@ class PartialMatching @Inject() (val config: BrmConfig) extends MatchingAlgorith
     }
 
   override def matchFunction: PartialFunction[(Payload, Record), MatchingResult] = { case (payload, record) =>
-    implicit val p: Payload = payload
-    implicit val r: Record  = record
+    given p: Payload = payload
+    given r: Record  = record
 
     val namesOnRecord: Names = NameParser.parseNames(payload, record, config.ignoreAdditionalNames)
 

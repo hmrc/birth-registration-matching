@@ -26,7 +26,7 @@ import scala.annotation.tailrec
 trait MatchingIterator {
   this: MatchingAlgorithm =>
 
-  implicit val config: BrmConfig
+  given config: BrmConfig
 
   private def noMatch(): MatchingResult = MatchingResult.noMatch
 

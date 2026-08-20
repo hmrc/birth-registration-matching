@@ -78,7 +78,7 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
       when(mockAuditor.audit(any(), any())(using any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      when(mockMetricsFactory.getMetrics()(any()))
+      when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockEngWalesMetric)
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)

@@ -104,7 +104,7 @@ object Payload {
       invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
-  implicit val PayloadWrites: Writes[Payload] = (
+  given PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and
       (JsPath \ firstName).write[String] and
       (JsPath \ additionalNames).writeNullable[String] and

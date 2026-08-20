@@ -38,7 +38,7 @@ class MatchingService @Inject() (
 
   val matchOnMultiple: Boolean = config.matchOnMultiple
 
-  def performMatch(input: Payload, records: List[Record], matchingType: MatchingType.Value)(implicit
+  def performMatch(input: Payload, records: List[Record], matchingType: MatchingType.Value)(using
     hc: HeaderCarrier
   ): MatchingResult = {
 

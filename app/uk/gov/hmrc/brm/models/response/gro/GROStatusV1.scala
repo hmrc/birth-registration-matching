@@ -127,7 +127,7 @@ case class GROStatusV1(
 
 object GROStatusV1 {
 
-  implicit val childV1Reads: Reads[GROStatusV1] = (
+  given childV1Reads: Reads[GROStatusV1] = (
     (JsPath \ "potentiallyFictitious").read[Boolean].orElse(Reads.pure(false)) and
       (JsPath \ "correction").readNullable[String] and
       (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and
