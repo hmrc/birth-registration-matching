@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.brm.services.matching
 
-import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.services.parser.NameParser
 import uk.gov.hmrc.brm.services.parser.NameParser.Names
+
+import javax.inject.Inject
 
 class PartialMatching @Inject() (val config: BrmConfig) extends MatchingAlgorithm {
 

@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.brm.models
 
-import java.time.LocalDate
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 
 /** Created by chrisianson on 09/08/16.
   */

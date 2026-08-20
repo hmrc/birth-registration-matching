@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.brm.config
 
-import javax.inject.Inject
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.SwitchException
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import javax.inject.Inject
 
 class BrmConfig @Inject() (val conf: ServicesConfig) extends SwitchException {
 

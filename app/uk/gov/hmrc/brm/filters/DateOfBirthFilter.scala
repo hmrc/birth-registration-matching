@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.brm.filters
 
-import javax.inject.Inject
-import java.time.LocalDate
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.GeneralFilter
 import uk.gov.hmrc.brm.metrics.DateofBirthFeatureCountMetric
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.switches.{Switch, SwitchValue}
+
+import java.time.LocalDate
+import javax.inject.Inject
 
 /** Created by mew on 15/05/2017.
   */

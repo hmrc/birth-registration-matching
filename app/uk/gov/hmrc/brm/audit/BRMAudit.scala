@@ -21,14 +21,13 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions.*
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import scala.annotation.tailrec
-import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /** AuditEvent - Abstract class for auditing events
   * @param auditType

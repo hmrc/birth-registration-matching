@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.services.matching
 
-import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.MatchingAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -24,6 +23,8 @@ import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BRMLogger, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
+
+import javax.inject.Inject
 
 class MatchingService @Inject() (
   config: BrmConfig,

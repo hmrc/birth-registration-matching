@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import javax.inject.Inject
 import play.api.Logger
+
+import javax.inject.Inject
 
 class BRMLogger @Inject() (keyGen: KeyGenerator) {
 

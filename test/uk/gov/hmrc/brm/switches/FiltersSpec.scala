@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.switches
 
-import java.time.LocalDate
-import org.scalatest.{Tag, TestData}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{OptionValues, Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -25,9 +26,8 @@ import uk.gov.hmrc.brm.filters.*
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, GeneralFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 
 trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
 

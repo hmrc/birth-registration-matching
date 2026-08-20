@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import javax.inject.Inject
 import play.api.libs.json.{JsValue, Reads}
+
+import javax.inject.Inject
 import scala.reflect.ClassTag
 
 class RecordParser @Inject() (logger: BRMLogger) {

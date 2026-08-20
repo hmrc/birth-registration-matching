@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import javax.inject.Inject
-import java.time.*
 import play.api.libs.json.*
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
 import uk.gov.hmrc.brm.audit.*
@@ -31,7 +29,9 @@ import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, HeaderValidator}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.*
 import java.util.UUID
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BirthEventsController @Inject() (

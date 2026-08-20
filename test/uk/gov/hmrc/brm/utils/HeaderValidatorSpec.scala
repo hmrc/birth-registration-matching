@@ -18,16 +18,17 @@ package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
+import play.api.Play.materializer
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import play.api.Play.materializer
+
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.brm.utils.Mocks._
 
 class HeaderValidatorSpec extends BaseUnitSpec {
 

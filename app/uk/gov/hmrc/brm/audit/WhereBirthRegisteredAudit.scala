@@ -17,16 +17,15 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-
-import javax.inject.Inject
 import play.api.libs.json.{JsDefined, JsValue}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-import uk.gov.hmrc.http.HeaderCarrier
 
 /** Created by adamconder on 09/02/2017.
   */

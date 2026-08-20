@@ -21,7 +21,7 @@ import org.slf4j.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.{Headers, Request}
 import play.api.test.Helpers.stubControllerComponents
-import uk.gov.hmrc.brm.audit.{WhereBirthRegisteredAudit, _}
+import uk.gov.hmrc.brm.audit.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROConnector, GRONIConnector, NRSConnector}
 import uk.gov.hmrc.brm.controllers.BirthEventsController

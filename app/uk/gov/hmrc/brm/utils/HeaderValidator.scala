@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.http.{HeaderNames => PlayHeaderNames}
-
-import javax.inject.Inject
+import play.api.http.HeaderNames as PlayHeaderNames
 import play.api.mvc.*
 import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
 import uk.gov.hmrc.brm.models.brm.*
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match

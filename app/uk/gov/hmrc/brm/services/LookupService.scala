@@ -19,8 +19,6 @@ package uk.gov.hmrc.brm.services
 import play.api.http.Status.*
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
-
-import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.*
@@ -35,6 +33,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuil
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 

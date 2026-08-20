@@ -28,7 +28,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.matching.{Bad, FullMatching, Good, MatchingService, PartialMatching}
+import uk.gov.hmrc.brm.services.matching.*
 import uk.gov.hmrc.brm.utils.FlagsHelper.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}

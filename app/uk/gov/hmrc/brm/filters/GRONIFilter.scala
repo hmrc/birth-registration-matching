@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.brm.filters
 
-import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, GeneralFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.switches.Switch
+
+import javax.inject.Inject
 
 /** Created by mew on 19/05/2017.
   */

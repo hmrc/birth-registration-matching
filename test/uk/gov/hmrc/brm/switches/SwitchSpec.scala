@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.brm.switches
 
-import org.scalatest.{BeforeAndAfter, Tag, TestData}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfter, OptionValues, Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.*
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
 
 /** Created by mew on 15/05/2017.
   */

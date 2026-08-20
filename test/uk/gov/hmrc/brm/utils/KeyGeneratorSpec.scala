@@ -19,15 +19,16 @@ package uk.gov.hmrc.brm.utils
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import org.scalatest.matchers.should.Matchers
+import uk.gov.hmrc.brm.utils.Mocks.*
+
 import java.time.LocalDateTime
 import java.time.Month.*
 import java.time.format.DateTimeFormatter
-import uk.gov.hmrc.brm.utils.Mocks.*
 
 class KeyGeneratorSpec extends AnyWordSpecLike with Matchers with BeforeAndAfter with GuiceOneAppPerSuite {
 

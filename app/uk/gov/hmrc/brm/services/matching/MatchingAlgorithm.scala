@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.brm.services.matching
 
-import java.time.LocalDate
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.models.response.Record
+
+import java.time.LocalDate
 
 trait MatchingAlgorithm extends MatchingIterator {
 

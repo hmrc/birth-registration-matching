@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import javax.inject.Inject
-import java.time.Instant
 import uk.gov.hmrc.brm.config.BrmConfig
+
+import java.time.Instant
+import javax.inject.Inject
 
 class CommonUtil @Inject() (config: BrmConfig, logger: BRMLogger) {
 

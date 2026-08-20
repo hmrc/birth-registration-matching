@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.brm.audit
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.ArgumentCaptor
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.utils
 
 import izumi.reflect.Tag
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.mockito.stubbing.OngoingStubbing
@@ -27,7 +28,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.mockito.ArgumentCaptor
 import play.api.Play.materializer
 import play.api.http.Status
 import play.api.inject.Injector
@@ -40,6 +40,7 @@ import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
 

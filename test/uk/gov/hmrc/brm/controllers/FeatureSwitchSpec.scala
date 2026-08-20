@@ -19,10 +19,13 @@ package uk.gov.hmrc.brm.controllers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfterEachTestData, OptionValues, Tag, TestData}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
+import play.api.Play.materializer
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
@@ -31,10 +34,6 @@ import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import play.api.Play.materializer
 
 import scala.concurrent.Future
 

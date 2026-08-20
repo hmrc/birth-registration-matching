@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.services.parser
 
-import java.time.LocalDate
-import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfterEachTestData, OptionValues, Tag, TestData}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -25,9 +26,8 @@ import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.services.parser.NameParser.*
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 
 /** Created by adamconder on 02/02/2017.
   */

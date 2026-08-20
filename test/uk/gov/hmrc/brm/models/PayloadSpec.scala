@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.brm.models
 
-import java.time.LocalDate
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, _}
+import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, *}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
