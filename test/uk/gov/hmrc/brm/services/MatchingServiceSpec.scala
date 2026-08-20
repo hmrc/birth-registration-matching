@@ -110,7 +110,7 @@ class PartialMatchingSpec extends BaseUnitSpec {
 
       "return true result for firstName only" in {
         firstNameApp
-        when(mockMatchingAudit.audit(any(), any())(any()))
+        when(mockMatchingAudit.audit(any(), any())(using any()))
           .thenReturn(Future.successful(AuditResult.Success))
         when(mockConfig.validateFlag(any(), any()))
           .thenReturn(true)

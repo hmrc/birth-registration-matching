@@ -61,7 +61,7 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
 
   override def getReference(
     payload: Payload
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     logger.debug(s"GRONIConnector", "getReference", s"requesting child's record from GRO-NI")
 
     referenceBody.apply(payload)
@@ -74,7 +74,7 @@ class GRONIConnector @Inject() (val http: HttpClientV2, auditor: NorthernIreland
 
   override def getChildDetails(
     payload: Payload
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     logger.debug(s"GRONIConnector", "getChildDetails", s"requesting child's record from GRO-NI")
 
     detailsBody.apply(payload)

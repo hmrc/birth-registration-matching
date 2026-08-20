@@ -83,16 +83,16 @@ class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
   "validating date of birth with dobValidation feature" should {
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
-      when(mockGroConnector.getReference(any())(any(), any()))
+      when(mockGroConnector.getReference(any())(using any(), any()))
         .thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
 
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(), any())(any()))
+      when(mockAuditor.audit(any(), any())(using any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       when(mockMetricsFactory.getMetrics()(any()))

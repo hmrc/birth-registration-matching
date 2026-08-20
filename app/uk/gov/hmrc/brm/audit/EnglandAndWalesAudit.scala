@@ -35,7 +35,7 @@ class EnglandAndWalesAudit @Inject() (
   val keyGen: KeyGenerator,
   val config: BrmConfig,
   val logger: BRMLogger
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
   /** EnglandAndWalesAuditEvent Responsible for auditing when we find records on GRO
@@ -46,7 +46,7 @@ class EnglandAndWalesAudit @Inject() (
     * @param hc
     *   implicit headerCarrier
     */
-  final private class EnglandAndWalesAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  final private class EnglandAndWalesAuditEvent(result: Map[String, String], path: String)(using hc: HeaderCarrier)
       extends AuditEvent(
         auditType = "BRM-GROEnglandAndWales-Results",
         detail = result,
@@ -54,7 +54,7 @@ class EnglandAndWalesAudit @Inject() (
         path
       )
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+  override def audit(result: Map[String, String], payload: Option[Payload])(using
     hc: HeaderCarrier
   ): Future[AuditResult] =
     payload match {

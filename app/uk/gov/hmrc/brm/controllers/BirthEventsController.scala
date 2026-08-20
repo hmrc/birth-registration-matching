@@ -61,7 +61,7 @@ class BirthEventsController @Inject() (
   private def handleInvalidRequest(
     request: Request[JsValue],
     errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]
-  )(implicit hc: HeaderCarrier): Future[Result] = {
+  )(using hc: HeaderCarrier): Future[Result] = {
     countryAuditor.auditCountryInRequest(request.body)
     errorAuditor.audit(Json.fromJson[Map[String, String]](request.body).getOrElse(Map.empty[String, String]))
     val response = ErrorResponses.getErrorResponseByField(errors)
@@ -70,7 +70,7 @@ class BirthEventsController @Inject() (
     Future.successful(respond(response))
   }
 
-  private def failedAtFilter(filters: List[Filter])(implicit payload: Payload, hc: HeaderCarrier): Future[Result] = {
+  private def failedAtFilter(filters: List[Filter])(using payload: Payload, hc: HeaderCarrier): Future[Result] = {
     // audit the request
     transactionAuditor.transaction(payload, Nil, MatchingResult.noMatch)
 
@@ -83,7 +83,7 @@ class BirthEventsController @Inject() (
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
 
-  private def traceAndMatchRecord()(implicit
+  private def traceAndMatchRecord()(using
     payload: Payload,
     hc: HeaderCarrier,
     metrics: BRMMetrics,
@@ -98,7 +98,7 @@ class BirthEventsController @Inject() (
     val beforeRequestTime = Instant.now().toEpochMilli
 
     service
-      .lookup()(implicitly, metrics, implicitly, implicitly, config)
+      .lookup()(using hc, metrics, payload, implicitly, config)
       .map {
         case Right(birthMatchResponse) =>
           metrics.status(OK)
@@ -128,7 +128,7 @@ class BirthEventsController @Inject() (
   def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) { implicit request =>
     val requestId = request.headers.get("X-Request-ID").getOrElse("unknown")
 
-    implicit val hc: HeaderCarrier =
+    given hc: HeaderCarrier =
       HeaderCarrier()
         .withExtraHeaders(
           (HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)),
@@ -147,8 +147,8 @@ class BirthEventsController @Inject() (
           if (processed.nonEmpty) {
             failedAtFilter(processed)
           } else {
-            val metric: BRMMetrics = metrics.getMetrics()
-            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly)
+            given BRMMetrics = metrics.getMetrics()
+            traceAndMatchRecord()
           }
         }
       )

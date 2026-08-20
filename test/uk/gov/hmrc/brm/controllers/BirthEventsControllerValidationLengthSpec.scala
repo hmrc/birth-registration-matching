@@ -69,13 +69,13 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
   "validating max length change" should {
 
     "return OK if firstName < 250 characters" in {
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(), any())(any()))
+      when(mockAuditor.audit(any(), any())(using any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       when(mockMetricsFactory.getMetrics()(any()))
@@ -91,14 +91,14 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
       val request = postRequest(firstNameWithMoreThan250Characters)
       val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any(), any())
+      verify(mockGroConnector, never).getReference(any())(using any(), any())
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
       val request = postRequest(lastNameWithMoreThan250Characters)
       val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any(), any())
+      verify(mockGroConnector, never).getReference(any())(using any(), any())
     }
 
   }

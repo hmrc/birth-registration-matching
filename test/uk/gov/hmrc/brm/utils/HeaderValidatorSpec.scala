@@ -72,14 +72,14 @@ class HeaderValidatorSpec extends BaseUnitSpec {
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockConnector.getReference(any())(any(), any[ExecutionContext]))
+      when(mockConnector.getReference(any())(using any(), any[ExecutionContext]))
         .thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       when(mockFilters.process(any()))
         .thenReturn(List())
       when(mockMetricsFactory.getMetrics()(any()))
         .thenReturn(mockScotMetric)
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       val result = testController.post().apply(request).futureValue

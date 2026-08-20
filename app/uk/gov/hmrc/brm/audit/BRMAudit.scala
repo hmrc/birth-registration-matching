@@ -47,7 +47,7 @@ abstract private class AuditEvent(
   detail: Map[String, String],
   transactionName: String,
   path: String = "N/A"
-)(implicit hc: HeaderCarrier)
+)(using hc: HeaderCarrier)
     extends DataEvent(
       auditSource = "brm",
       auditType = auditType,
@@ -60,7 +60,7 @@ abstract class BRMAudit(connector: AuditConnector)(using val ec: ExecutionContex
   val keyGen: KeyGenerator
   val logger: BRMLogger
 
-  def audit(result: Map[String, String], payload: Option[Payload] = None)(implicit
+  def audit(result: Map[String, String], payload: Option[Payload] = None)(using
     hc: HeaderCarrier
   ): Future[AuditResult]
 
@@ -80,13 +80,13 @@ abstract class BRMAudit(connector: AuditConnector)(using val ec: ExecutionContex
 
 }
 
-abstract class BRMDownstreamAPIAudit(connector: AuditConnector)(implicit ec: ExecutionContext)
+abstract class BRMDownstreamAPIAudit(connector: AuditConnector)(using ec: ExecutionContext)
     extends BRMAudit(connector) {
 
   implicit val config: BrmConfig
   implicit val logger: BRMLogger
 
-  def transaction(payload: Payload, records: List[Record], result: MatchingResult)(implicit
+  def transaction(payload: Payload, records: List[Record], result: MatchingResult)(using
     hc: HeaderCarrier
   ): Future[AuditResult] = {
     // did the search return results

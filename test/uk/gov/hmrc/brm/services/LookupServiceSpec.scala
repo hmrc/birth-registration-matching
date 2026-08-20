@@ -103,10 +103,10 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                               |  }
           """.stripMargin)
 
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
 
-        when(mockAuditor.audit(any(), any())(any()))
+        when(mockAuditor.audit(any(), any())(using any()))
           .thenReturn(Future.successful(AuditResult.Success))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -158,7 +158,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -211,7 +211,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                               |  }
           """.stripMargin)
 
-        when(mockGroConnector.getChildDetails(any())(any(), any()))
+        when(mockGroConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -263,7 +263,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
                                             |  }
           """.stripMargin)
 
-        when(mockGroConnector.getChildDetails(any())(any(), any()))
+        when(mockGroConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(any()))
@@ -280,7 +280,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "requesting Scotland" should {
 
       "accept Payload as an argument" in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
@@ -292,7 +292,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload without reference number as argument" in {
-        when(mockNrsConnector.getChildDetails(any())(any(), any()))
+        when(mockNrsConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
@@ -303,7 +303,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload with reference number as argument and returns true as matched." in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
@@ -314,7 +314,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload with special character and returns match true as matched." in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
@@ -325,7 +325,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload with special character and returns match false as first name doesn't match." in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
@@ -343,7 +343,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "handling error status codes" should {
 
       "return Left with ServiceUnavailable when GRO returns 502 Bad Gateway" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
@@ -357,7 +357,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with InternalServerError when GRO returns 504 Gateway Timeout" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
@@ -371,7 +371,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with InternalServerError when GRO returns 400 Bad Request" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_REQUEST, "Bad Request", Map.empty[String, Seq[String]]))
           )
@@ -385,7 +385,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Right with no match when connector returns 501 Not Implemented" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
@@ -398,7 +398,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Right with no match when GRO returns 404 Not Found" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_FOUND, "Not Found", Map.empty[String, Seq[String]]))
           )
@@ -411,7 +411,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Right with no match when GRO returns 403 Forbidden" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.FORBIDDEN, "Forbidden", Map.empty[String, Seq[String]]))
           )
@@ -424,7 +424,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with ServiceUnavailable for other 5xx status codes from GRO" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(
               HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
@@ -440,7 +440,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with ServiceUnavailable when NRS returns 502 Bad Gateway" in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
@@ -453,7 +453,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with InternalServerError when NRS returns 504 Gateway Timeout" in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
@@ -466,7 +466,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with ServiceUnavailable for other 5xx status codes from NRS" in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(
               HttpResponse(Status.SERVICE_UNAVAILABLE, "Service Unavailable", Map.empty[String, Seq[String]])
@@ -483,7 +483,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       "return Left with InternalServerError when JSON parsing fails" in {
         val malformedResponse = HttpResponse(Status.OK, "not valid json at all", Map.empty[String, Seq[String]])
 
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(malformedResponse))
 
         implicit val payload: Payload =
@@ -495,7 +495,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with InternalServerError for unexpected status codes" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(418, "random", Map.empty[String, Seq[String]]))
           )
@@ -509,7 +509,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with ServiceUnavailable when connection to GRO fails" in {
-        when(mockGroConnector.getReference(any())(any(), any()))
+        when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Connection refused")))
 
         implicit val payload: Payload =
@@ -521,7 +521,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Left with ServiceUnavailable when connection to NRS fails" in {
-        when(mockNrsConnector.getReference(any())(any(), any()))
+        when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Connection refused")))
 
         implicit val payload: Payload = nrsRequestPayload
@@ -535,7 +535,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "requesting Northern Ireland" should {
 
       "return Right with no match when GRONI returns 501 Not Implemented" in {
-        when(mockGroniConnector.getReference(any())(any(), any()))
+        when(mockGroniConnector.getReference(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
@@ -553,7 +553,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "return Right with no match when GRONI details returns 501 Not Implemented" in {
-        when(mockGroniConnector.getChildDetails(any())(any(), any()))
+        when(mockGroniConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )

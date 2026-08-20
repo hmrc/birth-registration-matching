@@ -32,7 +32,7 @@ class ScotlandAudit @Inject() (
   val config: BrmConfig,
   val keyGen: KeyGenerator,
   val logger: BRMLogger
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
   /** ScotlandAuditEvent Responsible for auditing when we find records on NRS
@@ -43,7 +43,7 @@ class ScotlandAudit @Inject() (
     * @param hc
     *   implicit headerCarrier
     */
-  final private class ScotlandAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  final private class ScotlandAuditEvent(result: Map[String, String], path: String)(using hc: HeaderCarrier)
       extends AuditEvent(
         auditType = "BRM-NRSScotland-Results",
         detail = result,
@@ -51,7 +51,7 @@ class ScotlandAudit @Inject() (
         path
       )
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit hc: HeaderCarrier) =
+  override def audit(result: Map[String, String], payload: Option[Payload])(using hc: HeaderCarrier) =
     payload match {
       case Some(p) =>
         p.requestType match {

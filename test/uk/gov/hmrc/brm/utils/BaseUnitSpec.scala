@@ -56,8 +56,8 @@ trait BaseUnitSpec
 
   lazy val injector: Injector = app.injector
 
-  implicit lazy val hc: HeaderCarrier    = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+  given hc: HeaderCarrier    = HeaderCarrier()
+  given ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status                                                                 shouldBe responseStatus
@@ -99,11 +99,11 @@ trait BaseUnitSpec
     mockRefResponse(mockGroConnector, exception)
 
   private def mockRefResponse(connector: BirthConnector, exception: Exception) =
-    when(connector.getReference(any())(any(), any()))
+    when(connector.getReference(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   private def mockRefResponse(connector: BirthConnector, jsonResponse: JsValue): Unit =
-    when(connector.getReference(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+    when(connector.getReference(any())(using any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockNrsReferenceResponse(jsonResponse: JsValue): Unit =
     mockRefResponse(mockNrsConnector, jsonResponse)
@@ -112,19 +112,19 @@ trait BaseUnitSpec
     mockRefResponse(mockNrsConnector, exception)
 
   def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
-    when(mockGroConnector.getChildDetails(any())(any(), any()))
+    when(mockGroConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockNrsDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
-    when(mockNrsConnector.getChildDetails(any())(any(), any()))
+    when(mockNrsConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
-    when(mockGroConnector.getChildDetails(any())(any(), any()))
+    when(mockGroConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
-    when(mockNrsConnector.getChildDetails(any())(any(), any()))
+    when(mockNrsConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] =

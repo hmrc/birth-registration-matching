@@ -34,7 +34,7 @@ class TransactionAuditor @Inject() (
   val keyGen: KeyGenerator,
   val config: BrmConfig,
   val logger: BRMLogger
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
   /** Audit event for the result of MatchingService and data submitted to the API
@@ -44,7 +44,7 @@ class TransactionAuditor @Inject() (
     * @param hc
     *   implicit headerCarrier
     */
-  final private class RequestsAndResultsAuditEvent(result: Map[String, String], path: String)(implicit
+  final private class RequestsAndResultsAuditEvent(result: Map[String, String], path: String)(using
     hc: HeaderCarrier
   ) extends AuditEvent(
         auditType = "BRM-RequestsAndResults",
@@ -53,7 +53,7 @@ class TransactionAuditor @Inject() (
         path = path
       )
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+  override def audit(result: Map[String, String], payload: Option[Payload])(using
     hc: HeaderCarrier
   ): Future[AuditResult] = payload match {
     case Some(p) =>
