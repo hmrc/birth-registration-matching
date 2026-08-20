@@ -92,7 +92,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
     "validate birth reference number" should {
 
       "return response code 400 if request contains missing birthReferenceNumber value" in {
-        when(mockLookupService.lookup()(any(), any(), any(), any()))
+        when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
         when(mockFilters.process(any()))
@@ -315,7 +315,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
     "validate whereBirthRegistered" should {
 
       "return 200 if request contains camel case where birth registered" in {
-        when(mockLookupService.lookup()(any(), any(), any(), any()))
+        when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
         mockAuditSuccess
@@ -353,7 +353,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       "POST with reference number" should {
 
         "return JSON response true on successful reference match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
@@ -400,7 +400,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return JSON response false when date of birth is before 2009-07-01" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
@@ -454,7 +454,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return JSON response true on successful child detail match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
@@ -465,7 +465,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return JSON response false when birth date is before 2009-07-01" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
@@ -480,7 +480,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       "returning error responses" should {
 
         "return InternalServerError when lookup service returns InternalServerError" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(InternalServerError)))
 
           mockAuditSuccess
@@ -491,7 +491,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return ServiceUnavailable with GRO_CONNECTION_DOWN when lookup service returns GRO connection error" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.GRO_CONNECTION_DOWN))))
           mockAuditSuccess
 
@@ -506,7 +506,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false when lookup service returns no match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
 
@@ -524,7 +524,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       "POST with reference number" should {
 
         "return JSON response on successful reference match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
@@ -535,7 +535,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return JSON response false when date of birth is before 2009-07-01" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(nrsRecord20090630)
@@ -563,7 +563,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 response for UTF-8 reference request" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
@@ -574,7 +574,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return JSON response on unsuccessful birthReferenceNumber match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
@@ -585,7 +585,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false response when first name has special characters for unsuccessful BRN match." in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
@@ -627,7 +627,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 response when child details are not found" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
@@ -637,7 +637,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false response when child details are not found when first name has special characters." in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
           mockAuditSuccess
           mockNrsReferenceResponse(UpstreamErrorResponse("BIRTH_REGISTRATION_NOT_FOUND", FORBIDDEN, FORBIDDEN))
@@ -648,7 +648,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 response on when details contain valid UTF-8 special characters" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
           mockAuditSuccess
@@ -671,7 +671,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       "returning error responses" should {
 
         "return InternalServerError when lookup service returns InternalServerError" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(InternalServerError)))
           mockAuditSuccess
 
@@ -681,7 +681,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return 200 false when lookup service returns no match" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
           mockAuditSuccess
@@ -692,7 +692,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return ServiceUnavailable with NRS_CONNECTION_DOWN when lookup service returns NRS connection error" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.NRS_CONNECTION_DOWN))))
           mockAuditSuccess
 
@@ -707,13 +707,25 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
         }
 
         "return ServiceUnavailable with DES_CONNECTION_DOWN when lookup service returns DES connection error" in {
-          when(mockLookupService.lookup()(any(), any(), any(), any()))
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
             .thenReturn(Future.successful(Left(ServiceUnavailable(ErrorResponse.DES_CONNECTION_DOWN))))
           mockAuditSuccess
 
           val request = postRequest(userNoMatchExcludingReferenceKeyScotland)
           val result  = testController.post().apply(request).futureValue
           checkResponse(result, SERVICE_UNAVAILABLE, "DES_CONNECTION_DOWN", "DES is unavailable")
+        }
+
+        "return InternalServerError when lookup service throws an unexpected exception" in {
+
+          when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+            .thenReturn(Future.failed(new RuntimeException("Unexpected error")))
+          mockAuditSuccess
+
+          val request = postRequest(userNoMatchScotlandExcludingReferenceKey)
+          val result  = testController.post().apply(request).futureValue
+          result.header.status shouldBe INTERNAL_SERVER_ERROR
+
         }
 
       }
@@ -723,7 +735,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
     "GRO-NI" should {
 
       "return 200 false if request contains Northern Ireland" in {
-        when(mockLookupService.lookup()(any(), any(), any(), any()))
+        when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         val request = postRequest(userWhereBirthRegisteredNI)
@@ -732,7 +744,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       }
 
       "return 200 false when GRONIFeature is enabled for reference request" in {
-        when(mockLookupService.lookup()(any(), any(), any(), any()))
+        when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         val request = postRequest(userWhereBirthRegisteredNI)
@@ -741,7 +753,7 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
       }
 
       "return 200 false when GRONIFeature is enabled for details request" in {
-        when(mockLookupService.lookup()(any(), any(), any(), any()))
+        when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse())))
         mockAuditSuccess
         val request = postRequest(userWhereBirthRegisteredNI)

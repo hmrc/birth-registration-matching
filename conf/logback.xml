@@ -27,10 +27,10 @@
 
     <logger name="io.netty" level="OFF"/>
 
-    <logger name="connector" level="OFF"/>
+    <logger name="connector" level="INFO"/>
 
-    <logger name="uk.gov">
-        <appender-ref ref="STDOUT"/>
+    <logger name="uk.gov" level="INFO">
+        <appender-ref ref="FILE"/>
     </logger>
 
     <root level="INFO">
