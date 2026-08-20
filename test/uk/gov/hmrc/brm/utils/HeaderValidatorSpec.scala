@@ -17,20 +17,19 @@
 package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import play.api.Play.materializer
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.brm.utils.Mocks._
 
 class HeaderValidatorSpec extends BaseUnitSpec {
-
-  import uk.gov.hmrc.brm.utils.Mocks._
 
   val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 

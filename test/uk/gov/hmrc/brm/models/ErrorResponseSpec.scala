@@ -18,8 +18,8 @@ package uk.gov.hmrc.brm.models
 
 import play.api.Play.materializer
 import play.api.libs.json.Json
-import play.api.test.Helpers._
-import uk.gov.hmrc.brm.models.brm._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.brm.models.brm.*
 import uk.gov.hmrc.brm.utils.BaseUnitSpec
 
 class ErrorResponseSpec extends BaseUnitSpec {

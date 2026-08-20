@@ -22,11 +22,11 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerAdditionalNameSwitchSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false

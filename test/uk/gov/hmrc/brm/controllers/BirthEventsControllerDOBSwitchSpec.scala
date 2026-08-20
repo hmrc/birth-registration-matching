@@ -22,10 +22,10 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true,

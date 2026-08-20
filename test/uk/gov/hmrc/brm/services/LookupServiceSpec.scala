@@ -40,7 +40,7 @@ import scala.concurrent.Future
 
 class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   implicit val brmConfig: BrmConfig                                   = mockConfig
   implicit val engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]

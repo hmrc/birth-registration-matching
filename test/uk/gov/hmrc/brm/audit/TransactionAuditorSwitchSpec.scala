@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.audit
 
 import com.codahale.metrics.MetricRegistry
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.mockito.ArgumentCaptor
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Configuration}

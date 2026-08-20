@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.connectors
 
-import org.apache.pekko.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -25,9 +25,9 @@ import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.CommonConstant.*
+import uk.gov.hmrc.brm.utils.Mocks.*
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 
 import java.time.LocalDate

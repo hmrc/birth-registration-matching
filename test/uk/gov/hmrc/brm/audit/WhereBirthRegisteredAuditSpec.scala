@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
   */
 class WhereBirthRegisteredAuditSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   val auditor = auditorFixtures.whereBirthRegisteredAudit
 

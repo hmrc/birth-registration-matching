@@ -40,7 +40,7 @@ import scala.concurrent.Future
 
 class PartialMatchingSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   def firstNameApp: OngoingStubbing[Boolean] = {
     when(mockConfig.matchFirstName).thenReturn(true)
@@ -289,7 +289,7 @@ class PartialMatchingSpec extends BaseUnitSpec {
 trait MatchingServiceSpec
     extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   implicit val hc: HeaderCarrier      = HeaderCarrier()
   val references: Seq[Option[String]] = List(Some("123456789"), None)

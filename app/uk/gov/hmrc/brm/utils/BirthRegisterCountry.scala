@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.libs.json._
-import uk.gov.hmrc.brm.metrics._
+import play.api.libs.json.*
+import uk.gov.hmrc.brm.metrics.*
 
 object BirthRegisterCountry extends Enumeration {
 

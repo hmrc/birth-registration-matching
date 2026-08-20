@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.models
 import java.time.LocalDate
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, _}
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry

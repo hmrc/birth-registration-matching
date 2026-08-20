@@ -17,15 +17,15 @@
 package uk.gov.hmrc.brm.controllers
 
 import javax.inject.Inject
-import java.time._
-import play.api.libs.json._
+import java.time.*
+import play.api.libs.json.*
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
-import uk.gov.hmrc.brm.audit._
+import uk.gov.hmrc.brm.audit.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.{Filter, Filters}
 import uk.gov.hmrc.brm.implicits.{AuditFactory, MetricsFactory}
-import uk.gov.hmrc.brm.metrics._
-import uk.gov.hmrc.brm.models.brm._
+import uk.gov.hmrc.brm.metrics.*
+import uk.gov.hmrc.brm.models.brm.*
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, HeaderValidator}

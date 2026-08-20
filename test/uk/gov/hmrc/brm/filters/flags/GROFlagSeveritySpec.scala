@@ -25,6 +25,7 @@ import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.OptionValues
+import play.api.Application
 
 class GROFlagSeveritySpec
     extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
@@ -96,7 +97,7 @@ class GROFlagSeveritySpec
     "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> true
   )
 
-  override def newAppForTest(testData: TestData) = GuiceApplicationBuilder()
+  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
     .configure {
       if (testData.tags.contains("allEnabled")) {
         allEnabledConfig

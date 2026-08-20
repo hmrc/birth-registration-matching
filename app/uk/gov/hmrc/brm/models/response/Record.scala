@@ -20,7 +20,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.parser.NameParser
-import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.services.parser.NameParser.*
 import uk.gov.hmrc.brm.utils.BRMLogger
 
 case class Record(child: Child, status: Option[StatusInterface] = None) {

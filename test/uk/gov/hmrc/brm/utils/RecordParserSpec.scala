@@ -17,7 +17,7 @@
 package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.{anyString, argThat, contains}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.libs.json.{JsValue, Json, Reads}
 
 class RecordParserSpec extends BaseUnitSpec {

@@ -23,14 +23,14 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.audit.BRMAudit
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{ErrorResponse, Payload}
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, HeaderValidator, MockErrorResponses}
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   private val specialCharacters: String =
     "ÀÁÂÃÄÅÆÇÈÉÊËÌÍ ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿÀÁÂÃÄÅÆÇÈÉÊËÌÍ" +

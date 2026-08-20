@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.brm.models.response.gro
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.filters.flags.{Green, Red, Severity}

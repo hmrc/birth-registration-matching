@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
-import org.apache.pekko.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.implicits.MetricsFactory
-import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry}
 

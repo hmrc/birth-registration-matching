@@ -17,10 +17,10 @@
 package uk.gov.hmrc.brm.models.brm
 
 import java.time.LocalDate
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json.Writes._
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.Reads.*
+import play.api.libs.json.Writes.*
+import play.api.libs.json.*
 import uk.gov.hmrc.brm.metrics.{
   EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics,
   NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics
@@ -38,7 +38,7 @@ case class Payload(
   whereBirthRegistered: BirthRegisterCountry.Value
 ) {
 
-  import uk.gov.hmrc.brm.services.parser.NameParser._
+  import uk.gov.hmrc.brm.services.parser.NameParser.*
 
   def firstNames: String = _firstName.names.listToString
 

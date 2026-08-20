@@ -27,7 +27,7 @@ import uk.gov.hmrc.brm.connectors.{BirthConnector, GROConnector, GRONIConnector,
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.filters.Filters
 import uk.gov.hmrc.brm.implicits.{AuditFactory, MetricsFactory}
-import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, PartialMatching}

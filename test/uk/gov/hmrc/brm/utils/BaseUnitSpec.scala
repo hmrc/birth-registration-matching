@@ -18,7 +18,7 @@ package uk.gov.hmrc.brm.utils
 
 import izumi.reflect.Tag
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
@@ -34,10 +34,10 @@ import play.api.inject.Injector
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.BodyWritable
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.Mocks.*
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import java.net.URL

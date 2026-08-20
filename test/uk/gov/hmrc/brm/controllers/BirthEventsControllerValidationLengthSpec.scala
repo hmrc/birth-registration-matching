@@ -17,14 +17,14 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -32,7 +32,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with BeforeAndAfter {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250

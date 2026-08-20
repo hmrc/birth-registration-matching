@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.models.matching
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class BirthMatchResponse(matched: Boolean = false)
 

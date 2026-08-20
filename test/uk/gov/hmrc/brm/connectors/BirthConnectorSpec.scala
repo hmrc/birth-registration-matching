@@ -17,12 +17,12 @@
 package uk.gov.hmrc.brm.connectors
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.CommonConstant.*
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 class BirthConnectorSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(

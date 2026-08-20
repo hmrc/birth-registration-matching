@@ -21,7 +21,7 @@ import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant._
+import uk.gov.hmrc.brm.utils.CommonConstant.*
 import uk.gov.hmrc.brm.utils.DateUtil
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.client.HttpClientV2
