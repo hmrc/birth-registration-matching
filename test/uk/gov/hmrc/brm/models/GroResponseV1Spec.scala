@@ -291,7 +291,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingIdKey.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result should not be a[JsSuccess[_]]
+      result should not be a[JsSuccess[?]]
 
       result match {
 
@@ -308,7 +308,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingObjectsProperties.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -338,7 +338,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingForenamesKey.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -358,7 +358,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingSurnameKey.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -378,7 +378,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingDateOfBirthKey.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -398,7 +398,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonMissingChildKey.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -418,7 +418,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonInvalidDateOfBirthFormat.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -438,7 +438,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonAllStatusFlags.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       result match {
 
@@ -479,7 +479,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingPotentiallyFictitious.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
@@ -495,7 +495,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingCorrection.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
@@ -511,7 +511,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingCancelled.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
@@ -527,7 +527,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingBlocked.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
@@ -543,7 +543,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingMarginalNote.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
@@ -559,7 +559,7 @@ class GroResponseV1Spec extends AnyWordSpecLike with Matchers with OptionValues 
 
       val result = jsonStatusFlagsExcludingReregistration.validate[Record](ReadsUtil.groReadRecordV1)
 
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
 
       val status = result.get.status.get.asInstanceOf[GROStatusV1]
 
