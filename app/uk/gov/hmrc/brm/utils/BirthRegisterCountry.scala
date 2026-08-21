@@ -26,7 +26,7 @@ object BirthRegisterCountry extends Enumeration {
   val NORTHERN_IRELAND: BirthRegisterCountry.Value = Value("northern ireland")
   val SCOTLAND: BirthRegisterCountry.Value         = Value("scotland")
 
-  def birthRegisterReads(implicit
+  def birthRegisterReads(using
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
     northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
     scotlandMetrics: ScotlandBirthRegisteredCountMetrics,

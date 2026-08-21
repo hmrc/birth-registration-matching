@@ -30,16 +30,16 @@ import java.time.LocalDate
 
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
-  implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
+  given engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
     app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
 
-  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics =
+  given northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics =
     app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]
 
-  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics =
+  given scotlandMetrics: ScotlandBirthRegisteredCountMetrics =
     app.injector.instanceOf[ScotlandBirthRegisteredCountMetrics]
 
-  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics =
+  given invalidRegMetrics: InvalidBirthRegisteredCountMetrics =
     app.injector.instanceOf[InvalidBirthRegisteredCountMetrics]
 
   private val unicode =

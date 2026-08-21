@@ -17,6 +17,7 @@
 package uk.gov.hmrc.brm.metrics.MetricsSpec
 
 import org.apache.pekko.http.scaladsl.model.StatusCodes.*
+import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.implicits.MetricsFactory
 import uk.gov.hmrc.brm.metrics.*
@@ -27,16 +28,16 @@ import java.time.LocalDate
 
 class MetricsSpec extends BaseUnitSpec {
 
-  override lazy val app = new GuiceApplicationBuilder()
+  override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("metrics.enabled" -> true)
     .build()
 
   "MetricsFactory" should {
 
     "return England and Wales metrics for reference" in {
-      implicit val payload =
+      val payload =
         Payload(Some("123456789"), "Adam", None, "Wilson", LocalDate.now(), BirthRegisterCountry.ENGLAND)
-      app.injector.instanceOf[MetricsFactory].getMetrics()
+      app.injector.instanceOf[MetricsFactory].getMetrics()(using payload)
     }
 
   }

@@ -37,7 +37,7 @@ object ReadsUtil {
   private val minimumDateOfBirthYear               = 1900
   private val validationError: JsonValidationError = JsonValidationError("")
 
-  implicit val validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
+  given validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
     case JsString(str) =>
       Try(LocalDate.parse(str, DateTimeFormatter.ofPattern(Payload.datePattern))) match {
         case Success(date: LocalDate) if date.getYear >= minimumDateOfBirthYear =>

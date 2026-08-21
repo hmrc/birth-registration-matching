@@ -291,7 +291,7 @@ trait MatchingServiceSpec
 
   import uk.gov.hmrc.brm.utils.Mocks.*
 
-  implicit val hc: HeaderCarrier      = HeaderCarrier()
+  given hc: HeaderCarrier             = HeaderCarrier()
   val references: Seq[Option[String]] = List(Some("123456789"), None)
 
   val configIgnoreAdditionalNames: Map[String, _] = Map(

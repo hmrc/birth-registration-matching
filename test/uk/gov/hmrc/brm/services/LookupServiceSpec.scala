@@ -42,9 +42,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks.*
 
-  implicit val brmConfig: BrmConfig                                   = mockConfig
-  implicit val engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
-  implicit val engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
+  given brmConfig: BrmConfig                                   = mockConfig
+  given engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
+  given engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
 
   val goodMatch: MatchingResult = MatchingResult(Good(), Good(), Good(), Good(), Good(), Names(List(), List(), List()))
   val badMatch: MatchingResult  = MatchingResult(Bad(), Bad(), Bad(), Bad(), Bad(), Names(List(), List(), List()))
@@ -112,9 +112,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("999999920"), "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
       }
 
@@ -164,9 +164,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
       }
 
@@ -217,9 +217,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(None, "Adam", None, "Conder", LocalDate.now, BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
       }
 
@@ -269,9 +269,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
       }
 
@@ -285,8 +285,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayload
-        val result                    = service.lookup().futureValue
+        given payload: Payload = nrsRequestPayload
+        val result             = service.lookup().futureValue
 
         result shouldBe Right(BirthMatchResponse(true))
       }
@@ -297,8 +297,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayloadWithoutBrn
-        val result                    = service.lookup().futureValue
+        given payload: Payload = nrsRequestPayloadWithoutBrn
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
       }
 
@@ -308,8 +308,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponseObject, Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayload
-        val result                    = service.lookup().futureValue
+        given payload: Payload = nrsRequestPayload
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
       }
 
@@ -319,8 +319,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.OK, validNrsJsonResponse2017350007, Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayloadWithSpecialChar
-        val result                    = service.lookup().futureValue
+        given payload: Payload = nrsRequestPayloadWithSpecialChar
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse(true))
       }
 
@@ -333,8 +333,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(badMatch)
 
-        implicit val payload: Payload = nrsRequestPayloadWithFirstNameWrong
-        val result                    = service.lookup().futureValue
+        given payload: Payload = nrsRequestPayloadWithFirstNameWrong
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
       }
 
@@ -348,7 +348,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -362,7 +362,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -376,7 +376,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.BAD_REQUEST, "Bad Request", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -390,7 +390,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -403,7 +403,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.NOT_FOUND, "Not Found", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -416,7 +416,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.FORBIDDEN, "Forbidden", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -431,7 +431,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             )
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -445,7 +445,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayload
+        given payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
@@ -458,7 +458,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.GATEWAY_TIMEOUT, "Gateway Timeout", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = nrsRequestPayload
+        given payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
@@ -473,7 +473,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             )
           )
 
-        implicit val payload: Payload = nrsRequestPayload
+        given payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
@@ -486,7 +486,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(malformedResponse))
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -500,7 +500,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(418, "random", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -512,7 +512,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Connection refused")))
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         val result = service.lookup().futureValue
@@ -524,7 +524,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         when(mockNrsConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Connection refused")))
 
-        implicit val payload: Payload = nrsRequestPayload
+        given payload: Payload = nrsRequestPayload
 
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
@@ -540,7 +540,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload = Payload(
+        given payload: Payload = Payload(
           Some("123456789"),
           "Chris",
           None,
@@ -548,7 +548,7 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
           dateOfBirth,
           BirthRegisterCountry.NORTHERN_IRELAND
         )
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
       }
 
@@ -558,9 +558,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
             Future.successful(HttpResponse(Status.NOT_IMPLEMENTED, "Not Implemented", Map.empty[String, Seq[String]]))
           )
 
-        implicit val payload: Payload =
+        given payload: Payload =
           Payload(None, "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
-        val result                    = service.lookup().futureValue
+        val result             = service.lookup().futureValue
         result shouldBe Right(BirthMatchResponse())
       }
 
@@ -569,17 +569,17 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "getRequestId" should {
 
       "return the X-Request-ID from HeaderCarrier when present" in {
-        implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("X-Request-ID" -> "test-request-id"))
+        given hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("X-Request-ID" -> "test-request-id"))
         service.getRequestId shouldBe "test-request-id"
       }
 
       "return the X-Request-ID case-insensitively" in {
-        implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("x-request-id" -> "lowercase-id"))
+        given hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq("x-request-id" -> "lowercase-id"))
         service.getRequestId shouldBe "lowercase-id"
       }
 
       "return 'unknown' when X-Request-ID is not present" in {
-        implicit val hc: HeaderCarrier = HeaderCarrier()
+        given hc: HeaderCarrier = HeaderCarrier()
         service.getRequestId shouldBe "unknown"
       }
     }

@@ -122,7 +122,7 @@ object Payload {
     )
   )
 
-  implicit def requestFormat(implicit
+  given requestFormat(using
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
     northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
     scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
