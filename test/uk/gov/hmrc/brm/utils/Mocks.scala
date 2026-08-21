@@ -117,7 +117,7 @@ object Mocks extends MockitoSugar {
       )
 
   object MockAuditFactory extends AuditFactory(mockEngWalesAudit, mockScotAudit, mockIreAudit) {
-    override def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
+    override def getAuditor()(using payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
   }
 
   object MockController

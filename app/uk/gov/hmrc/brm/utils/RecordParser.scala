@@ -23,7 +23,7 @@ import scala.reflect.ClassTag
 
 class RecordParser @Inject() (logger: BRMLogger) {
 
-  def parse[T](json: JsValue, reads: (Reads[List[T]], Reads[T]))(implicit
+  def parse[T](json: JsValue, reads: (Reads[List[T]], Reads[T]))(using
     classTag: ClassTag[T]
   ): List[T] = {
     val name = classTag.runtimeClass.getSimpleName

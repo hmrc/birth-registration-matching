@@ -37,7 +37,7 @@ class TransactionAuditorSwitchSpec extends BaseUnitSpec {
 
   class TestAuditor(configuration: Configuration) {
 
-    implicit lazy val app: Application =
+    def app: Application =
       new GuiceApplicationBuilder().disable[MetricRegistry].configure(configuration).build()
 
     val connector: AuditConnector = mock[AuditConnector]
