@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.brm.models
 
-import java.time.LocalDate
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.utils.{JsonUtils, ReadsUtil}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+
+import java.time.LocalDate
 
 /** Created by chrisianson on 09/08/16.
   */
@@ -851,7 +852,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when systemNumber key is missing" in {
       val result = jsonMissingSystemNumberKey.validate[Record](ReadsUtil.groReadRecord)
-      result should not be a[JsSuccess[_]]
+      result should not be a[JsSuccess[?]]
       result match {
         case JsSuccess(_, _) =>
           throw new Exception
@@ -864,7 +865,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with missing properties in all objects" in {
       val result = jsonMissingObjectsProperties.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                            shouldBe a[Record]
@@ -890,7 +891,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when givenName key is missing" in {
       val result = jsonMissingGivenNameKey.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                shouldBe a[Record]
@@ -908,7 +909,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when surname key is missing" in {
       val result = jsonMissingSurnameKey.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                shouldBe a[Record]
@@ -926,7 +927,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when dateOfBirth key is missing" in {
       val result = jsonMissingDateOfBirthKey.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                            shouldBe a[Record]
@@ -943,7 +944,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when name key is missing" in {
       val result = jsonMissingSubjectsKey.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                            shouldBe a[Record]
@@ -960,7 +961,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Child object when dateOfBirth value is invalid format" in {
       val result = jsonInavlidDateOfBirthFormat.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                            shouldBe a[Record]
@@ -977,7 +978,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when all status flags exist" in {
       val result = jsonAllStatusFlags.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1012,7 +1013,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when potentiallyFictitiousBirth key is excluded" in {
       val result = jsonStatusFlagsExcludingPotentiallyFicticiousBirth.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1036,7 +1037,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when correction key is excluded" in {
       val result = jsonStatusFlagsExcludingCorrection.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1060,7 +1061,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when cancelled key is excluded" in {
       val result = jsonStatusFlagsExcludingCancelled.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1084,7 +1085,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when blockedRegistration key is excluded" in {
       val result = jsonStatusFlagsExcludingBlockedRegistration.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1108,7 +1109,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when marginalNote key is excluded" in {
       val result = jsonStatusFlagsExcludingMarginalNote.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]
@@ -1132,7 +1133,7 @@ class GroResponseSpec extends AnyWordSpecLike with Matchers with OptionValues {
 
     "return Record object with Status object when reRegistered key is excluded" in {
       val result = jsonStatusFlagsExcludingReRegistered.validate[Record](ReadsUtil.groReadRecord)
-      result shouldBe a[JsSuccess[_]]
+      result shouldBe a[JsSuccess[?]]
       result match {
         case JsSuccess(x, _) =>
           x                                                               shouldBe a[Record]

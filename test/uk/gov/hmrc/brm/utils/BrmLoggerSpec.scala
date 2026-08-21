@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.brm.utils
 
-import org.scalatest.BeforeAndAfter
-import org.scalatest.concurrent.{Eventually, IntegrationPatience}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import ch.qos.logback.classic.Level.{DEBUG, ERROR, INFO, WARN}
-import play.api.Logger
+import org.scalatest.{BeforeAndAfter, OptionValues}
+import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Logger
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 class BrmLoggerSpec

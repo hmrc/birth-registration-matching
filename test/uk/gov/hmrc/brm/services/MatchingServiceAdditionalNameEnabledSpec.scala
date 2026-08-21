@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.brm.services
 
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService}
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -28,7 +28,7 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class MatchingServiceAdditionalNameEnabledSpec extends BaseUnitSpec {
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   val mockFull: FullMatching = new FullMatching(mockConfig)
 

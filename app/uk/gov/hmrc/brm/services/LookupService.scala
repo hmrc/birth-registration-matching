@@ -19,8 +19,6 @@ package uk.gov.hmrc.brm.services
 import play.api.http.Status.*
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
-
-import javax.inject.Inject
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.*
@@ -35,6 +33,7 @@ import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, BirthResponseBuil
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -49,11 +48,11 @@ class LookupService @Inject() (
   recordParser: RecordParser,
   matchMetric: MatchCountMetric,
   noMatchMetric: NoMatchCountMetric
-)(implicit val executionContext: ExecutionContext) {
+)(using val executionContext: ExecutionContext) {
 
   val CLASS_NAME: String = this.getClass.getSimpleName
 
-  def getConnector()(implicit payload: Payload): BirthConnector =
+  def getConnector()(using payload: Payload): BirthConnector =
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES => groConnector
       case BirthRegisterCountry.NORTHERN_IRELAND                     => groniConnector
@@ -68,14 +67,14 @@ class LookupService @Inject() (
     * @return
     */
 
-  def lookup()(implicit
+  def lookup()(using
     hc: HeaderCarrier,
     metrics: BRMMetrics,
     payload: Payload,
     auditor: BRMDownstreamAPIAudit,
     brmConfig: BrmConfig
   ): Future[Either[Result, BirthMatchResponse]] =
-    getRecord(hc, payload, metrics)
+    getRecord(using hc, payload, metrics)
       .map { response =>
         logger.info(CLASS_NAME, "lookup()", s"response received from ${getConnector().getClass.getSimpleName}")
 
@@ -116,7 +115,7 @@ class LookupService @Inject() (
         Left(handleServiceError(BAD_GATEWAY, payload.whereBirthRegistered, e.getMessage, requestId))
       }
 
-  private def handleError(status: Int, responseBody: String, country: BirthRegisterCountry.Value)(implicit
+  private def handleError(status: Int, responseBody: String, country: BirthRegisterCountry.Value)(using
     metrics: BRMMetrics,
     payload: Payload,
     hc: HeaderCarrier,
@@ -153,7 +152,7 @@ class LookupService @Inject() (
     country: BirthRegisterCountry.Value,
     responseBody: String,
     requestId: String
-  )(implicit
+  )(using
     metrics: BRMMetrics
   ): Result =
     country match {
@@ -182,7 +181,7 @@ class LookupService @Inject() (
         InternalServerError
     }
 
-  private def logAndMetric(message: String, statusCode: Int)(implicit metrics: BRMMetrics): Unit = {
+  private def logAndMetric(message: String, statusCode: Int)(using metrics: BRMMetrics): Unit = {
     metrics.status(statusCode)
     statusCode match {
       case s if s >= 500 => logger.error(CLASS_NAME, "lookup()", message)
@@ -191,8 +190,7 @@ class LookupService @Inject() (
     }
   }
 
-  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult, isError: Boolean = false)(
-    implicit
+  private[LookupService] def audit(records: List[Record], matchResult: MatchingResult, isError: Boolean = false)(using
     payload: Payload,
     hc: HeaderCarrier,
     downstreamAPIAuditor: BRMDownstreamAPIAudit
@@ -216,7 +214,7 @@ class LookupService @Inject() (
     transactionAuditor.transaction(payload, records, matchResult)
   }
 
-  private[LookupService] def getRecord(implicit
+  private[LookupService] def getRecord(using
     hc: HeaderCarrier,
     payload: Payload,
     metrics: BRMMetrics
@@ -231,27 +229,27 @@ class LookupService @Inject() (
     httpResponse
   }
 
-  def getRequestId(implicit hc: HeaderCarrier): String =
+  def getRequestId(using hc: HeaderCarrier): String =
     hc.extraHeaders
       .collectFirst {
         case (key, value) if key.equalsIgnoreCase("x-request-id") => value
       }
       .getOrElse("unknown")
 
-  private[LookupService] def noReferenceNumberPF(implicit
+  private[LookupService] def noReferenceNumberPF(using
     hc: HeaderCarrier
   ): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isEmpty =>
       logger.info(CLASS_NAME, "noReferenceNumberPF", s"reference number not provided, search by details")
-      getConnector()(payload).getChildDetails(payload)
+      getConnector()(using payload).getChildDetails(payload)
   }
 
-  private[LookupService] def referenceNumberIncludedPF(implicit
+  private[LookupService] def referenceNumberIncludedPF(using
     hc: HeaderCarrier
   ): PartialFunction[Payload, Future[HttpResponse]] = {
     case payload: Payload if payload.birthReferenceNumber.isDefined =>
       logger.info(CLASS_NAME, "referenceNumberIncludedPF", s"reference number provided, search by reference")
-      getConnector()(payload).getReference(payload)
+      getConnector()(using payload).getReference(payload)
   }
 
 }

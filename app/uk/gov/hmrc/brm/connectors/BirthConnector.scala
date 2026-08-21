@@ -56,11 +56,11 @@ trait BirthConnector {
     Request(request._1, request._2)
   }
 
-  private def sendRequest(request: Request)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  private def sendRequest(request: Request)(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
     val response = http
       .post(url"${request.uri}")(hc.copy(authorization = None))
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .withBody(Json.toJson(request.jsonBody))
       .execute[HttpResponse]
 
@@ -77,12 +77,12 @@ trait BirthConnector {
     response
   }
 
-  def getReference(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def getReference(payload: Payload)(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val requestData = buildRequest(payload, ReferenceRequest)
     sendRequest(requestData)
   }
 
-  def getChildDetails(payload: Payload)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def getChildDetails(payload: Payload)(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val requestData = buildRequest(payload, DetailsRequest)
     sendRequest(requestData)
 

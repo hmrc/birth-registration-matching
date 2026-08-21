@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.http.{HeaderNames => PlayHeaderNames}
+import play.api.http.HeaderNames as PlayHeaderNames
+import play.api.mvc.*
+import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
+import uk.gov.hmrc.brm.models.brm.*
 
 import javax.inject.Inject
-import play.api.mvc._
-import uk.gov.hmrc.brm.metrics.{APIVersionMetrics, AuditSourceMetrics}
-import uk.gov.hmrc.brm.models.brm._
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
@@ -45,7 +44,7 @@ class HeaderValidator @Inject() (
   val regEx         = """^application/vnd[.]{1}hmrc[.]{1}(.*?)[+]{1}(.*)$"""
 
   val matchAuditSource: CharSequence => Option[Match] = new Regex("""^(.*)$""", "auditsource") findFirstMatchIn _
-  val matchHeader: CharSequence => Option[Match]      = new Regex(regEx, groupNames: _*) findFirstMatchIn _
+  val matchHeader: CharSequence => Option[Match]      = new Regex(regEx, groupNames*) findFirstMatchIn _
 
   def validateVersion(s: String): Boolean = s match {
     case x: String =>

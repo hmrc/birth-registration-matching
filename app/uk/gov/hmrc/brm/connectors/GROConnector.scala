@@ -17,12 +17,13 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.google.inject.Singleton
-import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, CommonUtil, KeyGenerator, NameFormat}
 import uk.gov.hmrc.http.client.HttpClientV2
+
+import javax.inject.Inject
 
 /** Created by adamconder on 07/02/2017.
   */

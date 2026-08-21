@@ -17,14 +17,13 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-
-import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -33,7 +32,7 @@ class ScotlandAudit @Inject() (
   val config: BrmConfig,
   val keyGen: KeyGenerator,
   val logger: BRMLogger
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMDownstreamAPIAudit(connector) {
 
   /** ScotlandAuditEvent Responsible for auditing when we find records on NRS
@@ -44,7 +43,7 @@ class ScotlandAudit @Inject() (
     * @param hc
     *   implicit headerCarrier
     */
-  final private class ScotlandAuditEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  final private class ScotlandAuditEvent(result: Map[String, String], path: String)(using hc: HeaderCarrier)
       extends AuditEvent(
         auditType = "BRM-NRSScotland-Results",
         detail = result,
@@ -52,7 +51,7 @@ class ScotlandAudit @Inject() (
         path
       )
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit hc: HeaderCarrier) =
+  override def audit(result: Map[String, String], payload: Option[Payload])(using hc: HeaderCarrier) =
     payload match {
       case Some(p) =>
         p.requestType match {

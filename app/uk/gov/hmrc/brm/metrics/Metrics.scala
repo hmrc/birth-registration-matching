@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.metrics
 
-import java.util.concurrent.TimeUnit
 import com.codahale.metrics.MetricRegistry
+
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 sealed protected trait Timer { this: BRMMetrics =>

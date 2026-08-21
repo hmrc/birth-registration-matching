@@ -17,14 +17,14 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator, MockErrorResponses}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -32,7 +32,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with BeforeAndAfter {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.validation.maxNameLength" -> 250
@@ -69,16 +69,16 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
   "validating max length change" should {
 
     "return OK if firstName < 250 characters" in {
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse())))
 
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(), any())(any()))
+      when(mockAuditor.audit(any(), any())(using any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      when(mockMetricsFactory.getMetrics()(any()))
+      when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockEngWalesMetric)
       mockAuditSuccess
       mockReferenceResponse(groJsonResponseObject)
@@ -91,14 +91,14 @@ class BirthEventsControllerValidationLengthSpec extends BaseUnitSpec with Before
       val request = postRequest(firstNameWithMoreThan250Characters)
       val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_FIRSTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any(), any())
+      verify(mockGroConnector, never).getReference(any())(using any(), any())
     }
 
     "return BAD_REQUEST if lastName > 250 characters" in {
       val request = postRequest(lastNameWithMoreThan250Characters)
       val result  = testController.post().apply(request).futureValue
       checkResponse(result, BAD_REQUEST, MockErrorResponses.INVALID_LASTNAME.json)
-      verify(mockGroConnector, never).getReference(any())(any(), any())
+      verify(mockGroConnector, never).getReference(any())(using any(), any())
     }
 
   }

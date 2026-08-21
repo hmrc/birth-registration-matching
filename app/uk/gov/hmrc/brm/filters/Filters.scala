@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.brm.filters
 
-import javax.inject.Inject
 import uk.gov.hmrc.brm.filters.Filter.{DetailsFilter, ReferenceFilter}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry}
 
+import javax.inject.Inject
 import scala.annotation.tailrec
 
 class Filters @Inject() (

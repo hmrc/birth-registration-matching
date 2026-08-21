@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.brm.config
 
-import java.time.LocalDate
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -25,6 +24,8 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+
+import java.time.LocalDate
 
 class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
 

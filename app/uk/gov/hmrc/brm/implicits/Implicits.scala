@@ -17,14 +17,14 @@
 package uk.gov.hmrc.brm.implicits
 
 import com.google.inject.Singleton
-
-import javax.inject.Inject
 import play.api.libs.json.Reads
 import uk.gov.hmrc.brm.audit.*
 import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.Record
 import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, ReadsUtil}
+
+import javax.inject.Inject
 
 class MetricsFactory @Inject() (
   groMetrics: GROReferenceMetrics,
@@ -47,7 +47,7 @@ class MetricsFactory @Inject() (
     BirthRegisterCountry.NORTHERN_IRELAND -> groniMetrics
   )
 
-  def getMetrics()(implicit payload: Payload): BRMMetrics =
+  def getMetrics()(using payload: Payload): BRMMetrics =
     payload.birthReferenceNumber match {
       case Some(_) =>
         referenceSet(payload.whereBirthRegistered)
@@ -71,7 +71,7 @@ class AuditFactory @Inject() (
     BirthRegisterCountry.NORTHERN_IRELAND -> northIreAudit
   )
 
-  def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit =
+  def getAuditor()(using payload: Payload): BRMDownstreamAPIAudit =
     set(payload.whereBirthRegistered)
 
 }
@@ -87,7 +87,7 @@ object ReadsFactory {
   private val nrsReads: (Reads[List[Record]], Reads[Record]) =
     (ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead)
 
-  def getReads(enableV1Version: Boolean)(implicit payload: Payload): (Reads[List[Record]], Reads[Record]) =
+  def getReads(enableV1Version: Boolean)(using payload: Payload): (Reads[List[Record]], Reads[Record]) =
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
         if (enableV1Version) groV1Reads

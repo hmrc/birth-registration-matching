@@ -22,10 +22,10 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, HeaderValidator}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.TestHelper._
+  import uk.gov.hmrc.brm.utils.TestHelper.*
 
   val config: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.dobValidation.enabled" -> true,
@@ -83,19 +83,19 @@ class BirthEventsControllerDOBSwitchSpec extends BaseUnitSpec {
   "validating date of birth with dobValidation feature" should {
 
     "return matched value of true when the dateOfBirth is greater than 2009-07-01 and the gro record matches" in {
-      when(mockGroConnector.getReference(any())(any(), any()))
+      when(mockGroConnector.getReference(any())(using any(), any()))
         .thenReturn(Future.successful(httpResponse(groJsonResponseObject20120216)))
 
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       when(mockFilters.process(any()))
         .thenReturn(List())
 
-      when(mockAuditor.audit(any(), any())(any()))
+      when(mockAuditor.audit(any(), any())(using any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      when(mockMetricsFactory.getMetrics()(any()))
+      when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockEngWalesMetric)
 
       val result = makeRequest(userValidDOB)

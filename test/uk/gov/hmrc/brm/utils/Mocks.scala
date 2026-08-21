@@ -21,13 +21,13 @@ import org.slf4j.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.{Headers, Request}
 import play.api.test.Helpers.stubControllerComponents
-import uk.gov.hmrc.brm.audit.{WhereBirthRegisteredAudit, _}
+import uk.gov.hmrc.brm.audit.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.{BirthConnector, GROConnector, GRONIConnector, NRSConnector}
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.filters.Filters
 import uk.gov.hmrc.brm.implicits.{AuditFactory, MetricsFactory}
-import uk.gov.hmrc.brm.metrics._
+import uk.gov.hmrc.brm.metrics.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.services.matching.{FullMatching, MatchingService, PartialMatching}
@@ -117,7 +117,7 @@ object Mocks extends MockitoSugar {
       )
 
   object MockAuditFactory extends AuditFactory(mockEngWalesAudit, mockScotAudit, mockIreAudit) {
-    override def getAuditor()(implicit payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
+    override def getAuditor()(using payload: Payload): BRMDownstreamAPIAudit = auditorFixtures.englandAndWalesAudit
   }
 
   object MockController

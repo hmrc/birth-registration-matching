@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.brm.models.brm
 
-import java.time.LocalDate
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json.Writes._
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
+import play.api.libs.json.Reads.*
+import play.api.libs.json.Writes.*
 import uk.gov.hmrc.brm.metrics.{
   EnglandAndWalesBirthRegisteredCountMetrics, InvalidBirthRegisteredCountMetrics,
   NorthernIrelandBirthRegisteredCountMetrics, ScotlandBirthRegisteredCountMetrics
 }
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply as _, birthRegisterReads, birthRegisterWrites}
 import uk.gov.hmrc.brm.utils.ReadsUtil.validLocalDateReads
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry.{apply => _, birthRegisterReads, birthRegisterWrites}
+
+import java.time.LocalDate
 
 case class Payload(
   birthReferenceNumber: Option[String] = None,
@@ -38,7 +39,7 @@ case class Payload(
   whereBirthRegistered: BirthRegisterCountry.Value
 ) {
 
-  import uk.gov.hmrc.brm.services.parser.NameParser._
+  import uk.gov.hmrc.brm.services.parser.NameParser.*
 
   def firstNames: String = _firstName.names.listToString
 
@@ -103,7 +104,7 @@ object Payload {
       invalidNameCharsRegEx.findFirstIn(_).isEmpty
     )
 
-  implicit val PayloadWrites: Writes[Payload] = (
+  given PayloadWrites: Writes[Payload] = (
     (JsPath \ birthReferenceNumber).writeNullable[String] and
       (JsPath \ firstName).write[String] and
       (JsPath \ additionalNames).writeNullable[String] and
@@ -121,7 +122,7 @@ object Payload {
     )
   )
 
-  implicit def requestFormat(implicit
+  given requestFormat(using
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
     northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
     scotlandMetrics: ScotlandBirthRegisteredCountMetrics,

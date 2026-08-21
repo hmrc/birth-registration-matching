@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.brm.utils
 
-import java.time.LocalDate
-import uk.gov.hmrc.brm.models.response.{Child, Record}
 import uk.gov.hmrc.brm.models.response.gro.GROStatus
+import uk.gov.hmrc.brm.models.response.{Child, Record}
+
+import java.time.LocalDate
 
 object FlagsHelper {
 

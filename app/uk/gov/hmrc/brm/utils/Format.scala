@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.brm.utils
 
-import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.services.parser.NameParser.*
 
 object Trim {
 

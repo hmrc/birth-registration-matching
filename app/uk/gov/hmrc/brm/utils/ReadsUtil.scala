@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.brm.utils
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json.{JsPath, Reads, _}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.Reads.*
+import play.api.libs.json.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.{GROStatus, GROStatusV1}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.language.postfixOps
 import scala.util.{Success, Try}
 
@@ -37,7 +37,7 @@ object ReadsUtil {
   private val minimumDateOfBirthYear               = 1900
   private val validationError: JsonValidationError = JsonValidationError("")
 
-  implicit val validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
+  given validLocalDateReads: Reads[LocalDate] = Reads[LocalDate] {
     case JsString(str) =>
       Try(LocalDate.parse(str, DateTimeFormatter.ofPattern(Payload.datePattern))) match {
         case Success(date: LocalDate) if date.getYear >= minimumDateOfBirthYear =>

@@ -17,14 +17,13 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-
-import javax.inject.Inject
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.{DetailsRequest, Payload, ReferenceRequest}
 import uk.gov.hmrc.brm.utils.{BRMLogger, KeyGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /** Created by adamconder on 08/02/2017.
@@ -35,7 +34,7 @@ class MatchingAudit @Inject() (
   val logger: BRMLogger,
   val config: BrmConfig,
   val keyGen: KeyGenerator
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMAudit(connector) {
 
   /** MatchingEvent Audit event for the result of MatchingService, how did the matching perform
@@ -44,10 +43,10 @@ class MatchingAudit @Inject() (
     * @param hc
     *   implicit headerCarrier
     */
-  final private class MatchingEvent(result: Map[String, String], path: String)(implicit hc: HeaderCarrier)
+  final private class MatchingEvent(result: Map[String, String], path: String)(using hc: HeaderCarrier)
       extends AuditEvent("BRM-Matching-Results", detail = result, transactionName = "brm-match", path)
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit hc: HeaderCarrier) = {
+  override def audit(result: Map[String, String], payload: Option[Payload])(using hc: HeaderCarrier) = {
     logger.debug("MatchingAudit", "audit", "auditing match event")
     payload match {
       case Some(p) =>

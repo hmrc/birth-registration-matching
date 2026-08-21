@@ -19,7 +19,7 @@ package uk.gov.hmrc.brm.models
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record, StatusInterface}
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, JsonUtils, ReadsUtil}
 
 import java.time.LocalDate

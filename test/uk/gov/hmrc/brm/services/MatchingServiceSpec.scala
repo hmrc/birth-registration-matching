@@ -28,7 +28,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.services.matching.{Bad, FullMatching, Good, MatchingService, PartialMatching}
+import uk.gov.hmrc.brm.services.matching.*
 import uk.gov.hmrc.brm.utils.FlagsHelper.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
@@ -40,7 +40,7 @@ import scala.concurrent.Future
 
 class PartialMatchingSpec extends BaseUnitSpec {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   def firstNameApp: OngoingStubbing[Boolean] = {
     when(mockConfig.matchFirstName).thenReturn(true)
@@ -110,7 +110,7 @@ class PartialMatchingSpec extends BaseUnitSpec {
 
       "return true result for firstName only" in {
         firstNameApp
-        when(mockMatchingAudit.audit(any(), any())(any()))
+        when(mockMatchingAudit.audit(any(), any())(using any()))
           .thenReturn(Future.successful(AuditResult.Success))
         when(mockConfig.validateFlag(any(), any()))
           .thenReturn(true)
@@ -289,9 +289,9 @@ class PartialMatchingSpec extends BaseUnitSpec {
 trait MatchingServiceSpec
     extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
-  implicit val hc: HeaderCarrier      = HeaderCarrier()
+  given hc: HeaderCarrier             = HeaderCarrier()
   val references: Seq[Option[String]] = List(Some("123456789"), None)
 
   val configIgnoreAdditionalNames: Map[String, _] = Map(

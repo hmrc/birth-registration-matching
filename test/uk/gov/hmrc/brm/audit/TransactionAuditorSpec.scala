@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.brm.audit
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class TransactionAuditorSpec extends BaseUnitSpec with MockitoSugar {
 
-  import uk.gov.hmrc.brm.utils.Mocks._
+  import uk.gov.hmrc.brm.utils.Mocks.*
 
   val auditor: TransactionAuditor = auditorFixtures.transactionAudit
 

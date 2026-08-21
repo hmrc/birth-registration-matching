@@ -20,14 +20,14 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.parser.NameParser
-import uk.gov.hmrc.brm.services.parser.NameParser._
+import uk.gov.hmrc.brm.services.parser.NameParser.*
 import uk.gov.hmrc.brm.utils.BRMLogger
 
 case class Record(child: Child, status: Option[StatusInterface] = None) {
 
   private def processFlags = true
 
-  def isFlagged(implicit config: BrmConfig): Boolean = {
+  def isFlagged(using config: BrmConfig): Boolean = {
     val notFlagged = false
     if (processFlags) {
 
@@ -44,7 +44,7 @@ case class Record(child: Child, status: Option[StatusInterface] = None) {
 
 object Record {
 
-  def audit(r: Record, p: Payload, c: Int)(implicit logger: BRMLogger, config: BrmConfig): Map[String, String] = {
+  def audit(r: Record, p: Payload, c: Int)(using logger: BRMLogger, config: BrmConfig): Map[String, String] = {
 
     val recordNames = NameParser.parseNames(p, r, config.ignoreAdditionalNames)
 
@@ -71,7 +71,7 @@ object Record {
       s"records.record$c.numberOfCharactersInLastName"       -> s"${recordNames.lastNames.length}"
     )
 
-  private def statusFlags(s: Option[StatusInterface], c: Int)(implicit config: BrmConfig) =
+  private def statusFlags(s: Option[StatusInterface], c: Int)(using config: BrmConfig) =
     s match {
       case Some(x) if config.logFlags =>
         x.flags.map { case (key, value) =>
@@ -80,7 +80,7 @@ object Record {
       case _                          => Map()
     }
 
-  private def logNameCount(p: Payload, auditWordsPerNameOnRecords: Map[String, String])(implicit
+  private def logNameCount(p: Payload, auditWordsPerNameOnRecords: Map[String, String])(using
     logger: BRMLogger
   ): Unit = {
 

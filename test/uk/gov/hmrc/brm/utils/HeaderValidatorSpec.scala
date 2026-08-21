@@ -17,20 +17,20 @@
 package uk.gov.hmrc.brm.utils
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
+import play.api.Play.materializer
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.controllers.BirthEventsController
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import play.api.Play.materializer
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class HeaderValidatorSpec extends BaseUnitSpec {
-
-  import uk.gov.hmrc.brm.utils.Mocks._
 
   val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
@@ -72,14 +72,14 @@ class HeaderValidatorSpec extends BaseUnitSpec {
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
-      when(mockConnector.getReference(any())(any(), any[ExecutionContext]))
+      when(mockConnector.getReference(any())(using any(), any[ExecutionContext]))
         .thenReturn(Future.successful(httpResponse(groJsonResponseObject)))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
       when(mockFilters.process(any()))
         .thenReturn(List())
-      when(mockMetricsFactory.getMetrics()(any()))
+      when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockScotMetric)
-      when(mockLookupService.lookup()(any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       val result = testController.post().apply(request).futureValue

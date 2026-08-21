@@ -17,8 +17,9 @@
 package uk.gov.hmrc.brm.utils
 
 import izumi.reflect.Tag
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
@@ -27,19 +28,19 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.mockito.ArgumentCaptor
 import play.api.Play.materializer
 import play.api.http.Status
 import play.api.inject.Injector
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.libs.ws.BodyWritable
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.connectors.BirthConnector
-import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.Mocks.*
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+
 import java.net.URL
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -55,8 +56,8 @@ trait BaseUnitSpec
 
   lazy val injector: Injector = app.injector
 
-  implicit lazy val hc: HeaderCarrier    = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+  given hc: HeaderCarrier    = HeaderCarrier()
+  given ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
   def checkResponse(result: Result, responseStatus: Int, matchResponse: Boolean): Unit = {
     result.header.status                                                                 shouldBe responseStatus
@@ -98,11 +99,11 @@ trait BaseUnitSpec
     mockRefResponse(mockGroConnector, exception)
 
   private def mockRefResponse(connector: BirthConnector, exception: Exception) =
-    when(connector.getReference(any())(any(), any()))
+    when(connector.getReference(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   private def mockRefResponse(connector: BirthConnector, jsonResponse: JsValue): Unit =
-    when(connector.getReference(any())(any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
+    when(connector.getReference(any())(using any(), any())).thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockNrsReferenceResponse(jsonResponse: JsValue): Unit =
     mockRefResponse(mockNrsConnector, jsonResponse)
@@ -111,19 +112,19 @@ trait BaseUnitSpec
     mockRefResponse(mockNrsConnector, exception)
 
   def mockDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
-    when(mockGroConnector.getChildDetails(any())(any(), any()))
+    when(mockGroConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockNrsDetailsResponse(jsonResponse: JsValue): OngoingStubbing[Future[HttpResponse]] =
-    when(mockNrsConnector.getChildDetails(any())(any(), any()))
+    when(mockNrsConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.successful(httpResponse(jsonResponse)))
 
   def mockDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
-    when(mockGroConnector.getChildDetails(any())(any(), any()))
+    when(mockGroConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   def mockNrsDetailsResponse(exception: Exception): OngoingStubbing[Future[HttpResponse]] =
-    when(mockNrsConnector.getChildDetails(any())(any(), any()))
+    when(mockNrsConnector.getChildDetails(any())(using any(), any()))
       .thenReturn(Future.failed(exception))
 
   def mockAuditSuccess: OngoingStubbing[Future[AuditResult]] =

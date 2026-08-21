@@ -17,24 +17,23 @@
 package uk.gov.hmrc.brm.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterEachTestData, Tag, TestData}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfterEachTestData, OptionValues, Tag, TestData}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
+import play.api.Play.materializer
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.models.matching.BirthMatchResponse
-import uk.gov.hmrc.brm.utils.Mocks._
-import uk.gov.hmrc.brm.utils.TestHelper._
+import uk.gov.hmrc.brm.utils.Mocks.*
+import uk.gov.hmrc.brm.utils.TestHelper.*
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
-import play.api.Play.materializer
 
 import scala.concurrent.Future
 
@@ -113,7 +112,7 @@ trait FeatureSwitchSpec
       "search by child's details when the details switch is enabled and no reference number" taggedAs Tag(
         "enabled"
       ) in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any(), any()))
+        when(MockControllerMockedLookup.service.lookup()(using any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -122,13 +121,13 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
         "enabled"
       ) in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any(), any()))
+        when(MockControllerMockedLookup.service.lookup()(using any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -137,7 +136,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any(), any())
       }
 
     }
@@ -154,7 +153,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is disabled and has reference number" taggedAs Tag(
@@ -167,7 +166,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any(), any())
       }
 
     }
@@ -177,7 +176,7 @@ trait FeatureSwitchSpec
       "search by child's details when the details switch is enabled and no reference number" taggedAs Tag(
         "enabled"
       ) in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any(), any()))
+        when(MockControllerMockedLookup.service.lookup()(using any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -186,13 +185,13 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
         "enabled"
       ) in {
-        when(MockControllerMockedLookup.service.lookup()(any(), any(), any(), any(), any()))
+        when(MockControllerMockedLookup.service.lookup()(using any(), any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
         when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -201,7 +200,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any(), any())
       }
 
     }
@@ -218,7 +217,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is disabled and has reference number" taggedAs Tag(
@@ -231,7 +230,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe false
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(any(), any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any(), any())
       }
 
     }

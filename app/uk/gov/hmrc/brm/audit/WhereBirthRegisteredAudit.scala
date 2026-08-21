@@ -17,22 +17,21 @@
 package uk.gov.hmrc.brm.audit
 
 import com.google.inject.Singleton
-
-import javax.inject.Inject
 import play.api.libs.json.{JsDefined, JsValue}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthRegisterCountry, KeyGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-import uk.gov.hmrc.http.HeaderCarrier
 
 /** Created by adamconder on 09/02/2017.
   */
 @Singleton
 class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen: KeyGenerator, val logger: BRMLogger)(
-  implicit ec: ExecutionContext
+  using ec: ExecutionContext
 ) extends BRMAudit(connector) {
 
   /** OtherCountryAuditEvent
@@ -41,7 +40,7 @@ class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen
     * @param hc
     *   implicit headerCarrier
     */
-  final private class OtherCountryAuditEvent(result: Map[String, String])(implicit hc: HeaderCarrier)
+  final private class OtherCountryAuditEvent(result: Map[String, String])(using hc: HeaderCarrier)
       extends AuditEvent(
         auditType = "BRM-Other-Results",
         detail = result,
@@ -49,12 +48,12 @@ class WhereBirthRegisteredAudit @Inject() (connector: AuditConnector, val keyGen
         "birth-registration-matching/match"
       )
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+  override def audit(result: Map[String, String], payload: Option[Payload])(using
     hc: HeaderCarrier
   ): Future[AuditResult] =
     event(new OtherCountryAuditEvent(result))
 
-  def auditCountryInRequest(json: JsValue)(implicit hc: HeaderCarrier): Unit =
+  def auditCountryInRequest(json: JsValue)(using hc: HeaderCarrier): Unit =
     json.\(Payload.whereBirthRegistered) match {
       case JsDefined(country) =>
         Try(BirthRegisterCountry.withName(country.toString)).recover { _ =>

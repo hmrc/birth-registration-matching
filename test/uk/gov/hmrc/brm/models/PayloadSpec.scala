@@ -16,29 +16,30 @@
 
 package uk.gov.hmrc.brm.models
 
-import java.time.LocalDate
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.brm.metrics._
-import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, _}
-import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.OptionValues
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.brm.metrics.*
+import uk.gov.hmrc.brm.models.brm.Payload
+import uk.gov.hmrc.brm.models.brm.Payload.{PayloadWrites, *}
+import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+
+import java.time.LocalDate
 
 class PayloadSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerSuite {
 
-  implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
+  given engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics =
     app.injector.instanceOf[EnglandAndWalesBirthRegisteredCountMetrics]
 
-  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics =
+  given northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics =
     app.injector.instanceOf[NorthernIrelandBirthRegisteredCountMetrics]
 
-  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics =
+  given scotlandMetrics: ScotlandBirthRegisteredCountMetrics =
     app.injector.instanceOf[ScotlandBirthRegisteredCountMetrics]
 
-  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics =
+  given invalidRegMetrics: InvalidBirthRegisteredCountMetrics =
     app.injector.instanceOf[InvalidBirthRegisteredCountMetrics]
 
   private val unicode =

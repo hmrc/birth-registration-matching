@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.brm.utils
 
-import javax.inject.{Inject, Singleton}
 import play.api.mvc.Request
+
+import javax.inject.{Inject, Singleton}
 
 object KeyGenerator {
   val DateFormat: String         = "yyyyMMdd:HHmmssSS"

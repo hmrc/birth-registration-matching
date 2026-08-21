@@ -31,7 +31,9 @@ object ErrorResponse extends ErrorResponse {
      """.stripMargin)
     .toString()
 
-  val GRO_CONNECTION_DOWN = error("GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
-  val NRS_CONNECTION_DOWN = error("NRS_CONNECTION_DOWN", "National Records Scotland: Scotland is unavailable")
-  val DES_CONNECTION_DOWN = error("DES_CONNECTION_DOWN", "DES is unavailable")
+  val GRO_CONNECTION_DOWN: String =
+    error("GRO_CONNECTION_DOWN", "General Registry Office: England and Wales is unavailable")
+
+  val NRS_CONNECTION_DOWN: String = error("NRS_CONNECTION_DOWN", "National Records Scotland: Scotland is unavailable")
+  val DES_CONNECTION_DOWN: String = error("DES_CONNECTION_DOWN", "DES is unavailable")
 }

@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.brm.controllers
 
-import javax.inject.Inject
-import java.time._
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{Action, ControllerComponents, Request, Result}
-import uk.gov.hmrc.brm.audit._
+import uk.gov.hmrc.brm.audit.*
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.filters.{Filter, Filters}
 import uk.gov.hmrc.brm.implicits.{AuditFactory, MetricsFactory}
-import uk.gov.hmrc.brm.metrics._
-import uk.gov.hmrc.brm.models.brm._
+import uk.gov.hmrc.brm.metrics.*
+import uk.gov.hmrc.brm.models.brm.*
 import uk.gov.hmrc.brm.models.matching.MatchingResult
 import uk.gov.hmrc.brm.services.LookupService
 import uk.gov.hmrc.brm.utils.{BRMLogger, BirthResponseBuilder, CommonUtil, HeaderValidator}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.*
 import java.util.UUID
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BirthEventsController @Inject() (
@@ -48,12 +48,17 @@ class BirthEventsController @Inject() (
   val logger: BRMLogger,
   val metrics: MetricsFactory,
   filters: Filters,
-  implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
-  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
-  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
-  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics
-)(implicit val ec: ExecutionContext)
+  engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+  northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+  scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+  invalidRegMetrics: InvalidBirthRegisteredCountMetrics
+)(using ec: ExecutionContext)
     extends BRMBaseController(cc) {
+
+  given EnglandAndWalesBirthRegisteredCountMetrics = engAndWalesMetrics
+  given NorthernIrelandBirthRegisteredCountMetrics = northIreMetrics
+  given ScotlandBirthRegisteredCountMetrics        = scotlandMetrics
+  given InvalidBirthRegisteredCountMetrics         = invalidRegMetrics
 
   val CLASS_NAME: String              = this.getClass.getSimpleName
   private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
@@ -61,7 +66,7 @@ class BirthEventsController @Inject() (
   private def handleInvalidRequest(
     request: Request[JsValue],
     errors: scala.collection.Seq[(JsPath, scala.collection.Seq[JsonValidationError])]
-  )(implicit hc: HeaderCarrier): Future[Result] = {
+  )(using hc: HeaderCarrier): Future[Result] = {
     countryAuditor.auditCountryInRequest(request.body)
     errorAuditor.audit(Json.fromJson[Map[String, String]](request.body).getOrElse(Map.empty[String, String]))
     val response = ErrorResponses.getErrorResponseByField(errors)
@@ -70,7 +75,7 @@ class BirthEventsController @Inject() (
     Future.successful(respond(response))
   }
 
-  private def failedAtFilter(filters: List[Filter])(implicit payload: Payload, hc: HeaderCarrier): Future[Result] = {
+  private def failedAtFilter(filters: List[Filter])(using payload: Payload, hc: HeaderCarrier): Future[Result] = {
     // audit the request
     transactionAuditor.transaction(payload, Nil, MatchingResult.noMatch)
 
@@ -83,7 +88,7 @@ class BirthEventsController @Inject() (
     Future.successful(respond(Ok(Json.toJson(BirthResponseBuilder.withNoMatch()))))
   }
 
-  private def traceAndMatchRecord()(implicit
+  private def traceAndMatchRecord()(using
     payload: Payload,
     hc: HeaderCarrier,
     metrics: BRMMetrics,
@@ -98,7 +103,7 @@ class BirthEventsController @Inject() (
     val beforeRequestTime = Instant.now().toEpochMilli
 
     service
-      .lookup()(implicitly, metrics, implicitly, implicitly, config)
+      .lookup()(using hc, metrics, payload, implicitly, config)
       .map {
         case Right(birthMatchResponse) =>
           metrics.status(OK)
@@ -128,7 +133,7 @@ class BirthEventsController @Inject() (
   def post(): Action[JsValue] = headerValidator.validateAccept(cc).async(parse.json) { implicit request =>
     val requestId = request.headers.get("X-Request-ID").getOrElse("unknown")
 
-    implicit val hc: HeaderCarrier =
+    given hc: HeaderCarrier =
       HeaderCarrier()
         .withExtraHeaders(
           (HEADER_X_CORRELATION_ID, getOrCreateCorrelationID(request)),
@@ -140,15 +145,15 @@ class BirthEventsController @Inject() (
         errors => handleInvalidRequest(request, errors),
         implicit payload => {
 
-          implicit val auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
+          given auditor: BRMDownstreamAPIAudit = auditFactory.getAuditor()
 
           val processed = filters.process(payload)
 
           if (processed.nonEmpty) {
             failedAtFilter(processed)
           } else {
-            val metric: BRMMetrics = metrics.getMetrics()
-            traceAndMatchRecord()(implicitly, implicitly, metrics = metric, implicitly)
+            given BRMMetrics = metrics.getMetrics()
+            traceAndMatchRecord()
           }
         }
       )

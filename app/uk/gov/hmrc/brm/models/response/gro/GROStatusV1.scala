@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.brm.models.response.gro
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.Reads.*
 import play.api.libs.json.{JsPath, JsValue, Json, Reads}
-import play.api.libs.json.Reads._
 import uk.gov.hmrc.brm.config.BrmConfig
-import uk.gov.hmrc.brm.models.response.StatusInterface
 import uk.gov.hmrc.brm.filters.flags.{Green, Red, Severity}
+import uk.gov.hmrc.brm.models.response.StatusInterface
 
 case class GROStatusV1(
   potentiallyFictitious: Boolean = false,
@@ -127,7 +127,7 @@ case class GROStatusV1(
 
 object GROStatusV1 {
 
-  implicit val childV1Reads: Reads[GROStatusV1] = (
+  given childV1Reads: Reads[GROStatusV1] = (
     (JsPath \ "potentiallyFictitious").read[Boolean].orElse(Reads.pure(false)) and
       (JsPath \ "correction").readNullable[String] and
       (JsPath \ "cancelled").read[Boolean].orElse(Reads.pure(false)) and

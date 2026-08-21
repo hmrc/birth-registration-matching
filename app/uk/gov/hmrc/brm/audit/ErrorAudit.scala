@@ -30,13 +30,13 @@ class ErrorAudit @Inject() (
   connector: AuditConnector,
   val logger: BRMLogger,
   val keyGen: KeyGenerator
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BRMAudit(connector) {
 
-  final private class PayloadErrorEvent(result: Map[String, String])(implicit hc: HeaderCarrier)
+  final private class PayloadErrorEvent(result: Map[String, String])(using hc: HeaderCarrier)
       extends AuditEvent("BRM-Payload-Error", detail = result, transactionName = "brm-payload-error")
 
-  override def audit(result: Map[String, String], payload: Option[Payload])(implicit
+  override def audit(result: Map[String, String], payload: Option[Payload])(using
     hc: HeaderCarrier
   ): Future[AuditResult] = {
     logger.debug("ErrorAudit", "audit", "auditing error event")

@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.brm.utils
 
-import play.api.libs.json._
-import uk.gov.hmrc.brm.metrics._
+import play.api.libs.json.*
+import uk.gov.hmrc.brm.metrics.*
 
 object BirthRegisterCountry extends Enumeration {
 
@@ -26,7 +26,7 @@ object BirthRegisterCountry extends Enumeration {
   val NORTHERN_IRELAND: BirthRegisterCountry.Value = Value("northern ireland")
   val SCOTLAND: BirthRegisterCountry.Value         = Value("scotland")
 
-  def birthRegisterReads(implicit
+  def birthRegisterReads(using
     engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
     northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
     scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
