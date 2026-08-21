@@ -48,12 +48,17 @@ class BirthEventsController @Inject() (
   val logger: BRMLogger,
   val metrics: MetricsFactory,
   filters: Filters,
-  implicit val engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
-  implicit val northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
-  implicit val scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
-  implicit val invalidRegMetrics: InvalidBirthRegisteredCountMetrics
-)(implicit val ec: ExecutionContext)
+  engAndWalesMetrics: EnglandAndWalesBirthRegisteredCountMetrics,
+  northIreMetrics: NorthernIrelandBirthRegisteredCountMetrics,
+  scotlandMetrics: ScotlandBirthRegisteredCountMetrics,
+  invalidRegMetrics: InvalidBirthRegisteredCountMetrics
+)(using ec: ExecutionContext)
     extends BRMBaseController(cc) {
+
+  given EnglandAndWalesBirthRegisteredCountMetrics = engAndWalesMetrics
+  given NorthernIrelandBirthRegisteredCountMetrics = northIreMetrics
+  given ScotlandBirthRegisteredCountMetrics        = scotlandMetrics
+  given InvalidBirthRegisteredCountMetrics         = invalidRegMetrics
 
   val CLASS_NAME: String              = this.getClass.getSimpleName
   private val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
