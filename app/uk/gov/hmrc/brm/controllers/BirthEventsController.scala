@@ -103,7 +103,7 @@ class BirthEventsController @Inject() (
     val beforeRequestTime = Instant.now().toEpochMilli
 
     service
-      .lookup()(using hc, metrics, payload, implicitly, config)
+      .lookup()(using hc, metrics, payload, implicitly)
       .map {
         case Right(birthMatchResponse) =>
           metrics.status(OK)
