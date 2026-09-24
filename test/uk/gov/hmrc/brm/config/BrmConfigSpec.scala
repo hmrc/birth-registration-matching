@@ -20,10 +20,11 @@ import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.LocalDate
 
@@ -173,6 +174,7 @@ class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with
 
       e.getMessage shouldBe "des.auth-token configuration not found"
     }
+
   }
 
 }

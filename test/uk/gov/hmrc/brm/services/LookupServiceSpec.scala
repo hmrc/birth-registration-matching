@@ -42,7 +42,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks.*
 
-  given brmConfig: BrmConfig                                   = mockConfig
   given engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
   given engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
 
@@ -354,6 +353,20 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with INTERNAL_SERVER_ERROR when Groni returns 502 Bad Gateway" in {
+        when(mockGroniConnector.getReference(any())(using any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        given payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
 
       "return Left with InternalServerError when GRO returns 504 Gateway Timeout" in {

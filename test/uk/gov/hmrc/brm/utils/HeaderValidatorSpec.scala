@@ -79,7 +79,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
         .thenReturn(List())
       when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockScotMetric)
-      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       val result = testController.post().apply(request).futureValue
