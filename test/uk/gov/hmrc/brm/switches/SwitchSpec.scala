@@ -27,11 +27,12 @@ import uk.gov.hmrc.brm.filters.*
 
 /** Created by mew on 15/05/2017.
   */
-trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
+class SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with BeforeAndAfter with GuiceOneAppPerTest {
 
-  object TestSwitch extends Switch {
-    val config: BrmConfig = app.injector.instanceOf[BrmConfig]
-    override val name     = "test"
+  def testSwitch: Switch = new Switch {
+    override val config: BrmConfig = app.injector.instanceOf[BrmConfig]
+
+    override val name: String = "test"
   }
 
   object NonExistingSwitch extends Switch {
@@ -70,13 +71,11 @@ trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with Be
   "Switch" should {
 
     "load configuration for a feature and return true for isEnabled" taggedAs Tag("enabled") in {
-      val switch = TestSwitch
-      switch.isEnabled shouldBe true
+      testSwitch.isEnabled shouldBe true
     }
 
     "load configuration for a feature and return false for isEnabled" taggedAs Tag("disabled") in {
-      val switch = TestSwitch
-      switch.isEnabled shouldBe false
+      testSwitch.isEnabled shouldBe false
     }
 
     "throw FeatureSwitchException for configuration that doesn't exist" in {
@@ -93,6 +92,22 @@ trait SwitchSpec extends AnyWordSpecLike with Matchers with OptionValues with Be
       e.getMessage shouldBe "birth-registration-matching.features.invalid.enabled configuration not found"
     }
 
+  }
+
+  "SwitchException" should {
+
+    "throw FeatureSwitchException" in {
+      val switchException = new SwitchException {}
+
+      val exception = intercept[switchException.FeatureSwitchException] {
+        switchException.exception("invalid")
+      }
+
+      exception.switch shouldBe "invalid"
+
+      exception.getMessage shouldBe
+        "birth-registration-matching.features.invalid.enabled configuration not found"
+    }
   }
 
   "GRO" should {

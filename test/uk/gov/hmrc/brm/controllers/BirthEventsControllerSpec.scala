@@ -91,6 +91,17 @@ class BirthEventsControllerSpec extends BaseUnitSpec with IntegrationPatience {
 
     "validate birth reference number" should {
 
+      "invalid payload" in {
+
+        mockAuditSuccess
+        val invalidJson = Json.obj(
+          "invalid" -> Json.obj("nested" -> "value")
+        )
+        val request     = postRequest(invalidJson)
+        val result      = testController.post().apply(request).futureValue
+        checkResponse(result, BAD_REQUEST, MockErrorResponses.BAD_REQUEST.json)
+      }
+
       "return response code 400 if request contains missing birthReferenceNumber value" in {
         when(mockLookupService.lookup()(using any(), any(), any(), any()))
           .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
