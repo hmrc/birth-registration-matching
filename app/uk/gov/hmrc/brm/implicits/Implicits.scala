@@ -78,20 +78,16 @@ class AuditFactory @Inject() (
 
 object ReadsFactory {
 
-  private val groV0Reads: (Reads[List[Record]], Reads[Record]) =
-    (ReadsUtil.groRecordsListRead, ReadsUtil.groReadRecord)
-
   private val groV1Reads: (Reads[List[Record]], Reads[Record]) =
     (ReadsUtil.groRecordsListReadV1, ReadsUtil.groReadRecordV1)
 
   private val nrsReads: (Reads[List[Record]], Reads[Record]) =
     (ReadsUtil.nrsRecordsListRead, ReadsUtil.nrsRecordsRead)
 
-  def getReads(enableV1Version: Boolean)(using payload: Payload): (Reads[List[Record]], Reads[Record]) =
+  def getReads()(using payload: Payload): (Reads[List[Record]], Reads[Record]) =
     payload.whereBirthRegistered match {
       case BirthRegisterCountry.ENGLAND | BirthRegisterCountry.WALES =>
-        if (enableV1Version) groV1Reads
-        else groV0Reads
+        groV1Reads
 
       case BirthRegisterCountry.SCOTLAND =>
         nrsReads

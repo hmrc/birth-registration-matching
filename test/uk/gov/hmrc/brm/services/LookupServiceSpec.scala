@@ -42,7 +42,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
 
   import uk.gov.hmrc.brm.utils.Mocks.*
 
-  given brmConfig: BrmConfig                                   = mockConfig
   given engAuditor: EnglandAndWalesAudit                       = mock[EnglandAndWalesAudit]
   given engMetrics: EnglandAndWalesBirthRegisteredCountMetrics = mock[EnglandAndWalesBirthRegisteredCountMetrics]
 
@@ -63,45 +62,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
     "requesting england or wales" should {
 
       "accept Payload as an argument - false match" in {
-        val groResponseInvalid = Json.parse("""
-                                              |{
-                                              |  "location": {
-                                              |
-                                              |  },
-                                              |  "subjects": {
-                                              |    "child": {
-                                              |      "name": {
-                                              |
-                                              |      },
-                                              |      "originalName": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "father": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "mother": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "informant": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    }
-                                              |  },
-                                              |  "systemNumber": 999999920,
-                                              |  "id": 999999920,
-                                              |  "status": {
-                                              |    "blockedRegistration": false
-                                              |  },
-                                              |  "previousRegistration": {}
-                                              |
-                                              |  }
-          """.stripMargin)
 
         when(mockGroConnector.getReference(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
@@ -119,47 +79,8 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept Payload as an argument - true match" in {
-        val groResponseValid = Json.parse("""
-                                            |{
-                                            |  "location": {
-                                            |
-                                            |  },
-                                            |  "subjects": {
-                                            |    "child" : {
-                                            |   "name" : {
-                                            |    "givenName" : "Chris",
-                                            |    "surname" : "Jones"
-                                            |   },
-                                            |   "dateOfBirth" : "2012-02-16"
-                                            |  },
-                                            |    "father": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    },
-                                            |    "mother": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    },
-                                            |    "informant": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    }
-                                            |  },
-                                            |  "systemNumber": 123456789,
-                                            |  "id": 123456789,
-                                            |  "status": {
-                                            |    "blockedRegistration": false
-                                            |  },
-                                            |  "previousRegistration": {}
-                                            |
-                                            |  }
-          """.stripMargin)
-
         when(mockGroConnector.getReference(any())(using any(), any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValidJson, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
@@ -171,45 +92,6 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept Payload as an argument without reference number - false match" in {
-        val groResponseInvalid = Json.parse("""
-                                              |{
-                                              |  "location": {
-                                              |
-                                              |  },
-                                              |  "subjects": {
-                                              |    "child": {
-                                              |      "name": {
-                                              |
-                                              |      },
-                                              |      "originalName": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "father": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "mother": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    },
-                                              |    "informant": {
-                                              |      "name": {
-                                              |
-                                              |      }
-                                              |    }
-                                              |  },
-                                              |  "systemNumber": 999999920,
-                                              |  "id": 999999920,
-                                              |  "status": {
-                                              |    "blockedRegistration": false
-                                              |  },
-                                              |  "previousRegistration": {}
-                                              |
-                                              |  }
-          """.stripMargin)
 
         when(mockGroConnector.getChildDetails(any())(using any(), any()))
           .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseInvalid, Map.empty[String, Seq[String]])))
@@ -224,47 +106,9 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
       }
 
       "accept payload as an argument without reference number - true match" in {
-        val groResponseValid = Json.parse("""
-                                            |{
-                                            |  "location": {
-                                            |
-                                            |  },
-                                            |  "subjects": {
-                                            |    "child" : {
-                                            |   "name" : {
-                                            |    "givenName" : "Chris",
-                                            |    "surname" : "Jones"
-                                            |   },
-                                            |   "dateOfBirth" : "2012-02-16"
-                                            |  },
-                                            |    "father": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    },
-                                            |    "mother": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    },
-                                            |    "informant": {
-                                            |      "name": {
-                                            |
-                                            |      }
-                                            |    }
-                                            |  },
-                                            |  "systemNumber": 123456789,
-                                            |  "id": 123456789,
-                                            |  "status": {
-                                            |    "blockedRegistration": false
-                                            |  },
-                                            |  "previousRegistration": {}
-                                            |
-                                            |  }
-          """.stripMargin)
 
         when(mockGroConnector.getChildDetails(any())(using any(), any()))
-          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValid, Map.empty[String, Seq[String]])))
+          .thenReturn(Future.successful(HttpResponse(Status.OK, groResponseValidJson, Map.empty[String, Seq[String]])))
 
         when(mockMatchingservice.performMatch(any(), any(), any())(using any()))
           .thenReturn(goodMatch)
@@ -354,6 +198,20 @@ class LookupServiceSpec extends BaseUnitSpec with BeforeAndAfter {
         val result = service.lookup().futureValue
         result                                                     shouldBe a[Left[_, _]]
         result.swap.getOrElse(fail("Expected Left")).header.status shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return Left with INTERNAL_SERVER_ERROR when Groni returns 502 Bad Gateway" in {
+        when(mockGroniConnector.getReference(any())(using any(), any()))
+          .thenReturn(
+            Future.successful(HttpResponse(Status.BAD_GATEWAY, "Bad Gateway", Map.empty[String, Seq[String]]))
+          )
+
+        given payload: Payload =
+          Payload(Some("123456789"), "Chris", None, "Jones", dateOfBirth, BirthRegisterCountry.NORTHERN_IRELAND)
+
+        val result = service.lookup().futureValue
+        result                                                     shouldBe a[Left[_, _]]
+        result.swap.getOrElse(fail("Expected Left")).header.status shouldBe INTERNAL_SERVER_ERROR
       }
 
       "return Left with InternalServerError when GRO returns 504 Gateway Timeout" in {

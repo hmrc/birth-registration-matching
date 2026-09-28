@@ -20,7 +20,7 @@ import play.api.libs.functional.syntax.*
 import play.api.libs.json.Reads.*
 import play.api.libs.json.*
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.models.response.gro.{GROStatus, GROStatusV1}
+import uk.gov.hmrc.brm.models.response.gro.GROStatusV1
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
 import uk.gov.hmrc.brm.models.response.{Child, Record}
 
@@ -56,15 +56,6 @@ object ReadsUtil {
         .orElse(Reads.pure(None))
   )(Child.apply _)
 
-  val groChildReads: Reads[Child] = (
-    (JsPath \ "systemNumber").read[Int] and
-      (JsPath \ "subjects" \ "child" \ "name" \ "givenName").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "name" \ "surname").read[String].orElse(Reads.pure("")) and
-      (JsPath \ "subjects" \ "child" \ "dateOfBirth")
-        .readNullable[LocalDate](validLocalDateReads)
-        .orElse(Reads.pure(None))
-  )(Child.apply _)
-
   val groChildReadsV1: Reads[Child] = (
     (JsPath \ "id").read[Int] and
       (JsPath \ "child" \ "forenames").read[String].orElse(Reads.pure("")) and
@@ -86,14 +77,6 @@ object ReadsUtil {
     (JsPath \ "births")
       .read[JsArray]
       .map((births: JsArray) => births.value.map(v => v.as[Record](nrsRecordsRead)).toList)
-
-  val groReadRecord: Reads[Record] = (
-    JsPath.read[Child](groChildReads) and
-      (JsPath \ "status").readNullable[GROStatus]
-  )(Record.apply _)
-
-  val groRecordsListRead: Reads[List[Record]] =
-    JsPath.read[JsArray].map((births: JsArray) => births.value.map(v => v.as[Record](groReadRecord)).toList)
 
   val groReadRecordV1: Reads[Record] = (
     JsPath.read[Child](groChildReadsV1) and
