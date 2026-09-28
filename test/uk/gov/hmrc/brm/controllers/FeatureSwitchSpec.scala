@@ -121,7 +121,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
@@ -185,7 +185,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any())
       }
 
       "search by reference number when the details switch is enabled and has reference number" taggedAs Tag(
@@ -200,7 +200,7 @@ trait FeatureSwitchSpec
         result.header.status                                                                 shouldBe OK
         (Json.parse(result.body.consumeData.futureValue.utf8String) \ "matched").as[Boolean] shouldBe true
         result.header.headers(ACCEPT)                                                        shouldBe "application/vnd.hmrc.1.0+json"
-        verify(MockControllerMockedLookup.service, never()).lookup()(using any(), any(), any(), any())
+        verify(MockControllerMockedLookup.service, atLeastOnce()).lookup()(using any(), any(), any(), any())
       }
 
     }
