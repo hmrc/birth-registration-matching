@@ -104,12 +104,48 @@ object TestHelper {
 
   private val referenceNumber: Int = 123456789
 
+  val groResponseInvalid: JsValue = parse("""
+      |{
+      |  "location": {
+      |
+      |  },
+      |    "child": {
+      |      "name": {
+      |
+      |      },
+      |      "originalName": {
+      |
+      |      }
+      |    },
+      |    "father": {
+      |      "name": {
+      |
+      |      }
+      |    },
+      |    "mother": {
+      |      "name": {
+      |
+      |      }
+      |    },
+      |    "informant": {
+      |      "name": {
+      |
+      |      }
+      |    },
+      |  "id": 999999920,
+      |  "status": {
+      |    "blocked": false
+      |  },
+      |  "previousRegistration": {}
+      |
+      |  }
+           """.stripMargin)
+
   val groResponseValidJson: JsValue = parse(s"""
       |{
       |  "location": {
       |
       |  },
-      |  "subjects": {
       |    "child" : {
       |   "name" : {
       |    "givenName" : "Chris",
@@ -131,12 +167,10 @@ object TestHelper {
       |      "name": {
       |
       |      }
-      |    }
-      |  },
-      |  "systemNumber": $referenceNumber,
+      |    },
       |  "id": $referenceNumber,
       |  "status": {
-      |    "blockedRegistration": false
+      |    "blocked": false
       |  },
       |  "previousRegistration": {}
       |

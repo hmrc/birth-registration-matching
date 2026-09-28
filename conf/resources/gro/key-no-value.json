@@ -1,30 +1,74 @@
 {
-  "location": {
+  "id" : 999999926,
+  "date" : null,
+  "entryNumber" : 999999926,
+  "registrar" : {
+    "signature" : null,
+    "designation" : null,
+    "superintendentSignature" : null,
+    "superintendentDesignation" : null,
+    "subdistrict" : null,
+    "district" : null,
+    "administrativeArea" : null
   },
-  "subjects": {
-    "child": {
-      "name": {
-
-      },
-      "originalName": {
-      }
-    },
-    "father": {
-      "name": {
-      }
-    },
-    "mother": {
-      "name": {
-      }
-    },
-    "informant": {
-      "name": {
-      }
-    }
+  "informant1" : {
+    "forenames" : null,
+    "surname" : null,
+    "address" : null,
+    "qualification" : null,
+    "signature" : null,
+    "signatureIsMark" : false
   },
-  "systemNumber": 999999926,
-  "id": 999999926,
-  "status": {
+  "informant2" : null,
+  "child" : {
+    "originalPrefix" : null,
+    "prefix" : null,
+    "forenames" : null,
+    "originalForenames" : null,
+    "surname" : null,
+    "originalSuffix" : null,
+    "suffix" : null,
+    "dateOfBirth" : null,
+    "sex" : null,
+    "birthplace" : null
   },
-  "previousRegistration": {}
+  "mother" : {
+    "prefix" : null,
+    "forenames" : null,
+    "surname" : null,
+    "suffix" : null,
+    "birthplace" : null,
+    "occupation" : null,
+    "aliases" : [ ],
+    "address" : null,
+    "maidenSurname" : null,
+    "marriageSurname" : null
+  },
+  "father" : {
+    "prefix" : null,
+    "forenames" : null,
+    "surname" : null,
+    "suffix" : null,
+    "birthplace" : null,
+    "occupation" : null,
+    "aliases" : [ ],
+    "deceased" : false
+  },
+  "dateOfDeclaration" : null,
+  "dateOfStatutoryDeclarationOfParentage" : null,
+  "statutoryDeclarationOfParentage" : null,
+  "dateOfNameUpdate" : null,
+  "status" : {
+    "blocked" : null,
+    "cancelled" : null,
+    "correction" : null,
+    "marginalNote" : null,
+    "nameUpdate" : "None",
+    "onAuthorityOfRegistrarGeneral" : false,
+    "potentiallyFictitious" : null,
+    "praOrCourtOrder" : "None",
+    "reregistration" : null
+  },
+  "nextRegistration" : null,
+  "previousRegistration" : null
 }
