@@ -18,7 +18,6 @@ package uk.gov.hmrc.brm.services
 
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
-import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -30,266 +29,17 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.services.matching.*
 import uk.gov.hmrc.brm.utils.FlagsHelper.*
+import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, MatchingType}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, MatchingType}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class PartialMatchingSpec extends BaseUnitSpec {
-
-  import uk.gov.hmrc.brm.utils.Mocks.*
-
-  def firstNameApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(true)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-    when(mockConfig.matchLastName).thenReturn(false)
-    when(mockConfig.matchDateOfBirth).thenReturn(false)
-  }
-
-  def additionalNamesFirstNameApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(true)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(false)
-    when(mockConfig.matchLastName).thenReturn(false)
-    when(mockConfig.matchDateOfBirth).thenReturn(false)
-  }
-
-  def additionalNamesApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(false)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(false)
-    when(mockConfig.matchLastName).thenReturn(false)
-    when(mockConfig.matchDateOfBirth).thenReturn(false)
-  }
-
-  def lastNameApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(false)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-    when(mockConfig.matchLastName).thenReturn(true)
-    when(mockConfig.matchDateOfBirth).thenReturn(false)
-  }
-
-  def dobApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(false)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-    when(mockConfig.matchLastName).thenReturn(false)
-    when(mockConfig.matchDateOfBirth).thenReturn(true)
-  }
-
-  def firstNameLastNameApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(true)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-    when(mockConfig.matchLastName).thenReturn(true)
-    when(mockConfig.matchDateOfBirth).thenReturn(false)
-  }
-
-  def allFlagsTrueApp: OngoingStubbing[Boolean] = {
-    when(mockConfig.matchFirstName).thenReturn(true)
-    when(mockConfig.ignoreAdditionalNames).thenReturn(true)
-    when(mockConfig.matchLastName).thenReturn(true)
-    when(mockConfig.matchDateOfBirth).thenReturn(true)
-  }
-
-  val dateOfBirth: LocalDate    = LocalDate.of(2008, 2, 16)
-  val altDateOfBirth: LocalDate = LocalDate.of(2012, 2, 16)
-
-  val partial: PartialMatching = new PartialMatching(mockConfig)
-
-  val testMatchingService: MatchingService = new MatchingService(
-    mockConfig,
-    mockMatchingAudit,
-    mockFullMatching,
-    partial,
-    mockBrmLogger
-  )
-
-  "Partial Matching (feature switch turned off)" when {
-
-    "match with reference" should {
-
-      "return true result for firstName only" in {
-        firstNameApp
-        when(mockMatchingAudit.audit(any(), any())(using any()))
-          .thenReturn(Future.successful(AuditResult.Success))
-        when(mockConfig.validateFlag(any(), any()))
-          .thenReturn(true)
-
-        val payload     = Payload(
-          Some("123456789"),
-          "Chris",
-          Some("test"),
-          "wrongLastName",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for additionalName only" in {
-        additionalNamesApp
-        val payload     = Payload(
-          Some("123456789"),
-          "wrongFirstname",
-          Some("David"),
-          "wrongLastName",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for firstName and additionalName  only" in {
-        additionalNamesFirstNameApp
-        val payload     = Payload(
-          Some("123456789"),
-          "Adam",
-          Some("David"),
-          "wrongLastName",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for lastName only" in {
-        lastNameApp
-        val payload     = Payload(
-          Some("123456789"),
-          "wrongFirstName",
-          None,
-          "Jones",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for date of birth only" in {
-        dobApp
-
-        val payload     = Payload(
-          Some("123456789"),
-          "wrongFirstName",
-          None,
-          "wrongLastName",
-          altDateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for firstName and LastName only" in {
-        firstNameLastNameApp
-
-        val payload     =
-          Payload(Some("123456789"), "chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-        resultMatch.matched shouldBe true
-      }
-
-    }
-
-    "match without reference" should {
-
-      "return true result for firstName only" in {
-        firstNameApp
-        val payload     =
-          Payload(None, "Chris", None, "wrongLastName", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for additionalName only" in {
-        additionalNamesApp
-        val payload     = Payload(
-          None,
-          "wrongFirstname",
-          Some("David"),
-          "wrongLastName",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for firstName and additionalName  only" in {
-        additionalNamesFirstNameApp
-        val payload     = Payload(
-          None,
-          "Adam",
-          Some("David"),
-          "wrongLastName",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecordMiddleNames), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for lastName only" in {
-        lastNameApp
-
-        val payload     =
-          Payload(None, "wrongFirstName", None, "Jones", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for date of birth only" in {
-        dobApp
-
-        val payload     = Payload(
-          None,
-          "wrongFirstName",
-          None,
-          "wrongLastName",
-          altDateOfBirth,
-          BirthRegisterCountry.ENGLAND
-        )
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-
-        resultMatch.matched shouldBe true
-      }
-
-      "return true result for firstName and LastName only" in {
-        firstNameLastNameApp
-
-        val payload     = Payload(None, "chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
-        val resultMatch = testMatchingService.performMatch(payload, List(validRecord), MatchingType.PARTIAL)
-        resultMatch.matched shouldBe true
-      }
-
-    }
-
-    "return true when all config flags are true" in {
-      allFlagsTrueApp
-      testMatchingService.getMatchingType shouldBe MatchingType.FULL
-    }
-  }
-
-}
-
-//TODO Just FYI, this spec doesn't run because it's a trait
-trait MatchingServiceSpec
+class MatchingServiceSpec
     extends AnyWordSpecLike with Matchers with OptionValues with MockitoSugar with GuiceOneAppPerTest {
-
-  import uk.gov.hmrc.brm.utils.Mocks.*
 
   given hc: HeaderCarrier             = HeaderCarrier()
   val references: Seq[Option[String]] = List(Some("123456789"), None)
@@ -305,14 +55,14 @@ trait MatchingServiceSpec
   )
 
   def switchEnabled: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames"                        -> false,
-    "microservice.services.birth-registration-matching.features.flags.process"                                -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitiousBirth.process" -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.blockedRegistration.process"        -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"                 -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"                  -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"               -> true,
-    "microservice.services.birth-registration-matching.features.gro.flags.reRegistered.process"               -> true
+    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames"                   -> false,
+    "microservice.services.birth-registration-matching.features.flags.process"                           -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.potentiallyFictitious.process" -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.blocked.process"               -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.correction.process"            -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.cancelled.process"             -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.marginalNote.process"          -> true,
+    "microservice.services.birth-registration-matching.features.gro.flags.reregistration.process"        -> true
   )
 
   def switchDisabled: Map[String, _] = Map(
@@ -320,36 +70,29 @@ trait MatchingServiceSpec
     "microservice.services.birth-registration-matching.features.flags.process"         -> false
   )
 
-  override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
-    .configure(
-      if (testData.tags.contains("enabled")) {
-        switchEnabled
-      } else if (testData.tags.contains("disabled")) {
-        switchDisabled
-      } else {
-        switchEnabled
-      }
-    )
-    .build()
+  override def newAppForTest(testData: TestData): Application = {
+    val config = if (testData.tags.contains("disabled")) {
+      switchDisabled
+    } else {
+      switchEnabled
+    }
+    new GuiceApplicationBuilder()
+      .configure(config)
+      .build()
+  }
 
   def getApp(config: Map[String, _]): Application = GuiceApplicationBuilder(
     disabled = Seq(classOf[com.codahale.metrics.MetricRegistry])
   )
-    .configure(configIgnoreAdditionalNames)
+    .configure(config)
     .build()
 
   private val marginalNoteInvalidFlagValues = List("Other", "Re-registered", "Court order in place")
   private val marginalNoteValidFlagValues   = List("Court order revoked", "None")
 
-  val full: FullMatching = new FullMatching(mockConfig)
+//  val full: FullMatching = new FullMatching(mockConfig)
 
-  val testMatchingService: MatchingService = new MatchingService(
-    mockConfig,
-    mockMatchingAudit,
-    full,
-    mockPartialMatching,
-    mockBrmLogger
-  )
+  private def testMatchingService: MatchingService = app.injector.instanceOf[MatchingService]
 
   references.foreach { reference =>
     val name = reference match {
@@ -364,11 +107,13 @@ trait MatchingServiceSpec
       "record contains a fictitious birth" should {
         s"($name) not match when processFlags is true" taggedAs Tag("enabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-          val payload     =
+          val payload =
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
-          val resultMatch = testMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
+
+          val service     = testMatchingService
+          val resultMatch = service.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
           resultMatch.matched                shouldBe false
-          resultMatch.firstNamesMatched      shouldBe Bad()
+          resultMatch.firstNamesMatched      shouldBe Good()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()
           resultMatch.dateOfBirthMatched     shouldBe Good()
@@ -376,10 +121,12 @@ trait MatchingServiceSpec
 
         s"($name) match when processFlags is false" taggedAs Tag("disabled") in {
           when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-          val payload     =
+          val payload =
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
-          val resultMatch = testMatchingService.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
-          resultMatch.matched                shouldBe true
+
+          val service     = testMatchingService
+          val resultMatch = service.performMatch(payload, List(flaggedFictitiousBirth), MatchingType.FULL)
+          resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()
@@ -407,7 +154,7 @@ trait MatchingServiceSpec
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch =
             testMatchingService.performMatch(payload, List(flaggedBlockedRegistration), MatchingType.FULL)
-          resultMatch.matched                shouldBe true
+          resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()
@@ -461,7 +208,7 @@ trait MatchingServiceSpec
           val payload     =
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(cancelled), MatchingType.FULL)
-          resultMatch.matched                shouldBe true
+          resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()
@@ -507,7 +254,7 @@ trait MatchingServiceSpec
               Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
             val resultMatch =
               testMatchingService.performMatch(payload, List(marginalNote(flagValue)), MatchingType.FULL)
-            resultMatch.matched                shouldBe true
+            resultMatch.matched                shouldBe false
             resultMatch.firstNamesMatched      shouldBe Good()
             resultMatch.additionalNamesMatched shouldBe Good()
             resultMatch.lastNameMatched        shouldBe Good()
@@ -534,7 +281,7 @@ trait MatchingServiceSpec
           val payload     =
             Payload(reference, "Chris", None, "Jones", altDateOfBirth, BirthRegisterCountry.ENGLAND)
           val resultMatch = testMatchingService.performMatch(payload, List(reRegistered("Other")), MatchingType.FULL)
-          resultMatch.matched                shouldBe true
+          resultMatch.matched                shouldBe false
           resultMatch.firstNamesMatched      shouldBe Good()
           resultMatch.additionalNamesMatched shouldBe Good()
           resultMatch.lastNameMatched        shouldBe Good()

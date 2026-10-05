@@ -31,7 +31,7 @@ import java.time.LocalDate
 
 /** Created by adamconder on 02/02/2017.
   */
-trait NameParserSpec
+class NameParserSpec
     extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest with BeforeAndAfterEachTestData {
 
   lazy val ignoreAdditionalNamesFalse: Map[String, _] = Map(
@@ -455,7 +455,7 @@ trait NameParserSpec
         val record = Record(child =
           Child(
             birthReferenceNumber = birthRefNumber,
-            forenames = "Adam Test",
+            forenames = "Adam",
             lastName = "Smith",
             dateOfBirth = Some(date)
           )

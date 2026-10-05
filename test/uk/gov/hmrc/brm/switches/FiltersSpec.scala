@@ -29,20 +29,16 @@ import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 
 import java.time.LocalDate
 
-trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
+class FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with GuiceOneAppPerTest {
 
-  val groFilter: GROFilter                       = app.injector.instanceOf[GROFilter]
-  val groReferenceFilter: GROReferenceFilter     = app.injector.instanceOf[GROReferenceFilter]
-  val groDetailsFilter: GRODetailsFilter         = app.injector.instanceOf[GRODetailsFilter]
-  val dateOfBirthFilter: DateOfBirthFilter       = app.injector.instanceOf[DateOfBirthFilter]
-  val nrsFilter: NRSFilter                       = app.injector.instanceOf[NRSFilter]
-  val nrsReferenceFilter: NRSReferenceFilter     = app.injector.instanceOf[NRSReferenceFilter]
-  val nrsDetailsFilter: NRSDetailsFilter         = app.injector.instanceOf[NRSDetailsFilter]
-  val groniFilter: GRONIFilter                   = app.injector.instanceOf[GRONIFilter]
-  val groniReferenceFilter: GRONIReferenceFilter = app.injector.instanceOf[GRONIReferenceFilter]
-  val groniDetailsFilter: GRONIDetailsFilter     = app.injector.instanceOf[GRONIDetailsFilter]
+  def groReferenceFilter: GROReferenceFilter     = app.injector.instanceOf[GROReferenceFilter]
+  def groDetailsFilter: GRODetailsFilter         = app.injector.instanceOf[GRODetailsFilter]
+  def dateOfBirthFilter: DateOfBirthFilter       = app.injector.instanceOf[DateOfBirthFilter]
+  def groniFilter: GRONIFilter                   = app.injector.instanceOf[GRONIFilter]
+  def groniReferenceFilter: GRONIReferenceFilter = app.injector.instanceOf[GRONIReferenceFilter]
+  def groniDetailsFilter: GRONIDetailsFilter     = app.injector.instanceOf[GRONIDetailsFilter]
 
-  val testFilters: Filters = app.injector.instanceOf[Filters]
+  def testFilters: Filters = app.injector.instanceOf[Filters]
 
   def switchEnabled: Map[String, _] = Map(
     "microservice.services.birth-registration-matching.features.gro.enabled"             -> true,
@@ -62,15 +58,9 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
   )
 
   override def newAppForTest(testData: TestData): Application = GuiceApplicationBuilder()
-    .configure {
-      if (testData.tags.contains("enabled")) {
-        switchEnabled
-      } else if (testData.tags.contains("disabled")) {
-        switchDisabled
-      } else {
-        switchEnabled
-      }
-    }
+    .configure(
+      if (testData.tags.contains("disabled")) switchDisabled else switchEnabled
+    )
     .build()
 
   val payloadWithReference: Payload =
@@ -107,35 +97,34 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "gro" should {
 
       "contain GRO reference filters" in {
-        val filters   = List(groFilter, groReferenceFilter, dateOfBirthFilter)
+        val filters   = List(classOf[GROFilter], classOf[GROReferenceFilter], classOf[DateOfBirthFilter])
         val excluded  = List(
-          groDetailsFilter,
-          nrsFilter,
-          nrsReferenceFilter,
-          nrsDetailsFilter,
-          groniFilter,
-          groniReferenceFilter,
-          groniDetailsFilter
+          classOf[NRSFilter],
+          classOf[NRSReferenceFilter],
+          classOf[NRSDetailsFilter],
+          classOf[GRONIFilter],
+          classOf[GRONIReferenceFilter],
+          classOf[GRONIDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(payloadWithReference)
-
+        val toProcess = testFilters.getFilters(payloadWithReference).map(_.getClass)
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
-        toProcess.length                       shouldBe filters.length
+
+        toProcess.length shouldBe filters.length
       }
 
       "contain GRO details filters" in {
-        val filters   = List(groFilter, groDetailsFilter, dateOfBirthFilter)
+        val filters   = List(classOf[GROFilter], classOf[GRODetailsFilter], classOf[DateOfBirthFilter])
         val excluded  = List(
-          groReferenceFilter,
-          nrsFilter,
-          nrsReferenceFilter,
-          nrsDetailsFilter,
-          groniFilter,
-          groniReferenceFilter,
-          groniDetailsFilter
+          classOf[GROReferenceFilter],
+          classOf[NRSFilter],
+          classOf[NRSReferenceFilter],
+          classOf[NRSDetailsFilter],
+          classOf[GRONIFilter],
+          classOf[GRONIReferenceFilter],
+          classOf[GRONIDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(payloadWithoutReference)
+        val toProcess = testFilters.getFilters(payloadWithoutReference).map(_.getClass)
 
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
@@ -147,17 +136,17 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "nrs" should {
 
       "contain NRS reference filters" in {
-        val filters   = List(nrsFilter, nrsReferenceFilter, dateOfBirthFilter)
+        val filters   = List(classOf[NRSFilter], classOf[NRSReferenceFilter], classOf[DateOfBirthFilter])
         val excluded  = List(
-          nrsDetailsFilter,
-          groFilter,
-          groReferenceFilter,
-          groDetailsFilter,
-          groniFilter,
-          groniReferenceFilter,
-          groniDetailsFilter
+          classOf[NRSDetailsFilter],
+          classOf[GROFilter],
+          classOf[GROReferenceFilter],
+          classOf[GRODetailsFilter],
+          classOf[GRONIFilter],
+          classOf[GRONIReferenceFilter],
+          classOf[GRONIDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(nrsPayloadWithReference)
+        val toProcess = testFilters.getFilters(nrsPayloadWithReference).map(_.getClass)
 
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
@@ -165,17 +154,17 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       }
 
       "contain NRS details filters" in {
-        val filters   = List(nrsFilter, nrsDetailsFilter, dateOfBirthFilter)
+        val filters   = List(classOf[NRSFilter], classOf[NRSDetailsFilter], classOf[DateOfBirthFilter])
         val excluded  = List(
-          nrsReferenceFilter,
-          groFilter,
-          groReferenceFilter,
-          groDetailsFilter,
-          groniFilter,
-          groniReferenceFilter,
-          groniDetailsFilter
+          classOf[NRSReferenceFilter],
+          classOf[GROFilter],
+          classOf[GROReferenceFilter],
+          classOf[GRODetailsFilter],
+          classOf[GRONIFilter],
+          classOf[GRONIReferenceFilter],
+          classOf[GRONIDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(nrsPayloadWithoutReference)
+        val toProcess = testFilters.getFilters(nrsPayloadWithoutReference).map(_.getClass)
 
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
@@ -187,17 +176,17 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
     "gro-ni" should {
 
       "contain GRO-NI reference filters" in {
-        val filters   = List(dateOfBirthFilter, groniFilter, groniReferenceFilter)
+        val filters   = List(classOf[DateOfBirthFilter], classOf[GRONIFilter], classOf[GRONIReferenceFilter])
         val excluded  = List(
-          groniDetailsFilter,
-          groFilter,
-          groReferenceFilter,
-          groDetailsFilter,
-          nrsFilter,
-          nrsReferenceFilter,
-          nrsDetailsFilter
+          classOf[GRONIDetailsFilter],
+          classOf[GROFilter],
+          classOf[GROReferenceFilter],
+          classOf[GRODetailsFilter],
+          classOf[NRSFilter],
+          classOf[NRSReferenceFilter],
+          classOf[NRSDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(groNIPayloadWithReference)
+        val toProcess = testFilters.getFilters(groNIPayloadWithReference).map(_.getClass)
 
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
@@ -205,17 +194,17 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       }
 
       "contain GRO-NI details filters" in {
-        val filters   = List(dateOfBirthFilter, groniFilter, groniDetailsFilter)
+        val filters   = List(classOf[DateOfBirthFilter], classOf[GRONIFilter], classOf[GRONIDetailsFilter])
         val excluded  = List(
-          groniReferenceFilter,
-          groFilter,
-          groReferenceFilter,
-          groDetailsFilter,
-          nrsFilter,
-          nrsReferenceFilter,
-          nrsDetailsFilter
+          classOf[GRONIReferenceFilter],
+          classOf[GROFilter],
+          classOf[GROReferenceFilter],
+          classOf[GRODetailsFilter],
+          classOf[NRSFilter],
+          classOf[NRSReferenceFilter],
+          classOf[NRSDetailsFilter]
         )
-        val toProcess = testFilters.getFilters(groNIPayloadWithoutReference)
+        val toProcess = testFilters.getFilters(groNIPayloadWithoutReference).map(_.getClass)
 
         for (filter <- excluded) yield toProcess should not contain filter
         for (filter <- filters) yield toProcess  should contain(filter)
@@ -223,24 +212,21 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       }
 
       "have correct general GRO-NI filter details" in {
-        groniFilter.filterType    shouldBe GeneralFilter
-        groniFilter.switch.name   shouldBe "groni"
-        groniFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
-        groniFilter.toString      shouldBe "GRONIFilter"
+        groniFilter.filterType  shouldBe GeneralFilter
+        groniFilter.switch.name shouldBe "groni"
+        groniFilter.toString    shouldBe "GRONIFilter"
       }
 
       "have correct GRO-NI details filter details" in {
-        groniDetailsFilter.filterType    shouldBe DetailsFilter
-        groniDetailsFilter.switch.name   shouldBe "groni.details"
-        groniDetailsFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
-        groniDetailsFilter.toString      shouldBe "GRONIDetailsFilter"
+        groniDetailsFilter.filterType  shouldBe DetailsFilter
+        groniDetailsFilter.switch.name shouldBe "groni.details"
+        groniDetailsFilter.toString    shouldBe "GRONIDetailsFilter"
       }
 
       "have correct GRO-NI reference filter details" in {
-        groniReferenceFilter.filterType    shouldBe ReferenceFilter
-        groniReferenceFilter.switch.name   shouldBe "groni.reference"
-        groniReferenceFilter.switch.config shouldBe app.injector.instanceOf[uk.gov.hmrc.brm.config.BrmConfig]
-        groniReferenceFilter.toString      shouldBe "GRONIReferenceFilter"
+        groniReferenceFilter.filterType  shouldBe ReferenceFilter
+        groniReferenceFilter.switch.name shouldBe "groni.reference"
+        groniReferenceFilter.toString    shouldBe "GRONIReferenceFilter"
       }
 
     }
@@ -280,7 +266,7 @@ trait FiltersSpec extends AnyWordSpecLike with Matchers with OptionValues with G
       }
 
       "process filters for a request with a failure due to date of birth" in {
-        testFilters.process(payloadInvalidDateOfBirth) shouldBe List(dateOfBirthFilter)
+        testFilters.process(payloadInvalidDateOfBirth).map(_.getClass) shouldBe List(classOf[DateOfBirthFilter])
       }
 
     }

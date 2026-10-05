@@ -105,77 +105,158 @@ object TestHelper {
   private val referenceNumber: Int = 123456789
 
   val groResponseInvalid: JsValue = parse("""
-      |{
-      |  "location": {
-      |
-      |  },
-      |    "child": {
-      |      "name": {
-      |
-      |      },
-      |      "originalName": {
-      |
-      |      }
-      |    },
-      |    "father": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |    "mother": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |    "informant": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |  "id": 999999920,
-      |  "status": {
-      |    "blocked": false
-      |  },
-      |  "previousRegistration": {}
-      |
-      |  }
-           """.stripMargin)
+                                            |{
+                                            |  "id": null,
+                                            |  "date": null,
+                                            |  "entryNumber": 999999920,
+                                            |  "registrar": {
+                                            |    "signature": null,
+                                            |    "designation": null,
+                                            |    "superintendentSignature": null,
+                                            |    "superintendentDesignation": null,
+                                            |    "subdistrict": null,
+                                            |    "district": null,
+                                            |    "administrativeArea": null
+                                            |  },
+                                            |  "informant1": {
+                                            |    "forenames": null,
+                                            |    "surname": null,
+                                            |    "address": null,
+                                            |    "qualification": null,
+                                            |    "signature": null,
+                                            |    "signatureIsMark": false
+                                            |  },
+                                            |  "informant2": null,
+                                            |  "child": {
+                                            |    "originalPrefix": null,
+                                            |    "prefix": null,
+                                            |    "forenames": null,
+                                            |    "originalForenames": null,
+                                            |    "surname": null,
+                                            |    "originalSuffix": null,
+                                            |    "suffix": null,
+                                            |    "dateOfBirth": null,
+                                            |    "sex": null,
+                                            |    "birthplace": null
+                                            |  },
+                                            |  "mother": {
+                                            |    "prefix": null,
+                                            |    "forenames": null,
+                                            |    "surname": null,
+                                            |    "suffix": null,
+                                            |    "birthplace": null,
+                                            |    "occupation": null,
+                                            |    "aliases": [],
+                                            |    "address": null,
+                                            |    "maidenSurname": null,
+                                            |    "marriageSurname": null
+                                            |  },
+                                            |  "father": {
+                                            |    "prefix": null,
+                                            |    "forenames": null,
+                                            |    "surname": null,
+                                            |    "suffix": null,
+                                            |    "birthplace": null,
+                                            |    "occupation": null,
+                                            |    "aliases": [],
+                                            |    "deceased": false
+                                            |  },
+                                            |  "dateOfDeclaration": null,
+                                            |  "dateOfStatutoryDeclarationOfParentage": null,
+                                            |  "statutoryDeclarationOfParentage": null,
+                                            |  "dateOfNameUpdate": null,
+                                            |  "status": {
+                                            |    "blocked": false,
+                                            |    "cancelled": null,
+                                            |    "correction": null,
+                                            |    "marginalNote": null,
+                                            |    "nameUpdate": "None",
+                                            |    "onAuthorityOfRegistrarGeneral": false,
+                                            |    "potentiallyFictitious": null,
+                                            |    "praOrCourtOrder": "None",
+                                            |    "reregistration": null
+                                            |  },
+                                            |  "nextRegistration": null,
+                                            |  "previousRegistration": null
+                                            |}
+                                            |""".stripMargin)
 
   val groResponseValidJson: JsValue = parse(s"""
-      |{
-      |  "location": {
-      |
-      |  },
-      |    "child" : {
-      |   "name" : {
-      |    "givenName" : "Chris",
-      |    "surname" : "Jones"
-      |   },
-      |   "dateOfBirth" : "2012-02-16"
-      |  },
-      |    "father": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |    "mother": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |    "informant": {
-      |      "name": {
-      |
-      |      }
-      |    },
-      |  "id": $referenceNumber,
-      |  "status": {
-      |    "blocked": false
-      |  },
-      |  "previousRegistration": {}
-      |
-      |  }
-    """.stripMargin)
+                                               |{
+                                               |  "id": null,
+                                               |  "date": null,
+                                               |  "entryNumber": $referenceNumber,
+                                               |  "registrar": {
+                                               |    "signature": null,
+                                               |    "designation": null,
+                                               |    "superintendentSignature": null,
+                                               |    "superintendentDesignation": null,
+                                               |    "subdistrict": null,
+                                               |    "district": null,
+                                               |    "administrativeArea": null
+                                               |  },
+                                               |  "informant1": {
+                                               |    "forenames": null,
+                                               |    "surname": null,
+                                               |    "address": null,
+                                               |    "qualification": null,
+                                               |    "signature": null,
+                                               |    "signatureIsMark": false
+                                               |  },
+                                               |  "informant2": null,
+                                               |  "child": {
+                                               |    "originalPrefix": null,
+                                               |    "prefix": null,
+                                               |    "forenames": "Chris",
+                                               |    "originalForenames": null,
+                                               |    "surname": "Jones",
+                                               |    "originalSuffix": null,
+                                               |    "suffix": null,
+                                               |    "dateOfBirth": "2012-02-16",
+                                               |    "sex": null,
+                                               |    "birthplace": null
+                                               |  },
+                                               |  "mother": {
+                                               |    "prefix": null,
+                                               |    "forenames": null,
+                                               |    "surname": null,
+                                               |    "suffix": null,
+                                               |    "birthplace": null,
+                                               |    "occupation": null,
+                                               |    "aliases": [],
+                                               |    "address": null,
+                                               |    "maidenSurname": null,
+                                               |    "marriageSurname": null
+                                               |  },
+                                               |  "father": {
+                                               |    "prefix": null,
+                                               |    "forenames": null,
+                                               |    "surname": null,
+                                               |    "suffix": null,
+                                               |    "birthplace": null,
+                                               |    "occupation": null,
+                                               |    "aliases": [],
+                                               |    "deceased": false
+                                               |  },
+                                               |  "dateOfDeclaration": null,
+                                               |  "dateOfStatutoryDeclarationOfParentage": null,
+                                               |  "statutoryDeclarationOfParentage": null,
+                                               |  "dateOfNameUpdate": null,
+                                               |  "status": {
+                                               |    "blocked": false,
+                                               |    "cancelled": null,
+                                               |    "correction": null,
+                                               |    "marginalNote": null,
+                                               |    "nameUpdate": "None",
+                                               |    "onAuthorityOfRegistrarGeneral": false,
+                                               |    "potentiallyFictitious": null,
+                                               |    "praOrCourtOrder": "None",
+                                               |    "reregistration": null
+                                               |  },
+                                               |  "nextRegistration": null,
+                                               |  "previousRegistration": null
+                                               |}
+                                               |""".stripMargin)
 
   private val birthDate = LocalDate.of(2012, 2, 16)
 

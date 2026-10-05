@@ -41,7 +41,6 @@ case class GROStatusV1(
     reregistration: Severity
   ) extends FlagSeverity {
 
-    // need to rename the flag names, as these are validations for both v1 & vo
     def canProcessRecord(config: BrmConfig): Boolean =
       isGreen(this.potentiallyFictitious, config.validateFlag("gro", "potentiallyFictitious")) &&
         isGreen(this.blocked, config.validateFlag("gro", "blocked")) &&

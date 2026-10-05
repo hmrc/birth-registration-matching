@@ -20,8 +20,8 @@ import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Configuration}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.BirthRegisterCountry
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
