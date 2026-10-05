@@ -17,8 +17,8 @@
 package uk.gov.hmrc.brm.utils
 
 import play.api.libs.functional.syntax.*
-import play.api.libs.json.Reads.*
 import play.api.libs.json.*
+import play.api.libs.json.Reads.*
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.models.response.gro.GROStatusV1
 import uk.gov.hmrc.brm.models.response.nrs.NRSStatus
