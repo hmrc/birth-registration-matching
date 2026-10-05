@@ -34,6 +34,8 @@ class HeaderValidatorSpec extends BaseUnitSpec {
 
   val groJsonResponseObject: JsValue = JsonUtils.getJsonFromFile("gro", "500035710")
 
+  val requestURL = "/v1/registration/birth"
+
   val testController = new BirthEventsController(
     mockLookupService,
     auditorFixtures.whereBirthRegisteredAudit,
@@ -68,7 +70,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
 
   "validateAccept" should {
     "return response code 200 for valid headers" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
@@ -79,7 +81,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
         .thenReturn(List())
       when(mockMetricsFactory.getMetrics()(using any()))
         .thenReturn(mockScotMetric)
-      when(mockLookupService.lookup()(using any(), any(), any(), any(), any()))
+      when(mockLookupService.lookup()(using any(), any(), any(), any()))
         .thenReturn(Future.successful(Right(BirthMatchResponse(true))))
 
       val result = testController.post().apply(request).futureValue
@@ -87,7 +89,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 406 for invalid content-type in Accept header" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+xml"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
@@ -99,7 +101,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 406 for invalid version in Accept header" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders((ACCEPT, "application/vnd.hmrc.1+json"), ("Audit-Source", "DFS"))
         .withBody(payload)
 
@@ -111,7 +113,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 406 for excluded Accept header" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders(("Audit-Source", "DFS"))
         .withBody(payload)
 
@@ -123,7 +125,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 401 for excluded Audit-Source value" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"), ("Audit-Source", ""))
         .withBody(payload)
 
@@ -135,7 +137,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 401 for excluded Audit-Source header" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders((ACCEPT, "application/vnd.hmrc.1.0+json"))
         .withBody(payload)
 
@@ -147,7 +149,7 @@ class HeaderValidatorSpec extends BaseUnitSpec {
     }
 
     "return response code 406 for excluded Audit-Source and Accept values" in {
-      val request = FakeRequest("POST", "/api/v0/events/birth")
+      val request = FakeRequest("POST", requestURL)
         .withHeaders(("Audit-Source", ""), (ACCEPT, ""))
         .withBody(payload)
 

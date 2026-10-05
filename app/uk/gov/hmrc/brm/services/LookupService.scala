@@ -20,7 +20,6 @@ import play.api.http.Status.*
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
 import uk.gov.hmrc.brm.audit.{BRMDownstreamAPIAudit, MatchingAudit, TransactionAuditor}
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.connectors.*
 import uk.gov.hmrc.brm.implicits.ReadsFactory
 import uk.gov.hmrc.brm.metrics.*
@@ -71,8 +70,7 @@ class LookupService @Inject() (
     hc: HeaderCarrier,
     metrics: BRMMetrics,
     payload: Payload,
-    auditor: BRMDownstreamAPIAudit,
-    brmConfig: BrmConfig
+    auditor: BRMDownstreamAPIAudit
   ): Future[Either[Result, BirthMatchResponse]] =
     getRecord(using hc, payload, metrics)
       .map { response =>
@@ -80,7 +78,7 @@ class LookupService @Inject() (
 
         response.status match {
           case OK =>
-            Try(recordParser.parse[Record](response.json, ReadsFactory.getReads(brmConfig.enableV1Version))) match {
+            Try(recordParser.parse[Record](response.json, ReadsFactory.getReads())) match {
               case Success(records) =>
                 val matchResult = matchingService.performMatch(payload, records, matchingService.getMatchingType)
                 audit(records, matchResult)

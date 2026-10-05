@@ -173,6 +173,7 @@ class BrmConfigSpec extends AnyWordSpecLike with Matchers with OptionValues with
 
       e.getMessage shouldBe "des.auth-token configuration not found"
     }
+
   }
 
 }

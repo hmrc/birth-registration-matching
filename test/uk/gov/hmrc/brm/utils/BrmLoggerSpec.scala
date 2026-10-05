@@ -17,10 +17,10 @@
 package uk.gov.hmrc.brm.utils
 
 import ch.qos.logback.classic.Level.{DEBUG, ERROR, INFO, WARN}
-import org.scalatest.{BeforeAndAfter, OptionValues}
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.{BeforeAndAfter, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Logger

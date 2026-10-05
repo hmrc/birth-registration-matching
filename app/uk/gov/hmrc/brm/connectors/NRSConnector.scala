@@ -20,8 +20,8 @@ import com.google.inject.Singleton
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant.*
 import uk.gov.hmrc.brm.utils.*
+import uk.gov.hmrc.brm.utils.CommonConstant.*
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import javax.inject.Inject
