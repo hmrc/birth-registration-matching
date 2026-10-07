@@ -1,5 +1,5 @@
 ThisBuild / scalaVersion := "3.3.8"
-ThisBuild / majorVersion := 2
+ThisBuild / majorVersion := 3
 
 lazy val microservice = Project("birth-registration-matching", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
