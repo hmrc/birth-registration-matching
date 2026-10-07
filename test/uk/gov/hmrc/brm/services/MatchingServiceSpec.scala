@@ -90,8 +90,6 @@ class MatchingServiceSpec
   private val marginalNoteInvalidFlagValues = List("Other", "Re-registered", "Court order in place")
   private val marginalNoteValidFlagValues   = List("Court order revoked", "None")
 
-//  val full: FullMatching = new FullMatching(mockConfig)
-
   private def testMatchingService: MatchingService = app.injector.instanceOf[MatchingService]
 
   references.foreach { reference =>

@@ -106,7 +106,7 @@ object TestHelper {
 
   val groResponseInvalid: JsValue = parse("""
                                             |{
-                                            |  "id": null,
+                                            |  "id": 0,
                                             |  "date": null,
                                             |  "entryNumber": 999999920,
                                             |  "registrar": {
@@ -183,7 +183,7 @@ object TestHelper {
 
   val groResponseValidJson: JsValue = parse(s"""
                                                |{
-                                               |  "id": null,
+                                               |  "id": 0,
                                                |  "date": null,
                                                |  "entryNumber": $referenceNumber,
                                                |  "registrar": {
