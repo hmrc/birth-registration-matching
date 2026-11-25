@@ -17,19 +17,13 @@
 package uk.gov.hmrc.brm.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.*
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.CommonConstant.*
-import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, CommonUtil, JsonUtils, WireMockHelper}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import java.time.LocalDate
-import scala.concurrent.Future
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
 import uk.gov.hmrc.brm.config.BrmConfig
@@ -41,49 +35,40 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
     .configure(
       Map(
         "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
-        "microservice.services.birth-registration-matching.host" -> "localhost",
-        "microservice.services.birth-registration-matching.port" -> server.port(),
-        "auditing.enabled" -> false
+        "microservice.services.birth-registration-matching.host"                           -> "localhost",
+        "microservice.services.birth-registration-matching.port"                           -> server.port(),
+        "auditing.enabled"                                                                 -> false
       )
     )
     .build()
 
-  lazy val nrsapp =
-    new GuiceApplicationBuilder()
-      .configure(
-        Map(
-          "microservice.services.des.host" -> "localhost",
-          "microservice.services.des.port" -> server.port(),
-          "birth-registration-matching.matching.ignoreAdditionalNames" -> true,
-          "auditing.enabled" -> false
-        )
+  lazy val nrsapp = new GuiceApplicationBuilder()
+    .configure(
+      Map(
+        "microservice.services.des.host"                                                   -> "localhost",
+        "microservice.services.des.port"                                                   -> server.port(),
+        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
+        "auditing.enabled"                                                                 -> false
       )
-      .build()
+    )
+    .build()
 
   private lazy val nrsConnector =
     nrsapp.injector.instanceOf[NRSConnector]
 
-  private val nrsUrl =
-    "/national-records/births"
+  private val nrsUrl = "/national-records/births"
 
-  private lazy val groniConnector =
-    app.injector.instanceOf[GRONIConnector]
+  private lazy val groniConnector = app.injector.instanceOf[GRONIConnector]
 
-  private lazy val commonUtil =
-      app.injector.instanceOf[CommonUtil]
+  private lazy val commonUtil = nrsapp.injector.instanceOf[CommonUtil]
 
-  private lazy val brmConfig =
-    app.injector.instanceOf[BrmConfig]
+  private lazy val brmConfig = nrsapp.injector.instanceOf[BrmConfig]
 
-  trait BirthConnectorSpecSetup {
-    when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
-  }
-
-  val groJsonResponseObject = JsonUtils.getJsonFromFile("gro", "500035710")
-  val nrsJsonResponseObject = JsonUtils.getJsonFromFile("nrs", "2017734003")
+  val groJsonResponseObject     = JsonUtils.getJsonFromFile("gro", "500035710")
+  val nrsJsonResponseObject     = JsonUtils.getJsonFromFile("nrs", "2017734003")
   private lazy val groConnector = app.injector.instanceOf[GROConnector]
-  private val groUrl = "/birth-registration-matching-proxy/match/reference"
-  val url = "/birth-registration-matching-proxy/match/details"
+  private val groUrl            = "/birth-registration-matching-proxy/match/reference"
+  val url                       = "/birth-registration-matching-proxy/match/details"
 
   "GROConnector" should {
 
@@ -121,13 +106,20 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
     "getChildDetails call should not pass additional name to gro." in {
       val payload = Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 7, 1), BirthRegisterCountry.ENGLAND)
 
-      server.stubFor(post(urlEqualTo(url)).withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
-          .withRequestBody(notContaining("test")).willReturn(okJson(groResponseWithAdditionalName.toString())))
+      server.stubFor(
+        post(urlEqualTo(url))
+          .withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
+          .withRequestBody(notContaining("test"))
+          .willReturn(okJson(groResponseWithAdditionalName.toString()))
+      )
 
       val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.OK)
-      server.verify(postRequestedFor(urlEqualTo(url)).withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
-          .withRequestBody(notContaining("test")))
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
+          .withRequestBody(notContaining("test"))
+      )
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
@@ -176,22 +168,22 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
 
       "getChildDetails returns json response" in {
         server.stubFor(post(urlEqualTo(nrsUrl)).willReturn(okJson(nrsJsonResponseObject.toString())))
-        val result =nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue(Timeout(Span(3, Seconds)))
+        val result = nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, Status.OK)
       }
 
       "getChildDetails call should not pass additional name to nrs." in {
-        val requestWithAdditionalName = Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
+        val requestWithAdditionalName =
+          Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
 
-        println(s"ignoreAdditionalNames = ${brmConfig.ignoreAdditionalNames}")
-        println(
-          s"forenames = ${commonUtil.forenames("Adam", Some("test"))}"
-        )
-        server.stubFor(post(urlEqualTo(nrsUrl)).withRequestBody(matchingJsonPath(s"$$.$JSON_FIRSTNAME_PATH", equalTo("Adam")))
-            .withRequestBody(matchingJsonPath(s"$$.$JSON_LASTNAME_PATH", equalTo("SMITH")))
-            .withRequestBody(matchingJsonPath(s"$$.$JSON_DATEOFBIRTH_PATH", equalTo("2009-11-12")))
+        server.stubFor(
+          post(urlEqualTo(nrsUrl))
+            .withRequestBody(matchingJsonPath("$.firstName", equalTo("Adam")))
+            .withRequestBody(matchingJsonPath("$.lastName", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath("$.dateOfBirth", equalTo("2009-11-12")))
             .withRequestBody(notContaining("test"))
-            .willReturn(okJson(nrsJsonResponseObject.toString())))
+            .willReturn(okJson(nrsJsonResponseObject.toString()))
+        )
 
         val result = nrsConnector.getChildDetails(requestWithAdditionalName).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, Status.OK)
@@ -211,7 +203,7 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
 
       "getChildDetails returns http 500 when DES is offline" in {
         server.stubFor(post(urlEqualTo(nrsUrl)).willReturn(aResponse().withStatus(Status.INTERNAL_SERVER_ERROR)))
-        val result =nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue(Timeout(Span(3, Seconds)))
+        val result = nrsConnector.getChildDetails(nrsRequestPayloadWithoutBrn).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, Status.INTERNAL_SERVER_ERROR)
       }
 
@@ -223,18 +215,18 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
         groniConnector.http shouldBe a[HttpClientV2]
       }
 
-      "getReference returns http 501 Not Implemented" in new BirthConnectorSpecSetup {
+      "getReference returns http 501 Not Implemented" in {
         val result = groniConnector.getReference(payload).futureValue(Timeout(Span(3, Seconds)))
         groniConnector.headers.isEmpty shouldBe true
-        result.status                                    shouldBe Status.NOT_IMPLEMENTED
-        result.body                                      shouldBe "GRO-NI getReference not implemented"
+        result.status                  shouldBe Status.NOT_IMPLEMENTED
+        result.body                    shouldBe "GRO-NI getReference not implemented"
       }
 
-      "getChildDetails returns http 501 Not Implemented" in new BirthConnectorSpecSetup {
+      "getChildDetails returns http 501 Not Implemented" in {
         val result = groniConnector.getChildDetails(payloadNoReferenceNorthernIreland).futureValue
-         groniConnector.headers.isEmpty shouldBe true
-        result.status                                    shouldBe Status.NOT_IMPLEMENTED
-        result.body                                      shouldBe "GRO-NI getChildDetails not implemented"
+        groniConnector.headers.isEmpty shouldBe true
+        result.status                  shouldBe Status.NOT_IMPLEMENTED
+        result.body                    shouldBe "GRO-NI getChildDetails not implemented"
       }
     }
   }
