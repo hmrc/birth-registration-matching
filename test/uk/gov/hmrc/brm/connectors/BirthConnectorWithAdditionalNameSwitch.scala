@@ -20,68 +20,16 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes.*
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, CommonUtil, JsonUtils, WireMockHelper}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, WireMockHelperTrait}
 
 import java.time.LocalDate
 
-class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with WireMockHelper {
+class BirthConnectorWithAdditionalNameSwitch extends WireMockHelperTrait {
 
-  val FORNAMES: String      = "forenames"
-  val LASTNAME: String      = "lastname"
-  val DATE_OF_BIRTH: String = "dateofbirth"
-
-  val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
-
-  val nrsJsonResponseObject: JsValue                      = JsonUtils.getJsonFromFile("nrs", "2017734003")
-  val nrsJsonResponseObjectWithoutAdditionalName: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350006")
-
-  val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
-  )
-
-  override lazy val app: Application =
-    new GuiceApplicationBuilder()
-      .configure(
-        Map(
-          "microservice.services.birth-registration-matching.host"                           -> "localhost",
-          "microservice.services.birth-registration-matching.port"                           -> server.port(),
-          "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-          "auditing.enabled"                                                                 -> false
-        )
-      )
-      .build()
-
-  private lazy val groConnector = app.injector.instanceOf[GROConnector]
-
-  private val groUrl = "/birth-registration-matching-proxy/match/details"
-
-  lazy val nrsapp =
-    new GuiceApplicationBuilder()
-      .configure(
-        Map(
-          "microservice.services.des.host"                                                   -> "localhost",
-          "microservice.services.des.port"                                                   -> server.port(),
-          "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false,
-          "auditing.enabled"                                                                 -> false
-        )
-      )
-      .build()
-
-  private lazy val nrsConnector =
-    nrsapp.injector.instanceOf[NRSConnector]
-
-  private lazy val commonUtil = nrsapp.injector.instanceOf[CommonUtil]
-
-  private lazy val brmConfig = nrsapp.injector.instanceOf[BrmConfig]
-
-  private val nrsUrl = "/national-records/births"
+  override val ignoreAdditionalNames: Boolean = false
 
   "GROConnector" when {
 
@@ -92,7 +40,7 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with WireMockH
         val payload = Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         server.stubFor(
-          post(urlEqualTo(groUrl))
+          post(urlEqualTo(groDetailsUrl))
             .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test")))
             .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
             .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
@@ -108,7 +56,7 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with WireMockH
         val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         server.stubFor(
-          post(urlEqualTo(groUrl))
+          post(urlEqualTo(groDetailsUrl))
             .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test")))
             .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
             .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
@@ -125,7 +73,7 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with WireMockH
           Payload(None, " Adam ", Some(" test    david "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         server.stubFor(
-          post(urlEqualTo(groUrl))
+          post(urlEqualTo(groDetailsUrl))
             .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test david")))
             .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
             .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
@@ -141,7 +89,7 @@ class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with WireMockH
         val payload = Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
         server.stubFor(
-          post(urlEqualTo(groUrl))
+          post(urlEqualTo(groDetailsUrl))
             .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam")))
             .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
             .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))

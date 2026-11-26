@@ -18,87 +18,48 @@ package uk.gov.hmrc.brm.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import play.api.http.Status
-import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.brm.models.brm.Payload
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, CommonUtil, JsonUtils, WireMockHelper}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, WireMockHelperTrait}
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import java.time.LocalDate
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
-import uk.gov.hmrc.brm.config.BrmConfig
 import uk.gov.hmrc.brm.utils.TestHelper.*
 
-class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
+class BirthConnectorSpec extends WireMockHelperTrait {
 
-  override lazy val app = new GuiceApplicationBuilder()
-    .configure(
-      Map(
-        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
-        "microservice.services.birth-registration-matching.host"                           -> "localhost",
-        "microservice.services.birth-registration-matching.port"                           -> server.port(),
-        "auditing.enabled"                                                                 -> false
-      )
-    )
-    .build()
-
-  lazy val nrsapp = new GuiceApplicationBuilder()
-    .configure(
-      Map(
-        "microservice.services.des.host"                                                   -> "localhost",
-        "microservice.services.des.port"                                                   -> server.port(),
-        "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> true,
-        "auditing.enabled"                                                                 -> false
-      )
-    )
-    .build()
-
-  private lazy val nrsConnector =
-    nrsapp.injector.instanceOf[NRSConnector]
-
-  private val nrsUrl = "/national-records/births"
-
-  private lazy val groniConnector = app.injector.instanceOf[GRONIConnector]
-
-  private lazy val commonUtil = nrsapp.injector.instanceOf[CommonUtil]
-
-  private lazy val brmConfig = nrsapp.injector.instanceOf[BrmConfig]
-
-  val groJsonResponseObject     = JsonUtils.getJsonFromFile("gro", "500035710")
-  val nrsJsonResponseObject     = JsonUtils.getJsonFromFile("nrs", "2017734003")
-  private lazy val groConnector = app.injector.instanceOf[GROConnector]
-  private val groUrl            = "/birth-registration-matching-proxy/match/reference"
-  val url                       = "/birth-registration-matching-proxy/match/details"
+  override val ignoreAdditionalNames: Boolean = true
 
   "GROConnector" should {
 
     "getReference returns json response" in {
-      server.stubFor(post(urlEqualTo(groUrl)).willReturn(okJson(groJsonResponseObject.toString())))
+      server.stubFor(post(urlEqualTo(groReferenceUrl)).willReturn(okJson(groJsonResponseObject.toString())))
       val result = groConnector.getReference(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.OK)
-      server.verify(postRequestedFor(urlEqualTo(groUrl)))
+      server.verify(postRequestedFor(urlEqualTo(groReferenceUrl)))
     }
 
     "getReference returns http 500 when GRO is offline" in {
-      server.stubFor(post(urlEqualTo(groUrl)).willReturn(aResponse().withStatus(Status.INTERNAL_SERVER_ERROR)))
+      server.stubFor(post(urlEqualTo(groReferenceUrl)).willReturn(aResponse().withStatus(Status.INTERNAL_SERVER_ERROR)))
       val result = groConnector.getReference(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.INTERNAL_SERVER_ERROR)
     }
 
     "getReference returns http 400 for BadRequest" in {
-      server.stubFor(post(urlEqualTo(groUrl)).willReturn(aResponse().withStatus(Status.BAD_REQUEST)))
+      server.stubFor(post(urlEqualTo(groReferenceUrl)).willReturn(aResponse().withStatus(Status.BAD_REQUEST)))
       val result = groConnector.getReference(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.BAD_REQUEST)
     }
 
     "getReference returns http 404 when GRO has not found data" in {
-      server.stubFor(post(urlEqualTo(groUrl)).willReturn(aResponse().withStatus(Status.NOT_FOUND)))
+      server.stubFor(post(urlEqualTo(groReferenceUrl)).willReturn(aResponse().withStatus(Status.NOT_FOUND)))
       val result = groConnector.getReference(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.NOT_FOUND)
     }
 
     "getChildDetails returns json response" in {
-      server.stubFor(post(urlEqualTo(url)).willReturn(okJson(groJsonResponseObject.toString())))
+      server.stubFor(post(urlEqualTo(groDetailsUrl)).willReturn(okJson(groJsonResponseObject.toString())))
       val result = groConnector.getChildDetails(payloadNoReference).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.OK)
     }
@@ -107,7 +68,7 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
       val payload = Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 7, 1), BirthRegisterCountry.ENGLAND)
 
       server.stubFor(
-        post(urlEqualTo(url))
+        post(urlEqualTo(groDetailsUrl))
           .withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
           .withRequestBody(notContaining("test"))
           .willReturn(okJson(groResponseWithAdditionalName.toString()))
@@ -116,26 +77,26 @@ class BirthConnectorSpec extends BaseUnitSpec with WireMockHelper {
       val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.OK)
       server.verify(
-        postRequestedFor(urlEqualTo(url))
+        postRequestedFor(urlEqualTo(groDetailsUrl))
           .withRequestBody(matchingJsonPath("$.forenames", equalTo("Adam")))
           .withRequestBody(notContaining("test"))
       )
     }
 
     "getChildDetails returns http 500 when GRO is offline" in {
-      server.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(Status.INTERNAL_SERVER_ERROR)))
+      server.stubFor(post(urlEqualTo(groDetailsUrl)).willReturn(aResponse().withStatus(Status.INTERNAL_SERVER_ERROR)))
       val result = groConnector.getChildDetails(payloadNoReference).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.INTERNAL_SERVER_ERROR)
     }
 
     "getChildDetails returns http 400 for BadRequest" in {
-      server.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(Status.BAD_REQUEST)))
+      server.stubFor(post(urlEqualTo(groDetailsUrl)).willReturn(aResponse().withStatus(Status.BAD_REQUEST)))
       val result = groConnector.getChildDetails(payloadNoReference).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.BAD_REQUEST)
     }
 
     "getChildDetails returns http 404 when GRO has not found data" in {
-      server.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(Status.NOT_FOUND)))
+      server.stubFor(post(urlEqualTo(groDetailsUrl)).willReturn(aResponse().withStatus(Status.NOT_FOUND)))
       val result = groConnector.getChildDetails(payloadNoReference).futureValue(Timeout(Span(3, Seconds)))
       checkResponse(result, Status.NOT_FOUND)
     }
