@@ -16,176 +16,163 @@
 
 package uk.gov.hmrc.brm.connectors
 
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.apache.pekko.http.scaladsl.model.StatusCodes.*
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.Application
-import play.api.http.Status
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
+import org.scalatest.time.{Seconds, Span}
 import uk.gov.hmrc.brm.models.brm.Payload
 import uk.gov.hmrc.brm.utils.CommonConstant.*
-import uk.gov.hmrc.brm.utils.Mocks.*
 import uk.gov.hmrc.brm.utils.TestHelper.*
-import uk.gov.hmrc.brm.utils.{BaseUnitSpec, BirthRegisterCountry, JsonUtils}
+import uk.gov.hmrc.brm.utils.{BirthRegisterCountry, WireMockHelperTrait}
 
 import java.time.LocalDate
 
-class BirthConnectorWithAdditionalNameSwitch extends BaseUnitSpec with MockitoSugar {
+class BirthConnectorWithAdditionalNameSwitch extends WireMockHelperTrait {
 
-  val FORNAMES: String      = "forenames"
-  val LASTNAME: String      = "lastname"
-  val DATE_OF_BIRTH: String = "dateofbirth"
-
-  val dateOfBirth: LocalDate = LocalDate.of(2009, 7, 1)
-
-  val nrsJsonResponseObject: JsValue                      = JsonUtils.getJsonFromFile("nrs", "2017734003")
-  val nrsJsonResponseObjectWithoutAdditionalName: JsValue = JsonUtils.getJsonFromFile("nrs", "2017350006")
-
-  val config: Map[String, _] = Map(
-    "microservice.services.birth-registration-matching.matching.ignoreAdditionalNames" -> false
-  )
-
-  override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(config)
-    .build()
+  override val ignoreAdditionalNames: Boolean = false
 
   "GROConnector" when {
 
     "getChildDetails called" should {
 
       "pass additionalNames to gro" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("Adam test")
 
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
+        val payload = Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
 
-        val payload =
-          Payload(None, "Adam", Some("test"), "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val result  = connectorFixtures.groConnector.getChildDetails(payload).futureValue
+        server.stubFor(
+          post(urlEqualTo(groDetailsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test")))
+            .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
+            .willReturn(okJson(groResponseWithAdditionalName.toString()))
+        )
+
+        val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, OK.intValue)
-
-        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test"
-        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
 
       "pass additionalNames to gro in proper format" in {
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithAdditionalName))
-        val payload         =
-          Payload(None, " Adam ", Some(" test "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, OK.intValue)
 
-        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test"
-        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        val payload = Payload(None, " Adam ", Some(" test "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        server.stubFor(
+          post(urlEqualTo(groDetailsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test")))
+            .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
+            .willReturn(okJson(groResponseWithAdditionalName.toString()))
+        )
+
+        val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
+        checkResponse(result, OK.intValue)
       }
 
       "pass additionalNames to gro in proper format when multiple additional names are present" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("Adam test david")
 
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithMoreAdditionalName))
-        val payload         = Payload(
-          None,
-          " Adam ",
-          Some(" test    david "),
-          " SMITH ",
-          dateOfBirth,
-          BirthRegisterCountry.ENGLAND
+        val payload =
+          Payload(None, " Adam ", Some(" test    david "), " SMITH ", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        server.stubFor(
+          post(urlEqualTo(groDetailsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam test david")))
+            .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
+            .willReturn(okJson(groResponseWithMoreAdditionalName.toString()))
         )
-        val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
-        checkResponse(result, OK.intValue)
 
-        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam test david"
-        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
+        val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
+        checkResponse(result, OK.intValue)
       }
 
       "pass only firstName when additionalNames value is empty" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("Adam")
 
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(groResponseWithoutAdditionalName))
-        val payload         = Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
-        val result          = connectorFixtures.groConnector.getChildDetails(payload).futureValue
+        val payload = Payload(None, "Adam", None, "SMITH", dateOfBirth, BirthRegisterCountry.ENGLAND)
+
+        server.stubFor(
+          post(urlEqualTo(groDetailsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$FORNAMES", equalTo("Adam")))
+            .withRequestBody(matchingJsonPath(s"$$.$LASTNAME", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$DATE_OF_BIRTH", equalTo("2009-07-01")))
+            .willReturn(okJson(groResponseWithoutAdditionalName.toString()))
+        )
+
+        val result = groConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, OK.intValue)
-        (argumentCapture.getValue \ FORNAMES).as[String]      shouldBe "Adam"
-        (argumentCapture.getValue \ LASTNAME).as[String]      shouldBe "SMITH"
-        (argumentCapture.getValue \ DATE_OF_BIRTH).as[String] shouldBe "2009-07-01"
       }
     }
-
   }
 
   "NRSConnector" when {
 
     "getChildDetails called" should {
-      "pass additionalNames to nrs" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("Adam test")
 
-        val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+      "pass additionalNames to nrs" in {
+
         val requestWithAdditionalName =
           Payload(None, "Adam", Some("test"), "SMITH", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
-        val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
-        checkResponse(result, OK.intValue)
-        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
-        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
 
+        server.stubFor(
+          post(urlEqualTo(nrsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_FIRSTNAME_PATH", equalTo("Adam test")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_LASTNAME_PATH", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_DATEOFBIRTH_PATH", equalTo("2009-11-12")))
+            .willReturn(okJson(nrsJsonResponseObject.toString()))
+        )
+
+        val result = nrsConnector.getChildDetails(requestWithAdditionalName).futureValue(Timeout(Span(3, Seconds)))
+        checkResponse(result, OK.intValue)
       }
 
       "pass additionalNames to nrs in proper format" in {
-        val argumentCapture           = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
+
         val requestWithAdditionalName =
           Payload(None, " Adam ", Some(" test "), " SMITH ", LocalDate.of(2009, 11, 12), BirthRegisterCountry.SCOTLAND)
-        val result                    = connectorFixtures.nrsConnector.getChildDetails(requestWithAdditionalName).futureValue
-        checkResponse(result, OK.intValue)
-        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test"
-        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-11-12"
 
+        server.stubFor(
+          post(urlEqualTo(nrsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_FIRSTNAME_PATH", equalTo("Adam test")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_LASTNAME_PATH", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_DATEOFBIRTH_PATH", equalTo("2009-11-12")))
+            .willReturn(okJson(nrsJsonResponseObject.toString()))
+        )
+
+        val result = nrsConnector.getChildDetails(requestWithAdditionalName).futureValue(Timeout(Span(3, Seconds)))
+        checkResponse(result, OK.intValue)
       }
 
-      "pass additionalNames to gro in proper format when multiple additional names are present" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("Adam test david")
+      "pass additionalNames to nrs in proper format when multiple additional names are present" in {
 
-        val argumentCapture = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObject))
-        val payload         = Payload(
-          None,
-          " Adam ",
-          Some(" test    david "),
-          " SMITH ",
-          dateOfBirth,
-          BirthRegisterCountry.SCOTLAND
+        val payload =
+          Payload(None, " Adam ", Some(" test    david "), " SMITH ", dateOfBirth, BirthRegisterCountry.SCOTLAND)
+
+        server.stubFor(
+          post(urlEqualTo(nrsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_FIRSTNAME_PATH", equalTo("Adam test david")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_LASTNAME_PATH", equalTo("SMITH")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_DATEOFBIRTH_PATH", equalTo("2009-07-01")))
+            .willReturn(okJson(nrsJsonResponseObject.toString()))
         )
-        val result          = connectorFixtures.nrsConnector.getChildDetails(payload).futureValue
-        checkResponse(result, OK.intValue)
 
-        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "Adam test david"
-        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "SMITH"
-        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2009-07-01"
+        val result = nrsConnector.getChildDetails(payload).futureValue(Timeout(Span(3, Seconds)))
+        checkResponse(result, OK.intValue)
       }
 
       "pass only firstName when additionalNames value is empty" in {
-        when(mockCommonUtil.forenames(any(), any()))
-          .thenReturn("ANTHONY")
 
-        val argumentCapture              = mockHttpPostResponse(Status.OK, Some(nrsJsonResponseObjectWithoutAdditionalName))
         val requestWithoutAdditionalName =
           Payload(None, "ANTHONY", None, "ANDREWS", LocalDate.of(2016, 11, 8), BirthRegisterCountry.SCOTLAND)
-        val result                       = connectorFixtures.nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue
+
+        server.stubFor(
+          post(urlEqualTo(nrsUrl))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_FIRSTNAME_PATH", equalTo("ANTHONY")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_LASTNAME_PATH", equalTo("ANDREWS")))
+            .withRequestBody(matchingJsonPath(s"$$.$JSON_DATEOFBIRTH_PATH", equalTo("2016-11-08")))
+            .willReturn(okJson(nrsJsonResponseObjectWithoutAdditionalName.toString()))
+        )
+
+        val result = nrsConnector.getChildDetails(requestWithoutAdditionalName).futureValue(Timeout(Span(3, Seconds)))
         checkResponse(result, OK.intValue)
-        (argumentCapture.getValue \ JSON_FIRSTNAME_PATH).as[String]   shouldBe "ANTHONY"
-        (argumentCapture.getValue \ JSON_LASTNAME_PATH).as[String]    shouldBe "ANDREWS"
-        (argumentCapture.getValue \ JSON_DATEOFBIRTH_PATH).as[String] shouldBe "2016-11-08"
-
       }
-
     }
 
   }
